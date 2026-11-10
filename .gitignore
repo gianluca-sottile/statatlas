@@ -1,0 +1,8 @@
+# dipendenze dei test (si reinstallano con: npm install jsdom)
+node_modules/
+package-lock.json
+# file di sistema
+.DS_Store
+Thumbs.db
+# note di lavoro interne
+HANDOFF.md

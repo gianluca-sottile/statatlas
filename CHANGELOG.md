@@ -1,0 +1,38 @@
+# Changelog
+
+## 1.1.0 — 10/11/2026 · revisione grafica e didattica
+
+### Identità e impaginazione
+- Logo (globo-atlante attraversato da una curva normale) nella barra laterale, nella testata mobile, nella home e come favicon.
+- Illustrazioni originali in SVG generate dal codice (`src/core/art.js`): una “tavola” per ciascun laboratorio e una per ciascuna parte, nei colori del tema. Nessuna fotografia esterna: il sito resta offline e privo di problemi di licenza.
+- Home riprogettata: testata con mosaico illustrato, percorso “Come funziona un laboratorio” in sei passi, parti con banner e descrizione, schede con copertina.
+- Cornici editoriali (`src/styles/editorial.css`): doppie righe, numeri dei passi cerchiati, tavole con didascalia, riquadri con filetto interno, barre d’accento sui grafici.
+- Layout più ampio (fino a 1380 px) e grafici più grandi e leggibili (testo SVG a 13 pt).
+
+### Didattica
+- `src/core/content.js`: per ogni laboratorio obiettivi, “Che cosa stiamo valutando”, “Come leggere la tabella”, esempio svolto, errori frequenti, approfondimento “Per andare oltre”, 3 esercizi con soluzione, bibliografia.
+- Il pannello Approfondisci ha quattro schede: Essenziale, Avanzato, Esercizi, Bibliografia.
+- Obiettivi mostrati come etichette nella testata di ogni laboratorio.
+
+### Interazione
+- Normale come modello predefinito nei laboratori 01, 03, 04, 05, 07, 08 (intervallo Z) e 11.
+- Animazioni più fluide: velocità ritarate e nuvole di punti disegnate come un unico tracciato (laboratori 02, 03, 05).
+
+## 1.0.0 — 10/11/2026
+
+Riprogettazione completa rispetto alla v0.8 (`StatAtlas_GitHub_old/`).
+
+### Architettura
+- Sorgenti modulari in `src/` (HTML/CSS/JS nativo), build in un unico `index.html` offline.
+- Design system “Editoriale” con tema chiaro/scuro, palette Okabe–Ito con doppia codifica (colore + tratto/simbolo), contrasto WCAG AA.
+- Generatore Mersenne-Twister identico a R; leggi generate per inversione: gli script R riproducono gli stessi numeri.
+- Componenti condivisi: motore di animazione (avvia, pausa, passo, completa, velocità, tastiera), drawer di approfondimento a due livelli, codice R evidenziato con copia/scarica, esportazioni CSV/PNG, superfici 3D in SVG.
+
+### Laboratori
+- **Migrati e ampliati dalla v0.8**: 01 Distribuzioni (17 leggi con t e F, 3D famiglia e bivariata, banda DKW, mappa delle relazioni), 03 Simulazione, 04 LGN/TCL (Berry–Esseen), 07 Verosimiglianza e Fisher (10 modelli, identità di Bartlett), 08 Intervalli (copertura esatta calcolata), 09 Test e potenza.
+- **Nuovi, da idee di Simul2000**: 02 Bivariate, 05 Adattamento (QQ con banda esatta, X², p-value Monte Carlo), 06 Confronto di stimatori, 10 Regressione interattiva, 11 Regressione Lp, 12 GLM, 13 ARMA.
+
+### Verifiche
+- 49 test numerici (`tests/test_core.js`) contro valori di riferimento di R.
+- Smoke test jsdom di tutti i laboratori (`tests/smoke/`).
+- Non ancora eseguiti: script R in R reale, test su Safari/Firefox/mobile reali, audit WCAG con screen reader.

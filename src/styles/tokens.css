@@ -1,0 +1,66 @@
+/* StatAtlas · design tokens — tema "Editoriale" */
+:root {
+  --paper: #FAF8F3;
+  --paper-2: #F2EEE5;
+  --card: #FFFDF9;
+  --ink: #1C1B19;
+  --ink-2: #48453F;
+  --ink-3: #6B665D;  /* ≥ 4,9:1 su tutte le superfici chiare */
+  --rule: #E2DCD0;
+  --rule-2: #CFC7B8;
+  --accent: #9A3412;
+  --accent-soft: #F6E7DD;
+  --focus: #1D4ED8;
+
+  /* dati: Okabe–Ito, sempre accompagnati da forma/tratteggio */
+  /* tinte Okabe–Ito scurite per contrasto ≥ 4,5:1 anche come testo (WCAG AA) */
+  --c1: #006C9E;  /* serie 1    ▲ continuo  */
+  --c2: #B34A00;  /* serie 2    ◆ tratteggio */
+  --c3: #007A5A;  /* serie 3    ● punteggiato */
+  --c4: #CC79A7;
+  --c-theory: #1C1B19;
+
+  /* etichette di stato del risultato */
+  --st-exact: #1F6F43;     --st-exact-bg: #E3F1E8;
+  --st-asym: #1E4E8C;      --st-asym-bg: #E2EBF6;
+  --st-approx: #8A5A00;    --st-approx-bg: #F6ECD6;
+  --st-mc: #6B3E8A;        --st-mc-bg: #EEE4F4;
+
+  --serif: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+
+  --fs-0: .8rem; --fs-1: .9rem; --fs-2: 1rem; --fs-3: 1.25rem; --fs-4: 1.56rem; --fs-5: 1.95rem; --fs-6: 2.6rem;
+  --r: 10px; --r-sm: 6px;
+  --shadow: 0 1px 2px rgba(40, 30, 10, .05), 0 6px 24px -12px rgba(40, 30, 10, .18);
+  --sidebar: 280px; --measure: 72ch;
+  --art-bg: #F6F2EA; --logo-bg: #FFFDF9;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #151412; --paper-2: #1C1B18; --card: #201E1B;
+    --ink: #ECE7DC; --ink-2: #C3BCAE; --ink-3: #8F887B;
+    --rule: #33302B; --rule-2: #46423B;
+    --accent: #F0A07A; --accent-soft: #3A2419; --focus: #93B4FF;
+    --c1: #56B4E9; --c2: #F08A3C; --c3: #2FC499; --c4: #E19BC4; --c-theory: #ECE7DC;
+    --st-exact: #8FD6AA; --st-exact-bg: #1B2E22; --st-asym: #A8C6F0; --st-asym-bg: #1A2638;
+    --st-approx: #E8C37A; --st-approx-bg: #33291A; --st-mc: #D0AEE8; --st-mc-bg: #2B2134;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 28px -12px rgba(0,0,0,.6);
+    --art-bg: #1A1916; --logo-bg: #201E1B;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #151412; --paper-2: #1C1B18; --card: #201E1B;
+  --ink: #ECE7DC; --ink-2: #C3BCAE; --ink-3: #8F887B;
+  --rule: #33302B; --rule-2: #46423B;
+  --accent: #F0A07A; --accent-soft: #3A2419; --focus: #93B4FF;
+  --c1: #56B4E9; --c2: #F08A3C; --c3: #2FC499; --c4: #E19BC4; --c-theory: #ECE7DC;
+  --st-exact: #8FD6AA; --st-exact-bg: #1B2E22; --st-asym: #A8C6F0; --st-asym-bg: #1A2638;
+  --st-approx: #E8C37A; --st-approx-bg: #33291A; --st-mc: #D0AEE8; --st-mc-bg: #2B2134;
+  --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 28px -12px rgba(0,0,0,.6);
+  --art-bg: #1A1916; --logo-bg: #201E1B;
+  color-scheme: dark;
+}

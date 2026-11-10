@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="128" height="128" role="img" aria-label="StatAtlas">
+  <circle cx="32" cy="32" r="28" fill="#FFFDF9" stroke="#1C1B19" stroke-width="2.4"/>
+  <ellipse cx="32" cy="32" rx="12" ry="28" fill="none" stroke="#1C1B19" stroke-width="1.2" opacity=".55"/>
+  <path d="M4 32h56M8.5 18h47M8.5 46h47" stroke="#1C1B19" stroke-width="1" opacity=".35"/>
+  <path d="M6 46C16 46 20 14 32 14S48 46 58 46" fill="#9A3412" fill-opacity=".14" stroke="#9A3412" stroke-width="3.4" stroke-linecap="round"/>
+  <circle cx="32" cy="14" r="3.2" fill="#9A3412"/>
+</svg>
