@@ -67,8 +67,9 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     III: ['partIII', 'Dai dati ai parametri: stimatori e loro efficienza, verosimiglianza, intervalli di confidenza e test, con le garanzie che offrono e i loro limiti.'],
     IV: ['partIV', 'Modelli che legano una risposta a dei predittori o al proprio passato: regressione lineare, robusta e generalizzata, serie temporali.']
   };
-  var STEPS = [['Domanda', 'Un problema concreto da cui partire'], ['Previsione', 'Che cosa ti aspetti, prima di vedere i dati'], ['Esperimento', 'Dati generati sotto i tuoi occhi, passo dopo passo'],
-    ['Teoria e simulazione', 'Esatto, asintotico o Monte Carlo: sempre dichiarato'], ['Interpretazione', 'Che cosa significa, quando vale, dove si rompe'], ['Codice R', 'Lo stesso esperimento, con gli stessi numeri']];
+  var STEPS = [['Domanda', 'Un problema concreto, con una previsione facoltativa'], ['Esperimento', 'Dati generati sotto i tuoi occhi, passo dopo passo'],
+    ['Teoria e simulazione', 'Esatto, asintotico o Monte Carlo: sempre dichiarato'], ['Interpretazione', 'Che cosa significa, quando vale, dove si rompe'],
+    ['Approfondisci', 'Teoria, esercizi e bibliografia'], ['Codice R', 'Lo stesso esperimento, con gli stessi numeri']];
   function home() {
     var page = el('div.page.page-home');
     page.appendChild(el('header.hero.hero-home',
@@ -80,22 +81,47 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
       el('div.hero-art', { html: '<div class="hero-logo">' + SA.art.logo(132) + '</div>' + ['distribuzioni', 'intervalli', 'regressione', 'lgn-tcl'].map(function (k, i) { return '<div class="mosaic m' + i + '">' + SA.art.get(k) + '</div>'; }).join('') })));
     page.appendChild(el('section.how', el('div.step-label', 'Come funziona un laboratorio'),
       el('ol.how-steps', STEPS.map(function (s, i) { return el('li', el('span.how-num', String(i + 1)), el('strong', s[0]), el('span', s[1])); }))));
-    var parts = el('div.parts', { id: 'parti' });
+    // le quattro parti come tessere: un clic apre una finestra con i laboratori della parte
+    var parts = el('div.parts.part-tiles', { id: 'parti' });
     SA.catalog.forEach(function (p) {
       var d = PART_DESC[p.part];
-      parts.appendChild(el('section.part',
-        el('div.part-banner', el('div.part-text', el('div.part-roman', p.part), el('h2', p.title), el('p', d[1]), el('span.muted', p.labs.length + ' laboratori')),
-          el('div.part-art', { html: SA.art.get(d[0]) })),
-        el('div.cards', p.labs.map(function (l) {
-          var ready = l.status === 'ready', st = STATUS[l.status];
-          var inner = [el('div.card-art', { html: SA.art.get(l.id), 'aria-hidden': 'true' }),
-            el('div.card-body', el('span.num', 'Laboratorio ' + l.num), el('h3', l.title), el('p', l.blurb), ready ? el('span.card-go', 'Apri il laboratorio →') : el('span.tag' + (st[0] ? '.' + st[0] : ''), st[1]))];
-          return ready ? el('a.card', { href: '#/' + l.id }, inner) : el('div.card.is-soon', inner);
-        }))));
+      parts.appendChild(el('button.part-tile', { type: 'button', 'aria-haspopup': 'dialog', onclick: function () { openPart(p); } },
+        el('div.part-art', { html: SA.art.get(d[0]), 'aria-hidden': 'true' }),
+        el('div.part-text', el('div.part-roman', p.part), el('h2', p.title), el('p', d[1]),
+          el('div.part-foot', el('span.muted', p.labs.length + ' laboratori · ' + p.labs.map(function (l) { return l.num; }).join(' · ')), el('span.card-go', 'Apri →')))));
     });
     page.appendChild(parts);
     page.appendChild(footer());
     return page;
+  }
+
+  /* Finestra di una parte, con le schede dei suoi laboratori */
+  var modal = null, modalBack = null, modalLast = null;
+  function closePart() {
+    if (!modal) return;
+    modal.remove(); modalBack.remove(); modal = null; document.body.style.overflow = '';
+    document.removeEventListener('keydown', escPart);
+    if (modalLast) modalLast.focus();
+  }
+  function escPart(e) { if (e.key === 'Escape') closePart(); }
+  function openPart(p) {
+    closePart(); modalLast = document.activeElement;
+    var d = PART_DESC[p.part];
+    modalBack = el('div.modal-back', { onclick: closePart });
+    modal = el('div.modal', { role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'modal-title' },
+      el('div.modal-head',
+        el('div.modal-art', { html: SA.art.get(d[0]), 'aria-hidden': 'true' }),
+        el('div', el('div.kicker', 'Parte ' + p.part), el('h2', { id: 'modal-title' }, p.title), el('p.muted', d[1])),
+        SA.ui.button('', { icon: 'close', cls: 'btn-ghost btn-icon modal-close', aria: 'Chiudi', onclick: closePart })),
+      el('div.cards', p.labs.map(function (l) {
+        var ready = l.status === 'ready', st = STATUS[l.status];
+        var inner = [el('div.card-art', { html: SA.art.get(l.id), 'aria-hidden': 'true' }),
+          el('div.card-body', el('span.num', 'Laboratorio ' + l.num), el('h3', l.title), el('p', l.blurb), ready ? el('span.card-go', 'Apri il laboratorio →') : el('span.tag' + (st[0] ? '.' + st[0] : ''), st[1]))];
+        return ready ? el('a.card', { href: '#/' + l.id, onclick: closePart }, inner) : el('div.card.is-soon', inner);
+      })));
+    document.body.append(modalBack, modal); document.body.style.overflow = 'hidden';
+    document.addEventListener('keydown', escPart);
+    modal.querySelector('.modal-close').focus();
   }
 
   function soon(info) {
@@ -125,6 +151,15 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
       if (btn) text.appendChild(el('div.head-actions', btn));
       var info = SA.findLab(id);
       head.appendChild(el('figure.lab-cover', { html: SA.art.get(id) + '<figcaption>Tavola ' + info.lab.num + ' · ' + info.part.title + '</figcaption>', 'aria-hidden': 'true' }));
+    }
+    // la previsione diventa un riquadro facoltativo dentro la domanda; i passi si rinumerano
+    var steps = page.querySelectorAll('section.step');
+    if (steps.length > 1 && /previsione/i.test(steps[1].querySelector('.step-label').textContent)) {
+      var det = el('details.predict', el('summary', el('span', 'Prima di guardare: che cosa ti aspetti?'), el('span.predict-tag', 'facoltativo')));
+      Array.prototype.slice.call(steps[1].querySelector('.step-body').children, 1).forEach(function (n) { det.appendChild(n); });
+      steps[0].querySelector('.step-body').appendChild(det);
+      steps[1].remove();
+      page.querySelectorAll('section.step').forEach(function (s, i) { s.querySelector('.step-num').textContent = String(i + 1); });
     }
     if (!c) return;
     var grid = page.querySelector('.lab-grid');

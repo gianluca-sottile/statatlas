@@ -18,7 +18,7 @@
 </p>
 
 <p align="center">
-  <img alt="Versione" src="https://img.shields.io/badge/versione-1.1.0-9A3412">
+  <img alt="Versione" src="https://img.shields.io/badge/versione-1.2.0-9A3412">
   <img alt="Lingua" src="https://img.shields.io/badge/lingua-italiano-1C1B19">
   <img alt="Offline" src="https://img.shields.io/badge/funziona-offline-1F6F43">
   <img alt="Dipendenze" src="https://img.shields.io/badge/dipendenze-nessuna-1E4E8C">
@@ -59,13 +59,12 @@ Molti concetti della statistica — la legge dei grandi numeri, il teorema centr
 
 Ogni laboratorio segue la stessa sequenza, così lo studente impara un’unica interfaccia:
 
-1. **Domanda** — un problema concreto da cui partire.
-2. **Previsione** — che cosa ti aspetti, prima di vedere i dati; il riscontro arriva a simulazione avanzata.
-3. **Esperimento** — controlli per seed, numerosità, velocità; avvio, pausa, un passo alla volta. Un riquadro spiega *che cosa stiamo valutando*.
-4. **Teoria e simulazione a confronto** — una tabella con il valore teorico, quello simulato e la natura del risultato.
-5. **Interpretazione** — che cosa significa, quando vale, dove si rompe.
-6. **Approfondisci** — Essenziale · Avanzato · Esercizi · Bibliografia.
-7. **Codice R** — uno script tidyverse che si aggiorna con i parametri scelti; si copia o si scarica.
+1. **Domanda** — un problema concreto da cui partire, con una *previsione facoltativa*: chi vuole mettersi alla prova annota che cosa si aspetta e riceve un riscontro a simulazione avanzata.
+2. **Esperimento** — controlli per seed, numerosità, velocità; avvio, pausa, un passo alla volta. Un riquadro spiega *che cosa stiamo valutando*.
+3. **Teoria e simulazione a confronto** — una tabella con il valore teorico, quello simulato e la natura del risultato.
+4. **Interpretazione** — che cosa significa, quando vale, dove si rompe.
+5. **Approfondisci** — Essenziale · Avanzato · Esercizi · Bibliografia.
+6. **Codice R** — uno script tidyverse che si aggiorna con i parametri scelti; si copia o si scarica.
 
 I dati e le figure si esportano in CSV e PNG.
 
@@ -120,7 +119,7 @@ npm install jsdom && node tests/smoke/smoke_fase7.js index.html   # smoke test
 
 ## Come citare
 
-> Sottile G. (2026). *StatAtlas: un atlante interattivo di probabilità e inferenza statistica*, versione 1.1.0. https://github.com/gianluca-sottile/statatlas
+> Sottile G. (2026). *StatAtlas: un atlante interattivo di probabilità e inferenza statistica*, versione 1.2.0. https://github.com/gianluca-sottile/statatlas
 
 ## Crediti
 

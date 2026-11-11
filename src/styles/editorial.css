@@ -59,6 +59,41 @@ a.card:hover .card-art svg { transform: scale(1.04); }
 .card p { flex: 1; }
 .card-go { font-size: var(--fs-1); font-weight: 600; color: var(--accent); }
 
+/* ---------- parti come tessere e finestre ---------- */
+.part-tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+.part-tile { all: unset; box-sizing: border-box; cursor: pointer; display: grid; grid-template-rows: auto 1fr; background: var(--card); border: 1px solid var(--rule-2); border-radius: 12px; overflow: hidden; box-shadow: var(--shadow); transition: transform .2s, box-shadow .2s, border-color .2s; }
+.part-tile:hover { transform: translateY(-2px); border-color: var(--accent); }
+.part-tile:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
+.part-tile .part-art { border: 0; border-bottom: 1px solid var(--rule); border-radius: 0; box-shadow: none; padding: 0; aspect-ratio: 16 / 6; overflow: hidden; }
+.part-tile .part-art svg { border: 0; width: 100%; height: 100%; transition: transform .4s; }
+.part-tile:hover .part-art svg { transform: scale(1.04); }
+.part-tile .part-text { padding: 18px 22px 20px; display: flex; flex-direction: column; }
+.part-tile .part-roman { font-size: 2.6rem; }
+.part-tile h2 { font-size: 1.6rem; margin: 2px 0 8px; }
+.part-tile p { color: var(--ink-2); font-size: .98rem; flex: 1; }
+.part-foot { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; border-top: 1px solid var(--rule); padding-top: 10px; margin-top: 6px; }
+.modal-back { position: fixed; inset: 0; background: rgba(20, 16, 10, .45); z-index: 70; animation: sa-fade .2s ease both; }
+.modal { position: fixed; z-index: 71; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(1080px, calc(100vw - 32px)); max-height: calc(100vh - 48px); overflow-y: auto;
+  background: var(--paper); border: 1px solid var(--rule-2); border-radius: 14px; box-shadow: 0 30px 80px -20px rgba(0,0,0,.45); padding: 22px 26px 28px; animation: sa-pop .25s ease both; }
+.modal-head { display: grid; grid-template-columns: 220px 1fr auto; gap: 20px; align-items: center; padding-bottom: 18px; margin-bottom: 20px; border-bottom: 1px solid var(--rule); }
+.modal-head h2 { font-size: var(--fs-5); margin: 2px 0 6px; }
+.modal-art { border: 1px solid var(--rule-2); border-radius: 6px; overflow: hidden; }
+.modal-art svg { display: block; width: 100%; height: auto; }
+.modal-close { align-self: start; }
+@keyframes sa-fade { from { opacity: 0; } }
+@keyframes sa-pop { from { opacity: 0; transform: translate(-50%, -47%) scale(.98); } }
+
+/* ---------- previsione facoltativa dentro la domanda ---------- */
+details.predict { margin-top: 22px; border: 1px solid var(--rule-2); border-radius: 10px; background: var(--card); max-width: 820px; }
+details.predict > summary { cursor: pointer; list-style: none; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px; font-weight: 600; color: var(--ink-2); }
+details.predict > summary::-webkit-details-marker { display: none; }
+details.predict > summary::before { content: "+"; font-family: var(--serif); font-size: 1.3rem; color: var(--accent); margin-right: 4px; transition: transform .2s; }
+details.predict[open] > summary::before { transform: rotate(45deg); }
+details.predict > summary > span:first-child { flex: 1; }
+.predict-tag { font-size: .7rem; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); border: 1px solid var(--rule-2); border-radius: 99px; padding: 2px 8px; font-weight: 700; }
+details.predict[open] { padding-bottom: 16px; }
+details.predict > :not(summary) { margin-left: 16px; margin-right: 16px; }
+
 /* ---------- testata del laboratorio ---------- */
 .lab-head { grid-template-columns: minmax(0, 1fr) minmax(260px, 380px); gap: 40px; align-items: center; padding-bottom: 32px; border-bottom: 0; position: relative; }
 .lab-head::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 4px; border-top: 1px solid var(--rule-2); border-bottom: 1px solid var(--rule); }
@@ -147,6 +182,11 @@ table.tv tbody tr:hover td { background: var(--paper-2); }
   .lab-cover { max-width: 460px; }
 }
 @media (max-width: 860px) {
+  .part-tiles { grid-template-columns: 1fr; gap: 16px; }
+  .part-tile .part-art { aspect-ratio: 16 / 4.5; }
+  .part-tile .part-roman { font-size: 2rem; }
+  .modal-head { grid-template-columns: 1fr auto; }
+  .modal-art { display: none; }
   .page { padding: 28px 16px 72px; }
   .how-steps { grid-template-columns: 1fr 1fr; }
   .part-roman { font-size: 3rem; }

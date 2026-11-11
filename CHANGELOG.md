@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.0 — 11/11/2026
+- Home più compatta: le quattro parti sono tessere illustrate; un clic apre una finestra con le schede dei laboratori (chiusura con ×, clic fuori o Esc).
+- La previsione non è più un passo a sé: è un riquadro facoltativo e chiuso dentro la Domanda, con lo stesso riscontro. I passi dei laboratori si rinumerano automaticamente.
+
 ## 1.1.0 — 10/11/2026 · revisione grafica e didattica
 
 ### Identità e impaginazione

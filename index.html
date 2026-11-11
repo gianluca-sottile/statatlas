@@ -358,6 +358,41 @@ a.card:hover .card-art svg { transform: scale(1.04); }
 .card p { flex: 1; }
 .card-go { font-size: var(--fs-1); font-weight: 600; color: var(--accent); }
 
+/* ---------- parti come tessere e finestre ---------- */
+.part-tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+.part-tile { all: unset; box-sizing: border-box; cursor: pointer; display: grid; grid-template-rows: auto 1fr; background: var(--card); border: 1px solid var(--rule-2); border-radius: 12px; overflow: hidden; box-shadow: var(--shadow); transition: transform .2s, box-shadow .2s, border-color .2s; }
+.part-tile:hover { transform: translateY(-2px); border-color: var(--accent); }
+.part-tile:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
+.part-tile .part-art { border: 0; border-bottom: 1px solid var(--rule); border-radius: 0; box-shadow: none; padding: 0; aspect-ratio: 16 / 6; overflow: hidden; }
+.part-tile .part-art svg { border: 0; width: 100%; height: 100%; transition: transform .4s; }
+.part-tile:hover .part-art svg { transform: scale(1.04); }
+.part-tile .part-text { padding: 18px 22px 20px; display: flex; flex-direction: column; }
+.part-tile .part-roman { font-size: 2.6rem; }
+.part-tile h2 { font-size: 1.6rem; margin: 2px 0 8px; }
+.part-tile p { color: var(--ink-2); font-size: .98rem; flex: 1; }
+.part-foot { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; border-top: 1px solid var(--rule); padding-top: 10px; margin-top: 6px; }
+.modal-back { position: fixed; inset: 0; background: rgba(20, 16, 10, .45); z-index: 70; animation: sa-fade .2s ease both; }
+.modal { position: fixed; z-index: 71; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(1080px, calc(100vw - 32px)); max-height: calc(100vh - 48px); overflow-y: auto;
+  background: var(--paper); border: 1px solid var(--rule-2); border-radius: 14px; box-shadow: 0 30px 80px -20px rgba(0,0,0,.45); padding: 22px 26px 28px; animation: sa-pop .25s ease both; }
+.modal-head { display: grid; grid-template-columns: 220px 1fr auto; gap: 20px; align-items: center; padding-bottom: 18px; margin-bottom: 20px; border-bottom: 1px solid var(--rule); }
+.modal-head h2 { font-size: var(--fs-5); margin: 2px 0 6px; }
+.modal-art { border: 1px solid var(--rule-2); border-radius: 6px; overflow: hidden; }
+.modal-art svg { display: block; width: 100%; height: auto; }
+.modal-close { align-self: start; }
+@keyframes sa-fade { from { opacity: 0; } }
+@keyframes sa-pop { from { opacity: 0; transform: translate(-50%, -47%) scale(.98); } }
+
+/* ---------- previsione facoltativa dentro la domanda ---------- */
+details.predict { margin-top: 22px; border: 1px solid var(--rule-2); border-radius: 10px; background: var(--card); max-width: 820px; }
+details.predict > summary { cursor: pointer; list-style: none; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px; font-weight: 600; color: var(--ink-2); }
+details.predict > summary::-webkit-details-marker { display: none; }
+details.predict > summary::before { content: "+"; font-family: var(--serif); font-size: 1.3rem; color: var(--accent); margin-right: 4px; transition: transform .2s; }
+details.predict[open] > summary::before { transform: rotate(45deg); }
+details.predict > summary > span:first-child { flex: 1; }
+.predict-tag { font-size: .7rem; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); border: 1px solid var(--rule-2); border-radius: 99px; padding: 2px 8px; font-weight: 700; }
+details.predict[open] { padding-bottom: 16px; }
+details.predict > :not(summary) { margin-left: 16px; margin-right: 16px; }
+
 /* ---------- testata del laboratorio ---------- */
 .lab-head { grid-template-columns: minmax(0, 1fr) minmax(260px, 380px); gap: 40px; align-items: center; padding-bottom: 32px; border-bottom: 0; position: relative; }
 .lab-head::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 4px; border-top: 1px solid var(--rule-2); border-bottom: 1px solid var(--rule); }
@@ -446,6 +481,11 @@ table.tv tbody tr:hover td { background: var(--paper-2); }
   .lab-cover { max-width: 460px; }
 }
 @media (max-width: 860px) {
+  .part-tiles { grid-template-columns: 1fr; gap: 16px; }
+  .part-tile .part-art { aspect-ratio: 16 / 4.5; }
+  .part-tile .part-roman { font-size: 2rem; }
+  .modal-head { grid-template-columns: 1fr auto; }
+  .modal-art { display: none; }
   .page { padding: 28px 16px 72px; }
   .how-steps { grid-template-columns: 1fr 1fr; }
   .part-roman { font-size: 3rem; }
@@ -1782,8 +1822,9 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     III: ['partIII', 'Dai dati ai parametri: stimatori e loro efficienza, verosimiglianza, intervalli di confidenza e test, con le garanzie che offrono e i loro limiti.'],
     IV: ['partIV', 'Modelli che legano una risposta a dei predittori o al proprio passato: regressione lineare, robusta e generalizzata, serie temporali.']
   };
-  var STEPS = [['Domanda', 'Un problema concreto da cui partire'], ['Previsione', 'Che cosa ti aspetti, prima di vedere i dati'], ['Esperimento', 'Dati generati sotto i tuoi occhi, passo dopo passo'],
-    ['Teoria e simulazione', 'Esatto, asintotico o Monte Carlo: sempre dichiarato'], ['Interpretazione', 'Che cosa significa, quando vale, dove si rompe'], ['Codice R', 'Lo stesso esperimento, con gli stessi numeri']];
+  var STEPS = [['Domanda', 'Un problema concreto, con una previsione facoltativa'], ['Esperimento', 'Dati generati sotto i tuoi occhi, passo dopo passo'],
+    ['Teoria e simulazione', 'Esatto, asintotico o Monte Carlo: sempre dichiarato'], ['Interpretazione', 'Che cosa significa, quando vale, dove si rompe'],
+    ['Approfondisci', 'Teoria, esercizi e bibliografia'], ['Codice R', 'Lo stesso esperimento, con gli stessi numeri']];
   function home() {
     var page = el('div.page.page-home');
     page.appendChild(el('header.hero.hero-home',
@@ -1795,22 +1836,47 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
       el('div.hero-art', { html: '<div class="hero-logo">' + SA.art.logo(132) + '</div>' + ['distribuzioni', 'intervalli', 'regressione', 'lgn-tcl'].map(function (k, i) { return '<div class="mosaic m' + i + '">' + SA.art.get(k) + '</div>'; }).join('') })));
     page.appendChild(el('section.how', el('div.step-label', 'Come funziona un laboratorio'),
       el('ol.how-steps', STEPS.map(function (s, i) { return el('li', el('span.how-num', String(i + 1)), el('strong', s[0]), el('span', s[1])); }))));
-    var parts = el('div.parts', { id: 'parti' });
+    // le quattro parti come tessere: un clic apre una finestra con i laboratori della parte
+    var parts = el('div.parts.part-tiles', { id: 'parti' });
     SA.catalog.forEach(function (p) {
       var d = PART_DESC[p.part];
-      parts.appendChild(el('section.part',
-        el('div.part-banner', el('div.part-text', el('div.part-roman', p.part), el('h2', p.title), el('p', d[1]), el('span.muted', p.labs.length + ' laboratori')),
-          el('div.part-art', { html: SA.art.get(d[0]) })),
-        el('div.cards', p.labs.map(function (l) {
-          var ready = l.status === 'ready', st = STATUS[l.status];
-          var inner = [el('div.card-art', { html: SA.art.get(l.id), 'aria-hidden': 'true' }),
-            el('div.card-body', el('span.num', 'Laboratorio ' + l.num), el('h3', l.title), el('p', l.blurb), ready ? el('span.card-go', 'Apri il laboratorio →') : el('span.tag' + (st[0] ? '.' + st[0] : ''), st[1]))];
-          return ready ? el('a.card', { href: '#/' + l.id }, inner) : el('div.card.is-soon', inner);
-        }))));
+      parts.appendChild(el('button.part-tile', { type: 'button', 'aria-haspopup': 'dialog', onclick: function () { openPart(p); } },
+        el('div.part-art', { html: SA.art.get(d[0]), 'aria-hidden': 'true' }),
+        el('div.part-text', el('div.part-roman', p.part), el('h2', p.title), el('p', d[1]),
+          el('div.part-foot', el('span.muted', p.labs.length + ' laboratori · ' + p.labs.map(function (l) { return l.num; }).join(' · ')), el('span.card-go', 'Apri →')))));
     });
     page.appendChild(parts);
     page.appendChild(footer());
     return page;
+  }
+
+  /* Finestra di una parte, con le schede dei suoi laboratori */
+  var modal = null, modalBack = null, modalLast = null;
+  function closePart() {
+    if (!modal) return;
+    modal.remove(); modalBack.remove(); modal = null; document.body.style.overflow = '';
+    document.removeEventListener('keydown', escPart);
+    if (modalLast) modalLast.focus();
+  }
+  function escPart(e) { if (e.key === 'Escape') closePart(); }
+  function openPart(p) {
+    closePart(); modalLast = document.activeElement;
+    var d = PART_DESC[p.part];
+    modalBack = el('div.modal-back', { onclick: closePart });
+    modal = el('div.modal', { role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'modal-title' },
+      el('div.modal-head',
+        el('div.modal-art', { html: SA.art.get(d[0]), 'aria-hidden': 'true' }),
+        el('div', el('div.kicker', 'Parte ' + p.part), el('h2', { id: 'modal-title' }, p.title), el('p.muted', d[1])),
+        SA.ui.button('', { icon: 'close', cls: 'btn-ghost btn-icon modal-close', aria: 'Chiudi', onclick: closePart })),
+      el('div.cards', p.labs.map(function (l) {
+        var ready = l.status === 'ready', st = STATUS[l.status];
+        var inner = [el('div.card-art', { html: SA.art.get(l.id), 'aria-hidden': 'true' }),
+          el('div.card-body', el('span.num', 'Laboratorio ' + l.num), el('h3', l.title), el('p', l.blurb), ready ? el('span.card-go', 'Apri il laboratorio →') : el('span.tag' + (st[0] ? '.' + st[0] : ''), st[1]))];
+        return ready ? el('a.card', { href: '#/' + l.id, onclick: closePart }, inner) : el('div.card.is-soon', inner);
+      })));
+    document.body.append(modalBack, modal); document.body.style.overflow = 'hidden';
+    document.addEventListener('keydown', escPart);
+    modal.querySelector('.modal-close').focus();
   }
 
   function soon(info) {
@@ -1840,6 +1906,15 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
       if (btn) text.appendChild(el('div.head-actions', btn));
       var info = SA.findLab(id);
       head.appendChild(el('figure.lab-cover', { html: SA.art.get(id) + '<figcaption>Tavola ' + info.lab.num + ' · ' + info.part.title + '</figcaption>', 'aria-hidden': 'true' }));
+    }
+    // la previsione diventa un riquadro facoltativo dentro la domanda; i passi si rinumerano
+    var steps = page.querySelectorAll('section.step');
+    if (steps.length > 1 && /previsione/i.test(steps[1].querySelector('.step-label').textContent)) {
+      var det = el('details.predict', el('summary', el('span', 'Prima di guardare: che cosa ti aspetti?'), el('span.predict-tag', 'facoltativo')));
+      Array.prototype.slice.call(steps[1].querySelector('.step-body').children, 1).forEach(function (n) { det.appendChild(n); });
+      steps[0].querySelector('.step-body').appendChild(det);
+      steps[1].remove();
+      page.querySelectorAll('section.step').forEach(function (s, i) { s.querySelector('.step-num').textContent = String(i + 1); });
     }
     if (!c) return;
     var grid = page.querySelector('.lab-grid');
