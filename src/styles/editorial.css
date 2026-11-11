@@ -138,6 +138,7 @@ details.predict > :not(summary) { margin-left: 16px; margin-right: 16px; }
 table.tv { font-size: .95rem; }
 table.tv thead th { border-bottom: 2px solid var(--rule-2); }
 table.tv tbody tr:hover td { background: var(--paper-2); }
+table.tv tr.row-sel td { background: var(--accent-soft); font-weight: 600; }
 .kpi { border-radius: 10px; position: relative; overflow: hidden; }
 .kpi::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--accent); opacity: .7; }
 

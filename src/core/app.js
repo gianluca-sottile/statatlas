@@ -18,7 +18,10 @@ SA.catalog = [
     { id: 'regressione', num: '10', title: 'Regressione interattiva', blurb: 'Punti trascinabili, leverage e distanza di Cook, banda per la media e intervallo di previsione.', status: 'ready' },
     { id: 'regressione-lp', num: '11', title: 'Regressione L1, L2, Lp', blurb: 'Tre criteri sugli stessi dati: efficienza, code pesanti e valori anomali.', status: 'ready' },
     { id: 'glm', num: '12', title: 'Modelli lineari generalizzati', blurb: 'Logistica e Poisson: IRLS, distribuzione delle stime, distorsione e separazione.', status: 'ready' },
-    { id: 'arma', num: '13', title: 'Serie temporali ARMA', blurb: 'Generazione progressiva, ACF e PACF teoriche ed empiriche, radici e stazionarietà.', status: 'ready' } ] }
+    { id: 'arma', num: '13', title: 'Serie temporali ARMA', blurb: 'Generazione progressiva, ACF e PACF teoriche ed empiriche, radici e stazionarietà.', status: 'ready' } ] },
+  { part: 'V', title: 'Regressione moderna', labs: [
+    { id: 'quantilica', num: '14', title: 'Regressione quantilica', blurb: 'Rette per ogni quantile, perdita asimmetrica, soluzione esatta, punti trascinabili.', status: 'ready' },
+    { id: 'penalizzata', num: '15', title: 'Ridge, lasso ed elastic net', blurb: 'Lo spazio delle soluzioni, i percorsi di regolarizzazione e il compromesso distorsione–varianza.', status: 'ready' } ] }
 ];
 SA.labs = {};
 SA.registerLab = function (id, def) { SA.labs[id] = def; };
@@ -65,7 +68,8 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     I: ['partI', 'Il linguaggio delle leggi di probabilità: densità, ripartizione, dipendenza tra variabili, e come un computer genera dati da qualunque legge.'],
     II: ['partII', 'Che cosa succede quando si raccolgono molti dati: la media si stabilizza, la sua incertezza prende la forma di una campana, e un modello si può mettere alla prova.'],
     III: ['partIII', 'Dai dati ai parametri: stimatori e loro efficienza, verosimiglianza, intervalli di confidenza e test, con le garanzie che offrono e i loro limiti.'],
-    IV: ['partIV', 'Modelli che legano una risposta a dei predittori o al proprio passato: regressione lineare, robusta e generalizzata, serie temporali.']
+    IV: ['partIV', 'Modelli che legano una risposta a dei predittori o al proprio passato: regressione lineare, robusta e generalizzata, serie temporali.'],
+    V: ['partV', 'Oltre la media e oltre i minimi quadrati: quantili condizionati e stime penalizzate per modelli con molti predittori.']
   };
   var STEPS = [['Domanda', 'Un problema concreto, con una previsione facoltativa'], ['Esperimento', 'Dati generati sotto i tuoi occhi, passo dopo passo'],
     ['Teoria e simulazione', 'Esatto, asintotico o Monte Carlo: sempre dichiarato'], ['Interpretazione', 'Che cosa significa, quando vale, dove si rompe'],
@@ -76,7 +80,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
       el('div.hero-text',
         el('div.kicker', 'Atlante interattivo di probabilità e statistica'),
         el('h1', 'Vedere la statistica ', el('em', 'mentre accade')),
-        el('p.lede', 'Tredici laboratori per studenti universitari. Ognuno parte da una domanda, ti chiede una previsione, genera i dati sotto i tuoi occhi e confronta ciò che osservi con ciò che la teoria garantisce. Lo script R riproduce esattamente lo stesso esperimento.'),
+        el('p.lede', 'Quindici laboratori per studenti universitari. Ognuno parte da una domanda, ti chiede una previsione, genera i dati sotto i tuoi occhi e confronta ciò che osservi con ciò che la teoria garantisce. Lo script R riproduce esattamente lo stesso esperimento.'),
         el('div.hero-actions', el('a.btn.btn-primary', { href: '#/distribuzioni' }, 'Inizia dal laboratorio 01'), el('a.btn', { href: '#/', onclick: function (e) { e.preventDefault(); document.getElementById('parti').scrollIntoView({ behavior: 'smooth' }); } }, 'Sfoglia l’atlante'))),
       el('div.hero-art', { html: '<div class="hero-logo">' + SA.art.logo(132) + '</div>' + ['distribuzioni', 'intervalli', 'regressione', 'lgn-tcl'].map(function (k, i) { return '<div class="mosaic m' + i + '">' + SA.art.get(k) + '</div>'; }).join('') })));
     page.appendChild(el('section.how', el('div.step-label', 'Come funziona un laboratorio'),

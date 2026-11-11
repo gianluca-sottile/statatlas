@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.3.0 — 11/11/2026 · Parte V, Regressione moderna
+- **Lab 14 Regressione quantilica**: dati eteroschedastici, rette per τ = 0,1 … 0,9 stimate in modo esatto (vertici del problema di programmazione lineare), punti trascinabili, perdita asimmetrica ρτ, quota di punti sotto ciascuna retta, distribuzione della pendenza contro i minimi quadrati. R: `quantreg::rq`.
+- **Lab 15 Ridge, lasso ed elastic net**: spazio delle soluzioni (β₁, β₂) con regioni di vincolo, curve di livello di RSS, stima dei minimi quadrati trascinabile, correlazione regolabile e percorso della soluzione; percorsi di regolarizzazione per 8 predittori e scomposizione distorsione²–varianza. R: discesa coordinata identica + confronto con `glmnet`.
+- Nuova tessera della Parte V nella home, illustrazioni e contenuti didattici (obiettivi, esempio svolto, esercizi, bibliografia).
+
 ## 1.2.1 — 11/11/2026 · revisione terminologica
 - “Matrice cappello” → **hat matrix** (matrice di proiezione); “leva” → **leverage** in tutto il lab 10 e nei testi collegati.
 - “Minimi quadrati ripesati/pesati” → **minimi quadrati ponderati (iterativi, IRLS)**; “risposta lavorata” → **working response**; “Fisher scoring” → **scoring di Fisher**.

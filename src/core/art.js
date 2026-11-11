@@ -103,8 +103,22 @@ SA.art = (function () {
     for (var h = 1; h <= 12; h++) { var rho = Math.pow(0.775, h) * Math.cos(0.7 * h); s += '<line x1="' + (20 + h * 22) + '" x2="' + (20 + h * 22) + '" y1="150" y2="' + (150 - 26 * rho) + '" stroke="var(--c2)" stroke-width="5"/>'; }
     return frame(s, 'Serie e autocorrelazioni');
   };
+  L.quantilica = function () {
+    var r = rnd(21), s = '';
+    for (var i = 0; i < 40; i++) { var x = 20 + i * 7, sc = 4 + i * 0.9; s += '<circle cx="' + x + '" cy="' + (150 - (x - 20) * 0.32 - sc * gauss(r)).toFixed(1) + '" r="2.6" fill="var(--ink)" fill-opacity=".45"/>'; }
+    [[-1.28, 'var(--c4)', '2 3'], [-0.67, 'var(--c3)', '7 4'], [0, 'var(--accent)', ''], [0.67, 'var(--c3)', '7 4'], [1.28, 'var(--c4)', '2 3']].forEach(function (q) {
+      s += '<line x1="20" y1="' + (150 - 4 * q[0]).toFixed(1) + '" x2="300" y2="' + (60 - 40 * q[0]).toFixed(1) + '" stroke="' + q[1] + '" stroke-width="' + (q[0] === 0 ? 3 : 2) + '" stroke-dasharray="' + q[2] + '"/>';
+    });
+    return frame(s, 'Rette quantiliche a ventaglio');
+  };
+  L.penalizzata = function () {
+    var s = '<line x1="160" y1="10" x2="160" y2="170" stroke="var(--rule-2)"/><line x1="40" y1="90" x2="280" y2="90" stroke="var(--rule-2)"/>';
+    s += '<polygon points="160,40 210,90 160,140 110,90" fill="var(--c1)" fill-opacity=".16" stroke="var(--c1)" stroke-width="2.4"/>';
+    [[1, 1], [1.8, .55], [2.7, .35]].forEach(function (e) { s += '<ellipse cx="236" cy="52" rx="' + (52 * e[0]).toFixed(0) + '" ry="' + (22 * e[0]).toFixed(0) + '" transform="rotate(-30 236 52)" fill="none" stroke="' + (e[0] === 1.8 ? 'var(--c2)' : 'var(--ink-3)') + '" stroke-width="' + (e[0] === 1.8 ? 2.2 : 1) + '" stroke-dasharray="' + (e[0] === 1.8 ? '' : '3 3') + '"/>'; });
+    return frame(s + '<circle cx="160" cy="40" r="6" fill="var(--accent)" stroke="var(--card)" stroke-width="2"/><path d="M236 44l7 12h-14z" fill="var(--c2)"/>', 'Rombo del lasso ed ellissi');
+  };
   /* ---- parti ---- */
-  L.partI = L.distribuzioni; L.partII = L['lgn-tcl']; L.partIII = L.intervalli; L.partIV = L.regressione;
+  L.partI = L.distribuzioni; L.partII = L['lgn-tcl']; L.partIII = L.intervalli; L.partIV = L.regressione; L.partV = L.penalizzata;
   function get(id) { return L[id] ? L[id]() : ''; }
   return { get: get, logo: L.logo };
 })();

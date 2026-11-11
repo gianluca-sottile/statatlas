@@ -6,7 +6,7 @@
 
 <p align="center">
   <em>Vedere la statistica mentre accade.</em><br>
-  Un atlante interattivo di probabilità e inferenza statistica: tredici laboratori, dati generati sotto i tuoi occhi e codice R che riproduce esattamente lo stesso esperimento.
+  Un atlante interattivo di probabilità e inferenza statistica: quindici laboratori, dati generati sotto i tuoi occhi e codice R che riproduce esattamente lo stesso esperimento.
 </p>
 
 <p align="center">
@@ -18,7 +18,7 @@
 </p>
 
 <p align="center">
-  <img alt="Versione" src="https://img.shields.io/badge/versione-1.2.0-9A3412">
+  <img alt="Versione" src="https://img.shields.io/badge/versione-1.3.0-9A3412">
   <img alt="Lingua" src="https://img.shields.io/badge/lingua-italiano-1C1B19">
   <img alt="Offline" src="https://img.shields.io/badge/funziona-offline-1F6F43">
   <img alt="Dipendenze" src="https://img.shields.io/badge/dipendenze-nessuna-1E4E8C">
@@ -54,6 +54,8 @@ Molti concetti della statistica — la legge dei grandi numeri, il teorema centr
 | | 11 · Regressione L1, L2, Lp | Criteri di stima a confronto con errori a code pesanti e contaminati |
 | | 12 · Modelli lineari generalizzati | Logistica e Poisson, IRLS, distorsione per n piccolo, separazione |
 | | 13 · Serie temporali ARMA | ACF e PACF teoriche ed empiriche, radici, stazionarietà e invertibilità |
+| **V · Regressione moderna** | 14 · Regressione quantilica | Rette per ogni quantile, perdita asimmetrica, soluzione esatta, punti trascinabili |
+| | 15 · Ridge, lasso ed elastic net | Spazio delle soluzioni, percorsi di regolarizzazione, distorsione–varianza |
 
 ## Come è fatto un laboratorio
 
@@ -77,7 +79,7 @@ set.seed(2026)
 runif(3)   # gli stessi tre numeri che StatAtlas genera con seed 2026
 ```
 
-Gli script richiedono R ≥ 4.1 e il pacchetto `tidyverse`; alcuni laboratori usano solo funzioni di base di R (`persp`, `glm`, `arima`).
+Gli script richiedono R ≥ 4.1 e il pacchetto `tidyverse`; alcuni laboratori usano solo funzioni di base di R (`persp`, `glm`, `arima`), i laboratori 14 e 15 anche `quantreg` e `glmnet`.
 
 ## Uso
 
@@ -119,7 +121,7 @@ npm install jsdom && node tests/smoke/smoke_fase7.js index.html   # smoke test
 
 ## Come citare
 
-> Sottile G. (2026). *StatAtlas: un atlante interattivo di probabilità e inferenza statistica*, versione 1.2.0. https://github.com/gianluca-sottile/statatlas
+> Sottile G. (2026). *StatAtlas: un atlante interattivo di probabilità e inferenza statistica*, versione 1.3.0. https://github.com/gianluca-sottile/statatlas
 
 ## Crediti
 
