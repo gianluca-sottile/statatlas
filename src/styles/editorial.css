@@ -80,6 +80,13 @@ a.card:hover .card-art svg { transform: scale(1.04); }
 .modal-art { border: 1px solid var(--rule-2); border-radius: 6px; overflow: hidden; }
 .modal-art svg { display: block; width: 100%; height: auto; }
 .modal-close { align-self: start; }
+.modal-wide { width: min(1240px, calc(100vw - 32px)); }
+.modal-head-plain { grid-template-columns: 1fr auto; }
+.atlas-map { border: 1px solid var(--rule-2); border-radius: 12px; overflow: hidden; background: var(--paper); }
+.atlas-map svg { display: block; width: 100%; height: auto; }
+.atlas-map g[role="link"] { transition: opacity .2s; }
+.atlas-map g[role="link"]:hover rect, .atlas-map g[role="link"]:focus rect { stroke: var(--accent); stroke-width: 2.4; }
+.atlas-map g[role="link"]:focus { outline: none; }
 @keyframes sa-fade { from { opacity: 0; } }
 @keyframes sa-pop { from { opacity: 0; transform: translate(-50%, -47%) scale(.98); } }
 

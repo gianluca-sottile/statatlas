@@ -117,6 +117,14 @@ SA.art = (function () {
     [[1, 1], [1.8, .55], [2.7, .35]].forEach(function (e) { s += '<ellipse cx="236" cy="52" rx="' + (52 * e[0]).toFixed(0) + '" ry="' + (22 * e[0]).toFixed(0) + '" transform="rotate(-30 236 52)" fill="none" stroke="' + (e[0] === 1.8 ? 'var(--c2)' : 'var(--ink-3)') + '" stroke-width="' + (e[0] === 1.8 ? 2.2 : 1) + '" stroke-dasharray="' + (e[0] === 1.8 ? '' : '3 3') + '"/>'; });
     return frame(s + '<circle cx="160" cy="40" r="6" fill="var(--accent)" stroke="var(--card)" stroke-width="2"/><path d="M236 44l7 12h-14z" fill="var(--c2)"/>', 'Rombo del lasso ed ellissi');
   };
+  L.spline = function () {
+    var r = rnd(31), s = '', f = function (x) { return 95 - 45 * Math.sin(2 * Math.PI * (x - 20) / 280) - 18 * ((x - 20) / 280) * Math.sin(6 * Math.PI * (x - 20) / 280); };
+    for (var k = 0; k < 9; k++) { var c = 20 + k * 35; s += '<path d="M' + (c - 52) + ',160 Q' + c + ',' + (60 + 30 * Math.sin(k)) + ' ' + (c + 52) + ',160" fill="none" stroke="' + ['var(--c3)', 'var(--c4)', 'var(--c1)'][k % 3] + '" stroke-opacity=".5" stroke-width="1.4"/>'; }
+    for (var i = 0; i < 46; i++) { var x = 20 + i * 6.1; s += '<circle cx="' + x.toFixed(1) + '" cy="' + (f(x) + 9 * gauss(r)).toFixed(1) + '" r="2.4" fill="var(--ink)" fill-opacity=".45"/>'; }
+    s += '<polyline points="' + pts(curve(f, 20, 300)) + '" fill="none" stroke="var(--c1)" stroke-width="3"/>';
+    for (var j = 1; j < 8; j++) s += '<line x1="' + (20 + j * 35) + '" x2="' + (20 + j * 35) + '" y1="168" y2="160" stroke="var(--accent)" stroke-width="2"/>';
+    return frame(s, 'Spline e basi');
+  };
   /* ---- parti ---- */
   L.partI = L.distribuzioni; L.partII = L['lgn-tcl']; L.partIII = L.intervalli; L.partIV = L.regressione; L.partV = L.penalizzata;
   function get(id) { return L[id] ? L[id]() : ''; }

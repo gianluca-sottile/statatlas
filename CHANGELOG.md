@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.4.0 — 11/11/2026
+- **Lab 16 Regressione non parametrica e spline**: polinomio globale (base di Legendre), spline di regressione (B-spline cubiche), P-spline (40 nodi, penalità sulle differenze seconde), regressione locale lineare con kernel gaussiano. Basi moltiplicate per i coefficienti, fascio delle stime sui campioni ripetuti, distorsione² e varianza **esatte** dalla matrice S in funzione dei gradi di libertà effettivi, validazione incrociata leave-one-out in forma chiusa. R: `splines::splineDesign`, stessa matrice S.
+- **Mappa dell’atlante**: il pulsante della home apre un grafo interattivo dei 16 laboratori (colonne = parti, archi = legami concettuali); al passaggio si evidenziano i legami e se ne leggono le motivazioni, al clic si apre il laboratorio. Rimosso il pulsante «Inizia dal laboratorio 01».
+
 ## 1.3.0 — 11/11/2026 · Parte V, Regressione moderna
 - **Lab 14 Regressione quantilica**: dati eteroschedastici, rette per τ = 0,1 … 0,9 stimate in modo esatto (vertici del problema di programmazione lineare), punti trascinabili, perdita asimmetrica ρτ, quota di punti sotto ciascuna retta, distribuzione della pendenza contro i minimi quadrati. R: `quantreg::rq`.
 - **Lab 15 Ridge, lasso ed elastic net**: spazio delle soluzioni (β₁, β₂) con regioni di vincolo, curve di livello di RSS, stima dei minimi quadrati trascinabile, correlazione regolabile e percorso della soluzione; percorsi di regolarizzazione per 8 predittori e scomposizione distorsione²–varianza. R: discesa coordinata identica + confronto con `glmnet`.
