@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.4.1 — 11/11/2026
+- Lab 15, vista Percorsi: la correlazione equicorrelata non è definita positiva per ρ < −1/7 con 8 predittori e produceva NaN. Ora Σᵢⱼ = ρ^|i−j| (schema di Tibshirani, 1996), valida per ogni |ρ| < 1, anche negativa; aggiornati etichetta e script R.
+- Lab 15, vista geometrica: nuovo punto di partenza (1,8; 0,4) per rendere visibile l’effetto di ρ, e nota sul caso in cui il contatto lungo un lato del rombo non dipende da ρ.
+
 ## 1.4.0 — 11/11/2026
 - **Lab 16 Regressione non parametrica e spline**: polinomio globale (base di Legendre), spline di regressione (B-spline cubiche), P-spline (40 nodi, penalità sulle differenze seconde), regressione locale lineare con kernel gaussiano. Basi moltiplicate per i coefficienti, fascio delle stime sui campioni ripetuti, distorsione² e varianza **esatte** dalla matrice S in funzione dei gradi di libertà effettivi, validazione incrociata leave-one-out in forma chiusa. R: `splines::splineDesign`, stessa matrice S.
 - **Mappa dell’atlante**: il pulsante della home apre un grafo interattivo dei 16 laboratori (colonne = parti, archi = legami concettuali); al passaggio si evidenziano i legami e se ne leggono le motivazioni, al clic si apre il laboratorio. Rimosso il pulsante «Inizia dal laboratorio 01».

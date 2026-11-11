@@ -6779,12 +6779,12 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   }
 
   /* ---------- vista 2: p = 8 predittori ---------- */
-  function cholUpper(r, p) { // Σ equicorrelata; restituisce U con Σ = UᵀU (come chol() in R)
+  function cholUpper(r, p) { // Σᵢⱼ = ρ^|i−j| (autoregressiva, definita positiva per ogni |ρ| < 1); restituisce L = Uᵀ, Σ = UᵀU come chol() in R
     var A = [], L = [], i, j, k;
-    for (i = 0; i < p; i++) { A.push([]); L.push(new Float64Array(p)); for (j = 0; j < p; j++) A[i].push(i === j ? 1 : r); }
+    for (i = 0; i < p; i++) { A.push([]); L.push(new Float64Array(p)); for (j = 0; j < p; j++) A[i].push(Math.pow(r, Math.abs(i - j))); }
     for (i = 0; i < p; i++) for (j = 0; j <= i; j++) {
       var s = A[i][j]; for (k = 0; k < j; k++) s -= L[i][k] * L[j][k];
-      L[i][j] = i === j ? Math.sqrt(s) : s / L[j][j];
+      L[i][j] = i === j ? Math.sqrt(Math.max(s, 1e-12)) : s / L[j][j];
     }
     return L; // L[i][j] = U[j][i]
   }
@@ -6822,7 +6822,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   }
 
   function newState(prev) {
-    var s = { view: 'geo', pen: 'lasso', alpha: 0.5, r: 0.5, bh: [1.6, 0.7], t: 1, n: 50, M: 300, seed: 2026, lamIdx: 20, pred: null };
+    var s = { view: 'geo', pen: 'lasso', alpha: 0.5, r: 0.5, bh: [1.8, 0.4], t: 1, n: 50, M: 300, seed: 2026, lamIdx: 20, pred: null };
     if (prev) for (var k in s) if (prev[k] !== undefined) s[k] = prev[k];
     s.rng = new SA.RRNG(s.seed); s.k = 0; s.lastPath = null;
     return s;
@@ -6968,8 +6968,8 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   }
   function interpretation() {
     interpBox.innerHTML = S.view === 'geo'
-      ? '<p>Minimizzare la somma dei quadrati dei residui con un vincolo sui coefficienti equivale a cercare la <strong>prima curva di livello</strong> (ellisse) che tocca la regione ammessa. Per il <strong>ridge</strong> la regione è un cerchio: il contatto avviene quasi sempre lontano dagli assi. Per il <strong>lasso</strong> è un rombo con spigoli sugli assi: il contatto avviene spesso su uno spigolo, e lì un coefficiente è esattamente nullo. L’<strong>elastic net</strong> unisce spigoli e curvatura.</p><p>Aumenta la correlazione: le ellissi si allungano e il lasso diventa instabile nel scegliere quale coefficiente azzerare; il ridge e l’elastic net ripartiscono il peso tra i predittori correlati. La linea arancione tratteggiata è il percorso della soluzione al variare di t: dall’origine (t = 0) ai minimi quadrati.</p>'
-      : '<p>Con 8 predittori correlati, di cui 5 inutili, i minimi quadrati sono non distorti ma molto variabili. La penalizzazione introduce <strong>distorsione</strong> (stime ridotte verso zero) e in cambio riduce la <strong>varianza</strong>: per valori intermedi di λ l’errore quadratico medio complessivo è inferiore a quello dei minimi quadrati.</p><p>Nei percorsi, il lasso azzera i coefficienti uno dopo l’altro al crescere di λ; il ridge li riduce tutti insieme senza azzerarli. Nella pratica λ si sceglie per validazione incrociata (<code>cv.glmnet</code>), che stima l’errore di previsione invece di quello sui coefficienti, ignoto nei dati reali.</p>';
+      ? '<p>Minimizzare la somma dei quadrati dei residui con un vincolo sui coefficienti equivale a cercare la <strong>prima curva di livello</strong> (ellisse) che tocca la regione ammessa. Per il <strong>ridge</strong> la regione è un cerchio: il contatto avviene quasi sempre lontano dagli assi. Per il <strong>lasso</strong> è un rombo con spigoli sugli assi: il contatto avviene spesso su uno spigolo, e lì un coefficiente è esattamente nullo. L’<strong>elastic net</strong> unisce spigoli e curvatura.</p><p>Cambia la correlazione: con ρ &gt; 0 le ellissi si allungano lungo la direzione (1, −1), con ρ &lt; 0 lungo (1, 1). Con predittori correlati il lasso diventa instabile nello scegliere quale coefficiente azzerare; ridge ed elastic net ripartiscono il peso. Nota: quando il contatto avviene su un lato del rombo parallelo a un asse dell’ellisse, il punto di contatto non dipende da ρ (cambia solo il λ equivalente): sposta la stima dei minimi quadrati per vederlo. La linea arancione tratteggiata è il percorso della soluzione al variare di t: dall’origine (t = 0) ai minimi quadrati.</p>'
+      : '<p>Con 8 predittori con correlazione ρ<sup>|i−j|</sup> (lo schema di simulazione di Tibshirani, 1996), di cui 5 inutili, i minimi quadrati sono non distorti ma molto variabili. La penalizzazione introduce <strong>distorsione</strong> (stime ridotte verso zero) e in cambio riduce la <strong>varianza</strong>: per valori intermedi di λ l’errore quadratico medio complessivo è inferiore a quello dei minimi quadrati.</p><p>Nei percorsi, il lasso azzera i coefficienti uno dopo l’altro al crescere di λ; il ridge li riduce tutti insieme senza azzerarli. Nella pratica λ si sceglie per validazione incrociata (<code>cv.glmnet</code>), che stima l’errore di previsione invece di quello sui coefficienti, ignoto nei dati reali.</p>';
   }
   function codeR() {
     var a = mix(S.pen);
@@ -6993,7 +6993,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     return ['# ───────────────────────────────────────────────────────────────', '# StatAtlas · Lab 15 — ' + PEN[S.pen] + ': percorsi e distorsione–varianza', '# Con R ≥ 4.1 e lo stesso seed si ottengono gli stessi dati di StatAtlas.', '# ───────────────────────────────────────────────────────────────',
       'library(tidyverse)', 'library(glmnet)   # per il confronto con lo standard', '', 'set.seed(' + S.seed + ')',
       'n <- ' + S.n + '; p <- 8; r <- ' + S.r + '; sigma <- 3; a <- ' + a + '; M <- ' + S.M, 'beta <- c(3, 1.5, 0, 0, 2, 0, 0, 0)',
-      'Sigma <- matrix(r, p, p); diag(Sigma) <- 1', 'Z <- matrix(rnorm(n * p), n, p, byrow = TRUE)', 'X <- Z %*% chol(Sigma)              # disegno fisso', '',
+      'Sigma <- r^abs(outer(1:p, 1:p, "-"))   # correlazione ρ^|i−j| (Tibshirani, 1996)', 'Z <- matrix(rnorm(n * p), n, p, byrow = TRUE)', 'X <- Z %*% chol(Sigma)              # disegno fisso', '',
       '# Discesa coordinata per (1/2n)‖y − Xb‖² + λ[(1 − a)/2 ‖b‖² + a‖b‖₁] con X standardizzata (stesso algoritmo di StatAtlas)',
       'Xs <- scale(X, scale = apply(X, 2, \\(v) sqrt(mean((v - mean(v))^2))))', 'sdx <- attr(Xs, "scaled:scale")',
       'percorso <- function(y, lambdas) {', '  res <- y - mean(y); b <- numeric(p)', '  sapply(lambdas, \\(lam) {', '    for (it in 1:1000) { maxd <- 0',
@@ -7057,7 +7057,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     ctrlBox.append(el('div.field', el('span', 'Vista'), seg), el('div.field', el('span', 'Penalizzazione'), penSeg));
     if (S.pen === 'enet') ctrlBox.appendChild(SA.ui.slider('Miscela α (0 ridge, 1 lasso)', { min: 0.05, max: 0.95, step: 0.05, value: S.alpha, format: function (v) { return SA.fmt(v, 2); },
       oninput: function (v) { S.alpha = v; if (S.view === 'geo') drawGeo(); }, onchange: function (v) { S.alpha = v; if (S.view === 'path') restart(); else { updateTable(); codeBox.refresh(); } } }));
-    ctrlBox.appendChild(SA.ui.slider('Correlazione tra i predittori', { min: -0.9, max: 0.95, step: 0.05, value: S.r, format: function (v) { return SA.fmt(v, 2); },
+    ctrlBox.appendChild(SA.ui.slider(S.view === 'geo' ? 'Correlazione tra i predittori' : 'Correlazione ρ (Σᵢⱼ = ρ^|i−j|)', { min: -0.9, max: 0.95, step: 0.05, value: S.r, format: function (v) { return SA.fmt(v, 2); },
       oninput: function (v) { S.r = v; if (S.view === 'geo') drawGeo(); }, onchange: function (v) { S.r = v; if (S.view === 'path') restart(); else { updateTable(); codeBox.refresh(); } } }));
     if (S.view === 'geo') ctrlBox.appendChild(SA.ui.slider('Ampiezza del vincolo t', { min: 0.05, max: 2.5, step: 0.05, value: S.t, format: function (v) { return SA.fmt(v, 2); },
       oninput: function (v) { S.t = v; drawGeo(); }, onchange: function () { updateTable(); codeBox.refresh(); } }));
