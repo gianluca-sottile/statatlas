@@ -50,7 +50,7 @@ Molti concetti della statistica — la legge dei grandi numeri, il teorema centr
 | | 07 · Verosimiglianza e informazione di Fisher | Dieci modelli, identità di Bartlett, Cramér–Rao, Wald contro rapporto di verosimiglianza |
 | | 08 · Intervalli di confidenza | Copertura nominale, esatta e osservata: Z, t, Wald, Wilson, Garwood, pivot χ² |
 | | 09 · Test e potenza | Errore di primo tipo, curve di potenza, numerosità campionaria |
-| **IV · Modelli** | 10 · Regressione interattiva | Punti trascinabili, leva, distanza di Cook, banda per la media e intervallo di previsione |
+| **IV · Modelli** | 10 · Regressione interattiva | Punti trascinabili, leverage, distanza di Cook, banda per la media e intervallo di previsione |
 | | 11 · Regressione L1, L2, Lp | Criteri di stima a confronto con errori a code pesanti e contaminati |
 | | 12 · Modelli lineari generalizzati | Logistica e Poisson, IRLS, distorsione per n piccolo, separazione |
 | | 13 · Serie temporali ARMA | ACF e PACF teoriche ed empiriche, radici, stazionarietà e invertibilità |
@@ -70,7 +70,7 @@ I dati e le figure si esportano in CSV e PNG.
 
 ## Riproducibilità in R
 
-StatAtlas implementa in JavaScript il generatore **Mersenne-Twister** di R, incluso lo “scrambling” iniziale di `set.seed()`, e il metodo di **inversione** usato da `rnorm()`. Le altre leggi sono generate come `q*(runif(n), …)`, cioè per inversione della funzione di ripartizione. Di conseguenza, con R ≥ 4.1 e le impostazioni predefinite (`RNGkind("Mersenne-Twister", "Inversion")`):
+StatAtlas implementa in JavaScript il generatore **Mersenne-Twister** di R, inclusa la procedura di inizializzazione del seed (*scrambling*) di `set.seed()`, e il metodo di **inversione** usato da `rnorm()`. Le altre leggi sono generate come `q*(runif(n), …)`, cioè per inversione della funzione di ripartizione. Di conseguenza, con R ≥ 4.1 e le impostazioni predefinite (`RNGkind("Mersenne-Twister", "Inversion")`):
 
 ```r
 set.seed(2026)

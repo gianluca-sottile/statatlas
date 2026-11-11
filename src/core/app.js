@@ -15,7 +15,7 @@ SA.catalog = [
     { id: 'intervalli', num: '08', title: 'Intervalli di confidenza', blurb: 'Copertura nominale, esatta e osservata: Z, t, Wald, Wilson, Garwood, pivot χ².', status: 'ready' },
     { id: 'test', num: '09', title: 'Test e potenza', blurb: 'Errore di primo tipo, potenza e numerosità campionaria nel test Z.', status: 'ready' } ] },
   { part: 'IV', title: 'Modelli', labs: [
-    { id: 'regressione', num: '10', title: 'Regressione interattiva', blurb: 'Punti trascinabili, leva e distanza di Cook, banda per la media e intervallo di previsione.', status: 'ready' },
+    { id: 'regressione', num: '10', title: 'Regressione interattiva', blurb: 'Punti trascinabili, leverage e distanza di Cook, banda per la media e intervallo di previsione.', status: 'ready' },
     { id: 'regressione-lp', num: '11', title: 'Regressione L1, L2, Lp', blurb: 'Tre criteri sugli stessi dati: efficienza, code pesanti e valori anomali.', status: 'ready' },
     { id: 'glm', num: '12', title: 'Modelli lineari generalizzati', blurb: 'Logistica e Poisson: IRLS, distribuzione delle stime, distorsione e separazione.', status: 'ready' },
     { id: 'arma', num: '13', title: 'Serie temporali ARMA', blurb: 'Generazione progressiva, ACF e PACF teoriche ed empiriche, radici e stazionarietà.', status: 'ready' } ] }

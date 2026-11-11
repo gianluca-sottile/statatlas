@@ -368,7 +368,7 @@
         '<li><strong>Dispersione</strong> — quanto si allarga attorno a θ? (varianza, errore quadratico medio, scarto interquartile)</li>' +
         '<li><strong>Robustezza</strong> — quanto cambia la stima se alcune osservazioni sono estreme?</li></ul>' +
         '<h3>Media e mediana</h3>' +
-        '<p>La media usa il <em>valore</em> di ogni osservazione: una sola osservazione molto grande la sposta quanto vuole. La mediana usa solo l’<em>ordine</em>: resta stabile finché meno di metà dei dati è anomala. Si dice che la media ha punto di rottura 0 e la mediana 50%.</p>' +
+        '<p>La media usa il <em>valore</em> di ogni osservazione: una sola osservazione molto grande la sposta quanto vuole. La mediana usa solo l’<em>ordine</em>: resta stabile finché meno di metà dei dati è anomala. Si dice che la media ha punto di rottura (breakdown point) 0 e la mediana 50%.</p>' +
         '<h3>Efficienza relativa</h3>' +
         '<p>Se due stimatori sono centrati su θ, è più <strong>efficiente</strong> quello con varianza minore. Il rapporto delle varianze dice quante osservazioni in più servono al meno efficiente per uguagliare l’altro.</p>' +
         '<table class="tv"><thead><tr><th>Modello</th><th>Var(media)</th><th>Var(mediana)</th><th>Efficienza mediana/media</th></tr></thead><tbody>' +

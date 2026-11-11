@@ -17,7 +17,7 @@
     var a = 0, b = 0, c = 0; for (var i = 0; i < x.length; i++) { var w = fm.dmu(fm.mu(b0 + b1 * x[i])); a += w; b += w * x[i]; c += w * x[i] * x[i]; }
     var det = a * c - b * b; return { v00: c / det, v11: a / det };
   }
-  /* IRLS (Fisher scoring): come glm() in R. Restituisce null se non converge (separazione o stime infinite). */
+  /* IRLS (scoring di Fisher): come glm() in R. Restituisce null se non converge (separazione o stime infinite). */
   function irls(x, y) {
     var n = x.length, b0 = 0, b1 = 0, i, it, ym = SA.stat.mean(y);
     if (S.fam === 'logit') { if (ym === 0 || ym === 1) return null; b0 = Math.log(ym / (1 - ym)); } else { if (ym === 0) return null; b0 = Math.log(ym); }
@@ -98,7 +98,7 @@
       el('tr', el('td', 'Media di β̂₁ (stime finite)'), el('td', fmt(S.b1, 4)), el('td', fmt(m, 4)), el('td', b('asym'))),
       el('tr', el('td', 'Dev. std di β̂₁'), el('td', fmt(S.asd, 4) + ' = √[(XᵀWX)⁻¹]₁₁'), el('td', S.ok > 1 ? fmt(SA.stat.sd(v), 4) : '—'), el('td', b('asym'))),
       el('tr', el('td', 'Copertura di Wald β̂₁ ± 1,96 e.s.'), el('td', '0,95'), el('td', S.ok ? fmt(S.cov / S.ok, 3) : '—'), el('td', b('asym'))),
-      el('tr', el('td', 'Campioni con separazione / stime infinite'), el('td', '—'), el('td', S.k ? S.sep + ' (' + fmt(100 * S.sep / S.k, 1) + '%)' : '—'), el('td', b('mc'))));
+      el('tr', el('td', 'Campioni con separazione (stima ML non esistente)'), el('td', '—'), el('td', S.k ? S.sep + ' (' + fmt(100 * S.sep / S.k, 1) + '%)' : '—'), el('td', b('mc'))));
     kpiBox.innerHTML = '';
     var f = S.last && S.last.fit;
     kpiBox.append(el('div.kpi', el('b', S.k + ' / ' + S.M), el('span', 'campioni di n = ' + S.n)),
@@ -121,10 +121,10 @@
     var v = S.est.subarray(0, S.ok), m = SA.stat.mean(v), se = SA.stat.sd(v) / Math.sqrt(S.ok), d = m - S.b1;
     var truth = Math.abs(d) < 2 * se ? 'eq' : (d * S.b1 > 0 ? 'away' : 'toward');
     fbBox.textContent = (S.pred === truth ? '✓ ' : '✗ ') + 'Distorsione stimata ' + SA.fmt(d, 3) + ' ± ' + SA.fmt(2 * se, 3) + '. ' +
-      'Lo stimatore di massima verosimiglianza nei GLM è distorto per n finito, tipicamente verso valori più lontani da zero, con distorsione dell’ordine di 1/n. ' + (S.sep ? 'Inoltre ' + S.sep + ' campioni non hanno stima finita: escluderli altera la distribuzione.' : '');
+      'Lo stimatore di massima verosimiglianza nei GLM è distorto per n finito, tipicamente verso valori più lontani da zero, con distorsione dell’ordine di 1/n. ' + (S.sep ? 'Inoltre ' + S.sep + ' campioni non hanno una stima di massima verosimiglianza finita: escluderli altera la distribuzione.' : '');
   }
   function interpretation() {
-    interpBox.innerHTML = '<p>Un GLM collega la media della risposta ai predittori attraverso una <strong>funzione di legame</strong>: logit(p) = β₀ + β₁x per dati binari, log(μ) = β₀ + β₁x per conteggi. La stima è di massima verosimiglianza, calcolata con i minimi quadrati ripesati iterativi (lo stesso algoritmo di <code>glm()</code>).</p>' +
+    interpBox.innerHTML = '<p>Un GLM collega la media della risposta ai predittori attraverso una <strong>funzione di legame</strong>: logit(p) = β₀ + β₁x per dati binari, log(μ) = β₀ + β₁x per conteggi. La stima è di massima verosimiglianza, calcolata con i minimi quadrati ponderati iterativi (IRLS) (lo stesso algoritmo di <code>glm()</code>).</p>' +
       '<p>Le proprietà della stima sono solo <strong>asintotiche</strong>: normalità, varianza (XᵀWX)⁻¹, copertura di Wald al 95%. Con n piccolo la distribuzione è asimmetrica e distorta, e nella regressione logistica può capitare la <strong>separazione</strong>: se una retta divide perfettamente gli 0 dagli 1, la verosimiglianza cresce senza limite e la stima non esiste. R lo segnala con un avviso, non con un errore.</p>' +
       (S.fam === 'pois' ? '<p>Per la Poisson la varianza è uguale alla media: se i dati sono più dispersi, gli errori standard del modello sono troppo piccoli (si usa allora una famiglia quasi-Poisson o binomiale negativa).</p>' : '');
   }
@@ -157,11 +157,11 @@
     base: function () {
       return el('div.prose', { html: '<h3>Tre ingredienti</h3><ul><li>una legge per la risposta nella famiglia esponenziale (Binomiale, Poisson, Normale, Gamma…);</li><li>un predittore lineare η = β₀ + β₁x;</li><li>un legame g(μ) = η.</li></ul>' +
         '<div class="eq">logit(p) = log(p/(1 − p)) = β₀ + β₁x &nbsp;&nbsp;&nbsp; log(μ) = β₀ + β₁x</div>' +
-        '<p>Interpretazione: nella logistica e<sup>β₁</sup> è il rapporto di quote (odds ratio) per un aumento unitario di x; nella Poisson e<sup>β₁</sup> è il fattore moltiplicativo della media.</p>' +
+        '<p>Interpretazione: nella logistica e<sup>β₁</sup> è il odds ratio per un aumento unitario di x; nella Poisson e<sup>β₁</sup> è il fattore moltiplicativo della media.</p>' +
         '<div class="callout warn">Le inferenze standard (errori standard, test di Wald, intervalli) sono asintotiche. Con dati scarsi o separazione possono essere fuorvianti.</div>' });
     },
     adv: function () {
-      return el('div.prose', { html: '<h3>Fisher scoring</h3><p>Con legame canonico lo score è Xᵀ(y − μ) e l’informazione XᵀWX con W = diag(Var(Yᵢ)). Il passo di Newton coincide con una regressione pesata della risposta lavorata zᵢ = ηᵢ + (yᵢ − μᵢ)/(dμ/dη) sui predittori, con pesi wᵢ: da qui “minimi quadrati ripesati iterativi”.</p>' +
+      return el('div.prose', { html: '<h3>scoring di Fisher</h3><p>Con legame canonico lo score è Xᵀ(y − μ) e l’informazione XᵀWX con W = diag(Var(Yᵢ)). Il passo di Newton coincide con una regressione ponderata della working response zᵢ = ηᵢ + (yᵢ − μᵢ)/(dμ/dη) sui predittori, con pesi wᵢ: da qui “minimi quadrati ponderati iterativi (IRLS)”.</p>' +
         '<h3>Normalità asintotica</h3><div class="eq">β̂ ≈ N(β, (XᵀWX)⁻¹)</div><p>La curva del grafico usa W calcolata nel vero β; R stima gli errori standard con W calcolata in β̂.</p>' +
         '<h3>Distorsione e separazione</h3><p>La distorsione di primo ordine è O(1/n) (Cox e Snell, 1968) e allontana le stime da zero nella logistica. Se esiste una retta che separa perfettamente 0 e 1 la log-verosimiglianza tende a 0 lungo una direzione: la stima diverge (Albert e Anderson, 1984). La verosimiglianza penalizzata di Firth corregge entrambi i problemi.</p>' +
         '<h3>Devianza</h3><p>D = 2[ℓ(saturo) − ℓ(β̂)]. Per la Poisson con medie grandi D ≈ χ²<sub>n−2</sub>; per dati binari individuali questa approssimazione non vale.</p>' });
@@ -206,7 +206,7 @@
       var s4 = SA.ui.step('4', 'Teoria e simulazione a confronto'); tblBody = el('tbody'); kpiBox = el('div.kpis');
       s4.body.append(el('div.tbl-wrap', el('table.tv', el('thead', el('tr', el('th', 'Quantità'), el('th', 'Teoria'), el('th', 'Simulazione'), el('th', 'Natura'))), tblBody)), kpiBox);
       var s5 = SA.ui.step('5', 'Interpretazione'); interpBox = el('div.prose');
-      s5.body.append(interpBox, el('p', el('button.btn.btn-ghost', { type: 'button', onclick: function () { openT('adv'); } }, SA.ui.icon('book'), ' Fisher scoring, distorsione, separazione (livello avanzato)')));
+      s5.body.append(interpBox, el('p', el('button.btn.btn-ghost', { type: 'button', onclick: function () { openT('adv'); } }, SA.ui.icon('book'), ' scoring di Fisher, distorsione, separazione (livello avanzato)')));
       var s6 = SA.ui.step('6', 'Riproduci in R', 'glm() sugli stessi campioni'); codeBox = SA.ui.codeBlock(codeR, 'statatlas_lab12_glm.R');
       s6.body.append(el('p.prose', 'Richiede R ≥ 4.1 e tidyverse. Le stime coincidono con quelle di StatAtlas entro la tolleranza di convergenza.'), codeBox);
       page.append(s1, s2, s3, s4, s5, s6);

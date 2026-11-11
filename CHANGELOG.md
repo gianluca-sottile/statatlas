@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.1 — 11/11/2026 · revisione terminologica
+- “Matrice cappello” → **hat matrix** (matrice di proiezione); “leva” → **leverage** in tutto il lab 10 e nei testi collegati.
+- “Minimi quadrati ripesati/pesati” → **minimi quadrati ponderati (iterativi, IRLS)**; “risposta lavorata” → **working response**; “Fisher scoring” → **scoring di Fisher**.
+- “Quote / rapporto di quote” → **odds / odds ratio**; “riscaldamento” → **burn-in**; “progetto sperimentale” → **disegno sperimentale**; “funzione generatrice” → **funzione generatrice dei momenti**.
+- Aggiunti i termini inglesi di riferimento dove l’uso italiano è meno stabile: *breakdown point*, *M-estimators*.
+
 ## 1.2.0 — 11/11/2026
 - Home più compatta: le quattro parti sono tessere illustrate; un clic apre una finestra con le schede dei laboratori (chiusura con ×, clic fuori o Esc).
 - La previsione non è più un passo a sé: è un riquadro facoltativo e chiuso dentro la Domanda, con lo stesso riscontro. I passi dei laboratori si rinumerano automaticamente.

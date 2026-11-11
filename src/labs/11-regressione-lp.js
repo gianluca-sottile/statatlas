@@ -21,7 +21,7 @@
     { key: 'lp', label: 'Lp', col: 'c3', dash: '2 3', shape: 'circle' }];
 
   function xs(n) { var o = new Float64Array(n); for (var i = 0; i < n; i++) o[i] = 10 * (i + 0.5) / n; return o; }
-  /* Lp con minimi quadrati ripesati (IRLS): pesi |rᵢ|^(p−2), con soglia per p < 2. Identico nello script R. */
+  /* Lp con minimi quadrati ponderati iterativi (IRLS) (IRLS): pesi |rᵢ|^(p−2), con soglia per p < 2. Identico nello script R. */
   function fitLp(x, y, p) {
     var n = x.length, b0, b1, it;
     function wls(w) {
@@ -152,7 +152,7 @@
   function interpretation() {
     interpBox.innerHTML = '<p>I tre criteri cercano la retta che rende piccoli i residui, ma li misurano diversamente: <strong>L2</strong> somma i quadrati e quindi amplifica i residui grandi; <strong>L1</strong> somma i valori assoluti e tratta un residuo enorme come uno grande; <strong>Lp</strong> con 1 &lt; p &lt; 2 sta nel mezzo. Ciascuno è la massima verosimiglianza per una legge degli errori (Normale, Laplace, normale generalizzata di indice p).</p>' +
       '<p>' + (ERRS[S.err].v === Infinity ? 'Con errori t₂ la varianza non esiste: la varianza asintotica dei minimi quadrati è infinita e la loro dispersione simulata non si stabilizza, mentre L1 e Lp restano ben definiti.' : 'L’efficienza relativa L1/L2 = ' + SA.fmt(S.th.l2 / S.th.l1, 2) + ' indica quante osservazioni in più servirebbero a L2 (se > 1) o a L1 (se < 1) per la stessa precisione.') + '</p>' +
-      '<p class="muted">Le curve sono approssimazioni asintotiche; per L1 e Lp la stima è calcolata numericamente con minimi quadrati ripesati, lo stesso algoritmo dello script R.</p>';
+      '<p class="muted">Le curve sono approssimazioni asintotiche; per L1 e Lp la stima è calcolata numericamente con minimi quadrati ponderati iterativi (IRLS), lo stesso algoritmo dello script R.</p>';
   }
   function codeR() {
     var E = ERRS[S.err];
@@ -161,7 +161,7 @@
       'library(tidyverse)', '', 'set.seed(' + S.seed + ')',
       'n <- ' + S.n + '; M <- ' + S.M + '; sigma <- ' + S.sigma + '; p <- ' + S.p + '; b0 <- ' + B0 + '; b1 <- ' + B1,
       'x <- (seq_len(n) - 0.5) / n * 10', 'errori <- function(n) ' + E.r, '',
-      '# Regressione Lp per minimi quadrati ripesati (stesso algoritmo di StatAtlas)',
+      '# Regressione Lp per minimi quadrati ponderati iterativi (IRLS) (stesso algoritmo di StatAtlas)',
       'fit_lp <- function(x, y, p, maxit = 500) {',
       '  w <- rep(1, length(x))', '  wls <- function(w) { coef(lm(y ~ x, weights = w)) }',
       '  b <- wls(w)', '  if (p == 2) return(b)',
@@ -187,14 +187,14 @@
   var THEORY = {
     base: function () {
       return el('div.prose', { html: '<h3>Tre criteri</h3><div class="eq">min Σ |yᵢ − b₀ − b₁xᵢ|<sup>p</sup></div><p>p = 2: minimi quadrati; p = 1: minimi valori assoluti (regressione mediana); 1 &lt; p &lt; 2: compromesso. Più p è piccolo, meno pesano i residui grandi.</p>' +
-        '<h3>Robustezza ed efficienza</h3><p>Un singolo valore anomalo può spostare arbitrariamente la retta L2. L1 resiste ai valori anomali nella y (non a quelli con leva alta nella x). Il prezzo: con errori normali L1 ha efficienza 2/π ≈ 0,64 rispetto a L2.</p>' +
+        '<h3>Robustezza ed efficienza</h3><p>Un singolo valore anomalo può spostare arbitrariamente la retta L2. L1 resiste ai valori anomali nella y (non a quelli con alto leverage, cioè anomali nella x). Il prezzo: con errori normali L1 ha efficienza 2/π ≈ 0,64 rispetto a L2.</p>' +
         '<div class="callout">Ogni criterio corrisponde alla massima verosimiglianza per una legge degli errori: L2 ↔ Normale, L1 ↔ Laplace, Lp ↔ normale generalizzata f(e) ∝ exp(−|e|<sup>p</sup>/c).</div>' });
     },
     adv: function () {
       return el('div.prose', { html: '<h3>M-stimatori</h3><p>Lp risolve Σ ψ(rᵢ) xᵢ = 0 con ψ(r) = |r|<sup>p−1</sup> sign(r). Per errori simmetrici e disegno fisso</p><div class="eq">Var(β̂₁) ≈ [E ψ(ε)² / (E ψ′(ε))²] / Sxx</div>' +
         '<p>Per p = 2 si ottiene σ²/Sxx; per p = 1 (ψ = sign) E ψ′ diventa 2f(0) e la varianza 1/(4 f(0)² Sxx). StatAtlas calcola i valori attesi per integrazione numerica.</p>' +
-        '<h3>Minimi quadrati ripesati</h3><p>Il gradiente di Σ|rᵢ|<sup>p</sup> si annulla dove Σ wᵢ rᵢ xᵢ = 0 con wᵢ = |rᵢ|<sup>p−2</sup>: si alternano pesi e minimi quadrati pesati. Per p &lt; 2 i pesi esplodono per residui nulli: si usa una soglia (10⁻⁶). Per p = 1 l’algoritmo converge lentamente; la soluzione esatta è un problema di programmazione lineare (Koenker e Bassett, 1978).</p>' +
-        '<h3>Punto di rottura</h3><p>Nella regressione L1 il punto di rottura è comunque 1/n se i valori anomali sono anche punti ad alta leva: per una robustezza piena servono stimatori come LTS o MM.</p>' });
+        '<h3>Minimi quadrati ripesati</h3><p>Il gradiente di Σ|rᵢ|<sup>p</sup> si annulla dove Σ wᵢ rᵢ xᵢ = 0 con wᵢ = |rᵢ|<sup>p−2</sup>: si alternano pesi e minimi quadrati ponderati. Per p &lt; 2 i pesi esplodono per residui nulli: si usa una soglia (10⁻⁶). Per p = 1 l’algoritmo converge lentamente; la soluzione esatta è un problema di programmazione lineare (Koenker e Bassett, 1978).</p>' +
+        '<h3>Punto di rottura (breakdown point)</h3><p>Nella regressione L1 il punto di rottura è comunque 1/n se i valori anomali sono anche punti ad alto leverage: per una robustezza piena servono stimatori come LTS o MM.</p>' });
     }
   };
 

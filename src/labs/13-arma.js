@@ -108,7 +108,7 @@
     });
     var st = stationary(S.p1, S.p2), inv = Math.abs(S.th) < 1;
     kpiBox.innerHTML = '';
-    kpiBox.append(el('div.kpi', el('b', S.k + ' / ' + S.T), el('span', 'osservazioni (dopo ' + BURN + ' di riscaldamento)')),
+    kpiBox.append(el('div.kpi', el('b', S.k + ' / ' + S.T), el('span', 'osservazioni (dopo un burn-in di ' + BURN + ')')),
       el('div.kpi', el('b', st ? 'stazionario' : 'non stazionario'), el('span', 'radici reciproche AR ' + (st ? 'dentro' : 'non tutte dentro') + ' il cerchio')),
       el('div.kpi', el('b', inv ? 'invertibile' : 'non invertibile'), el('span', '|θ₁| ' + (inv ? '<' : '≥') + ' 1')));
     updateFeedback();
@@ -139,7 +139,7 @@
       'library(tidyverse)', '', 'set.seed(' + S.seed + ')', 'phi <- c(' + S.p1 + ', ' + S.p2 + '); theta <- ' + S.th + '; T <- ' + S.T + '; burn <- ' + BURN, '',
       'e <- rnorm(burn + T)', 'x <- numeric(burn + T)', 'for (t in seq_along(x)) {',
       '  x1 <- if (t > 1) x[t - 1] else 0; x2 <- if (t > 2) x[t - 2] else 0; e1 <- if (t > 1) e[t - 1] else 0',
-      '  x[t] <- phi[1] * x1 + phi[2] * x2 + e[t] + theta * e1', '}', 'x <- x[-seq_len(burn)]   # scarta il riscaldamento', '',
+      '  x[t] <- phi[1] * x1 + phi[2] * x2 + e[t] + theta * e1', '}', 'x <- x[-seq_len(burn)]   # scarta il burn-in', '',
       '# Stazionarietà e invertibilità: moduli delle radici (devono superare 1)',
       'Mod(polyroot(c(1, -phi)))', 'abs(theta) < 1', '',
       '# ACF e PACF: empiriche e teoriche',
@@ -162,7 +162,7 @@
       return el('div.prose', { html: '<h3>Il modello</h3><div class="eq">Xₜ = φ₁Xₜ₋₁ + φ₂Xₜ₋₂ + εₜ + θ₁εₜ₋₁, &nbsp; εₜ rumore bianco N(0, 1)</div>' +
         '<h3>Stazionarietà</h3><p>Il processo è stazionario se le radici di 1 − φ₁z − φ₂z² stanno fuori dal cerchio unitario (equivalentemente, le reciproche dentro). Per l’AR(2): φ₁ + φ₂ &lt; 1, φ₂ − φ₁ &lt; 1, |φ₂| &lt; 1.</p>' +
         '<h3>Riconoscere il modello</h3><table class="tv"><thead><tr><th></th><th>ACF</th><th>PACF</th></tr></thead><tbody><tr><td>AR(p)</td><td>decresce</td><td>zero dopo p</td></tr><tr><td>MA(q)</td><td>zero dopo q</td><td>decresce</td></tr><tr><td>ARMA</td><td>decresce</td><td>decresce</td></tr></tbody></table>' +
-        '<div class="callout warn">Il riscaldamento (burn-in) serve a dimenticare il valore iniziale arbitrario xₜ = 0: senza, i primi valori non seguono la legge stazionaria.</div>' });
+        '<div class="callout warn">Il burn-in serve a dimenticare il valore iniziale arbitrario xₜ = 0: senza, i primi valori non seguono la legge stazionaria.</div>' });
     },
     adv: function () {
       return el('div.prose', { html: '<h3>Rappresentazione MA(∞)</h3><p>Se il processo è stazionario Xₜ = Σ ψⱼ εₜ₋ⱼ con ψ₀ = 1, ψ₁ = φ₁ + θ₁, ψⱼ = φ₁ψⱼ₋₁ + φ₂ψⱼ₋₂. Allora γ(h) = Σ ψⱼψⱼ₊ₕ: è così che StatAtlas calcola l’ACF teorica.</p>' +

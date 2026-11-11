@@ -103,7 +103,7 @@
   function drawInfluence() {
     var P = SA.plot, f = ols(S.pts), hmax = Math.max(0.5, Math.max.apply(null, f.diag.map(function (d) { return d.h; })) * 1.1);
     var rmax = Math.max(3, Math.max.apply(null, f.diag.map(function (d) { return isFinite(d.r) ? Math.abs(d.r) : 0; })) * 1.1);
-    var F = P.frame(figB, { W: 720, H: 230, x: [0, +hmax.toFixed(2)], y: [-+rmax.toFixed(1), +rmax.toFixed(1)], xlabel: 'leva hᵢ', ylabel: 'residuo standardizzato', label: 'Residui e leva' });
+    var F = P.frame(figB, { W: 720, H: 230, x: [0, +hmax.toFixed(2)], y: [-+rmax.toFixed(1), +rmax.toFixed(1)], xlabel: 'leverage hᵢ', ylabel: 'residuo standardizzato', label: 'Residui e leverage' });
     var t = F.t, g = F.g;
     [0.5, 1].forEach(function (D) {
       var h0 = 2 * D / (rmax * rmax + 2 * D) + 1e-4; // da qui la curva |r| = √(2D(1−h)/h) è dentro il grafico
@@ -142,7 +142,7 @@
     kpiBox.innerHTML = '';
     kpiBox.append(
       el('div.kpi', el('b', { style: 'font-size:1.15rem' }, 'ŷ = ' + fmt(f.b0, 2) + ' + ' + fmt(f.b1, 3) + ' x'), el('span', 'retta dei minimi quadrati, R² = ' + fmt(f.r2, 3))),
-      el('div.kpi', el('b', fmt(maxH, 3)), el('span', 'leva massima (media 2/n = ' + fmt(2 / f.n, 3) + ')')),
+      el('div.kpi', el('b', fmt(maxH, 3)), el('span', 'leverage massimo (media 2/n = ' + fmt(2 / f.n, 3) + ')')),
       el('div.kpi', el('b', fmt(maxC, 3)), el('span', 'distanza di Cook massima')),
       el('div.kpi', el('b', S.k + ' / ' + S.B), el('span', 'campioni dal modello')));
     updateFeedback();
@@ -158,13 +158,13 @@
   function updateFeedback() {
     if (!S.pred) { fbBox.hidden = true; return; }
     fbBox.hidden = false;
-    fbBox.textContent = (S.pred === 'far_x' ? '✓ ' : '✗ ') + 'L’influenza combina residuo e leva: la distanza di Cook cresce con entrambi. Un punto al centro (leva bassa) sposta la retta solo in su o in giù; un punto lontano in x agisce come una leva sulla pendenza. Prova: trascina il punto più a destra verso l’alto, poi uno centrale.';
+    fbBox.textContent = (S.pred === 'far_x' ? '✓ ' : '✗ ') + 'L’influenza combina residuo e leverage: la distanza di Cook cresce con entrambi. Un punto al centro (leverage basso) sposta la retta solo in su o in giù; un punto lontano in x agisce come una leva sulla pendenza. Prova: trascina il punto più a destra verso l’alto, poi uno centrale.';
   }
   function interpretation() {
     var ex = S.err === 'norm';
     interpBox.innerHTML = '<p>La <strong>banda scura</strong> è l’intervallo di confidenza per la retta vera, E(Y | x) = β₀ + β₁x: si stringe al centro dei dati e si allarga ai bordi, perché lì un errore sulla pendenza pesa di più. La <strong>banda chiara</strong> è l’intervallo di previsione per una nuova osservazione Y₀: contiene anche il rumore σ, e non si restringe a zero nemmeno con infiniti dati.</p>' +
       '<p>Le coperture al 95% sono esatte solo se gli errori sono <strong>indipendenti, omoschedastici e normali</strong>. ' + (ex ? 'Qui lo sono: la simulazione lo conferma.' : 'Qui non sono normali: l’intervallo per E(Y | x₀) resta buono per il teorema centrale, mentre quello di previsione, che dipende dalla forma della singola Y₀, può sbagliare.') + '</p>' +
-      '<p>Nella vista dei residui, la <strong>leva</strong> hᵢ misura quanto xᵢ è lontano da x̄; la <strong>distanza di Cook</strong> quanto cambierebbero le stime togliendo il punto. Fai doppio clic su un punto per eliminarlo, clicca su un’area vuota per aggiungerne uno.</p>';
+      '<p>Nella vista dei residui, il <strong>leverage</strong> hᵢ misura quanto xᵢ è lontano da x̄; la <strong>distanza di Cook</strong> quanto cambierebbero le stime togliendo il punto. Fai doppio clic su un punto per eliminarlo, clicca su un’area vuota per aggiungerne uno.</p>';
   }
   function codeR() {
     var e = ERR[S.err];
@@ -215,7 +215,7 @@
         '<div class="callout warn">La normalità serve per gli intervalli t esatti; l’indipendenza e la varianza costante servono sempre.</div>' });
     },
     adv: function () {
-      return el('div.prose', { html: '<h3>Matrice cappello e leva</h3><p>ŷ = Hy con H = X(XᵀX)⁻¹Xᵀ. L’elemento diagonale hᵢ = 1/n + (xᵢ − x̄)²/Sxx è la leva: Σhᵢ = 2, quindi la leva media è 2/n. Var(eᵢ) = σ²(1 − hᵢ): i punti ad alta leva hanno residui piccoli <em>perché</em> attirano la retta.</p>' +
+      return el('div.prose', { html: '<h3>Hat matrix e leverage</h3><p>ŷ = Hy con H = X(XᵀX)⁻¹Xᵀ, la hat matrix, cioè la matrice di proiezione ortogonale sullo spazio generato dalle colonne di X. L’elemento diagonale hᵢ = 1/n + (xᵢ − x̄)²/Sxx è il leverage del punto i: Σhᵢ = 2, quindi il leverage medio è 2/n. Var(eᵢ) = σ²(1 − hᵢ): i punti ad alto leverage hanno residui piccoli <em>perché</em> attirano la retta.</p>' +
         '<h3>Distanza di Cook</h3><div class="eq">Dᵢ = rᵢ² hᵢ / [p (1 − hᵢ)], &nbsp; rᵢ = eᵢ / (s √(1 − hᵢ))</div><p>con p = 2 parametri. Misura lo spostamento delle stime quando si toglie il punto i; soglie usuali 0,5 e 1. Le curve nel grafico sono i luoghi a D costante.</p>' +
         '<h3>Distribuzioni esatte</h3><p>Con errori normali: β̂₁ ~ N(β₁, σ²/Sxx), (n − 2)s²/σ² ~ χ²<sub>n−2</sub> indipendente da β̂, da cui le statistiche t. Senza normalità β̂₁ è comunque approssimativamente normale per n grande (TCL di Lindeberg, se nessun xᵢ domina Sxx), ma l’intervallo di previsione resta legato alla legge dell’errore.</p>' });
     }
@@ -253,7 +253,7 @@
       ctrlBox = el('div.panel.controls'); figA = el('div'); figB = el('div'); figC = el('div'); legA = el('div.legend'); legB = el('div.legend'); legC = el('div.legend');
       s3.body.appendChild(el('div.lab-grid', ctrlBox, el('div.figure',
         el('div.fig', el('div.fig-title', el('h3', 'Dati e retta'), legA), el('p.muted', { style: 'margin:2px 0 4px;font-size:.8rem' }, 'Trascina un punto · clic su un’area vuota per aggiungerne uno · doppio clic per eliminarlo'), figA),
-        el('div.fig', el('div.fig-title', el('h3', 'Residui standardizzati e leva'), legB), figB),
+        el('div.fig', el('div.fig-title', el('h3', 'Residui standardizzati e leverage'), legB), figB),
         el('div.fig', el('div.fig-title', el('h3', 'Pendenza stimata nei campioni ripetuti'), legC), figC),
         el('div.toolbar', SA.ui.button('Dati CSV', { icon: 'download', cls: 'btn-ghost', onclick: function () {
           var rows = [['x', 'y']]; S.pts.forEach(function (p) { rows.push([p[0], p[1]]); }); SA.ui.download('statatlas_lab10_dati.csv', SA.ui.csv(rows), 'text/csv'); } }),
@@ -262,7 +262,7 @@
       s4.body.append(el('div.tbl-wrap', el('table.tv', el('thead', el('tr', el('th', 'Quantità'), el('th', 'Teoria'), el('th', 'Simulazione'), el('th', 'Natura'))), tblBody)),
         el('div.status-key', el('span', SA.ui.badge('exact'), ' esatto con errori normali'), el('span', SA.ui.badge('asym'), ' vale per n grande'), el('span', SA.ui.badge('approx'), ' dipende dalla legge degli errori')), kpiBox);
       var s5 = SA.ui.step('5', 'Interpretazione'); interpBox = el('div.prose');
-      s5.body.append(interpBox, el('p', el('button.btn.btn-ghost', { type: 'button', onclick: function () { openT('adv'); } }, SA.ui.icon('book'), ' Matrice cappello, Cook e distribuzioni esatte (livello avanzato)')));
+      s5.body.append(interpBox, el('p', el('button.btn.btn-ghost', { type: 'button', onclick: function () { openT('adv'); } }, SA.ui.icon('book'), ' Hat matrix, distanza di Cook e distribuzioni esatte (livello avanzato)')));
       var s6 = SA.ui.step('6', 'Riproduci in R', 'lm(), predict() e diagnostiche'); codeBox = SA.ui.codeBlock(codeR, 'statatlas_lab10_regressione.R');
       s6.body.append(el('p.prose', 'Richiede R ≥ 4.1 e tidyverse.'), codeBox);
       page.append(s1, s2, s3, s4, s5, s6);

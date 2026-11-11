@@ -136,7 +136,7 @@
     var t = f.t, g = f.g, i, pts = [];
     var srt = statCache && statCache.sorted, n = srt ? srt.length : 0;
     function ecdf(x) { var l = 0, h = n; while (l < h) { var m = (l + h) >> 1; if (srt[m] <= x) l = m + 1; else h = m; } return l / n; }
-    // banda DKW al 95% attorno alla ripartizione empirica
+    // banda DKW al 95% attorno alla funzione di ripartizione empirica
     if (n > 0) {
       var eps = dkw(n), up = [], dn = [], G = disc ? null : 240;
       var xs = [];
@@ -414,7 +414,7 @@
     else if (!isFinite(th.var) || isNaN(th.var)) notes.push('<strong>La varianza non è finita.</strong> La media converge (lentamente), ma la varianza empirica no, e il teorema centrale nella forma classica non si applica.');
     if (L.kind === 'discrete') notes.push('Per una legge discreta la probabilità sta nei punti: P(a < X ≤ b) = F(b) − F(a) dipende da quali estremi sono inclusi. Prova a spostare <span class="m">a</span> di una unità.');
     else notes.push('Per una legge continua f(x) non è una probabilità (può superare 1): la probabilità è l’<strong>area</strong> sotto la curva, uguale al salto F(b) − F(a) nel grafico sotto.');
-    notes.push('Con N osservazioni la ripartizione empirica resta, con probabilità almeno 95%, entro la banda DKW di raggio √(log(40)/(2N)): un risultato <em>esatto</em>, valido per ogni N e ogni legge. La distanza osservata sup|F̂ − F| la verifica sui tuoi dati.');
+    notes.push('Con N osservazioni la funzione di ripartizione empirica resta, con probabilità almeno 95%, entro la banda DKW di raggio √(log(40)/(2N)): un risultato <em>esatto</em>, valido per ogni N e ogni legge. La distanza osservata sup|F̂ − F| la verifica sui tuoi dati.');
     interpBox.innerHTML = notes.map(function (n) { return '<p>' + n + '</p>'; }).join('');
     lawCard.innerHTML = '';
     lawCard.append(el('div.step-label', L.kind === 'discrete' ? 'Legge discreta' : 'Legge continua'),
@@ -564,7 +564,7 @@
         '<div class="eq">F⁻¹(u) = inf { x : F(x) ≥ u }, &nbsp; 0 &lt; u &lt; 1</div>' +
         '<p>Per la continuità a destra, F⁻¹(u) ≤ x ⟺ u ≤ F(x). Se U ~ U(0, 1) allora P(F⁻¹(U) ≤ x) = P(U ≤ F(x)) = F(x): la variabile F⁻¹(U) ha esattamente ripartizione F, anche per leggi discrete. È la definizione usata da <code>qbinom</code>, <code>qpois</code> e simili in R.</p>' +
         '<h3>Glivenko–Cantelli e DKW</h3>' +
-        '<p>La ripartizione empirica F̂<sub>N</sub>(x) = #{Xᵢ ≤ x}/N converge uniformemente a F quasi certamente (Glivenko–Cantelli). La disuguaglianza di Dvoretzky–Kiefer–Wolfowitz, con la costante ottimale di Massart (1990), dà una velocità esplicita:</p>' +
+        '<p>La funzione di ripartizione empirica F̂<sub>N</sub>(x) = #{Xᵢ ≤ x}/N converge uniformemente a F quasi certamente (Glivenko–Cantelli). La disuguaglianza di Dvoretzky–Kiefer–Wolfowitz, con la costante ottimale di Massart (1990), dà una velocità esplicita:</p>' +
         '<div class="eq">P( sup<sub>x</sub> |F̂<sub>N</sub>(x) − F(x)| &gt; ε ) ≤ 2 e<sup>−2Nε²</sup></div>' +
         '<p>Ponendo il secondo membro uguale a 0,05 si ottiene ε = √(log(40)/(2N)): la banda nel grafico. Vale per ogni N e ogni F (per le leggi discrete è conservativa). La statistica sup|F̂ − F| è quella del test di Kolmogorov–Smirnov.</p>' +
         '<h3>Esistenza dei momenti</h3>' +
