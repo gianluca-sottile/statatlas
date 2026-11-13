@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.13.0 — 13/11/2026 · laboratori 17–24 verificati in R
+- La verifica in R dell’utente (`verifica_statatlas.R`) supera tutti i 48 controlli: generatore, esecuzione dei 24 script e confronti numerici dei lab 17–24. Tolte le etichette «Anteprima · script R da verificare».
+- Nuovo `verifica/verifica_statatlas_01_16.R` (generato da `tests/gen_verifica_R_01_16.js`): confronti numerici anche per i lab 01–16 (momenti campionari, correlazioni, coperture, potenza, stime di regressione, GLM, autocorrelazioni, regressione quantilica, soluzione lasso, distorsione e varianza delle spline).
+- L’estrattore registra ora tutte le colonne delle tabelle e i riquadri numerici, e usa «Completa» anche nel lab 06.
+
 ## 1.12.2 — 13/11/2026 · correzioni dopo la prima verifica in R
 - **Ingrandimento dei grafici** riscritto: il riquadro viene spostato in una finestra sopra la pagina (non esce più dallo schermo, scorre al suo interno), si chiude con ✕, Esc, clic fuori o cambio di pagina, e lo scorrimento della pagina torna sempre disponibile; i grafici restano aggiornati dal vivo.
 - **Pulsanti di avvio**: il pulsante principale ha larghezza stabile (non deforma più il riquadro dei controlli); a simulazione finita diventa «Riavvia» e la ricomincia con lo stesso seed (anche nel lab 06).

@@ -23,17 +23,17 @@ SA.catalog = [
     { id: 'quantilica', num: '14', title: 'Regressione quantilica', blurb: 'Rette per ogni quantile, perdita asimmetrica, soluzione esatta, punti trascinabili.', status: 'ready' },
     { id: 'penalizzata', num: '15', title: 'Ridge, lasso ed elastic net', blurb: 'Lo spazio delle soluzioni, i percorsi di regolarizzazione e il compromesso distorsione–varianza.', status: 'ready' },
     { id: 'spline', num: '16', title: 'Regressione non parametrica e spline', blurb: 'Polinomi, spline, P-spline e kernel: complessità, gradi di libertà effettivi e validazione incrociata.', status: 'ready' },
-    { id: 'segmentata', num: '17', title: 'Regressione segmentata e breakpoint', blurb: 'Una pendenza che cambia: profilo RSS(ψ), breakpoint non identificato, test bootstrap del cambiamento.', status: 'ready', verifyR: true } ] },
+    { id: 'segmentata', num: '17', title: 'Regressione segmentata e breakpoint', blurb: 'Una pendenza che cambia: profilo RSS(ψ), breakpoint non identificato, test bootstrap del cambiamento.', status: 'ready' } ] },
   { part: 'VI', title: 'Apprendimento supervisionato', labs: [
-    { id: 'validazione', num: '18', title: 'Validazione e overfitting', blurb: 'Training, test e validazione incrociata: scegliere la complessità senza ingannarsi sull’errore di previsione.', status: 'ready', verifyR: true },
-    { id: 'knn', num: '19', title: 'k vicini più prossimi', blurb: 'Classificare con i vicini: frontiere di decisione, errore di Bayes, scelta di k e il peso delle unità di misura.', status: 'ready', verifyR: true },
-    { id: 'alberi', num: '20', title: 'Alberi, bagging e random forest', blurb: 'Un albero è instabile; molti alberi resi diversi votano meglio: bootstrap, out-of-bag e scelta casuale delle variabili.', status: 'ready', verifyR: true } ] },
+    { id: 'validazione', num: '18', title: 'Validazione e overfitting', blurb: 'Training, test e validazione incrociata: scegliere la complessità senza ingannarsi sull’errore di previsione.', status: 'ready' },
+    { id: 'knn', num: '19', title: 'k vicini più prossimi', blurb: 'Classificare con i vicini: frontiere di decisione, errore di Bayes, scelta di k e il peso delle unità di misura.', status: 'ready' },
+    { id: 'alberi', num: '20', title: 'Alberi, bagging e random forest', blurb: 'Un albero è instabile; molti alberi resi diversi votano meglio: bootstrap, out-of-bag e scelta casuale delle variabili.', status: 'ready' } ] },
   { part: 'VII', title: 'Riduzione dimensionale e clustering', labs: [
-    { id: 'pca', num: '21', title: 'Componenti principali', blurb: 'Gli assi di massima varianza: autovalori, varianza spiegata, ricostruzione, segni e stabilità degli assi.', status: 'ready', verifyR: true },
-    { id: 'clustering', num: '22', title: 'k-means e clustering gerarchico', blurb: 'Lloyd passo dopo passo, minimi locali e più avvii, dendrogrammi e legami, gruppi trovati contro gruppi veri.', status: 'ready', verifyR: true },
-    { id: 'dbscan', num: '23', title: 'DBSCAN e confronto tra metodi', blurb: 'Gruppi come regioni dense: core, bordo e rumore, scelta di ε, lune e cerchi contro k-means e Ward.', status: 'ready', verifyR: true } ] },
+    { id: 'pca', num: '21', title: 'Componenti principali', blurb: 'Gli assi di massima varianza: autovalori, varianza spiegata, ricostruzione, segni e stabilità degli assi.', status: 'ready' },
+    { id: 'clustering', num: '22', title: 'k-means e clustering gerarchico', blurb: 'Lloyd passo dopo passo, minimi locali e più avvii, dendrogrammi e legami, gruppi trovati contro gruppi veri.', status: 'ready' },
+    { id: 'dbscan', num: '23', title: 'DBSCAN e confronto tra metodi', blurb: 'Gruppi come regioni dense: core, bordo e rumore, scelta di ε, lune e cerchi contro k-means e Ward.', status: 'ready' } ] },
   { part: 'VIII', title: 'Reti neurali', labs: [
-    { id: 'reti-neurali', num: '24', title: 'Reti neurali e backpropagation', blurb: 'Una rete piccola vista per intero: pesi, passaggio in avanti, gradiente, learning rate, sovradattamento e inizializzazioni.', status: 'ready', verifyR: true } ] }
+    { id: 'reti-neurali', num: '24', title: 'Reti neurali e backpropagation', blurb: 'Una rete piccola vista per intero: pesi, passaggio in avanti, gradiente, learning rate, sovradattamento e inizializzazioni.', status: 'ready' } ] }
 ];
 SA.labs = {};
 SA.registerLab = function (id, def) { SA.labs[id] = def; };

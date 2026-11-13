@@ -18,7 +18,7 @@
 </p>
 
 <p align="center">
-  <img alt="Versione" src="https://img.shields.io/badge/versione-1.12.2-9A3412">
+  <img alt="Versione" src="https://img.shields.io/badge/versione-1.13.0-9A3412">
   <img alt="Lingua" src="https://img.shields.io/badge/lingua-italiano-1C1B19">
   <img alt="Offline" src="https://img.shields.io/badge/funziona-offline-1F6F43">
   <img alt="Dipendenze" src="https://img.shields.io/badge/dipendenze-nessuna-1E4E8C">
@@ -57,14 +57,14 @@ Molti concetti della statistica — la legge dei grandi numeri, il teorema centr
 | **V · Regressione moderna** | 14 · Regressione quantilica | Rette per ogni quantile, perdita asimmetrica, soluzione esatta, punti trascinabili |
 | | 15 · Ridge, lasso ed elastic net | Spazio delle soluzioni, percorsi di regolarizzazione, distorsione–varianza |
 | | 16 · Regressione non parametrica e spline | Polinomi, spline, P-spline e kernel: basi, gradi di libertà effettivi, validazione incrociata |
-| | 17 · Regressione segmentata e breakpoint *(anteprima)* | Profilo RSS(ψ), breakpoint non identificato, test bootstrap dell’esistenza del cambiamento |
-| **VI · Apprendimento supervisionato** | 18 · Validazione e overfitting *(anteprima)* | Training, test e validazione incrociata a K fold, ottimismo della scelta sul test |
-| | 19 · k vicini più prossimi *(anteprima)* | Frontiere di decisione, errore di Bayes e limite di Cover–Hart, scelta di k, standardizzazione |
-| | 20 · Alberi, bagging e random forest *(anteprima)* | Instabilità di un albero, bootstrap ed errore out-of-bag, decorrelazione con mtry |
-| **VII · Riduzione dimensionale e clustering** | 21 · Componenti principali *(anteprima)* | Assi di massima varianza, scree plot, biplot, ricostruzione, stabilità degli assi (asintotica di Anderson) |
-| | 22 · k-means e clustering gerarchico *(anteprima)* | Lloyd passo dopo passo, minimi locali e riavvii, dendrogrammi e legami, indice di Rand corretto |
-| | 23 · DBSCAN e confronto tra metodi *(anteprima)* | Core, bordo e rumore, k-distanze e scelta di ε, lune e cerchi contro k-means e Ward |
-| **VIII · Reti neurali** | 24 · Reti neurali e backpropagation *(anteprima)* | Pesi e passaggio in avanti, gradiente verificato con differenze finite, learning rate, sovradattamento, inizializzazioni |
+| | 17 · Regressione segmentata e breakpoint | Profilo RSS(ψ), breakpoint non identificato, test bootstrap dell’esistenza del cambiamento |
+| **VI · Apprendimento supervisionato** | 18 · Validazione e overfitting | Training, test e validazione incrociata a K fold, ottimismo della scelta sul test |
+| | 19 · k vicini più prossimi | Frontiere di decisione, errore di Bayes e limite di Cover–Hart, scelta di k, standardizzazione |
+| | 20 · Alberi, bagging e random forest | Instabilità di un albero, bootstrap ed errore out-of-bag, decorrelazione con mtry |
+| **VII · Riduzione dimensionale e clustering** | 21 · Componenti principali | Assi di massima varianza, scree plot, biplot, ricostruzione, stabilità degli assi (asintotica di Anderson) |
+| | 22 · k-means e clustering gerarchico | Lloyd passo dopo passo, minimi locali e riavvii, dendrogrammi e legami, indice di Rand corretto |
+| | 23 · DBSCAN e confronto tra metodi | Core, bordo e rumore, k-distanze e scelta di ε, lune e cerchi contro k-means e Ward |
+| **VIII · Reti neurali** | 24 · Reti neurali e backpropagation | Pesi e passaggio in avanti, gradiente verificato con differenze finite, learning rate, sovradattamento, inizializzazioni |
 
 ## Come è fatto un laboratorio
 
@@ -128,7 +128,8 @@ npm install jsdom && node tests/smoke/smoke_fase7.js index.html   # smoke test
 `verifica/verifica_statatlas.R` esegue in R gli script dei 24 laboratori con i parametri predefiniti e confronta automaticamente i risultati con quelli del browser (generatore, campioni, stime, errori), stampando un riepilogo e salvando gli esiti in CSV:
 
 ```bash
-Rscript verifica/verifica_statatlas.R
+Rscript verifica/verifica_statatlas.R        # tutti i laboratori; confronti numerici per i lab 17–24
+Rscript verifica/verifica_statatlas_01_16.R  # confronti numerici per i lab 01–16
 ```
 
 Il file si rigenera dopo una modifica con `node tests/gen_verifica_R.js` (vedi l’intestazione dello script).
@@ -137,11 +138,12 @@ Il file si rigenera dopo una modifica con `node tests/gen_verifica_R.js` (vedi l
 
 - 131 test numerici superati (49 + 16 algebra lineare + 15 ricampionamento, incluso `sample()` di R, + 14 kNN e alberi + 26 clustering e DBSCAN + 11 reti neurali): generatore (`runif`, `rnorm`), quantili e funzioni di ripartizione (`qnorm`, `pt`, `qbeta`, `qf`, `qgamma`, …) confrontati con R.
 - Smoke test di tutti i laboratori; contrasto dei colori conforme a WCAG 2.1 AA.
-- Da completare: esecuzione sistematica degli script R e collaudo su Safari, Firefox e dispositivi mobili.
+- Script R verificati in R reale con `verifica/verifica_statatlas.R` (48 controlli superati, 13/11/2026).
+- Da completare: collaudo su Safari, Firefox e dispositivi mobili.
 
 ## Come citare
 
-> Sottile G. (2026). *StatAtlas: un atlante interattivo di probabilità e inferenza statistica*, versione 1.12.2. https://github.com/gianluca-sottile/statatlas
+> Sottile G. (2026). *StatAtlas: un atlante interattivo di probabilità e inferenza statistica*, versione 1.13.0. https://github.com/gianluca-sottile/statatlas
 
 ## Crediti
 
