@@ -150,6 +150,18 @@ SA.art = (function () {
     s += '<line x1="152" y1="18" x2="152" y2="172" stroke="var(--ink)" stroke-opacity=".5" stroke-dasharray="7 4"/>';
     return frame(s, 'Vicini e frontiera');
   };
+  L.alberi = function () {
+    var s = '', node = function (x, y, c) { return '<rect x="' + (x - 18) + '" y="' + (y - 9) + '" width="36" height="18" rx="5" fill="' + c + '" fill-opacity=".85"/>'; };
+    [[0, 'var(--c1)'], [1, 'var(--c3)'], [2, 'var(--c2)']].forEach(function (q) {
+      var ox = 20 + q[0] * 95, e = function (x1, y1, x2, y2) { return '<line x1="' + (ox + x1) + '" y1="' + y1 + '" x2="' + (ox + x2) + '" y2="' + y2 + '" stroke="var(--ink)" stroke-opacity=".5" stroke-width="1.5"/>'; };
+      var sh = q[0] * 7 - 7;
+      s += e(45, 40, 22 + sh, 85) + e(45, 40, 68 + sh, 85) + e(22 + sh, 85, 10, 130) + e(22 + sh, 85, 34 + sh, 130) + e(68 + sh, 85, 80, 130);
+      s += node(ox + 45, 40, q[1]) + node(ox + 22 + sh, 85, q[1]) + node(ox + 68 + sh, 85, q[1]);
+      [10, 34 + sh, 80].forEach(function (x, i) { s += '<circle cx="' + (ox + x) + '" cy="130" r="6" fill="' + (i % 2 ? 'var(--c2)' : 'var(--c1)') + '" fill-opacity=".6"/>'; });
+    });
+    s += '<path d="M60,150 Q160,178 260,150" fill="none" stroke="var(--accent)" stroke-width="2.4"/><circle cx="160" cy="166" r="7" fill="var(--accent)"/>';
+    return frame(s, 'Alberi che votano');
+  };
   /* ---- parti ---- */
   L.partI = L.distribuzioni; L.partII = L['lgn-tcl']; L.partIII = L.intervalli; L.partIV = L.regressione; L.partV = L.penalizzata; L.partVI = L.validazione;
   function get(id) { return L[id] ? L[id]() : ''; }

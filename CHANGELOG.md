@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.8.0 — 13/11/2026 · Parte VI completa (LAB-20)
+- `ml.js`: CART per due classi con Gini (soglie nei punti medi, regole di parità fissate, riduzione d’impurità strettamente positiva, min-leaf, profondità massima, estrazione di mtry variabili per nodo con `sample()` di R) e previsione; 6 nuovi test.
+- **Lab 20 Alberi, bagging e random forest** (Parte VI, *anteprima*): frontiera a cerchio o diagonale con etichette scambiate (errore di Bayes = ε, esatto), variabili di rumore; partizioni di un albero, dell’ultimo albero bootstrap e dell’insieme; diagrammi dei due alberi; errore sul test e out-of-bag di bagging e foresta al crescere degli alberi; accordo medio tra coppie di alberi e variabile della radice (decorrelazione); controlli su impurità, foglie e OOB. R: stessi dati e bootstrap (R0), stesso CART (R2), `ranger`/`rpart` come confronto (R3).
+
 ## 1.7.0 — 13/11/2026 · UI-01, mappa a due righe, LAB-19
 - **UI-01**: «Completa l’esperimento» cooperativo per i laboratori pesanti (`runner({ coop: true })`): lavoro a fette di ~30 ms, barra di avanzamento, annullabile cambiando parametri o pagina. Attivo nei lab 18 e 19.
 - **Mappa dell’atlante** su due righe da quattro parti quando le parti sono più di cinque (pronta per otto).

@@ -32,5 +32,44 @@ SA.ml = (function () {
     z = z || 1.959963984540054; var p = x / m, z2 = z * z, c = (p + z2 / (2 * m)) / (1 + z2 / m), h = z * Math.sqrt(p * (1 - p) / m + z2 / (4 * m * m)) / (1 + z2 / m);
     return [Math.max(0, c - h), Math.min(1, c + h)];
   }
-  return { nearest: nearest, votePath: votePath, scaler: scaler, wilson: wilson };
+  /* ---------- CART per la classificazione binaria (Gini) ----------
+   * idx: righe del nodo (con ripetizioni nel bootstrap). Regole fissate (identiche nello script R):
+   * - profondità della radice 0; si divide solo se prof < maxDepth, m ≥ 2·minLeaf e il nodo è impuro;
+   * - variabili candidate: se mtry < p, sample(p, mtry) estratto dal generatore g (in ordine di visita in profondità,
+   *   sinistra prima di destra), altrimenti 1…p;
+   * - soglie: punti medi tra valori distinti consecutivi; criterio G = nₗ − (l₀² + l₁²)/nₗ + nᵣ − (r₀² + r₁²)/nᵣ
+   *   (n volte il Gini pesato), da rendere minimo; vince il primo minimo (variabile prima, soglia più piccola);
+   * - la divisione si accetta solo se G < G₀ − 1e−10 (riduzione d'impurità strettamente positiva), figli ≥ minLeaf;
+   * - foglia: classe 1 se n₁ > n₀, a parità classe 0. Si va a sinistra se x < soglia. */
+  function tree(X, y, idx, o) {
+    var p = X[0].length, nodes = [];
+    function grow(id, depth) {
+      var m = id.length, c1 = 0, i, j; for (i = 0; i < m; i++) c1 += y[id[i]];
+      var c0 = m - c1, node = { leaf: true, cls: c1 > c0 ? 1 : 0, n: m, n1: c1, depth: depth };
+      var k = nodes.length; nodes.push(node);
+      if (depth >= o.maxDepth || m < 2 * o.minLeaf || c0 === 0 || c1 === 0) return k;
+      var vars = o.mtry < p ? SA.rs.sample(o.g, p, o.mtry) : null;
+      var G0 = m - (c0 * c0 + c1 * c1) / m, best = G0 - 1e-10, bj = -1, bt = 0;
+      for (var q = 0; q < (vars ? vars.length : p); q++) {
+        j = vars ? vars[q] - 1 : q;
+        var ord = id.slice().sort(function (a, b) { return X[a][j] - X[b][j]; }), l1 = 0;
+        for (i = 0; i < m - 1; i++) {
+          l1 += y[ord[i]];
+          var nl = i + 1, nr = m - nl; if (nl < o.minLeaf || nr < o.minLeaf) continue;
+          var v = X[ord[i]][j], w = X[ord[i + 1]][j]; if (!(v < w)) continue;
+          var l0 = nl - l1, r1 = c1 - l1, r0 = nr - r1, G = nl - (l0 * l0 + l1 * l1) / nl + nr - (r0 * r0 + r1 * r1) / nr;
+          if (G < best) { best = G; bj = j; bt = (v + w) / 2; }
+        }
+      }
+      if (bj < 0) return k;
+      var L = [], R = []; for (i = 0; i < m; i++) (X[id[i]][bj] < bt ? L : R).push(id[i]);
+      node.leaf = false; node.j = bj; node.thr = bt; node.dec = G0 - best;
+      node.l = grow(L, depth + 1); node.r = grow(R, depth + 1);
+      return k;
+    }
+    grow(idx, 0);
+    return nodes;
+  }
+  function treePredict(nodes, x) { var k = 0; while (!nodes[k].leaf) k = x[nodes[k].j] < nodes[k].thr ? nodes[k].l : nodes[k].r; return nodes[k].cls; }
+  return { nearest: nearest, votePath: votePath, scaler: scaler, wilson: wilson, tree: tree, treePredict: treePredict };
 })();

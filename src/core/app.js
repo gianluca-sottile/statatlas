@@ -26,7 +26,8 @@ SA.catalog = [
     { id: 'segmentata', num: '17', title: 'Regressione segmentata e breakpoint', blurb: 'Una pendenza che cambia: profilo RSS(ψ), breakpoint non identificato, test bootstrap del cambiamento.', status: 'ready', verifyR: true } ] },
   { part: 'VI', title: 'Apprendimento supervisionato', labs: [
     { id: 'validazione', num: '18', title: 'Validazione e overfitting', blurb: 'Training, test e validazione incrociata: scegliere la complessità senza ingannarsi sull’errore di previsione.', status: 'ready', verifyR: true },
-    { id: 'knn', num: '19', title: 'k vicini più prossimi', blurb: 'Classificare con i vicini: frontiere di decisione, errore di Bayes, scelta di k e il peso delle unità di misura.', status: 'ready', verifyR: true } ] }
+    { id: 'knn', num: '19', title: 'k vicini più prossimi', blurb: 'Classificare con i vicini: frontiere di decisione, errore di Bayes, scelta di k e il peso delle unità di misura.', status: 'ready', verifyR: true },
+    { id: 'alberi', num: '20', title: 'Alberi, bagging e random forest', blurb: 'Un albero è instabile; molti alberi resi diversi votano meglio: bootstrap, out-of-bag e scelta casuale delle variabili.', status: 'ready', verifyR: true } ] }
 ];
 SA.labs = {};
 SA.registerLab = function (id, def) { SA.labs[id] = def; };
@@ -125,7 +126,8 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     ['regressione', 'spline', 'dalla retta alla curva'], ['penalizzata', 'spline', 'la penalità sulla rugosità (P-spline)'], ['adattamento', 'spline', 'scegliere la complessità guardando i dati'],
     ['spline', 'segmentata', 'una spline lineare con un solo nodo, di posizione ignota'], ['regressione', 'segmentata', 'il modello lineare con un termine (x − ψ)₊'], ['test', 'segmentata', 'testare un parametro che esiste solo sotto l’alternativa'],
     ['penalizzata', 'validazione', 'scegliere λ con la validazione incrociata'], ['spline', 'validazione', 'dalla LOOCV in forma chiusa al protocollo training/test'], ['regressione', 'validazione', 'errore di training contro errore di previsione'],
-    ['validazione', 'knn', 'scegliere k con la validazione leave-one-out'], ['glm', 'knn', 'dalla regressione logistica a una stima locale di P(Y = 1 | x)'], ['bivariata', 'knn', 'classi come normali bivariate: la regola di Bayes']
+    ['validazione', 'knn', 'scegliere k con la validazione leave-one-out'], ['glm', 'knn', 'dalla regressione logistica a una stima locale di P(Y = 1 | x)'], ['bivariata', 'knn', 'classi come normali bivariate: la regola di Bayes'],
+    ['knn', 'alberi', 'dalle regioni dei vicini ai rettangoli degli alberi'], ['validazione', 'alberi', 'l’errore out-of-bag come validazione gratuita'], ['simulazione', 'alberi', 'il bootstrap: ricampionare per simulare nuovi dati']
   ];
   function openMap() {
     closePart(); modalLast = document.activeElement;
