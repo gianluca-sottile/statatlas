@@ -25,7 +25,8 @@ SA.catalog = [
     { id: 'spline', num: '16', title: 'Regressione non parametrica e spline', blurb: 'Polinomi, spline, P-spline e kernel: complessità, gradi di libertà effettivi e validazione incrociata.', status: 'ready' },
     { id: 'segmentata', num: '17', title: 'Regressione segmentata e breakpoint', blurb: 'Una pendenza che cambia: profilo RSS(ψ), breakpoint non identificato, test bootstrap del cambiamento.', status: 'ready', verifyR: true } ] },
   { part: 'VI', title: 'Apprendimento supervisionato', labs: [
-    { id: 'validazione', num: '18', title: 'Validazione e overfitting', blurb: 'Training, test e validazione incrociata: scegliere la complessità senza ingannarsi sull’errore di previsione.', status: 'ready', verifyR: true } ] }
+    { id: 'validazione', num: '18', title: 'Validazione e overfitting', blurb: 'Training, test e validazione incrociata: scegliere la complessità senza ingannarsi sull’errore di previsione.', status: 'ready', verifyR: true },
+    { id: 'knn', num: '19', title: 'k vicini più prossimi', blurb: 'Classificare con i vicini: frontiere di decisione, errore di Bayes, scelta di k e il peso delle unità di misura.', status: 'ready', verifyR: true } ] }
 ];
 SA.labs = {};
 SA.registerLab = function (id, def) { SA.labs[id] = def; };
@@ -123,19 +124,22 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     ['regressione-lp', 'quantilica', 'L1 è la regressione del quantile 0,5'], ['regressione', 'penalizzata', 'penalizzare i minimi quadrati'],
     ['regressione', 'spline', 'dalla retta alla curva'], ['penalizzata', 'spline', 'la penalità sulla rugosità (P-spline)'], ['adattamento', 'spline', 'scegliere la complessità guardando i dati'],
     ['spline', 'segmentata', 'una spline lineare con un solo nodo, di posizione ignota'], ['regressione', 'segmentata', 'il modello lineare con un termine (x − ψ)₊'], ['test', 'segmentata', 'testare un parametro che esiste solo sotto l’alternativa'],
-    ['penalizzata', 'validazione', 'scegliere λ con la validazione incrociata'], ['spline', 'validazione', 'dalla LOOCV in forma chiusa al protocollo training/test'], ['regressione', 'validazione', 'errore di training contro errore di previsione']
+    ['penalizzata', 'validazione', 'scegliere λ con la validazione incrociata'], ['spline', 'validazione', 'dalla LOOCV in forma chiusa al protocollo training/test'], ['regressione', 'validazione', 'errore di training contro errore di previsione'],
+    ['validazione', 'knn', 'scegliere k con la validazione leave-one-out'], ['glm', 'knn', 'dalla regressione logistica a una stima locale di P(Y = 1 | x)'], ['bivariata', 'knn', 'classi come normali bivariate: la regola di Bayes']
   ];
   function openMap() {
     closePart(); modalLast = document.activeElement;
-    var P = SA.plot, t = SA.theme(), W = 1000, H = 560, cols = SA.catalog.length, colW = W / cols, NW = Math.min(168, colW - 12), pos = {};
-    SA.catalog.forEach(function (p, ci) { var n = p.labs.length; p.labs.forEach(function (l, li) { pos[l.id] = { x: colW * (ci + 0.5), y: 90 + (H - 110) * (li + 0.5) / n, lab: l, part: p }; }); });
+    // fino a 5 parti una riga; oltre, due righe da 4 colonne (parti I–IV sopra, V–VIII sotto)
+    var P = SA.plot, t = SA.theme(), W = 1000, np = SA.catalog.length, cols = np > 5 ? 4 : np, rows = Math.ceil(np / cols), RH = rows > 1 ? 340 : 560, H = RH * rows;
+    var colW = W / cols, NW = Math.min(168, colW - 12), pos = {}, cx = function (ci) { return colW * (ci % cols + 0.5); }, top = function (ci) { return RH * Math.floor(ci / cols); };
+    SA.catalog.forEach(function (p, ci) { var n = p.labs.length; p.labs.forEach(function (l, li) { pos[l.id] = { x: cx(ci), y: top(ci) + 90 + (RH - 110) * (li + 0.5) / Math.max(n, rows > 1 ? 4 : 1), lab: l, part: p }; }); });
     var caption = el('div.feedback', { role: 'status', style: 'max-width:none;margin-top:12px' }, 'Passa sopra un laboratorio per vedere i suoi legami; clicca per aprirlo.');
     var box = el('div.atlas-map');
     var svg = P.svg('svg', { viewBox: '0 0 ' + W + ' ' + H, role: 'group', 'aria-label': 'Mappa dei legami tra i laboratori', 'font-family': t.sans }, box);
     SA.catalog.forEach(function (p, ci) {
-      P.svg('rect', { x: colW * ci + 6, y: 8, width: colW - 12, height: H - 16, rx: 12, fill: ci % 2 ? t.paper_2 : t.card, stroke: t.rule }, svg);
-      P.text(svg, colW * (ci + 0.5), 40, p.part, { 'text-anchor': 'middle', fill: t.accent, 'font-family': t.serif, 'font-size': 26, 'font-weight': 700 });
-      P.text(svg, colW * (ci + 0.5), 62, p.title, { 'text-anchor': 'middle', fill: t.ink_2, 'font-size': cols > 5 ? 10.5 : 13 });
+      P.svg('rect', { x: colW * (ci % cols) + 6, y: top(ci) + 8, width: colW - 12, height: RH - 16, rx: 12, fill: (ci + Math.floor(ci / cols)) % 2 ? t.paper_2 : t.card, stroke: t.rule }, svg);
+      P.text(svg, cx(ci), top(ci) + 40, p.part, { 'text-anchor': 'middle', fill: t.accent, 'font-family': t.serif, 'font-size': 26, 'font-weight': 700 });
+      P.text(svg, cx(ci), top(ci) + 62, p.title, { 'text-anchor': 'middle', fill: t.ink_2, 'font-size': p.title.length > 24 ? 11.5 : 13 });
     });
     var edges = LINKS.map(function (e) {
       var a = pos[e[0]], b = pos[e[1]], mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2 - (a.x === b.x ? 0 : 0), bend = a.x === b.x ? 60 : 0;

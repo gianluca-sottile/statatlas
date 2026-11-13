@@ -237,7 +237,7 @@
   SA.registerLab('validazione', {
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
-      run = SA.ui.runner({ speed: 1, step: step, render: render, done: function () { return S.k >= S.B; }, progress: function () { return S.k / S.B; }, reset: function () { S = newState(S); step(); } });
+      run = SA.ui.runner({ speed: 1, coop: true, step: step, render: render, done: function () { return S.k >= S.B; }, progress: function () { return S.k / S.B; }, reset: function () { S = newState(S); step(); } });
       var openT = function (l) { SA.ui.openDrawer('Validazione e overfitting', THEORY, l); };
       page.appendChild(el('header.lab-head', el('div', el('div.kicker', info.part.part + ' · ' + info.part.title + ' · Laboratorio ' + info.lab.num),
         el('h1', info.lab.title), el('p.lede', 'Un modello più flessibile si adatta sempre meglio ai dati che ha visto. Su quelli nuovi, no. Come lo si scopre senza ingannarsi?')),

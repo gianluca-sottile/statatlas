@@ -7,7 +7,7 @@ from pathlib import Path
 ROOT = Path(__file__).parent
 SRC = ROOT / "src"
 STYLES = ["styles/tokens.css", "styles/app.css", "styles/editorial.css"]
-SCRIPTS = ["core/rng.js", "core/dist.js", "core/laws.js", "core/linalg.js", "core/resampling.js", "core/plot.js", "core/plot3d.js", "core/art.js", "core/content.js", "core/ui.js", "core/app.js"]
+SCRIPTS = ["core/rng.js", "core/dist.js", "core/laws.js", "core/linalg.js", "core/resampling.js", "core/ml.js", "core/plot.js", "core/plot3d.js", "core/art.js", "core/content.js", "core/ui.js", "core/app.js"]
 SCRIPTS += sorted(str(p.relative_to(SRC)) for p in (SRC / "labs").glob("*.js"))
 
 

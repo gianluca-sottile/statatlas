@@ -6,7 +6,7 @@
 
 <p align="center">
   <em>Vedere la statistica mentre accade.</em><br>
-  Un atlante interattivo di probabilità e inferenza statistica: diciotto laboratori, dati generati sotto i tuoi occhi e codice R che riproduce esattamente lo stesso esperimento.
+  Un atlante interattivo di probabilità e inferenza statistica: diciannove laboratori, dati generati sotto i tuoi occhi e codice R che riproduce esattamente lo stesso esperimento.
 </p>
 
 <p align="center">
@@ -18,7 +18,7 @@
 </p>
 
 <p align="center">
-  <img alt="Versione" src="https://img.shields.io/badge/versione-1.6.0-9A3412">
+  <img alt="Versione" src="https://img.shields.io/badge/versione-1.7.0-9A3412">
   <img alt="Lingua" src="https://img.shields.io/badge/lingua-italiano-1C1B19">
   <img alt="Offline" src="https://img.shields.io/badge/funziona-offline-1F6F43">
   <img alt="Dipendenze" src="https://img.shields.io/badge/dipendenze-nessuna-1E4E8C">
@@ -59,6 +59,7 @@ Molti concetti della statistica — la legge dei grandi numeri, il teorema centr
 | | 16 · Regressione non parametrica e spline | Polinomi, spline, P-spline e kernel: basi, gradi di libertà effettivi, validazione incrociata |
 | | 17 · Regressione segmentata e breakpoint *(anteprima)* | Profilo RSS(ψ), breakpoint non identificato, test bootstrap dell’esistenza del cambiamento |
 | **VI · Apprendimento supervisionato** | 18 · Validazione e overfitting *(anteprima)* | Training, test e validazione incrociata a K fold, ottimismo della scelta sul test |
+| | 19 · k vicini più prossimi *(anteprima)* | Frontiere di decisione, errore di Bayes e limite di Cover–Hart, scelta di k, standardizzazione |
 
 ## Come è fatto un laboratorio
 
@@ -113,19 +114,19 @@ StatAtlas/
 ```bash
 python3 build.py                                   # ricostruisce index.html
 node tests/test_core.js                            # test numerici
-node tests/test_linalg.js && node tests/test_resampling.js
+node tests/test_linalg.js && node tests/test_resampling.js && node tests/test_ml.js
 npm install jsdom && node tests/smoke/smoke_fase7.js index.html   # smoke test
 ```
 
 ### Verifiche
 
-- 80 test numerici superati (49 + 16 algebra lineare + 15 ricampionamento, incluso `sample()` di R): generatore (`runif`, `rnorm`), quantili e funzioni di ripartizione (`qnorm`, `pt`, `qbeta`, `qf`, `qgamma`, …) confrontati con R.
+- 88 test numerici superati (49 + 16 algebra lineare + 15 ricampionamento, incluso `sample()` di R, + 8 kNN): generatore (`runif`, `rnorm`), quantili e funzioni di ripartizione (`qnorm`, `pt`, `qbeta`, `qf`, `qgamma`, …) confrontati con R.
 - Smoke test di tutti i laboratori; contrasto dei colori conforme a WCAG 2.1 AA.
 - Da completare: esecuzione sistematica degli script R e collaudo su Safari, Firefox e dispositivi mobili.
 
 ## Come citare
 
-> Sottile G. (2026). *StatAtlas: un atlante interattivo di probabilità e inferenza statistica*, versione 1.6.0. https://github.com/gianluca-sottile/statatlas
+> Sottile G. (2026). *StatAtlas: un atlante interattivo di probabilità e inferenza statistica*, versione 1.7.0. https://github.com/gianluca-sottile/statatlas
 
 ## Crediti
 

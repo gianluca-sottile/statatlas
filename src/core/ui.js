@@ -236,15 +236,31 @@ SA.ui = (function () {
       r.raf = requestAnimationFrame(loop);
     }
     r.set = function (on) {
+      if (r.task) return;
       r.running = !!on && !o.done();
       if (r.running && !r.raf) r.raf = requestAnimationFrame(loop);
       if (!r.running) o.render(true);
       label();
     };
-    r.stepOnce = function () { r.running = false; o.step(); o.render(true); label(); };
-    r.finish = function () { r.running = false; var guard = 0; while (!o.done() && o.step() !== false && guard++ < 1e6); o.render(true); label(); };
-    r.restart = function () { r.running = false; o.reset(); o.render(true); label(); };
-    r.stop = function () { r.running = false; if (r.raf) cancelAnimationFrame(r.raf); r.raf = null; };
+    r.stepOnce = function () { if (r.task) return; r.running = false; o.step(); o.render(true); label(); };
+    /* Completa: sincrono per i lab leggeri; con o.coop a fette di ~30 ms (UI-01), annullabile, con avanzamento.
+     * Durante il lavoro playBtn ha data-busy = "1" (usato anche dagli smoke test). */
+    function endBusy() { r.task = null; r.playBtn.removeAttribute('data-busy'); r.playBtn.disabled = false; }
+    r.finish = function () {
+      r.running = false;
+      if (!o.coop) { var guard = 0; while (!o.done() && o.step() !== false && guard++ < 1e6); o.render(true); label(); return; }
+      if (r.task) return;
+      var tk = r.task = { alive: true }; r.playBtn.setAttribute('data-busy', '1'); r.playBtn.disabled = true;
+      (function slice() {
+        if (!tk.alive) return;
+        var t0 = Date.now(), more = true;
+        while (Date.now() - t0 < 30) if (o.done() || o.step() === false) { more = false; break; }
+        if (more && !o.done()) { o.render(false); bar.style.width = (100 * o.progress()) + '%'; setTimeout(slice, 0); }
+        else { endBusy(); o.render(true); label(); }
+      })();
+    };
+    r.restart = function () { r.stop(); o.reset(); o.render(true); label(); };
+    r.stop = function () { r.running = false; if (r.raf) cancelAnimationFrame(r.raf); r.raf = null; if (r.task) { r.task.alive = false; endBusy(); } };
     r.refresh = label;
     r.key = function (e) {
       if (/INPUT|SELECT|TEXTAREA|BUTTON/.test(e.target.tagName) || e.metaKey || e.ctrlKey || e.altKey) return;

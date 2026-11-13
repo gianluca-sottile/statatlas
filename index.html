@@ -1134,6 +1134,44 @@ SA.rs = (function () {
   return { unifIndex: unifIndex, sample: sample, permute: permute, split: split, folds: folds, checkFolds: checkFolds, boot: boot };
 })();
 
+/* core/ml.js */
+/* StatAtlas · core/ml.js — strumenti di apprendimento supervisionato (kNN; alberi nel lab 20).
+ * Convenzione dei vicini: distanza euclidea; a parità di distanza vince l'indice più basso (come order() in R). */
+SA.ml = (function () {
+  /* i K vicini di q tra le righe di X (array di vettori), escludendo l'indice skip; restituisce gli indici ordinati */
+  function nearest(X, q, K, skip) {
+    var n = X.length, p = q.length, dd = new Float64Array(K), ii = new Int32Array(K), c = 0, i, j, d, t;
+    for (i = 0; i < n; i++) {
+      if (i === skip) continue;
+      d = 0; var x = X[i]; for (j = 0; j < p; j++) { t = x[j] - q[j]; d += t * t; }
+      if (c < K) { j = c++; } else if (d < dd[K - 1]) { j = K - 1; } else continue; // a parità resta il primo (indice minore)
+      while (j > 0 && dd[j - 1] > d) { dd[j] = dd[j - 1]; ii[j] = ii[j - 1]; j--; }
+      dd[j] = d; ii[j] = i;
+    }
+    return { idx: ii.subarray(0, c), d2: dd.subarray(0, c) };
+  }
+  /* classe prevista (0/1) per ciascun k di kVals (dispari) a partire dai vicini ordinati */
+  function votePath(idx, y, kVals) {
+    var out = new Uint8Array(kVals.length), s = 0, j = 0;
+    for (var r = 0; r < kVals.length; r++) { while (j < kVals[r]) s += y[idx[j++]]; out[r] = s > kVals[r] / 2 ? 1 : 0; }
+    return out;
+  }
+  /* standardizzazione stimata sul solo training (sd con n − 1), applicata a qualunque insieme */
+  function scaler(X) {
+    var n = X.length, p = X[0].length, m = new Float64Array(p), s = new Float64Array(p), i, j;
+    for (i = 0; i < n; i++) for (j = 0; j < p; j++) m[j] += X[i][j] / n;
+    for (i = 0; i < n; i++) for (j = 0; j < p; j++) s[j] += (X[i][j] - m[j]) * (X[i][j] - m[j]);
+    for (j = 0; j < p; j++) s[j] = Math.sqrt(s[j] / (n - 1)) || 1;
+    return { mean: m, sd: s, apply: function (Z) { return Z.map(function (z) { var o = new Array(p); for (var k = 0; k < p; k++) o[k] = (z[k] - m[k]) / s[k]; return o; }); } };
+  }
+  /* intervallo di Wilson per una proporzione x/m */
+  function wilson(x, m, z) {
+    z = z || 1.959963984540054; var p = x / m, z2 = z * z, c = (p + z2 / (2 * m)) / (1 + z2 / m), h = z * Math.sqrt(p * (1 - p) / m + z2 / (4 * m * m)) / (1 + z2 / m);
+    return [Math.max(0, c - h), Math.min(1, c + h)];
+  }
+  return { nearest: nearest, votePath: votePath, scaler: scaler, wilson: wilson };
+})();
+
 /* core/plot.js */
 /* StatAtlas · core/plot.js — micro-libreria SVG.
  * I colori sono scritti come attributi (non classi CSS) così che
@@ -1533,6 +1571,15 @@ SA.art = (function () {
     s += '<line x1="128" y1="18" x2="128" y2="148" stroke="var(--accent)" stroke-dasharray="3 3"/>';
     return frame(s, 'Training, test e fold');
   };
+  L.knn = function () {
+    var r = rnd(61), s = '';
+    s += '<path d="M20,20 H150 Q170,90 140,170 H20 Z" fill="var(--c1)" fill-opacity=".12"/><path d="M150,20 H300 V170 H140 Q170,90 150,20 Z" fill="var(--c2)" fill-opacity=".12"/>';
+    for (var i = 0; i < 26; i++) { var a = gauss(r), b = gauss(r), c = i % 2; var x = (c ? 215 : 85) + 38 * a, y = 95 + 38 * b; x = Math.max(26, Math.min(294, x)); y = Math.max(26, Math.min(164, y));
+      s += c ? '<polygon points="' + x.toFixed(1) + ',' + (y - 5).toFixed(1) + ' ' + (x + 5).toFixed(1) + ',' + (y + 4).toFixed(1) + ' ' + (x - 5).toFixed(1) + ',' + (y + 4).toFixed(1) + '" fill="var(--c2)"/>' : '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="3.4" fill="var(--c1)"/>'; }
+    s += '<circle cx="160" cy="92" r="44" fill="none" stroke="var(--ink)" stroke-dasharray="4 3"/><circle cx="160" cy="92" r="6" fill="var(--card)" stroke="var(--ink)" stroke-width="2.4"/>';
+    s += '<line x1="152" y1="18" x2="152" y2="172" stroke="var(--ink)" stroke-opacity=".5" stroke-dasharray="7 4"/>';
+    return frame(s, 'Vicini e frontiera');
+  };
   /* ---- parti ---- */
   L.partI = L.distribuzioni; L.partII = L['lgn-tcl']; L.partIII = L.intervalli; L.partIV = L.regressione; L.partV = L.penalizzata; L.partVI = L.validazione;
   function get(id) { return L[id] ? L[id]() : ''; }
@@ -1725,6 +1772,16 @@ SA.content = {
     avanzato: '<h3>Validazione incrociata annidata</h3><p>Quando la selezione è parte del metodo, per valutarlo serve un ciclo esterno: in ogni fold esterno si ripete l’intera selezione (CV interna) sui soli dati di training e si misura l’errore sul fold esterno. Così la stima finale non è contaminata dalla scelta.</p><h3>Che cosa stima la CV</h3><p>Bates, Hastie e Tibshirani (2024) mostrano che la CV stima bene l’errore <em>atteso</em> sui possibili insiemi di training, non quello del modello stimato sui dati in mano; gli intervalli “naïf” basati sulla varianza tra fold sono troppo stretti.</p><h3>Ottimismo</h3><p>Per un lisciatore lineare con x fissi, l’errore atteso in-sample supera quello di training di 2σ²·df/n (Efron, 2004): è la base di Cp, AIC e GCV, alternative analitiche alla CV.</p>',
     esercizi: [['Perché l’errore di training non può aumentare con il grado del polinomio?', 'I modelli sono annidati: un polinomio di grado d+1 contiene quelli di grado d, quindi il minimo della somma dei quadrati non può crescere.'], ['Perché, condizionatamente al modello stimato, l’errore sul test è non distorto per Err?', 'I punti di test sono indipendenti dal training e mai usati per decidere: ogni errore al quadrato ha media Err, quindi anche la loro media.'], ['Con K = n (leave-one-out) che cosa si guadagna e che cosa si perde?', 'Ogni modello usa n − 1 osservazioni (distorsione piccola) ma i modelli sono quasi identici: la stima può avere varianza alta, e il costo è n stime (salvo forme chiuse, come nel lab 16).']],
     riferimenti: ['Hastie T., Tibshirani R., Friedman J. (2009). The Elements of Statistical Learning, 2ª ed. Springer, cap. 7.', 'James G., Witten D., Hastie T., Tibshirani R. (2021). An Introduction to Statistical Learning, 2ª ed. Springer, cap. 5.', 'Bates S., Hastie T., Tibshirani R. (2024). Cross-validation: what does it estimate and how well does it do it? Journal of the American Statistical Association 119, 1434–1445.', 'Varma S., Simon R. (2006). Bias in error estimation when using cross-validation for model selection. BMC Bioinformatics 7, 91.']
+  },
+  knn: {
+    obiettivi: ['Descrivere la regola dei k vicini come stima locale di P(Y = 1 | x)', 'Confrontare l’errore del kNN con l’errore di Bayes', 'Scegliere k con la validazione leave-one-out', 'Riconoscere l’effetto delle unità di misura e standardizzare senza leakage'],
+    valutiamo: [['Frontiera', 'le regioni kNN contro la frontiera di Bayes, al variare di k'], ['Errore', 'training, leave-one-out e test in funzione di k, con l’errore di Bayes come limite'], ['Qualità della classificazione', 'accuratezza, sensibilità e specificità con intervalli di Wilson'], ['Scala', 'che cosa succede alle distanze se una variabile ha unità 10 volte più grandi']],
+    tabella: 'L’errore di Bayes è esatto perché le leggi delle classi sono note. Le righe della replica corrente usano 500 punti di test nuovi con intervalli di Wilson al 95%; le righe Monte Carlo mediano su tutte le repliche. Con k = 1 e n → ∞ l’errore tende a E[2η(1 − η)] (calcolato per quadratura), che Cover e Hart limitano con 2R*(1 − R*).',
+    esempio: '<p><strong>Esempio svolto.</strong> Nello scenario lineare con δ = 2 l’errore di Bayes è Φ(−1) = 0,159. Con k = 1 e n = 100 l’errore di training è 0 e quello sul test circa 0,235: già vicino al suo limite per n → ∞, E[2η(1 − η)], pari a 0,225 e mai oltre 2 · 0,159 · 0,841 = 0,267 (Cover e Hart). Con k tra 15 e 35 l’errore sul test scende a circa 0,175: ascoltare più vicini riduce la varianza.</p>',
+    errori: ['Valutare il kNN sul training: con k = 1 l’errore è sempre 0', 'Calcolare distanze su variabili con unità di misura molto diverse', 'Standardizzare con medie e sd di tutti i dati, test compreso', 'Usare k pari con due classi senza una regola per le parità'],
+    avanzato: '<h3>Pesi e metriche</h3><p>I vicini possono votare con peso decrescente nella distanza; la metrica può essere adattata ai dati (Mahalanobis, metric learning). Con molte variabili irrilevanti il kNN peggiora rapidamente: selezione o riduzione delle dimensioni (lab 21) aiutano.</p><h3>Stima della probabilità</h3><p>La quota di voti p̂(x) è uno stimatore della probabilità condizionata: distorto quando k è grande rispetto alla curvatura di P(Y = 1 | x), variabile quando k è piccolo. Lo stesso compromesso del lisciamento nel lab 16.</p><h3>Classi sbilanciate</h3><p>Se una classe è rara, la maggioranza dei vicini tende a ignorarla: si spostano le soglie o si pesano le classi, e si guardano sensibilità e specificità oltre all’accuratezza.</p>',
+    esercizi: [['Perché con k = n − 1 (leave-one-out) il kNN prevede quasi sempre la stessa classe?', 'Tutti gli altri punti votano: la previsione è la classe più frequente nel training, tranne l’effetto di aver escluso il punto stesso.'], ['Nello scenario lineare, perché la frontiera di Bayes è x₁ = 0 anche se x₂ è moltiplicata per 10?', 'x₂ ha la stessa legge nelle due classi: non contiene informazione, e cambiarne la scala non sposta la frontiera. Sposta però le distanze del kNN.'], ['Perché la stima leave-one-out per il kNN è “gratuita”?', 'Non c’è un modello da ristimare: basta escludere il punto dall’elenco dei suoi vicini.']],
+    riferimenti: ['Cover T. M., Hart P. E. (1967). Nearest neighbor pattern classification. IEEE Transactions on Information Theory 13, 21–27.', 'Stone C. J. (1977). Consistent nonparametric regression. Annals of Statistics 5, 595–645.', 'Hastie T., Tibshirani R., Friedman J. (2009). The Elements of Statistical Learning, 2ª ed. Springer, capp. 2 e 13.', 'James G., Witten D., Hastie T., Tibshirani R. (2021). An Introduction to Statistical Learning, 2ª ed. Springer, cap. 4.']
   }
 };
 
@@ -1967,15 +2024,31 @@ SA.ui = (function () {
       r.raf = requestAnimationFrame(loop);
     }
     r.set = function (on) {
+      if (r.task) return;
       r.running = !!on && !o.done();
       if (r.running && !r.raf) r.raf = requestAnimationFrame(loop);
       if (!r.running) o.render(true);
       label();
     };
-    r.stepOnce = function () { r.running = false; o.step(); o.render(true); label(); };
-    r.finish = function () { r.running = false; var guard = 0; while (!o.done() && o.step() !== false && guard++ < 1e6); o.render(true); label(); };
-    r.restart = function () { r.running = false; o.reset(); o.render(true); label(); };
-    r.stop = function () { r.running = false; if (r.raf) cancelAnimationFrame(r.raf); r.raf = null; };
+    r.stepOnce = function () { if (r.task) return; r.running = false; o.step(); o.render(true); label(); };
+    /* Completa: sincrono per i lab leggeri; con o.coop a fette di ~30 ms (UI-01), annullabile, con avanzamento.
+     * Durante il lavoro playBtn ha data-busy = "1" (usato anche dagli smoke test). */
+    function endBusy() { r.task = null; r.playBtn.removeAttribute('data-busy'); r.playBtn.disabled = false; }
+    r.finish = function () {
+      r.running = false;
+      if (!o.coop) { var guard = 0; while (!o.done() && o.step() !== false && guard++ < 1e6); o.render(true); label(); return; }
+      if (r.task) return;
+      var tk = r.task = { alive: true }; r.playBtn.setAttribute('data-busy', '1'); r.playBtn.disabled = true;
+      (function slice() {
+        if (!tk.alive) return;
+        var t0 = Date.now(), more = true;
+        while (Date.now() - t0 < 30) if (o.done() || o.step() === false) { more = false; break; }
+        if (more && !o.done()) { o.render(false); bar.style.width = (100 * o.progress()) + '%'; setTimeout(slice, 0); }
+        else { endBusy(); o.render(true); label(); }
+      })();
+    };
+    r.restart = function () { r.stop(); o.reset(); o.render(true); label(); };
+    r.stop = function () { r.running = false; if (r.raf) cancelAnimationFrame(r.raf); r.raf = null; if (r.task) { r.task.alive = false; endBusy(); } };
     r.refresh = label;
     r.key = function (e) {
       if (/INPUT|SELECT|TEXTAREA|BUTTON/.test(e.target.tagName) || e.metaKey || e.ctrlKey || e.altKey) return;
@@ -2055,7 +2128,8 @@ SA.catalog = [
     { id: 'spline', num: '16', title: 'Regressione non parametrica e spline', blurb: 'Polinomi, spline, P-spline e kernel: complessità, gradi di libertà effettivi e validazione incrociata.', status: 'ready' },
     { id: 'segmentata', num: '17', title: 'Regressione segmentata e breakpoint', blurb: 'Una pendenza che cambia: profilo RSS(ψ), breakpoint non identificato, test bootstrap del cambiamento.', status: 'ready', verifyR: true } ] },
   { part: 'VI', title: 'Apprendimento supervisionato', labs: [
-    { id: 'validazione', num: '18', title: 'Validazione e overfitting', blurb: 'Training, test e validazione incrociata: scegliere la complessità senza ingannarsi sull’errore di previsione.', status: 'ready', verifyR: true } ] }
+    { id: 'validazione', num: '18', title: 'Validazione e overfitting', blurb: 'Training, test e validazione incrociata: scegliere la complessità senza ingannarsi sull’errore di previsione.', status: 'ready', verifyR: true },
+    { id: 'knn', num: '19', title: 'k vicini più prossimi', blurb: 'Classificare con i vicini: frontiere di decisione, errore di Bayes, scelta di k e il peso delle unità di misura.', status: 'ready', verifyR: true } ] }
 ];
 SA.labs = {};
 SA.registerLab = function (id, def) { SA.labs[id] = def; };
@@ -2153,19 +2227,22 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     ['regressione-lp', 'quantilica', 'L1 è la regressione del quantile 0,5'], ['regressione', 'penalizzata', 'penalizzare i minimi quadrati'],
     ['regressione', 'spline', 'dalla retta alla curva'], ['penalizzata', 'spline', 'la penalità sulla rugosità (P-spline)'], ['adattamento', 'spline', 'scegliere la complessità guardando i dati'],
     ['spline', 'segmentata', 'una spline lineare con un solo nodo, di posizione ignota'], ['regressione', 'segmentata', 'il modello lineare con un termine (x − ψ)₊'], ['test', 'segmentata', 'testare un parametro che esiste solo sotto l’alternativa'],
-    ['penalizzata', 'validazione', 'scegliere λ con la validazione incrociata'], ['spline', 'validazione', 'dalla LOOCV in forma chiusa al protocollo training/test'], ['regressione', 'validazione', 'errore di training contro errore di previsione']
+    ['penalizzata', 'validazione', 'scegliere λ con la validazione incrociata'], ['spline', 'validazione', 'dalla LOOCV in forma chiusa al protocollo training/test'], ['regressione', 'validazione', 'errore di training contro errore di previsione'],
+    ['validazione', 'knn', 'scegliere k con la validazione leave-one-out'], ['glm', 'knn', 'dalla regressione logistica a una stima locale di P(Y = 1 | x)'], ['bivariata', 'knn', 'classi come normali bivariate: la regola di Bayes']
   ];
   function openMap() {
     closePart(); modalLast = document.activeElement;
-    var P = SA.plot, t = SA.theme(), W = 1000, H = 560, cols = SA.catalog.length, colW = W / cols, NW = Math.min(168, colW - 12), pos = {};
-    SA.catalog.forEach(function (p, ci) { var n = p.labs.length; p.labs.forEach(function (l, li) { pos[l.id] = { x: colW * (ci + 0.5), y: 90 + (H - 110) * (li + 0.5) / n, lab: l, part: p }; }); });
+    // fino a 5 parti una riga; oltre, due righe da 4 colonne (parti I–IV sopra, V–VIII sotto)
+    var P = SA.plot, t = SA.theme(), W = 1000, np = SA.catalog.length, cols = np > 5 ? 4 : np, rows = Math.ceil(np / cols), RH = rows > 1 ? 340 : 560, H = RH * rows;
+    var colW = W / cols, NW = Math.min(168, colW - 12), pos = {}, cx = function (ci) { return colW * (ci % cols + 0.5); }, top = function (ci) { return RH * Math.floor(ci / cols); };
+    SA.catalog.forEach(function (p, ci) { var n = p.labs.length; p.labs.forEach(function (l, li) { pos[l.id] = { x: cx(ci), y: top(ci) + 90 + (RH - 110) * (li + 0.5) / Math.max(n, rows > 1 ? 4 : 1), lab: l, part: p }; }); });
     var caption = el('div.feedback', { role: 'status', style: 'max-width:none;margin-top:12px' }, 'Passa sopra un laboratorio per vedere i suoi legami; clicca per aprirlo.');
     var box = el('div.atlas-map');
     var svg = P.svg('svg', { viewBox: '0 0 ' + W + ' ' + H, role: 'group', 'aria-label': 'Mappa dei legami tra i laboratori', 'font-family': t.sans }, box);
     SA.catalog.forEach(function (p, ci) {
-      P.svg('rect', { x: colW * ci + 6, y: 8, width: colW - 12, height: H - 16, rx: 12, fill: ci % 2 ? t.paper_2 : t.card, stroke: t.rule }, svg);
-      P.text(svg, colW * (ci + 0.5), 40, p.part, { 'text-anchor': 'middle', fill: t.accent, 'font-family': t.serif, 'font-size': 26, 'font-weight': 700 });
-      P.text(svg, colW * (ci + 0.5), 62, p.title, { 'text-anchor': 'middle', fill: t.ink_2, 'font-size': cols > 5 ? 10.5 : 13 });
+      P.svg('rect', { x: colW * (ci % cols) + 6, y: top(ci) + 8, width: colW - 12, height: RH - 16, rx: 12, fill: (ci + Math.floor(ci / cols)) % 2 ? t.paper_2 : t.card, stroke: t.rule }, svg);
+      P.text(svg, cx(ci), top(ci) + 40, p.part, { 'text-anchor': 'middle', fill: t.accent, 'font-family': t.serif, 'font-size': 26, 'font-weight': 700 });
+      P.text(svg, cx(ci), top(ci) + 62, p.title, { 'text-anchor': 'middle', fill: t.ink_2, 'font-size': p.title.length > 24 ? 11.5 : 13 });
     });
     var edges = LINKS.map(function (e) {
       var a = pos[e[0]], b = pos[e[1]], mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2 - (a.x === b.x ? 0 : 0), bend = a.x === b.x ? 60 : 0;
@@ -8073,7 +8150,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   SA.registerLab('validazione', {
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
-      run = SA.ui.runner({ speed: 1, step: step, render: render, done: function () { return S.k >= S.B; }, progress: function () { return S.k / S.B; }, reset: function () { S = newState(S); step(); } });
+      run = SA.ui.runner({ speed: 1, coop: true, step: step, render: render, done: function () { return S.k >= S.B; }, progress: function () { return S.k / S.B; }, reset: function () { S = newState(S); step(); } });
       var openT = function (l) { SA.ui.openDrawer('Validazione e overfitting', THEORY, l); };
       page.appendChild(el('header.lab-head', el('div', el('div.kicker', info.part.part + ' · ' + info.part.title + ' · Laboratorio ' + info.lab.num),
         el('h1', info.lab.title), el('p.lede', 'Un modello più flessibile si adatta sempre meglio ai dati che ha visto. Su quelli nuovi, no. Come lo si scopre senza ingannarsi?')),
@@ -8100,6 +8177,328 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
       s6.body.append(el('p.prose', 'Riproducibilità: stessi dati, stessa suddivisione training/test e stessi fold (R0), stesse metriche (R1). Richiede R ≥ 3.6 e tidyverse.'), codeBox);
       page.append(s1, s2, s3, s4, s5, s6);
       step(); buildControls(); buildPrediction(); legends(); interpretation(); render(true); run.refresh();
+      document.addEventListener('keydown', run.key);
+    },
+    unmount: function () { run.stop(); document.removeEventListener('keydown', run.key); },
+    redraw: function () { legends(); render(true); }
+  });
+})();
+
+/* labs/19-knn.js */
+/* StatAtlas · Lab 19 — k vicini più prossimi e classificazione.
+ * Due classi equiprobabili (n/2 ciascuna) in R²: scenario lineare (normali con medie ±δ/2 sull'asse x₁) o XOR
+ * (miscela di quattro normali): regola ed errore di Bayes noti in forma chiusa. Vicini con SA.ml.nearest
+ * (a parità di distanza vince l'indice minore, come order() in R); k dispari, quindi nessuna parità nei voti. */
+(function () {
+  var el, S, NT = 500, NG = 46;
+  var SC = {
+    lin: { label: 'Due normali (frontiera di Bayes lineare)', bayes: function (d) { return SA.sf.pnorm(-d / 2); } },
+    xor: { label: 'XOR: miscela di quattro normali', bayes: function (d) { return 2 * SA.sf.pnorm(d / 2) * SA.sf.pnorm(-d / 2); } }
+  };
+  /* errore asintotico del vicino più prossimo (Cover e Hart): E[2η(1 − η)] = ∫ f₀f₁/(f₀ + f₁), per quadratura */
+  function asym1nn() {
+    var a = S.delta / 2, ph = function (u) { return Math.exp(-0.5 * u * u) / Math.sqrt(2 * Math.PI); }, h, i, j, s = 0, M = S.sc === 'lin' ? 4000 : 400, L = a + 8;
+    h = 2 * L / M;
+    if (S.sc === 'lin') { for (i = 0; i < M; i++) { var x = -L + (i + 0.5) * h, f0 = ph(x + a), f1 = ph(x - a); if (f0 + f1 > 0) s += f0 * f1 / (f0 + f1) * h; } return s; }
+    for (i = 0; i < M; i++) for (j = 0; j < M; j++) {
+      var x1 = -L + (i + 0.5) * h, x2 = -L + (j + 0.5) * h, p1 = 0.5 * (ph(x1 - a) * ph(x2 - a) + ph(x1 + a) * ph(x2 + a)), p0 = 0.5 * (ph(x1 - a) * ph(x2 + a) + ph(x1 + a) * ph(x2 - a));
+      if (p0 + p1 > 0) s += p0 * p1 / (p0 + p1) * h * h;
+    }
+    return s;
+  }
+  function lcosh(u) { u = Math.abs(u); return u + Math.log1p(Math.exp(-2 * u)) - Math.LN2; }
+  function post1(x1, x2) { // P(Y = 1 | x) vera, nelle coordinate originali
+    var a = S.delta / 2, z2 = x2 / S.scale;
+    if (S.sc === 'lin') return 1 / (1 + Math.exp(-S.delta * x1));
+    var l1 = lcosh(a * (x1 + z2)), l0 = lcosh(a * (x1 - z2)); return 1 / (1 + Math.exp(l0 - l1));
+  }
+  function gen(g, n) {
+    var y = [], s = [], X = [], i, a = S.delta / 2;
+    for (i = 0; i < n; i++) y.push(i < n / 2 ? 0 : 1);
+    for (i = 0; i < n; i++) s.push(g.unif() < 0.5 ? -1 : 1);
+    for (i = 0; i < n; i++) {
+      var z1 = g.norm(), z2 = g.norm(), x1, x2;
+      if (S.sc === 'lin') { x1 = (y[i] ? a : -a) + z1; x2 = z2; } else { x1 = s[i] * a + z1; x2 = s[i] * (y[i] ? 1 : -1) * a + z2; }
+      X.push([x1, S.scale * x2]);
+    }
+    return { X: X, y: y };
+  }
+  function newState(prev) {
+    var s = { sc: 'lin', delta: 2, n: 100, kShow: 15, scale: 1, std: true, B: 100, seed: 2026, q: [0.6, 0.4], pred: null };
+    if (prev) for (var k in s) if (prev[k] !== undefined) s[k] = prev[k];
+    s.kmax = Math.min(99, s.n - 1); if (s.kmax % 2 === 0) s.kmax--; // il più grande k dispari ≤ n − 1
+    s.kVals = []; for (var k2 = 1; k2 <= s.kmax; k2 += 2) s.kVals.push(k2);
+    if (s.kShow > s.kmax) s.kShow = s.kmax;
+    s.rng = new SA.RRNG(s.seed); s.k = 0; var L = s.kVals.length; var S0 = S; S = s; s.r1nn = asym1nn(); S = S0;
+    s.sum = { tr: new Float64Array(L), loo: new Float64Array(L), te: new Float64Array(L) };
+    s.cntK = new Uint32Array(L); s.teAtLoo = new Float64Array(s.B); s.teAtShow = new Float64Array(s.B);
+    return s;
+  }
+  function ki(k) { return (k - 1) / 2; }
+  function step() {
+    if (S.k >= S.B) return false;
+    var g = S.rng, tr = gen(g, S.n), te = gen(g, NT), L = S.kVals.length, K = S.kmax, i, r;
+    var sc = S.std ? SA.ml.scaler(tr.X) : null, Ztr = sc ? sc.apply(tr.X) : tr.X, Zte = sc ? sc.apply(te.X) : te.X;
+    var eTr = new Float64Array(L), eLoo = new Float64Array(L), eTe = new Float64Array(L), conf = [0, 0, 0, 0];
+    for (i = 0; i < S.n; i++) {
+      var nb = SA.ml.nearest(Ztr, Ztr[i], K, i).idx, cum = new Float64Array(nb.length + 1);
+      for (var j = 0; j < nb.length; j++) cum[j + 1] = cum[j] + tr.y[nb[j]];
+      for (r = 0; r < L; r++) { // leave-one-out: k vicini senza sé; training: sé più i k − 1 vicini
+        var k = S.kVals[r];
+        if ((cum[k] > k / 2 ? 1 : 0) !== tr.y[i]) eLoo[r]++;
+        if ((tr.y[i] + cum[k - 1] > k / 2 ? 1 : 0) !== tr.y[i]) eTr[r]++;
+      }
+    }
+    var rs = ki(S.kShow);
+    for (i = 0; i < NT; i++) {
+      var pv = SA.ml.votePath(SA.ml.nearest(Ztr, Zte[i], K).idx, tr.y, S.kVals);
+      for (r = 0; r < L; r++) if (pv[r] !== te.y[i]) eTe[r]++;
+      conf[2 * te.y[i] + pv[rs]]++; // [vero 0 prev 0, vero 0 prev 1, vero 1 prev 0, vero 1 prev 1]
+    }
+    var best = 0;
+    for (r = 0; r < L; r++) { eTr[r] /= S.n; eLoo[r] /= S.n; eTe[r] /= NT; if (eLoo[r] < eLoo[best]) best = r; S.sum.tr[r] += eTr[r]; S.sum.loo[r] += eLoo[r]; S.sum.te[r] += eTe[r]; }
+    S.cntK[best]++; S.teAtLoo[S.k] = eTe[best]; S.teAtShow[S.k] = eTe[rs];
+    S.cur = { tr: tr, Ztr: Ztr, sc: sc, eTr: eTr, eLoo: eLoo, eTe: eTe, best: best, conf: conf, kConf: S.kShow };
+    S.cur.grid = null;
+    S.k++; return true;
+  }
+  /* quando cambia il k mostrato si ricalcola solo la matrice di confusione della replica corrente */
+  function avg(key) { var k = Math.max(1, S.k); return Array.prototype.map.call(S.sum[key], function (v) { return v / k; }); }
+  function meanOf(a, k) { var s = 0; for (var i = 0; i < k; i++) s += a[i]; return k ? s / k : NaN; }
+  function seOf(a, k) { var m = meanOf(a, k), s = 0; for (var i = 0; i < k; i++) s += (a[i] - m) * (a[i] - m); return k > 1 ? Math.sqrt(s / (k - 1) / k) : NaN; }
+  function toZ(p) { return S.cur.sc ? S.cur.sc.apply([p])[0] : p; }
+  function queryVote() { var nb = SA.ml.nearest(S.cur.Ztr, toZ(S.q), S.kShow).idx, s = 0; for (var i = 0; i < nb.length; i++) s += S.cur.tr.y[nb[i]]; return { idx: nb, ones: s }; }
+
+  /* ---------- grafici ---------- */
+  var figA, figB, figC, figD, legA, legB, legD, FA;
+  function ranges() { var r1 = S.delta / 2 + 3; return [[-r1, r1], [-r1 * S.scale, r1 * S.scale]]; }
+  function drawMap() {
+    var P = SA.plot, a = S.cur, R = ranges();
+    FA = P.frame(figA, { W: 720, H: 520, x: R[0], y: R[1], xlabel: 'x₁', ylabel: 'x₂' + (S.scale !== 1 ? ' (scala × ' + S.scale + ')' : ''), label: 'Regioni di classificazione kNN, frontiera di Bayes e punto interrogato' });
+    var t = FA.t, g = FA.g, i, j;
+    if (!a.grid || a.grid.k !== S.kShow) { // regioni kNN su una griglia NG × NG
+      var cells = new Uint8Array(NG * NG);
+      for (i = 0; i < NG; i++) for (j = 0; j < NG; j++) {
+        var p = [R[0][0] + (R[0][1] - R[0][0]) * (i + 0.5) / NG, R[1][0] + (R[1][1] - R[1][0]) * (j + 0.5) / NG];
+        var nb = SA.ml.nearest(a.Ztr, toZ(p), S.kShow).idx, s = 0; for (var h = 0; h < nb.length; h++) s += a.tr.y[nb[h]];
+        cells[i * NG + j] = s > S.kShow / 2 ? 1 : 0;
+      }
+      a.grid = { k: S.kShow, cells: cells };
+    }
+    var cw = (FA.x(R[0][1]) - FA.x(R[0][0])) / NG, ch = (FA.y(R[1][0]) - FA.y(R[1][1])) / NG, d0 = '', d1 = '';
+    for (i = 0; i < NG; i++) for (j = 0; j < NG; j++) { var rc = 'M' + (FA.x(R[0][0]) + i * cw).toFixed(1) + ',' + (FA.y(R[1][0]) - (j + 1) * ch).toFixed(1) + 'h' + (cw + 0.3).toFixed(1) + 'v' + (ch + 0.3).toFixed(1) + 'h' + (-cw - 0.3).toFixed(1) + 'z'; if (a.grid.cells[i * NG + j]) d1 += rc; else d0 += rc; }
+    P.svg('path', { d: d0, fill: t.c1, 'fill-opacity': 0.13 }, g); P.svg('path', { d: d1, fill: t.c2, 'fill-opacity': 0.13 }, g);
+    // frontiera di Bayes
+    var bl = { stroke: t.c_theory, 'stroke-width': 2, 'stroke-dasharray': '7 4' };
+    P.svg('line', Object.assign({ x1: FA.x(0), x2: FA.x(0), y1: FA.y(R[1][0]), y2: FA.y(R[1][1]) }, bl), g);
+    if (S.sc === 'xor') P.svg('line', Object.assign({ x1: FA.x(R[0][0]), x2: FA.x(R[0][1]), y1: FA.y(0), y2: FA.y(0) }, bl), g);
+    var X = a.tr.X, y = a.tr.y, cl = function (v, r) { return Math.max(r[0], Math.min(r[1], v)); };
+    P.dots(g, X.filter(function (x, k) { return !y[k]; }).map(function (x) { return [FA.x(cl(x[0], R[0])), FA.y(cl(x[1], R[1]))]; }), 3.2, t.c1, 0.8);
+    X.forEach(function (x, k) { if (y[k]) P.marker(g, 'tri', FA.x(cl(x[0], R[0])), FA.y(cl(x[1], R[1])), 8, t.c2); });
+    // punto interrogato e suoi vicini
+    var qv = queryVote(), qx = FA.x(S.q[0]), qy = FA.y(S.q[1]);
+    Array.prototype.forEach.call(qv.idx, function (k) { P.svg('line', { x1: qx, y1: qy, x2: FA.x(cl(X[k][0], R[0])), y2: FA.y(cl(X[k][1], R[1])), stroke: y[k] ? t.c2 : t.c1, 'stroke-width': 1.2, 'stroke-opacity': 0.7 }, g); });
+    P.svg('circle', { cx: qx, cy: qy, r: 9, fill: t.card, stroke: t.ink, 'stroke-width': 2.5, style: 'cursor:grab', 'data-q': 1 }, g);
+    P.svg('circle', { cx: qx, cy: qy, r: 3, fill: t.ink }, g);
+    P.text(g, FA.m.l + 8, FA.m.t + 14, 'k = ' + S.kShow + ': ' + qv.ones + ' voti per la classe 1, ' + (S.kShow - qv.ones) + ' per la classe 0 → classe ' + (qv.ones > S.kShow / 2 ? 1 : 0) + ' · P(Y = 1 | x) vera = ' + SA.fmt(post1(S.q[0], S.q[1]), 3), { fill: t.ink, 'font-size': 12.5, 'font-weight': 600 });
+  }
+  function drawCurves() {
+    var P = SA.plot, a = S.cur, bay = SC[S.sc].bayes(S.delta), mt = avg('te'), top = Math.min(0.6, +(1.3 * Math.max(Math.max.apply(null, a.eTe), Math.max.apply(null, mt), bay + 0.05)).toPrecision(2));
+    var F = P.frame(figB, { W: 720, H: 290, x: [0, S.kmax + 1], y: [0, top], xlabel: 'numero di vicini k (a sinistra il modello più flessibile)', ylabel: 'tasso di errore', label: 'Errore in funzione di k' });
+    var t = F.t, g = F.g, ks = S.kVals, cp = function (v) { return Math.min(top, v); };
+    P.svg('line', { x1: F.x(0), x2: F.x(S.kmax + 1), y1: F.y(bay), y2: F.y(bay), stroke: t.c_theory, 'stroke-width': 2, 'stroke-dasharray': '7 4' }, g);
+    P.text(g, F.x(S.kmax + 1) - 4, F.y(bay) + 15, 'errore di Bayes ' + SA.fmt(bay, 3), { 'text-anchor': 'end', fill: t.c_theory, 'font-size': 11.5 });
+    P.svg('line', { x1: F.x(S.kShow), x2: F.x(S.kShow), y1: F.m.t, y2: F.y(0), stroke: t.accent, 'stroke-dasharray': '3 3' }, g);
+    var ser = [['tr', 'eTr', t.c1, null], ['loo', 'eLoo', t.c3, null], ['te', 'eTe', t.c2, '9 4']];
+    ser.forEach(function (q) { P.svg('path', { d: P.path(ks.map(function (k, r) { return [F.x(k), F.y(cp(a[q[1]][r]))]; })), fill: 'none', stroke: q[2], 'stroke-width': 1.2, 'stroke-opacity': 0.4, 'stroke-dasharray': q[3] }, g); });
+    if (S.k > 1) ser.forEach(function (q) { var m = avg(q[0]); P.svg('path', { d: P.path(ks.map(function (k, r) { return [F.x(k), F.y(cp(m[r]))]; })), fill: 'none', stroke: q[2], 'stroke-width': 2.8, 'stroke-dasharray': q[3] }, g); });
+    P.marker(g, 'circle', F.x(ks[a.best]), F.y(cp(a.eLoo[a.best])), 11, t.c3);
+  }
+  function drawConf() {
+    var P = SA.plot, t = SA.theme(), c = confusion(), tot = NT, svg;
+    figC.innerHTML = ''; svg = P.svg('svg', { viewBox: '0 0 720 210', role: 'img', 'aria-label': 'Matrice di confusione sul test', 'font-family': t.sans, 'font-size': 13 }, figC);
+    var lab = [['vera 0, prevista 0', 0, 0, t.c3], ['vera 0, prevista 1', 1, 0, t.c2], ['vera 1, prevista 0', 0, 1, t.c2], ['vera 1, prevista 1', 1, 1, t.c3]];
+    P.text(svg, 150, 18, 'prevista 0', { 'text-anchor': 'middle', fill: t.ink_2 }); P.text(svg, 270, 18, 'prevista 1', { 'text-anchor': 'middle', fill: t.ink_2 });
+    P.text(svg, 80, 70, 'vera 0', { 'text-anchor': 'end', fill: t.ink_2 }); P.text(svg, 80, 160, 'vera 1', { 'text-anchor': 'end', fill: t.ink_2 });
+    lab.forEach(function (q, i) {
+      var x = 92 + q[1] * 120, y = 28 + q[2] * 90;
+      P.svg('rect', { x: x, y: y, width: 114, height: 84, rx: 6, fill: q[3], 'fill-opacity': 0.12 + 0.6 * c.m[i] / (tot / 2) }, svg);
+      P.text(svg, x + 57, y + 50, String(c.m[i]), { 'text-anchor': 'middle', fill: t.ink, 'font-size': 22, 'font-weight': 700 });
+    });
+    var rows = [['accuratezza', c.acc, c.accCI], ['sensibilità (classe 1)', c.sens, c.sensCI], ['specificità (classe 0)', c.spec, c.specCI]];
+    rows.forEach(function (q, i) {
+      var y = 46 + i * 54, x0 = 380, w = 300;
+      P.text(svg, x0, y, q[0] + ': ' + SA.fmt(q[1], 3) + '  [' + SA.fmt(q[2][0], 3) + '; ' + SA.fmt(q[2][1], 3) + ']', { fill: t.ink, 'font-size': 12.5 });
+      P.svg('rect', { x: x0, y: y + 8, width: w, height: 10, rx: 3, fill: t.rule }, svg);
+      P.svg('rect', { x: x0 + w * q[2][0], y: y + 8, width: Math.max(2, w * (q[2][1] - q[2][0])), height: 10, rx: 3, fill: t.accent, 'fill-opacity': 0.35 }, svg);
+      P.svg('line', { x1: x0 + w * q[1], x2: x0 + w * q[1], y1: y + 4, y2: y + 22, stroke: t.accent, 'stroke-width': 3 }, svg);
+    });
+  }
+  function confusion() {
+    var a = S.cur;
+    if (a.kConf !== S.kShow) { // ricalcolo sul test della replica corrente: rigenero lo stesso test dal flusso RNG
+      var g = new SA.RRNG(S.seed); for (var r = 0; r < S.k - 1; r++) { gen(g, S.n); gen(g, NT); } gen(g, S.n);
+      var te = gen(g, NT), Zte = a.sc ? a.sc.apply(te.X) : te.X, m = [0, 0, 0, 0];
+      for (var i = 0; i < NT; i++) { var nb = SA.ml.nearest(a.Ztr, Zte[i], S.kShow).idx, s = 0; for (var h = 0; h < nb.length; h++) s += a.tr.y[nb[h]]; m[2 * te.y[i] + (s > S.kShow / 2 ? 1 : 0)]++; }
+      a.conf = m; a.kConf = S.kShow;
+    }
+    var c = a.conf, W = SA.ml.wilson;
+    return { m: c, acc: (c[0] + c[3]) / NT, accCI: W(c[0] + c[3], NT), sens: c[3] / (c[2] + c[3]), sensCI: W(c[3], c[2] + c[3]), spec: c[0] / (c[0] + c[1]), specCI: W(c[0], c[0] + c[1]) };
+  }
+  function drawChoice() {
+    var P = SA.plot, k = Math.max(1, S.k), mx = 1, r;
+    for (r = 0; r < S.kVals.length; r++) mx = Math.max(mx, S.cntK[r]);
+    var F = P.frame(figD, { W: 720, H: 200, x: [0, S.kmax + 1], y: [0, +(1.15 * mx / k).toPrecision(2)], xlabel: 'k scelto dalla validazione leave-one-out', ylabel: 'frequenza', label: 'k scelto nelle repliche' });
+    var t = F.t, w = Math.max(2, (F.x(2) - F.x(0)) * 0.7);
+    for (r = 0; r < S.kVals.length; r++) if (S.cntK[r]) P.svg('rect', { x: F.x(S.kVals[r]) - w / 2, width: w, y: F.y(S.cntK[r] / k), height: F.y(0) - F.y(S.cntK[r] / k), fill: t.c3, 'fill-opacity': 0.7 }, F.g);
+  }
+  function legends() {
+    var t = SA.theme(), sw = SA.plot.legendSwatch, box = function (c, o) { return el('i', { style: 'display:inline-block;width:14px;height:10px;border-radius:2px;background:' + c + ';opacity:' + o }); };
+    legA.innerHTML = ''; legB.innerHTML = ''; legD.innerHTML = '';
+    legA.append(el('span', sw(t.c1, null, 'circle'), 'classe 0'), el('span', sw(t.c2, null, 'tri'), 'classe 1'), el('span', box(t.c2, 0.3), box(t.c1, 0.3), ' regioni kNN'), el('span', sw(t.c_theory, '7 4'), 'frontiera di Bayes'), el('span.muted', 'trascina il punto cerchiato'));
+    legB.append(el('span', sw(t.c1, null), 'training'), el('span', sw(t.c3, null, 'circle'), 'leave-one-out'), el('span', sw(t.c2, '9 4'), 'test (' + NT + ' punti nuovi)'), el('span.muted', 'tratto spesso: media sulle repliche'));
+    legD.append(el('span', box(t.c3, 0.8), 'k̂ con l’errore leave-one-out minimo'));
+  }
+
+  /* ---------- tabella ---------- */
+  var tblBody, kpiBox, fbBox, interpBox, predBox;
+  function updateTable() {
+    var a = S.cur, fmt = SA.fmt, b = SA.ui.badge, k = S.k, bay = SC[S.sc].bayes(S.delta), c = confusion(), r = ki(S.kShow), mt = avg('te'), mtr = avg('tr');
+    var pm = function (arr) { return k ? fmt(meanOf(arr, k), 4) + (k > 1 ? ' ± ' + fmt(seOf(arr, k), 4) : '') : '—'; }, ci = function (q) { return '[' + fmt(q[0], 3) + '; ' + fmt(q[1], 3) + ']'; };
+    var qv = queryVote();
+    tblBody.innerHTML = '';
+    tblBody.append(
+      el('tr', el('td', 'Errore di Bayes R*'), el('td', fmt(bay, 4)), el('td', '—'), el('td', b('exact'))),
+      el('tr', el('td', 'Errore sul test con k = ' + S.kShow + ' (replica corrente, IC di Wilson 95%)'), el('td', '≥ R*'), el('td', fmt(1 - c.acc, 4) + ' ' + ci([1 - c.accCI[1], 1 - c.accCI[0]])), el('td', b('approx'))),
+      el('tr', el('td', 'Sensibilità · specificità con k = ' + S.kShow), el('td', fmt(1 - bay, 3) + ' · ' + fmt(1 - bay, 3) + ' (regola di Bayes)'), el('td', fmt(c.sens, 3) + ' ' + ci(c.sensCI) + ' · ' + fmt(c.spec, 3) + ' ' + ci(c.specCI)), el('td', b('approx'))),
+      el('tr', el('td', 'Errore medio sul test con k = ' + S.kShow), el('td', '—'), el('td', pm(S.teAtShow)), el('td', b('mc'))),
+      el('tr', el('td', 'k scelto con leave-one-out: errore sul test'), el('td', 'k̂ = ' + S.kVals[a.best] + ' (replica corrente)'), el('td', pm(S.teAtLoo)), el('td', b('mc'))),
+      el('tr', el('td', 'Errore di training con k = 1'), el('td', '0 (ogni punto è vicino di sé stesso)'), el('td', k ? fmt(mtr[0], 4) : '—'), el('td', b('exact'))),
+      el('tr', el('td', 'Errore sul test con k = 1 per n → ∞ (Cover–Hart)'), el('td', '→ E[2η(1 − η)] = ' + fmt(S.r1nn, 4) + ' ≤ 2R*(1 − R*) = ' + fmt(2 * bay * (1 - bay), 4)), el('td', k ? fmt(mt[0], 4) : '—'), el('td', b('asym'))),
+      el('tr', el('td', 'Punto interrogato: voto dei vicini e probabilità vera'), el('td', 'P(Y = 1 | x) = ' + fmt(post1(S.q[0], S.q[1]), 3)), el('td', qv.ones + ' / ' + S.kShow + ' = ' + fmt(qv.ones / S.kShow, 3)), el('td', b('none'))));
+    kpiBox.innerHTML = '';
+    kpiBox.append(el('div.kpi', el('b', S.k + ' / ' + S.B), el('span', 'repliche')),
+      el('div.kpi', el('b', S.n + ' / ' + NT), el('span', 'punti di training / di test per replica')),
+      el('div.kpi', el('b', S.std ? 'sì' : 'no'), el('span', 'standardizzazione (stimata sul solo training)')));
+    updateFeedback();
+  }
+  function buildPrediction() {
+    predBox.innerHTML = ''; var name = 'p19-' + Date.now();
+    predBox.append(el('p.prose', 'Con k = 1 ogni punto nuovo prende la classe del suo vicino più prossimo. Che cosa ti aspetti dall’errore di training e da quello sul test?'),
+      el('div.choices', { role: 'radiogroup' }, [['zero', 'Training 0, test sopra l’errore di Bayes'], ['both', 'Entrambi vicini all’errore di Bayes'], ['low', 'Entrambi molto bassi: il modello è il più flessibile']].map(function (o, i) {
+        return el('div.choice', el('input', { type: 'radio', name: name, id: name + i, value: o[0], checked: S.pred === o[0], onchange: function () { S.pred = this.value; updateFeedback(); } }), el('label', { for: name + i }, o[1]));
+      })));
+    fbBox = el('div.feedback', { role: 'status', hidden: true }); predBox.appendChild(fbBox);
+  }
+  function updateFeedback() {
+    if (!fbBox) return;
+    if (!S.pred) { fbBox.hidden = true; return; }
+    var mt = avg('te'), bay = SC[S.sc].bayes(S.delta);
+    fbBox.hidden = false;
+    fbBox.textContent = (S.pred === 'zero' ? '✓ ' : '✗ ') + 'Sul training ogni punto ha sé stesso come vicino: errore 0. Sul test il vicino più prossimo è un punto rumoroso, e l’errore (' + (S.k ? SA.fmt(mt[0], 3) : '—') + ') supera quello di Bayes (' + SA.fmt(bay, 3) + '); per n grande tende a E[2η(1 − η)] = ' + SA.fmt(S.r1nn, 3) + ', mai oltre 2R*(1 − R*) (Cover e Hart).';
+  }
+  function interpretation() {
+    interpBox.innerHTML = '<p>Il kNN stima P(Y = 1 | x) con la quota di vicini della classe 1 e assegna la classe più votata. <strong>k governa la complessità</strong>: con k piccolo la frontiera segue i singoli punti (varianza alta), con k grande si appiattisce verso la classe più frequente (distorsione alta). La curva dell’errore sul test ha di nuovo la forma a U del lab 18, ma rovesciata sull’asse: a sinistra c’è il modello più flessibile.</p>' +
+      '<p>L’errore di Bayes è il <strong>limite inferiore</strong> per qualunque classificatore: nessun k lo supera in media. La validazione leave-one-out sceglie k sul solo training ed è quasi gratuita per il kNN, perché basta escludere il punto dai propri vicini.</p>' +
+      '<p class="muted">Le distanze dipendono dalle unità di misura. Moltiplica x₂ per 10 e togli la standardizzazione: i vicini diventano quelli vicini in x₂, che nello scenario lineare non contiene informazione, e l’errore cresce. La standardizzazione va stimata sul training e applicata al test, mai stimata su tutti i dati.</p>';
+  }
+  function codeR() {
+    var lin = S.sc === 'lin';
+    return ['# ───────────────────────────────────────────────────────────────', '# StatAtlas · Lab 19 — k vicini più prossimi',
+      '# R0: stessi dati di training e di test di StatAtlas (stesso seed, R ≥ 3.6).',
+      '# R2: stesso algoritmo: distanza euclidea, a parità di distanza l’indice minore (order()), k dispari.',
+      '# R3: class::knn() rompe le parità a caso e consuma numeri casuali: confronto di metodo, non stessi numeri.',
+      '# ───────────────────────────────────────────────────────────────', 'library(tidyverse)', '',
+      'set.seed(' + S.seed + ')', 'n <- ' + S.n + '; n_test <- ' + NT + '; delta <- ' + S.delta + '; scala <- ' + S.scale + '; standardizza <- ' + (S.std ? 'TRUE' : 'FALSE') + '; B <- ' + S.B,
+      'k_val <- seq(1, ' + S.kmax + ', by = 2); kmax <- max(k_val)', '',
+      'genera <- function(n) {', '  y <- rep(0:1, each = n / 2)', '  s <- ifelse(runif(n) < 0.5, -1, 1)' + (lin ? '                 # (usato solo nello scenario XOR)' : '                 # segno della componente della miscela'),
+      '  z <- matrix(rnorm(2 * n), ncol = 2, byrow = TRUE)',
+      lin ? '  x <- cbind(ifelse(y == 1, delta / 2, -delta / 2) + z[, 1], z[, 2])' : '  x <- cbind(s * delta / 2 + z[, 1], s * ifelse(y == 1, 1, -1) * delta / 2 + z[, 2])',
+      '  x[, 2] <- scala * x[, 2]', '  list(x = x, y = y)', '}',
+      'errore_bayes <- ' + (lin ? 'pnorm(-delta / 2)' : '2 * pnorm(delta / 2) * pnorm(-delta / 2)'), '',
+      '# Classe prevista per ogni k: matrice (punti × k)', 'prevedi <- function(xtr, ytr, xnew, loo = FALSE) {', '  t(sapply(seq_len(nrow(xnew)), \\(i) {',
+      '    d <- (xtr[, 1] - xnew[i, 1])^2 + (xtr[, 2] - xnew[i, 2])^2', '    o <- order(d); if (loo) o <- o[o != i]          # leave-one-out: il punto non vota per sé',
+      '    v <- cumsum(ytr[o[seq_len(kmax)]])', '    as.integer(v[k_val] > k_val / 2)', '  }))', '}', '',
+      'una_replica <- function() {', '  tr <- genera(n); te <- genera(n_test)',
+      '  if (standardizza) {                                # medie e sd stimate sul solo training', '    m <- colMeans(tr$x); s <- apply(tr$x, 2, sd)', '    tr$x <- scale(tr$x, m, s); te$x <- scale(te$x, m, s)', '  }',
+      '  err <- \\(P, y) colMeans(P != y)', '  tibble(k = k_val, training = err(prevedi(tr$x, tr$y, tr$x), tr$y),',
+      '         loo = err(prevedi(tr$x, tr$y, tr$x, loo = TRUE), tr$y), test = err(prevedi(tr$x, tr$y, te$x), te$y))', '}', '',
+      'repliche <- map(seq_len(B), \\(b) una_replica())', 'curve <- bind_rows(repliche, .id = "replica")',
+      'curve |> group_by(replica) |> slice_min(loo, n = 1, with_ties = FALSE) |> ungroup() |>', '  summarise(k_medio = mean(k), test_al_k_scelto = mean(test))',
+      'curve |> filter(k == 1) |> summarise(training = mean(training), test = mean(test), cover_hart = 2 * errore_bayes * (1 - errore_bayes))', '',
+      'theme_statatlas <- function(base_size = 12) {', '  theme_minimal(base_size = base_size, base_family = "serif") +', '    theme(panel.grid.minor = element_blank(), plot.background = element_rect(fill = "#FAF8F3", colour = NA))', '}',
+      'curve |> select(-replica) |> group_by(k) |> summarise(across(everything(), mean)) |>', '  pivot_longer(-k, names_to = "errore", values_to = "valore") |>',
+      '  ggplot(aes(k, valore, colour = errore)) + geom_line(linewidth = 1) +', '  geom_hline(yintercept = errore_bayes, linetype = "dashed") +', '  labs(x = "k", y = "tasso di errore") + theme_statatlas()', '',
+      '# Confronto di metodo (R3)', '# library(class); knn(train = tr$x, test = te$x, cl = factor(tr$y), k = ' + S.kShow + ')', ''].join('\n');
+  }
+  var THEORY = {
+    base: function () {
+      return el('div.prose', { html: '<h3>La regola dei k vicini</h3><p>Dato un punto x, si prendono i k punti di training più vicini N<sub>k</sub>(x) e si stima</p><div class="eq">p̂(x) = (1/k) Σ<sub>i ∈ N<sub>k</sub>(x)</sub> 1{yᵢ = 1}</div><p>assegnando la classe 1 se p̂(x) &gt; 1/2. Con k dispari e due classi non ci sono parità nei voti.</p>' +
+        '<h3>Errore di Bayes</h3><p>La regola di Bayes sceglie la classe con P(Y = 1 | x) più alta; il suo errore R* è il minimo possibile. Con due normali di medie ±δ/2 e varianza unitaria R* = Φ(−δ/2); nello scenario XOR R* = 2Φ(δ/2)Φ(−δ/2).</p>' +
+        '<h3>Misure di qualità</h3><p>Accuratezza, sensibilità (veri 1 riconosciuti) e specificità (veri 0 riconosciuti) si stimano sul test; gli intervalli di Wilson tengono conto del numero di casi in ciascuna classe.</p>' +
+        '<div class="callout warn">Le distanze cambiano con le unità di misura: senza standardizzazione una variabile con scala grande decide da sola i vicini.</div>' });
+    },
+    adv: function () {
+      return el('div.prose', { html: '<h3>Consistenza</h3><p>Se k → ∞ e k/n → 0, l’errore del kNN converge a R* per qualunque distribuzione (Stone, 1977). Con k = 1 fisso, invece, l’errore tende a un valore compreso tra R* e 2R*(1 − R*) (Cover e Hart, 1967).</p>' +
+        '<h3>Maledizione della dimensionalità</h3><p>In p dimensioni, per catturare una frazione r dei dati con un cubo serve un lato r<sup>1/p</sup>: con p = 10 e r = 1% il lato è 0,63. I “vicini” smettono di essere locali, e la distorsione cresce.</p>' +
+        '<h3>Leave-one-out per il kNN</h3><p>Escludere un punto dai propri vicini non richiede di ristimare nulla: la LOOCV costa quanto una previsione sul training, ed è uno dei rari casi in cui è esatta e gratuita.</p>' });
+    }
+  };
+
+  var run, codeBox, ctrlBox, drag = false;
+  function restart() { var k0 = S.kmax; run.stop(); S = newState(S); step(); legends(); interpretation(); codeBox.refresh(); if (S.kmax !== k0) buildControls(); render(true); run.refresh(); }
+  function render(full) { drawMap(); drawCurves(); if (full || run.frame % 3 === 0 || !run.running) { drawConf(); drawChoice(); updateTable(); } }
+  function bindDrag() {
+    var toData = function (ev) { var svg = figA.querySelector('svg'); if (!svg || !svg.getScreenCTM || !FA) return null; var pt = svg.createSVGPoint(); pt.x = ev.clientX; pt.y = ev.clientY; var p = pt.matrixTransform(svg.getScreenCTM().inverse()), R = ranges(); return [Math.max(R[0][0], Math.min(R[0][1], FA.x.invert(p.x))), Math.max(R[1][0], Math.min(R[1][1], FA.y.invert(p.y)))]; };
+    figA.addEventListener('pointerdown', function (ev) { var q = toData(ev); if (!q) return; run.stop(); drag = true; S.q = q; if (figA.setPointerCapture) figA.setPointerCapture(ev.pointerId); drawMap(); });
+    figA.addEventListener('pointermove', function (ev) { if (!drag) return; var q = toData(ev); if (q) { S.q = q; drawMap(); } });
+    figA.addEventListener('pointerup', function () { if (drag) { drag = false; updateTable(); } });
+  }
+  function buildControls() {
+    ctrlBox.innerHTML = '';
+    var sel = function (lab, key, vals, fmtv) { return el('label.field', el('span', lab), el('select', { onchange: function () { S[key] = +this.value; restart(); } }, vals.map(function (v) { return el('option', { value: v, selected: v === S[key] }, fmtv ? fmtv(v) : String(v)); }))); };
+    ctrlBox.append(
+      el('label.field', el('span', 'Scenario'), el('select', { onchange: function () { S.sc = this.value; restart(); } }, Object.keys(SC).map(function (k) { return el('option', { value: k, selected: k === S.sc }, SC[k].label); }))),
+      SA.ui.slider('Separazione δ tra le classi', { min: 0.5, max: 4, step: 0.25, value: S.delta, format: function (v) { return SA.fmt(v, 2); }, onchange: function (v) { S.delta = v; restart(); } }),
+      SA.ui.slider('k mostrato (vicini)', { min: 1, max: S.kmax, step: 2, value: S.kShow, format: function (v) { return String(v); }, onchange: function (v) { S.kShow = v; drawMap(); drawCurves(); drawConf(); updateTable(); } }),
+      el('div', { style: 'display:grid;grid-template-columns:1fr 1fr;gap:10px' },
+        sel('n training', 'n', [50, 100, 200, 400]), sel('Scala di x₂', 'scale', [1, 10], function (v) { return '× ' + v; }),
+        sel('Repliche B', 'B', [50, 100, 200]),
+        el('label.field', el('span', 'Seed'), el('input', { type: 'number', value: S.seed, min: 1, onchange: function () { S.seed = Math.max(1, Math.floor(+this.value || 1)); restart(); } }))),
+      el('label.field', { style: 'flex-direction:row;display:flex;gap:8px;align-items:center' }, el('input', { type: 'checkbox', checked: S.std, onchange: function () { S.std = this.checked; restart(); } }), el('span', 'Standardizza le variabili (medie e sd del training)')));
+    run.controls('Una nuova replica').forEach(function (n) { ctrlBox.appendChild(n); });
+  }
+
+  SA.registerLab('knn', {
+    mount: function (page, info) {
+      el = SA.ui.el; S = newState(S);
+      run = SA.ui.runner({ speed: 1, coop: true, step: step, render: render, done: function () { return S.k >= S.B; }, progress: function () { return S.k / S.B; }, reset: function () { S = newState(S); step(); } });
+      var openT = function (l) { SA.ui.openDrawer('k vicini più prossimi', THEORY, l); };
+      page.appendChild(el('header.lab-head', el('div', el('div.kicker', info.part.part + ' · ' + info.part.title + ' · Laboratorio ' + info.lab.num),
+        el('h1', info.lab.title), el('p.lede', 'Classificare un punto guardando i suoi vicini: l’idea più semplice dell’apprendimento supervisionato, e un laboratorio perfetto per vedere flessibilità, errore di Bayes e scelta di k.')),
+        SA.ui.button('Approfondisci', { icon: 'book', onclick: function () { openT(); } })));
+      var s1 = SA.ui.step('1', 'Domanda'); s1.body.appendChild(el('p.question', 'Come cambia una frontiera di decisione quando usiamo i vicini più prossimi, e quanti vicini conviene ascoltare?'));
+      var s2 = SA.ui.step('2', 'La tua previsione'); predBox = el('div'); s2.body.appendChild(predBox);
+      var s3 = SA.ui.step('3', 'Esperimento', 'Frontiera, vicini e scelta di k');
+      ctrlBox = el('div.panel.controls'); figA = el('div', { style: 'touch-action:none' }); figB = el('div'); figC = el('div'); figD = el('div');
+      legA = el('div.legend'); legB = el('div.legend'); legD = el('div.legend');
+      s3.body.appendChild(el('div.lab-grid', ctrlBox, el('div.figure',
+        el('div.fig', el('div.fig-title', el('h3', 'Training, regioni kNN e vicini del punto interrogato'), legA), figA),
+        el('div.fig', el('div.fig-title', el('h3', 'Errore in funzione di k'), legB), figB),
+        el('div.fig', el('div.fig-title', el('h3', 'Matrice di confusione sul test (k mostrato, replica corrente)'), el('div.legend', el('span.muted', 'intervalli di Wilson al 95%'))), figC),
+        el('div.fig', el('div.fig-title', el('h3', 'Quale k sceglie la validazione'), legD), figD),
+        el('div.toolbar', SA.ui.button('Dati CSV', { icon: 'download', cls: 'btn-ghost', onclick: function () { var rows = [['x1', 'x2', 'classe']]; S.cur.tr.X.forEach(function (x, i) { rows.push([x[0], x[1], S.cur.tr.y[i]]); }); SA.ui.download('statatlas_lab19_training.csv', SA.ui.csv(rows), 'text/csv'); } }),
+          SA.ui.button('Curve CSV', { icon: 'download', cls: 'btn-ghost', onclick: function () { var a = S.cur, rows = [['k', 'training', 'loo', 'test']]; S.kVals.forEach(function (k, r) { rows.push([k, a.eTr[r], a.eLoo[r], a.eTe[r]]); }); SA.ui.download('statatlas_lab19_curve.csv', SA.ui.csv(rows), 'text/csv'); } }),
+          SA.ui.button('Figura PNG', { icon: 'download', cls: 'btn-ghost', onclick: function () { SA.ui.exportPNG([figA.querySelector('svg'), figB.querySelector('svg')], 'statatlas_lab19.png', ['k vicini più prossimi', SC[S.sc].label + ' · δ = ' + S.delta + ' · n = ' + S.n + ' · k = ' + S.kShow + ' · seed ' + S.seed]); } })))));
+      var s4 = SA.ui.step('4', 'Teoria e simulazione a confronto'); tblBody = el('tbody'); kpiBox = el('div.kpis');
+      s4.body.append(el('div.tbl-wrap', el('table.tv', el('thead', el('tr', el('th', 'Quantità'), el('th', 'Valore teorico'), el('th', 'Stima / simulazione'), el('th', 'Natura'))), tblBody)),
+        el('div.status-key', el('span', SA.ui.badge('exact'), ' esatto'), el('span', SA.ui.badge('asym'), ' asintotico'), el('span', SA.ui.badge('approx'), ' intervallo di Wilson'), el('span', SA.ui.badge('mc'), ' Monte Carlo')), kpiBox);
+      var s5 = SA.ui.step('5', 'Interpretazione'); interpBox = el('div.prose');
+      s5.body.append(interpBox, el('p', el('button.btn.btn-ghost', { type: 'button', onclick: function () { openT('adv'); } }, SA.ui.icon('book'), ' Consistenza, Cover–Hart, dimensionalità (livello avanzato)')));
+      var s6 = SA.ui.step('6', 'Riproduci in R', 'Stessi dati, stesso algoritmo'); codeBox = SA.ui.codeBlock(codeR, 'statatlas_lab19_knn.R');
+      s6.body.append(el('p.prose', 'Riproducibilità: stessi dati di training e di test (R0) e stesso algoritmo dei vicini (R2); class::knn è un confronto di metodo (R3). Richiede R ≥ 3.6 e tidyverse.'), codeBox);
+      page.append(s1, s2, s3, s4, s5, s6);
+      step(); buildControls(); buildPrediction(); legends(); interpretation(); bindDrag(); render(true); run.refresh();
       document.addEventListener('keydown', run.key);
     },
     unmount: function () { run.stop(); document.removeEventListener('keydown', run.key); },

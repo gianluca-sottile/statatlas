@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.7.0 — 13/11/2026 · UI-01, mappa a due righe, LAB-19
+- **UI-01**: «Completa l’esperimento» cooperativo per i laboratori pesanti (`runner({ coop: true })`): lavoro a fette di ~30 ms, barra di avanzamento, annullabile cambiando parametri o pagina. Attivo nei lab 18 e 19.
+- **Mappa dell’atlante** su due righe da quattro parti quando le parti sono più di cinque (pronta per otto).
+- **CORE-03**: `src/core/ml.js` — vicini più prossimi con parità risolte come `order()` di R, voti per tutti i k, standardizzazione stimata sul training, intervallo di Wilson; `tests/test_ml.js` (8 test).
+- **Lab 19 k vicini più prossimi** (Parte VI, *anteprima*): scenari lineare e XOR con errore di Bayes esatto; regioni kNN e frontiera di Bayes; punto trascinabile con i suoi vicini e la probabilità vera; errori di training, leave-one-out e test in funzione di k; matrice di confusione con sensibilità e specificità (Wilson); limite asintotico del vicino più prossimo E[2η(1 − η)] per quadratura e bound di Cover–Hart; effetto della scala di una variabile con e senza standardizzazione. R: stessi dati (R0), stesso algoritmo (R2), `class::knn` come confronto (R3).
+
 ## 1.6.0 — 13/11/2026 · Parte VI, Apprendimento supervisionato (CORE-02, LAB-18)
 - **CORE-02**: `src/core/resampling.js` — `sample()` di R riprodotto esattamente (R ≥ 3.6, campionamento per rifiuto), suddivisione training/test, fold `sample(rep_len(1:K, m))`, bootstrap, controllo della partizione; `la.nestedPredict` per modelli annidati con una sola ortogonalizzazione; `tests/test_resampling.js` (15 test, incluse permutazioni note di R).
 - **Lab 18 Validazione e overfitting** (Parte VI, *anteprima*): regressione polinomiale di grado 0–12 su tre funzioni vere; errore di training, validazione incrociata a K fold, test ed errore di generalizzazione Err(d) calcolato con la funzione vera; distribuzione del grado scelto; confronto tra protocollo corretto (scelta con CV, test usato una volta) e scorretto (scelta sul test) con la distorsione di ciascuno; controllo dei fold a ogni replica. R: stessi dati, stessa suddivisione e stessi fold (R0), stesse metriche (R1).
