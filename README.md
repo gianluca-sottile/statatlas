@@ -6,7 +6,7 @@
 
 <p align="center">
   <em>Vedere la statistica mentre accade.</em><br>
-  Un atlante interattivo di probabilità e inferenza statistica: venti laboratori, dati generati sotto i tuoi occhi e codice R che riproduce esattamente lo stesso esperimento.
+  Un atlante interattivo di probabilità e inferenza statistica: ventuno laboratori, dati generati sotto i tuoi occhi e codice R che riproduce esattamente lo stesso esperimento.
 </p>
 
 <p align="center">
@@ -18,7 +18,7 @@
 </p>
 
 <p align="center">
-  <img alt="Versione" src="https://img.shields.io/badge/versione-1.8.0-9A3412">
+  <img alt="Versione" src="https://img.shields.io/badge/versione-1.9.0-9A3412">
   <img alt="Lingua" src="https://img.shields.io/badge/lingua-italiano-1C1B19">
   <img alt="Offline" src="https://img.shields.io/badge/funziona-offline-1F6F43">
   <img alt="Dipendenze" src="https://img.shields.io/badge/dipendenze-nessuna-1E4E8C">
@@ -61,6 +61,7 @@ Molti concetti della statistica — la legge dei grandi numeri, il teorema centr
 | **VI · Apprendimento supervisionato** | 18 · Validazione e overfitting *(anteprima)* | Training, test e validazione incrociata a K fold, ottimismo della scelta sul test |
 | | 19 · k vicini più prossimi *(anteprima)* | Frontiere di decisione, errore di Bayes e limite di Cover–Hart, scelta di k, standardizzazione |
 | | 20 · Alberi, bagging e random forest *(anteprima)* | Instabilità di un albero, bootstrap ed errore out-of-bag, decorrelazione con mtry |
+| **VII · Riduzione dimensionale e clustering** | 21 · Componenti principali *(anteprima)* | Assi di massima varianza, scree plot, biplot, ricostruzione, stabilità degli assi (asintotica di Anderson) |
 
 ## Come è fatto un laboratorio
 
@@ -127,7 +128,7 @@ npm install jsdom && node tests/smoke/smoke_fase7.js index.html   # smoke test
 
 ## Come citare
 
-> Sottile G. (2026). *StatAtlas: un atlante interattivo di probabilità e inferenza statistica*, versione 1.8.0. https://github.com/gianluca-sottile/statatlas
+> Sottile G. (2026). *StatAtlas: un atlante interattivo di probabilità e inferenza statistica*, versione 1.9.0. https://github.com/gianluca-sottile/statatlas
 
 ## Crediti
 

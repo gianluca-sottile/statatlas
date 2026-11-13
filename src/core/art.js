@@ -162,8 +162,16 @@ SA.art = (function () {
     s += '<path d="M60,150 Q160,178 260,150" fill="none" stroke="var(--accent)" stroke-width="2.4"/><circle cx="160" cy="166" r="7" fill="var(--accent)"/>';
     return frame(s, 'Alberi che votano');
   };
+  L.pca = function () {
+    var r = rnd(71), s = '', c = Math.cos(-0.5), sn = Math.sin(-0.5);
+    for (var i = 0; i < 70; i++) { var u = 55 * gauss(r), v = 16 * gauss(r); s += '<circle cx="' + (160 + c * u - sn * v).toFixed(1) + '" cy="' + (95 + sn * u + c * v).toFixed(1) + '" r="2.4" fill="var(--ink)" fill-opacity=".4"/>'; }
+    s += '<ellipse cx="160" cy="95" rx="118" ry="34" transform="rotate(-28.6 160 95)" fill="none" stroke="var(--c3)" stroke-width="1.6" stroke-dasharray="6 4"/>';
+    s += '<line x1="' + (160 - 120 * c) + '" y1="' + (95 - 120 * sn) + '" x2="' + (160 + 120 * c) + '" y2="' + (95 + 120 * sn) + '" stroke="var(--accent)" stroke-width="3.2"/>';
+    s += '<line x1="' + (160 + 36 * sn) + '" y1="' + (95 - 36 * c) + '" x2="' + (160 - 36 * sn) + '" y2="' + (95 + 36 * c) + '" stroke="var(--c1)" stroke-width="3"/>';
+    return frame(s, 'Assi principali');
+  };
   /* ---- parti ---- */
-  L.partI = L.distribuzioni; L.partII = L['lgn-tcl']; L.partIII = L.intervalli; L.partIV = L.regressione; L.partV = L.penalizzata; L.partVI = L.validazione;
+  L.partI = L.distribuzioni; L.partII = L['lgn-tcl']; L.partIII = L.intervalli; L.partIV = L.regressione; L.partV = L.penalizzata; L.partVI = L.validazione; L.partVII = L.pca;
   function get(id) { return L[id] ? L[id]() : ''; }
   return { get: get, logo: L.logo };
 })();

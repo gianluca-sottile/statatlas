@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.9.0 — 13/11/2026 · Parte VII, LAB-21
+- **Lab 21 Componenti principali** (Parte VII, *anteprima*): popolazione normale con autovalori e assi noti (λ₁ regolabile, rotazione θ, p da 2 a 6), unità di misura di x₂, standardizzazione, valore anomalo; nuvola centrata con assi stimati e veri e proiezioni su PC1; scree plot con quote della popolazione; biplot con convenzione dichiarata; errore di ricostruzione (identità con gli autovalori scartati); distribuzione Monte Carlo dell’angolo di PC1 contro l’asintotica di Anderson; distanza tra sottospazi; controlli numerici (Σ PVE, score incorrelati, ‖SV − VΛ‖). R: stessi dati (R0), `prcomp` con segni allineati (R1).
+
 ## 1.8.0 — 13/11/2026 · Parte VI completa (LAB-20)
 - `ml.js`: CART per due classi con Gini (soglie nei punti medi, regole di parità fissate, riduzione d’impurità strettamente positiva, min-leaf, profondità massima, estrazione di mtry variabili per nodo con `sample()` di R) e previsione; 6 nuovi test.
 - **Lab 20 Alberi, bagging e random forest** (Parte VI, *anteprima*): frontiera a cerchio o diagonale con etichette scambiate (errore di Bayes = ε, esatto), variabili di rumore; partizioni di un albero, dell’ultimo albero bootstrap e dell’insieme; diagrammi dei due alberi; errore sul test e out-of-bag di bagging e foresta al crescere degli alberi; accordo medio tra coppie di alberi e variabile della radice (decorrelazione); controlli su impurità, foglie e OOB. R: stessi dati e bootstrap (R0), stesso CART (R2), `ranger`/`rpart` come confronto (R3).

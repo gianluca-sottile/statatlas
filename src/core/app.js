@@ -27,7 +27,9 @@ SA.catalog = [
   { part: 'VI', title: 'Apprendimento supervisionato', labs: [
     { id: 'validazione', num: '18', title: 'Validazione e overfitting', blurb: 'Training, test e validazione incrociata: scegliere la complessità senza ingannarsi sull’errore di previsione.', status: 'ready', verifyR: true },
     { id: 'knn', num: '19', title: 'k vicini più prossimi', blurb: 'Classificare con i vicini: frontiere di decisione, errore di Bayes, scelta di k e il peso delle unità di misura.', status: 'ready', verifyR: true },
-    { id: 'alberi', num: '20', title: 'Alberi, bagging e random forest', blurb: 'Un albero è instabile; molti alberi resi diversi votano meglio: bootstrap, out-of-bag e scelta casuale delle variabili.', status: 'ready', verifyR: true } ] }
+    { id: 'alberi', num: '20', title: 'Alberi, bagging e random forest', blurb: 'Un albero è instabile; molti alberi resi diversi votano meglio: bootstrap, out-of-bag e scelta casuale delle variabili.', status: 'ready', verifyR: true } ] },
+  { part: 'VII', title: 'Riduzione dimensionale e clustering', labs: [
+    { id: 'pca', num: '21', title: 'Componenti principali', blurb: 'Gli assi di massima varianza: autovalori, varianza spiegata, ricostruzione, segni e stabilità degli assi.', status: 'ready', verifyR: true } ] }
 ];
 SA.labs = {};
 SA.registerLab = function (id, def) { SA.labs[id] = def; };
@@ -76,7 +78,8 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     III: ['partIII', 'Dai dati ai parametri: stimatori e loro efficienza, verosimiglianza, intervalli di confidenza e test, con le garanzie che offrono e i loro limiti.'],
     IV: ['partIV', 'Modelli che legano una risposta a dei predittori o al proprio passato: regressione lineare, robusta e generalizzata, serie temporali.'],
     V: ['partV', 'Oltre la media e oltre la retta: quantili condizionati, stime penalizzate con molti predittori e curve stimate dai dati.'],
-    VI: ['partVI', 'Prevedere bene su dati nuovi: errore di generalizzazione, validazione, e metodi che imparano la forma della relazione dai dati.']
+    VI: ['partVI', 'Prevedere bene su dati nuovi: errore di generalizzazione, validazione, e metodi che imparano la forma della relazione dai dati.'],
+    VII: ['partVII', 'Dati senza una risposta da prevedere: trovare poche direzioni che riassumono molte variabili, e gruppi di osservazioni simili.']
   };
   var STEPS = [['Domanda', 'Un problema concreto, con una previsione facoltativa'], ['Esperimento', 'Dati generati sotto i tuoi occhi, passo dopo passo'],
     ['Teoria e simulazione', 'Esatto, asintotico o Monte Carlo: sempre dichiarato'], ['Interpretazione', 'Che cosa significa, quando vale, dove si rompe'],
@@ -127,7 +130,8 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     ['spline', 'segmentata', 'una spline lineare con un solo nodo, di posizione ignota'], ['regressione', 'segmentata', 'il modello lineare con un termine (x − ψ)₊'], ['test', 'segmentata', 'testare un parametro che esiste solo sotto l’alternativa'],
     ['penalizzata', 'validazione', 'scegliere λ con la validazione incrociata'], ['spline', 'validazione', 'dalla LOOCV in forma chiusa al protocollo training/test'], ['regressione', 'validazione', 'errore di training contro errore di previsione'],
     ['validazione', 'knn', 'scegliere k con la validazione leave-one-out'], ['glm', 'knn', 'dalla regressione logistica a una stima locale di P(Y = 1 | x)'], ['bivariata', 'knn', 'classi come normali bivariate: la regola di Bayes'],
-    ['knn', 'alberi', 'dalle regioni dei vicini ai rettangoli degli alberi'], ['validazione', 'alberi', 'l’errore out-of-bag come validazione gratuita'], ['simulazione', 'alberi', 'il bootstrap: ricampionare per simulare nuovi dati']
+    ['knn', 'alberi', 'dalle regioni dei vicini ai rettangoli degli alberi'], ['validazione', 'alberi', 'l’errore out-of-bag come validazione gratuita'], ['simulazione', 'alberi', 'il bootstrap: ricampionare per simulare nuovi dati'],
+    ['bivariata', 'pca', 'la covarianza e i suoi assi: ellissi di concentrazione'], ['regressione', 'pca', 'proiezioni ortogonali e minimi quadrati'], ['penalizzata', 'pca', 'ridge restringe di più le direzioni a bassa varianza']
   ];
   function openMap() {
     closePart(); modalLast = document.activeElement;
