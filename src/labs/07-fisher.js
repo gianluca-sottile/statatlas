@@ -271,13 +271,13 @@
     base: function () {
       return el('div.prose', { html: '<h3>Verosimiglianza</h3><p>Osservato il campione x, la verosimiglianza L(θ) = ∏ f(xᵢ; θ) dice quanto ciascun valore del parametro rende plausibili i dati. Si lavora con ℓ(θ) = log L(θ). La stima di massima verosimiglianza θ̂ è il valore che la massimizza.</p>' +
         '<h3>Score e informazione</h3><p>Lo <strong>score</strong> è la pendenza U(θ) = ℓ′(θ); l’<strong>informazione osservata</strong> è la curvatura J(θ) = −ℓ″(θ). L’<strong>informazione di Fisher</strong> è la curvatura attesa per osservazione:</p>' +
-        '<div class="eq">I(θ) = E[−∂² log f(X; θ)/∂θ²] = Var[∂ log f(X; θ)/∂θ]</div>' +
+        '<div class="eq" data-tex="I(\\theta) = \\E\\left[-\\frac{\\partial^2 \\log f(X; \\theta)}{\\partial\\theta^2}\\right] = \\Var\\left[\\frac{\\partial \\log f(X; \\theta)}{\\partial\\theta}\\right]"></div>' +
         '<h3>Che cosa garantisce</h3><ul><li><strong>Cramér–Rao</strong>: ogni stimatore non distorto ha varianza ≥ 1/(n I(θ)).</li><li><strong>Normalità asintotica</strong>: θ̂ ≈ N(θ, 1/(n I(θ))) per n grande.</li><li><strong>Intervalli</strong>: Wald θ̂ ± 1,96/√J(θ̂) o, meglio, {θ : ℓ(θ̂) − ℓ(θ) ≤ 1,92}.</li></ul>' +
         '<div class="callout warn">Queste proprietà richiedono condizioni di regolarità. Il modello uniforme (0, θ) le viola: il supporto dipende da θ.</div>' });
     },
     adv: function () {
       return el('div.prose', { html: '<h3>Identità di Bartlett</h3><p>Derivando ∫ f(x; θ) dx = 1 sotto il segno di integrale (lecito se il supporto non dipende da θ):</p>' +
-        '<div class="eq">E[U(θ)] = 0, &nbsp;&nbsp; Var[U(θ)] = E[J(θ)] = n I(θ)</div>' +
+        '<div class="eq" data-tex="\\E[U(\\theta)] = 0, \\qquad \\Var[U(\\theta)] = \\E[J(\\theta)] = n I(\\theta)"></div>' +
         '<h3>Cramér–Rao</h3><p>Se E[T] = θ, derivando si ottiene Cov(T, U) = 1; per Cauchy–Schwarz 1 ≤ Var(T) Var(U), cioè Var(T) ≥ 1/(n I(θ)). L’uguaglianza vale solo nelle famiglie esponenziali con T statistica sufficiente nella parametrizzazione della media (es. x̄ per μ normale, x̄ per λ Poisson).</p>' +
         '<h3>Normalità asintotica</h3><p>Sviluppando 0 = U(θ̂) ≈ U(θ) − J(θ)(θ̂ − θ): √n(θ̂ − θ) ≈ [U(θ)/√n] / [J(θ)/n] → N(0, I(θ)) / I(θ) = N(0, 1/I(θ)), per TCL sul numeratore e legge dei grandi numeri sul denominatore.</p>' +
         '<h3>Rapporto di verosimiglianza</h3><p>2[ℓ(θ̂) − ℓ(θ)] → χ²₁ (Wilks), da cui la soglia qchisq(0,95, 1)/2 = 1,92. L’intervallo che ne deriva è invariante per riparametrizzazione e segue l’asimmetria della verosimiglianza, a differenza di Wald.</p>' +

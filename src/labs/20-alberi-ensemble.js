@@ -209,13 +209,13 @@
   }
   var THEORY = {
     base: function () {
-      return el('div.prose', { html: '<h3>Alberi di classificazione</h3><p>Un albero divide lo spazio in rettangoli con domande del tipo x<sub>j</sub> &lt; s. A ogni nodo si sceglie la coppia (j, s) che riduce di più l’impurità di Gini, G(p) = 2p(1 − p), pesata per la numerosità dei figli; nelle foglie si prevede la classe più frequente.</p>' +
+      return el('div.prose', { html: '<h3>Alberi di classificazione</h3><p>Un albero divide lo spazio in rettangoli con domande del tipo x<sub>j</sub> &lt; s. A ogni nodo si sceglie la coppia (j, s) che riduce di più l’impurità di Gini, G(p) = 2p(1 − p), pesata per la numerosità dei figli; nelle foglie si prevede la classe più frequente.</p><div class="eq" data-tex="G(p) = 2p(1 - p), \\qquad \\Delta = G_{\\text{nodo}} - \\frac{n_s}{n}\\,G_s - \\frac{n_d}{n}\\,G_d \\ge 0"></div>' +
         '<h3>Bagging</h3><p>Si stimano B alberi su campioni bootstrap (n estrazioni con reinserimento) e si fa votare la maggioranza. Ogni campione lascia fuori in media (1 − 1/n)ⁿ ≈ 37% delle osservazioni: sono le osservazioni <em>out-of-bag</em>.</p>' +
         '<h3>Foresta casuale</h3><p>Come il bagging, ma a ogni nodo le variabili candidate sono solo mtry estratte a caso (di solito √p). Gli alberi diventano meno simili tra loro.</p>' +
         '<div class="callout warn">L’errore OOB va calcolato per ogni osservazione solo con gli alberi che non l’hanno vista; mescolare alberi che l’hanno usata lo rende ottimista come l’errore di training.</div>' });
     },
     adv: function () {
-      return el('div.prose', { html: '<h3>Perché la media aiuta</h3><p>Se B previsioni hanno varianza σ² e correlazione a coppie ρ, la loro media ha varianza ρσ² + (1 − ρ)σ²/B (Breiman, 2001). Il secondo termine sparisce con B; il primo si riduce solo diminuendo ρ: è il ruolo di mtry.</p>' +
+      return el('div.prose', { html: '<h3>Perché la media aiuta</h3><p>Se B previsioni hanno varianza σ² e correlazione a coppie ρ, la loro media ha varianza</p><div class="eq" data-tex="\\Var(\\bar{T}_B) = \\rho\\sigma^2 + \\frac{1 - \\rho}{B}\\,\\sigma^2"></div><p>(Breiman, 2001). Il secondo termine sparisce con B; il primo si riduce solo diminuendo ρ: è il ruolo di mtry.</p>' +
         '<h3>Limiti</h3><p>La media non corregge la distorsione: con frontiere oblique (scenario diagonale) gli alberi costruiscono scalinate, e anche la foresta le approssima a gradini. Con molte variabili di rumore e mtry piccolo, molti nodi non trovano variabili utili e la foresta peggiora.</p>' +
         '<h3>Importanza delle variabili</h3><p>Sommando le riduzioni di Gini per variabile su tutti gli alberi, o permutando una variabile nei dati OOB e misurando quanto cresce l’errore, si ottengono misure d’importanza; la prima favorisce le variabili con molte soglie possibili.</p>' });
     }

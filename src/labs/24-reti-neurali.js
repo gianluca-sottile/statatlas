@@ -128,7 +128,7 @@
       el('tr', el('td', 'Parametri della rete'), el('td', '4H + 1 = ' + SA.nn.nParams(S.H)), el('td', S.tr.X.length + ' osservazioni di training'), el('td', b('exact'))),
       el('tr', el('td', 'Perdita: training · validazione (epoca ' + S.e + ')'), el('td', 'log 2 = 0,693 con p = 0,5 ovunque'), el('td', fmt(h.tr[L], 4) + ' · ' + fmt(h.va[L], 4)), el('td', b('none'))),
       el('tr', el('td', 'Accuratezza: training · validazione'), el('td', '—'), el('td', fmt(h.atr[L], 3) + ' · ' + fmt(h.ava[L], 3)), el('td', b('none'))),
-      el('tr', el('td', 'Controllo del gradiente (differenze finite centrali)'), el('td', 'errore relativo ≈ 0 (< 1e−6)'), el('td', isFinite(gc) ? gc.toExponential(1) : '— (divergenza)'), el('td', b('exact'))),
+      el('tr', el('td', 'Controllo del gradiente (differenze finite centrali)'), el('td', 'errore relativo ≈ 0 (< 1e−6)'), el('td', isFinite(gc) ? gc.toExponential(1).replace('.', ',').replace('e-', 'e−') : '— (divergenza)'), el('td', b('exact'))),
       el('tr', el('td', 'Stato dell’addestramento'), el('td', 'discesa a lotto intero, η = ' + String(S.eta).replace('.', ',')), el('td', S.diverged ? '✗ divergenza all’epoca ' + S.e : h.tr[L] > h.tr[0] ? 'perdita salita: η probabilmente troppo alto' : '✓ perdita scesa da ' + fmt(h.tr[0], 3)), el('td', b('none'))),
       el('tr', el('td', SEEDS + ' inizializzazioni: accuratezza di validazione ≥ 0,85 · perdita di training min–max'), el('td', 'la perdita non è convessa: esiti diversi'), el('td', m ? succ + ' / ' + SEEDS + ' · ' + (okm.length ? fmt(Math.min.apply(null, okm.map(function (r) { return r.tr; })), 3) + '–' + fmt(Math.max.apply(null, okm.map(function (r) { return r.tr; })), 3) : '—') + (okm.length < m.length ? ' · ' + (m.length - okm.length) + ' divergenze' : '') : 'premi il pulsante'), el('td', b('mc'))));
     kpiBox.innerHTML = '';
@@ -190,7 +190,7 @@
   }
   var THEORY = {
     base: function () {
-      return el('div.prose', { html: '<h3>Il modello</h3><div class="eq">h = φ(W₁x + b₁) &nbsp;·&nbsp; p = σ(w₂ᵀh + b₂)</div><p>φ = tanh o ReLU, σ = sigmoide. La perdita è l’entropia incrociata media −[y log p + (1 − y) log(1 − p)], calcolata in forma stabile a partire da z = w₂ᵀh + b₂, più (λ/2)‖W‖².</p>' +
+      return el('div.prose', { html: '<h3>Il modello</h3><div class="eq" data-tex="h = \\varphi(W_1 x + b_1) \\qquad p = \\sigma(w_2^{\\top} h + b_2)"></div><p>φ = tanh o ReLU, σ = sigmoide. La perdita è l’entropia incrociata media −[y log p + (1 − y) log(1 − p)], calcolata in forma stabile a partire da z = w₂ᵀh + b₂, più (λ/2)‖W‖².</p>' +
         '<h3>Backpropagation</h3><p>Per un’osservazione: δ<sub>out</sub> = p − y; ∂ℓ/∂w₂ = δ<sub>out</sub> h; δ<sub>h</sub> = δ<sub>out</sub> w₂ ⊙ φ′(a); ∂ℓ/∂W₁ = δ<sub>h</sub> xᵀ. È la regola della catena applicata strato per strato, dall’uscita verso l’ingresso.</p>' +
         '<h3>Discesa del gradiente</h3><p>θ ← θ − η ∇L(θ), con il gradiente medio su tutto il training (lotto intero). Il learning rate η decide la lunghezza del passo: troppo piccolo è lento, troppo grande oscilla o diverge.</p>' +
         '<div class="callout warn">Una buona accuratezza di training non dice nulla sulla generalizzazione: si guarda la validazione, e il test si tiene da parte (lab 18).</div>' });

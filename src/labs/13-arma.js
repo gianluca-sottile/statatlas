@@ -159,7 +159,7 @@
   }
   var THEORY = {
     base: function () {
-      return el('div.prose', { html: '<h3>Il modello</h3><div class="eq">Xₜ = φ₁Xₜ₋₁ + φ₂Xₜ₋₂ + εₜ + θ₁εₜ₋₁, &nbsp; εₜ rumore bianco N(0, 1)</div>' +
+      return el('div.prose', { html: '<h3>Il modello</h3><div class="eq" data-tex="X_t = \\varphi_1 X_{t-1} + \\varphi_2 X_{t-2} + \\varepsilon_t + \\theta_1 \\varepsilon_{t-1}, \\quad \\varepsilon_t \\sim N(0, 1) \\text{ rumore bianco}"></div>' +
         '<h3>Stazionarietà</h3><p>Il processo è stazionario se le radici di 1 − φ₁z − φ₂z² stanno fuori dal cerchio unitario (equivalentemente, le reciproche dentro). Per l’AR(2): φ₁ + φ₂ &lt; 1, φ₂ − φ₁ &lt; 1, |φ₂| &lt; 1.</p>' +
         '<h3>Riconoscere il modello</h3><table class="tv"><thead><tr><th></th><th>ACF</th><th>PACF</th></tr></thead><tbody><tr><td>AR(p)</td><td>decresce</td><td>zero dopo p</td></tr><tr><td>MA(q)</td><td>zero dopo q</td><td>decresce</td></tr><tr><td>ARMA</td><td>decresce</td><td>decresce</td></tr></tbody></table>' +
         '<div class="callout warn">Il burn-in serve a dimenticare il valore iniziale arbitrario xₜ = 0: senza, i primi valori non seguono la legge stazionaria.</div>' });

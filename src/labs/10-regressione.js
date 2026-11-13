@@ -208,15 +208,15 @@
   }
   var THEORY = {
     base: function () {
-      return el('div.prose', { html: '<h3>Il modello</h3><div class="eq">Yᵢ = β₀ + β₁xᵢ + εᵢ, &nbsp; εᵢ indipendenti, E(εᵢ) = 0, Var(εᵢ) = σ²</div>' +
+      return el('div.prose', { html: '<h3>Il modello</h3><div class="eq" data-tex="Y_i = \\beta_0 + \\beta_1 x_i + \\varepsilon_i, \\quad \\varepsilon_i \\text{ indipendenti}, \\; \\E(\\varepsilon_i) = 0, \\; \\Var(\\varepsilon_i) = \\sigma^2"></div>' +
         '<p>I minimi quadrati scelgono la retta che rende minima Σ(yᵢ − b₀ − b₁xᵢ)²: β̂₁ = Sxy/Sxx, β̂₀ = ȳ − β̂₁x̄. Sono non distorti e, tra gli stimatori lineari non distorti, hanno varianza minima (Gauss–Markov), senza bisogno della normalità.</p>' +
-        '<h3>Due intervalli diversi</h3><div class="eq">ŷ(x) ± t<sub>n−2</sub> s √(1/n + (x − x̄)²/Sxx) &nbsp;&nbsp; e &nbsp;&nbsp; ŷ(x) ± t<sub>n−2</sub> s √(1 + 1/n + (x − x̄)²/Sxx)</div>' +
+        '<h3>Due intervalli diversi</h3><div class="eq" data-tex="\\hat{y}(x) \\pm t_{n-2}\\, s\\sqrt{\\frac{1}{n} + \\frac{(x - \\bar{x})^2}{S_{xx}}} \\qquad \\hat{y}(x) \\pm t_{n-2}\\, s\\sqrt{1 + \\frac{1}{n} + \\frac{(x - \\bar{x})^2}{S_{xx}}}"></div>' +
         '<p>Il primo riguarda la retta (un parametro); il secondo una futura osservazione (una variabile aleatoria). L’1 in più sotto radice è il rumore della nuova osservazione.</p>' +
         '<div class="callout warn">La normalità serve per gli intervalli t esatti; l’indipendenza e la varianza costante servono sempre.</div>' });
     },
     adv: function () {
       return el('div.prose', { html: '<h3>Hat matrix e leverage</h3><p>ŷ = Hy con H = X(XᵀX)⁻¹Xᵀ, la hat matrix, cioè la matrice di proiezione ortogonale sullo spazio generato dalle colonne di X. L’elemento diagonale hᵢ = 1/n + (xᵢ − x̄)²/Sxx è il leverage del punto i: Σhᵢ = 2, quindi il leverage medio è 2/n. Var(eᵢ) = σ²(1 − hᵢ): i punti ad alto leverage hanno residui piccoli <em>perché</em> attirano la retta.</p>' +
-        '<h3>Distanza di Cook</h3><div class="eq">Dᵢ = rᵢ² hᵢ / [p (1 − hᵢ)], &nbsp; rᵢ = eᵢ / (s √(1 − hᵢ))</div><p>con p = 2 parametri. Misura lo spostamento delle stime quando si toglie il punto i; soglie usuali 0,5 e 1. Le curve nel grafico sono i luoghi a D costante.</p>' +
+        '<h3>Distanza di Cook</h3><div class="eq" data-tex="D_i = \\frac{r_i^2 h_i}{p(1 - h_i)}, \\quad r_i = \\frac{e_i}{s\\sqrt{1 - h_i}}"></div><p>con p = 2 parametri. Misura lo spostamento delle stime quando si toglie il punto i; soglie usuali 0,5 e 1. Le curve nel grafico sono i luoghi a D costante.</p>' +
         '<h3>Distribuzioni esatte</h3><p>Con errori normali: β̂₁ ~ N(β₁, σ²/Sxx), (n − 2)s²/σ² ~ χ²<sub>n−2</sub> indipendente da β̂, da cui le statistiche t. Senza normalità β̂₁ è comunque approssimativamente normale per n grande (TCL di Lindeberg, se nessun xᵢ domina Sxx), ma l’intervallo di previsione resta legato alla legge dell’errore.</p>' });
     }
   };

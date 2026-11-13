@@ -88,7 +88,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   };
   var STEPS = [['Domanda', 'Un problema concreto, con una previsione facoltativa'], ['Esperimento', 'Dati generati sotto i tuoi occhi, passo dopo passo'],
     ['Teoria e simulazione', 'Esatto, asintotico o Monte Carlo: sempre dichiarato'], ['Interpretazione', 'Che cosa significa, quando vale, dove si rompe'],
-    ['Approfondisci', 'Teoria, esercizi e bibliografia'], ['Codice R', 'Lo stesso esperimento, con gli stessi numeri']];
+    ['Approfondisci', 'Teoria, esercizi e bibliografia'], ['Codice R', 'Lo stesso esperimento, verificato in R']];
   function labCountText() {
     var n = SA.catalog.reduce(function (a, p) { return a + p.labs.length; }, 0);
     var W = { 16: 'Sedici', 17: 'Diciassette', 18: 'Diciotto', 19: 'Diciannove', 20: 'Venti', 21: 'Ventuno', 22: 'Ventidue', 23: 'Ventitré', 24: 'Ventiquattro' };
@@ -100,12 +100,21 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
       el('div.hero-text',
         el('div.kicker', 'Atlante interattivo di probabilità e statistica'),
         el('h1', 'Vedere la statistica ', el('em', 'mentre accade')),
-        el('p.lede', labCountText() + ' per studenti universitari. Ognuno parte da una domanda, genera i dati sotto i tuoi occhi e confronta ciò che osservi con ciò che la teoria garantisce. Lo script R riproduce esattamente lo stesso esperimento.'),
+        el('p.lede', labCountText() + ', dalla probabilità all’apprendimento statistico. Ognuno parte da una domanda, genera i dati sotto i tuoi occhi e confronta ciò che osservi con ciò che la teoria garantisce. Ogni esperimento si ripete in R con lo script fornito.'),
         el('div.hero-actions', el('button.btn.btn-primary', { type: 'button', 'aria-haspopup': 'dialog', onclick: openMap }, 'Sfoglia l’atlante: la mappa dei laboratori'))),
       el('div.hero-art', { html: '<div class="hero-logo">' + SA.art.logo(132) + '</div>' + ['distribuzioni', 'intervalli', 'regressione', 'lgn-tcl'].map(function (k, i) { return '<div class="mosaic m' + i + '">' + SA.art.get(k) + '</div>'; }).join('') })));
     page.appendChild(el('section.how', el('div.step-label', 'Come funziona un laboratorio'),
       el('ol.how-steps', STEPS.map(function (s, i) { return el('li', el('span.how-num', String(i + 1)), el('strong', s[0]), el('span', s[1])); }))));
-    // le quattro parti come tessere: un clic apre una finestra con i laboratori della parte
+    // come leggere l'atlante: natura dei risultati e livelli di riproducibilità in R
+    var B = SA.ui.badge, lv = function (code, title, text) { return el('li', el('span.rlevel', code), el('div', el('strong', title), el('span', text))); };
+    page.appendChild(el('section.legend-home', { id: 'come-leggere' },
+      el('div.legend-col', el('div.step-label', 'Come leggere i risultati'), el('p', 'Ogni valore teorico dichiara la propria natura, per non confondere ciò che vale sempre con ciò che vale al limite.'),
+        el('ul.legend-list', el('li', B('exact'), el('span', 'vale per ogni numerosità, senza approssimazioni')), el('li', B('asym'), el('span', 'vale al crescere di n: per n piccolo può essere impreciso')),
+          el('li', B('approx'), el('span', 'formula o calcolo numerico approssimato, con l’errore indicato')), el('li', B('mc'), el('span', 'stima ottenuta dalla simulazione, con il suo errore casuale')))),
+      el('div.legend-col', el('div.step-label', 'Che cosa riproduce lo script R'), el('p', 'Il generatore di numeri casuali di R è ricostruito nel browser. Ogni script dichiara fin dove arriva la corrispondenza.'),
+        el('ul.legend-list.levels', lv('R0', 'Stessi dati', 'stesso seed, stessi campioni, stesse suddivisioni'), lv('R1', 'Stesse misure', 'stesse stime ed errori, a meno dell’arrotondamento'),
+          lv('R2', 'Stesso algoritmo', 'stessi passi e stesse regole nei casi di parità'), lv('R3', 'Confronto di metodo', 'pacchetti che seguono regole diverse: risultati vicini, non identici')))));
+    // le otto parti come tessere: un clic apre una finestra con i laboratori della parte
     var parts = el('div.parts.part-tiles', { id: 'parti' });
     SA.catalog.forEach(function (p) {
       var d = PART_DESC[p.part];
@@ -240,7 +249,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   function footer() {
     return el('footer.foot',
       el('p', 'StatAtlas · progetto didattico di Gianluca Sottile. Alcuni laboratori traggono ispirazione dalle idee di Simul2000 di Marcello Chiodi (Università di Palermo); codice e testi sono originali.'),
-      el('p', 'Numeri casuali generati con il Mersenne-Twister di R: con lo stesso seed, R ≥ 4.1 riproduce gli stessi campioni.'));
+      el('p', 'Numeri casuali generati con il Mersenne-Twister di R: con lo stesso seed, R ≥ 4.1 riproduce gli stessi campioni. Tutti gli script sono stati eseguiti e confrontati in R.'));
   }
 
   /* Arricchisce ogni laboratorio con copertina, obiettivi, “che cosa stiamo valutando” e guida alla tabella */
@@ -280,7 +289,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   document.addEventListener('keydown', function (ev) { if (ev.key === 'Escape' && zoom) { ev.stopPropagation(); closeZoom(); } }, true);
   window.addEventListener('hashchange', closeZoom);
   function enhanceLab(page, id) {
-    zoomable(page);
+    zoomable(page); if (SA.math) SA.math.typeset(page);
     var c = SA.content && SA.content[id], head = page.querySelector('.lab-head');
     if (head) {
       var text = head.firstElementChild, btn = head.querySelector(':scope > .btn');

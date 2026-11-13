@@ -158,13 +158,13 @@
     var asy = S.asy, why = S.std ? 'non usata: PCA sulla correlazione' : S.outlier ? 'non valida con il valore anomalo' : 'λ₁ = λ₂: asse non identificato';
     tblBody.innerHTML = '';
     tblBody.append(
-      el('tr', el('td', 'Varianza spiegata dalle prime ' + S.k + ' componenti'), el('td', fmt(100 * cumPop, 1) + '%'), el('td', fmt(100 * cum, 1) + '% (campione corrente)'), el('td', b('exact'))),
+      el('tr', el('td', S.k === 1 ? 'Varianza spiegata dalla prima componente' : 'Varianza spiegata dalle prime ' + S.k + ' componenti'), el('td', fmt(100 * cumPop, 1) + '%'), el('td', fmt(100 * cum, 1) + '% (campione corrente)'), el('td', b('exact'))),
       el('tr', el('td', 'Errore di ricostruzione con k = ' + S.k + ': diretto · (n−1)/n Σⱼ>ₖ λ̂ⱼ'), el('td', 'identità esatta'), el('td', fmt(direct, 5) + ' · ' + fmt(formula, 5)), el('td', b('exact'))),
       el('tr', el('td', 'λ̂₁: media e deviazione standard nelle repliche'), el('td', asy ? fmt(asy.l1, 3) + ' · ' + fmt(asy.sd1, 3) : '— (' + why + ')'), el('td', k ? fmt(meanOf(S.l1, k), 3) + ' · ' + fmt(sdOf(S.l1, k), 3) : '—'), el('td', b(asy ? 'asym' : 'mc'))),
       el('tr', el('td', 'sin² dell’angolo tra PC1 stimata e vera (media)'), el('td', asy ? fmt(asy.sin2, 4) : '— (' + why + ')'), el('td', k ? fmt(meanOf(S.ang.map(function (a) { return Math.pow(Math.sin(a * Math.PI / 180), 2); }), k), 4) : '—'), el('td', b(asy ? 'asym' : 'mc'))),
       p > 2 ? el('tr', el('td', 'Distanza tra i sottospazi PC1–PC2 stimato e vero (media)'), el('td', '0 se n → ∞ (λ₂ > λ₃)'), el('td', k ? fmt(meanOf(S.sub, k), 4) : '—'), el('td', b('mc'))) : null,
       el('tr', el('td', 'Controlli numerici'), el('td', 'Σ PVE = 1; score incorrelati; ricostruzione esatta con k = p; errore non crescente; ‖SV − VΛ‖ ≈ 0'),
-        el('td', fmt(L.reduce(function (x, y) { return x + y / tot; }, 0), 6) + ' · max|r| = ' + maxc.toExponential(1) + ' · ' + full.toExponential(1) + ' · ' + (dec ? '✓' : '✗') + ' · ' + pc.res.toExponential(1)), el('td', b('exact'))));
+        el('td', fmt(L.reduce(function (x, y) { return x + y / tot; }, 0), 6) + ' · max|r| = ' + maxc.toExponential(1).replace('.', ',').replace('e-', 'e−') + ' · ' + full.toExponential(1).replace('.', ',').replace('e-', 'e−') + ' · ' + (dec ? '✓' : '✗') + ' · ' + pc.res.toExponential(1).replace('.', ',').replace('e-', 'e−')), el('td', b('exact'))));
     kpiBox.innerHTML = '';
     kpiBox.append(el('div.kpi', el('b', S.k0 + ' / ' + S.B), el('span', 'campioni')),
       el('div.kpi', el('b', fmt(S.pop.values[0] / S.pop.values[1], 2)), el('span', 'rapporto λ₁/λ₂ della popolazione: quanto è separato il primo asse')),
@@ -220,7 +220,7 @@
   var THEORY = {
     base: function () {
       return el('div.prose', { html: '<h3>Definizione</h3><p>Con Z la matrice dei dati centrati (n × p), S = ZᵀZ/(n − 1). Gli autovettori v₁, …, vₚ di S (ortonormali) sono le direzioni principali, gli autovalori λ₁ ≥ … ≥ λₚ le varianze degli <em>score</em> T = ZV.</p>' +
-        '<div class="eq">PVEⱼ = λⱼ / Σₗ λₗ &nbsp;&nbsp;·&nbsp;&nbsp; ‖Z − TₖVₖᵀ‖²_F / n = (n − 1)/n · Σⱼ>ₖ λⱼ</div>' +
+        '<div class="eq" data-tex="\\text{PVE}_j = \\frac{\\lambda_j}{\\sum_{l} \\lambda_l} \\qquad \\frac{\\|Z - T_k V_k^{\\top}\\|_F^2}{n} = \\frac{n - 1}{n}\\sum_{j > k} \\lambda_j"></div>' +
         '<h3>Due letture equivalenti</h3><p>Massima varianza: v₁ rende massima la varianza di Zv tra i vettori di norma 1. Migliore approssimazione: TₖVₖᵀ è la matrice di rango k più vicina a Z (teorema di Eckart–Young).</p>' +
         '<div class="callout warn">Standardizzare significa fare la PCA della matrice di correlazione: un oggetto diverso, con autovalori e assi diversi. Si sceglie prima di guardare i risultati, in base al significato delle unità di misura.</div>' });
     },

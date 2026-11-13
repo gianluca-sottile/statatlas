@@ -219,7 +219,7 @@
   var THEORY = {
     base: function () {
       return el('div.prose', { html: '<h3>La domanda</h3><p>I dati sono compatibili con un modello F₀? Se F₀ ha parametri ignoti, li si stima prima: la domanda diventa “esiste un membro della famiglia compatibile con i dati?”.</p>' +
-        '<h3>Test X² di Pearson</h3><div class="eq">X² = Σ (Oⱼ − Eⱼ)² / Eⱼ</div><p>Oⱼ frequenze osservate, Eⱼ attese sotto il modello. Sotto H₀, per n grande, X² ≈ χ² con k − 1 − p gradi di libertà (k classi, p parametri stimati). Regola pratica: Eⱼ ≥ 5.</p>' +
+        '<h3>Test X² di Pearson</h3><div class="eq" data-tex="X^2 = \\sum_{j} \\frac{(O_j - E_j)^2}{E_j}"></div><p>Oⱼ frequenze osservate, Eⱼ attese sotto il modello. Sotto H₀, per n grande, X² ≈ χ² con k − 1 − p gradi di libertà (k classi, p parametri stimati). Regola pratica: Eⱼ ≥ 5.</p>' +
         '<h3>Il grafico quantile-quantile</h3><p>Ordina i dati e confrontali con i quantili del modello: se il modello è giusto, i punti stanno sulla retta. Una curva a “S” indica code diverse, una curvatura indica asimmetria. La banda verde è al 95% punto per punto.</p>' });
     },
     adv: function () {

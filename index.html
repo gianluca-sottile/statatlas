@@ -525,6 +525,58 @@ html.zoom-open, html.zoom-open body { overflow: hidden; }
 .transport > .btn-primary { justify-content: center; white-space: nowrap; min-width: 0; overflow: hidden; }
 .transport > .btn-icon { flex: none; }
 
+/* ---------- formule composte (core/math.js) ---------- */
+.m { font-family: var(--serif); font-size: 1.06em; line-height: 1.2; white-space: nowrap; font-variant-numeric: lining-nums; }
+.m i { font-style: italic; }
+.m sub, .m sup { font-size: .72em; line-height: 0; }
+.m-rel { margin: 0 .3em; } .m-bin { margin: 0 .22em; }
+.m-sp1 { display: inline-block; width: .17em; } .m-sp2 { display: inline-block; width: .3em; } .m-sp3 { display: inline-block; width: 1em; } .m-sp4 { display: inline-block; width: 2em; }
+.m-text, .m-fn { font-style: normal; } .m-fn { margin-right: .1em; }
+.m-frac { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; margin: 0 .14em; text-align: center; }
+.m-num { padding: 0 .28em .1em; border-bottom: 1px solid currentColor; } .m-den { padding: .12em .28em 0; }
+.m-nobar .m-num { border-bottom: 0; }
+.m-frac .m-frac { font-size: .88em; }
+.m-sqrt { display: inline-flex; align-items: stretch; vertical-align: middle; margin: 0 .06em; }
+.m-surd { font-size: 1.15em; line-height: 1; align-self: flex-end; transform: scaleY(1.12); transform-origin: bottom; margin-right: -.03em; }
+.m-rad { border-top: 1px solid currentColor; padding: .1em .14em 0 .12em; margin-top: .08em; }
+.m-op { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; margin: 0 .2em; }
+.m-lim { font-size: .68em; line-height: 1.15; min-height: .2em; } .m-bigsym { font-size: 1.55em; line-height: 1; }
+.m-ss { display: inline-flex; flex-direction: column; vertical-align: middle; font-size: .72em; line-height: 1.05; margin-left: .05em; }
+.m-delim.m-tall { font-size: 1.5em; font-weight: 300; vertical-align: middle; line-height: 1; position: relative; top: -.04em; }
+.m-acc.m-bar { border-top: 1px solid currentColor; padding-top: .02em; }
+.m-acc.m-hat, .m-acc.m-tilde { position: relative; display: inline-block; }
+.m-acc.m-hat::before { content: "^"; position: absolute; left: 0; right: 0; top: -.62em; text-align: center; font-style: normal; transform: scaleX(1.8); }
+.m-acc.m-tilde::before { content: "~"; position: absolute; left: 0; right: 0; top: -.72em; text-align: center; font-style: normal; }
+.eq.eq-tex { position: relative; padding: 18px 54px 18px 18px; overflow-x: auto; font-size: 1.12rem; }
+.eq-num { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font: 500 .85rem var(--sans); color: var(--ink-3); }
+a.eqref { color: var(--accent); text-decoration: none; font-variant-numeric: tabular-nums; cursor: default; }
+
+/* ---------- schede di teoria: riquadri e indice ---------- */
+.box { border: 1px solid var(--rule); border-left: 4px solid var(--ink-3); border-radius: 0 10px 10px 0; background: var(--card); padding: 12px 16px 12px; margin: 16px 0; }
+.box > :last-child { margin-bottom: 0; } .box > p:first-of-type { margin-top: 0; }
+.box-t { display: block; font: 700 .7rem var(--sans); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 6px; }
+.box.def { border-left-color: var(--c1); } .box.def .box-t { color: var(--c1); }
+.box.thm { border-left-color: var(--accent); background: color-mix(in srgb, var(--accent) 5%, var(--card)); } .box.thm .box-t { color: var(--accent); }
+.box.ex { border-left-color: var(--c3); } .box.ex .box-t { color: var(--c3); }
+.box.nota { border-left-style: dashed; }
+.callout.warn::before { content: "Attenzione"; display: block; font: 700 .7rem var(--sans); letter-spacing: .12em; text-transform: uppercase; color: var(--st-approx); margin-bottom: 4px; }
+.sheet-toc { border: 1px solid var(--rule); border-radius: 10px; padding: 10px 14px; margin: 0 0 18px; background: var(--paper-2); }
+.sheet-toc .box-t { margin-bottom: 4px; }
+.sheet-toc ol { margin: 0; padding-left: 20px; columns: 2; column-gap: 24px; font-size: .9rem; }
+.sheet-toc li { break-inside: avoid; margin: 2px 0; }
+.sheet-toc button { all: unset; cursor: pointer; color: var(--ink-2); } .sheet-toc button:hover, .sheet-toc button:focus-visible { color: var(--accent); text-decoration: underline; }
+@media (max-width: 640px) { .sheet-toc ol { columns: 1; } }
+
+/* home: come leggere l'atlante */
+.legend-home { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 28px 44px; margin: -22px 0 48px; }
+.legend-col p { margin: 6px 0 10px; color: var(--ink-2); max-width: 60ch; }
+.legend-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.legend-list li { display: grid; grid-template-columns: 112px 1fr; gap: 12px; align-items: baseline; font-size: .93rem; color: var(--ink-2); }
+.legend-list.levels li { grid-template-columns: 40px 1fr; }
+.legend-list.levels li div { display: grid; }
+.legend-list .badge { justify-self: start; }
+.rlevel { font: 700 .8rem var(--sans); color: var(--accent); border: 1px solid var(--accent); border-radius: 6px; padding: 2px 6px; text-align: center; }
+
 </style>
 </head>
 <body>
@@ -990,6 +1042,111 @@ SA.laws = (function () {
   var byId = {};
   L.forEach(function (l) { byId[l.id] = l; });
   return { list: L, get: function (id) { return byId[id]; } };
+})();
+
+/* core/math.js */
+/* StatAtlas · core/math.js — composizione tipografica delle formule, senza librerie esterne.
+ * SA.math.tex(sorgente) converte un sottoinsieme di LaTeX in HTML + CSS (frazioni, radici, sommatorie con limiti,
+ * apici e pedici, accenti, lettere greche, funzioni in tondo). SA.math.typeset(radice) compone gli elementi con
+ * attributo data-tex: i blocchi .eq vengono numerati, <a data-eqref="id"> diventa il numero dell'equazione con data-id="id".
+ * Sintassi: \frac{a}{b} \sqrt{x} \sum_{i=1}^{n} \hat{\theta} \bar{x} \text{testo} \left( \right) x^{2} x_{i} … */
+SA.math = (function () {
+  var GREEK = { alpha: 'α', beta: 'β', gamma: 'γ', delta: 'δ', epsilon: 'ε', varepsilon: 'ε', zeta: 'ζ', eta: 'η', theta: 'θ', kappa: 'κ', lambda: 'λ', mu: 'μ', nu: 'ν', xi: 'ξ', pi: 'π', rho: 'ρ', sigma: 'σ', tau: 'τ', phi: 'φ', varphi: 'φ', chi: 'χ', psi: 'ψ', omega: 'ω' };
+  var UPPER = { Gamma: 'Γ', Delta: 'Δ', Theta: 'Θ', Lambda: 'Λ', Pi: 'Π', Sigma: 'Σ', Phi: 'Φ', Psi: 'Ψ', Omega: 'Ω' };
+  var SYM = { cdot: '·', times: '×', infty: '∞', partial: '∂', ldots: '…', dots: '…', cdots: '⋯', pm: '±', mid: '|', ell: 'ℓ', prime: '′', top: '⊤', nabla: '∇', odot: '⊙', forall: '∀', exists: '∃', emptyset: '∅', lfloor: '⌊', rfloor: '⌋', lceil: '⌈', rceil: '⌉', langle: '⟨', rangle: '⟩', '{': '{', '}': '}', '|': '‖', '%': '%' };
+  var REL = { le: '≤', leq: '≤', ge: '≥', geq: '≥', ne: '≠', neq: '≠', approx: '≈', sim: '∼', to: '→', rightarrow: '→', Rightarrow: '⇒', iff: '⇔', 'in': '∈', notin: '∉', subset: '⊂', propto: '∝', equiv: '≡', mapsto: '↦', ll: '≪', gg: '≫' };
+  var FN = ['log', 'exp', 'sin', 'cos', 'tan', 'ln', 'det', 'tr', 'Var', 'Cov', 'Cor', 'E', 'P', 'logit', 'rank', 'diag', 'sign', 'EQM', 'MSE'];
+  var BIG = { sum: ['Σ', 1], prod: ['Π', 1], int: ['∫', 1], sup: ['sup', 0], inf: ['inf', 0], min: ['min', 0], max: ['max', 0], lim: ['lim', 0], argmin: ['arg min', 0], argmax: ['arg max', 0] };
+  var ACC = { hat: '̂', bar: '̄', tilde: '̃', dot: '̇' };
+  function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+  function tex(src) {
+    var i = 0, n = src.length;
+    function group(stop) { // sequenza di atomi fino a «}» (se stop) o alla fine
+      var out = '', prev = 'open';
+      while (i < n) {
+        if (src[i] === '}') { if (stop) i++; break; }
+        var a = atom(prev); if (!a) continue;
+        a = scripts(a); out += a.h; prev = a.k || 'ord';
+      }
+      return out;
+    }
+    function arg() { // argomento di un comando o di un apice/pedice: gruppo tra graffe o un solo atomo
+      while (i < n && src[i] === ' ') i++;
+      if (src[i] === '{') { i++; return group(true); }
+      var a = atom('open'); return a ? a.h : '';
+    }
+    function scripts(a) {
+      var sub = null, sup = null;
+      for (;;) {
+        while (i < n && src[i] === ' ') i++;
+        if (src[i] === '_' && sub === null) { i++; sub = arg(); } else if (src[i] === '^' && sup === null) { i++; sup = arg(); } else break;
+      }
+      if (sub === null && sup === null) return a;
+      if (a.k === 'big') return { h: '<span class="m-op"><span class="m-lim">' + (sup || '') + '</span>' + a.h + '<span class="m-lim">' + (sub || '') + '</span></span>', k: 'ord' };
+      if (sub !== null && sup !== null) return { h: a.h + '<span class="m-ss"><span>' + sup + '</span><span>' + sub + '</span></span>', k: 'ord' };
+      return { h: a.h + (sub !== null ? '<sub>' + sub + '</sub>' : '<sup>' + sup + '</sup>'), k: 'ord' };
+    }
+    function atom(prev) {
+      var c = src[i];
+      if (c === ' ' || c === '\n') { i++; return null; }
+      if (c === '{') { i++; return { h: group(true) }; }
+      if (c === '~') { i++; return { h: '&nbsp;' }; }
+      if (c === '\\') {
+        i++; var m = /^[a-zA-Z]+/.exec(src.slice(i)), name;
+        if (m) { name = m[0]; i += name.length; } else { name = src[i++]; }
+        if (name === ',') return { h: '<span class="m-sp1"></span>', k: prev };
+        if (name === ';' || name === ':') return { h: '<span class="m-sp2"></span>', k: prev };
+        if (name === '!') return { h: '', k: prev };
+        if (name === 'quad') return { h: '<span class="m-sp3"></span>', k: 'open' };
+        if (name === 'qquad') return { h: '<span class="m-sp4"></span>', k: 'open' };
+        if (name === '\\') return { h: '<br>', k: 'open' };
+        if (name === 'frac' || name === 'tfrac' || name === 'dfrac') { var a = arg(), b = arg(); return { h: '<span class="m-frac"><span class="m-num">' + a + '</span><span class="m-den">' + b + '</span></span>' }; }
+        if (name === 'binom') { var p = arg(), q = arg(); return { h: '<span class="m-delim m-tall">(</span><span class="m-frac m-nobar"><span class="m-num">' + p + '</span><span class="m-den">' + q + '</span></span><span class="m-delim m-tall">)</span>' }; }
+        if (name === 'sqrt') return { h: '<span class="m-sqrt"><span class="m-surd">√</span><span class="m-rad">' + arg() + '</span></span>' };
+        if (ACC[name]) { var x = arg(), plain = x.replace(/<[^>]+>/g, ''); return { h: plain.length === 1 ? x.replace(plain, plain + ACC[name]) : '<span class="m-acc m-' + name + '">' + x + '</span>' }; }
+        if (name === 'overline') return { h: '<span class="m-acc m-bar">' + arg() + '</span>' };
+        if (name === 'text' || name === 'mathrm' || name === 'operatorname') { while (src[i] === ' ') i++; var t = ''; if (src[i] === '{') { i++; var d = 1; while (i < n) { if (src[i] === '{') d++; else if (src[i] === '}' && --d === 0) { i++; break; } t += src[i++]; } } return { h: '<span class="m-text">' + esc(t).replace(/ /g, '&nbsp;') + '</span>' }; }
+        if (name === 'mathbf' || name === 'boldsymbol') return { h: '<b class="m-bf">' + arg().replace(/<\/?i>/g, '') + '</b>' };
+        if (name === 'left' || name === 'right') { while (src[i] === ' ') i++; var dl = src[i++]; if (dl === '\\') { var mm = /^[a-zA-Z]+|^./.exec(src.slice(i))[0]; i += mm.length; dl = SYM[mm] || mm; } return { h: dl === '.' ? '' : '<span class="m-delim m-tall">' + esc(dl) + '</span>', k: name === 'left' ? 'open' : 'ord' }; }
+        if (BIG[name]) return { h: '<span class="m-sym' + (BIG[name][1] ? ' m-bigsym' : ' m-text') + '">' + BIG[name][0] + '</span>', k: 'big' };
+        if (FN.indexOf(name) >= 0) return { h: '<span class="m-fn">' + name + '</span>' };
+        if (GREEK[name]) return { h: '<i>' + GREEK[name] + '</i>' };
+        if (UPPER[name]) return { h: UPPER[name] };
+        if (REL[name]) return { h: '<span class="m-rel">' + REL[name] + '</span>', k: 'bin' };
+        if (SYM[name] !== undefined) return { h: SYM[name], k: name === 'cdot' || name === 'times' ? 'ord' : undefined };
+        return { h: '<span class="m-text">' + esc(name) + '</span>' };
+      }
+      i++;
+      if (/[a-zA-Z]/.test(c)) return { h: '<i>' + c + '</i>' };
+      if (/[0-9]/.test(c)) { var num = c; while (i < n && /[0-9]/.test(src[i]) || (i < n - 1 && /[.,]/.test(src[i]) && /[0-9]/.test(src[i + 1]))) num += src[i++]; return { h: num }; }
+      if (c === '-' || c === '−') return prev === 'open' || prev === 'bin' ? { h: '−', k: 'ord' } : { h: '<span class="m-bin">−</span>', k: 'bin' };
+      if (c === '+') return prev === 'open' || prev === 'bin' ? { h: '+', k: 'ord' } : { h: '<span class="m-bin">+</span>', k: 'bin' };
+      if (c === '=' || c === '<' || c === '>' || c === '≤' || c === '≥' || c === '≈' || c === '→') return { h: '<span class="m-rel">' + esc(c) + '</span>', k: 'bin' };
+      if (c === '(' || c === '[') return { h: c, k: 'open' };
+      if (c === ',' || c === ';') return { h: c + '<span class="m-sp1"></span>', k: 'open' };
+      if (c === "'") return { h: '′' };
+      return { h: esc(c) };
+    }
+    var html = group(false);
+    return '<span class="m" role="math" aria-label="' + esc(src).replace(/"/g, '&quot;') + '">' + html + '</span>';
+  }
+
+  /* compone tutti gli elementi con data-tex sotto root; numera i blocchi .eq (salvo data-n="no") e risolve i rimandi */
+  function typeset(root) {
+    var k = 0, ids = {};
+    root.querySelectorAll('[data-tex]').forEach(function (node) {
+      if (node.getAttribute('data-done')) return;
+      node.innerHTML = tex(node.getAttribute('data-tex')); node.setAttribute('data-done', '1');
+      if (node.classList.contains('eq')) {
+        node.classList.add('eq-tex');
+        if (node.getAttribute('data-n') !== 'no') { k++; var num = document.createElement('span'); num.className = 'eq-num'; num.textContent = '(' + k + ')'; node.appendChild(num); if (node.getAttribute('data-id')) ids[node.getAttribute('data-id')] = k; }
+      }
+    });
+    root.querySelectorAll('a[data-eqref]').forEach(function (a) { var q = ids[a.getAttribute('data-eqref')]; a.textContent = q ? '(' + q + ')' : '(?)'; a.classList.add('eqref'); });
+    return root;
+  }
+  return { tex: tex, typeset: typeset };
 })();
 
 /* core/linalg.js */
@@ -2287,7 +2444,7 @@ SA.ui = (function () {
     if (level === 'base') {
       if (c) box.appendChild(el('div.objectives', el('div.step-label', 'Obiettivi di apprendimento'), el('ul', c.obiettivi.map(function (o) { return el('li', o); }))));
       box.appendChild(content.base());
-      if (c) box.append(el('div.prose', { html: '<h3>Un esempio svolto</h3>' + c.esempio }),
+      if (c) box.append(el('div.prose', { html: '<h3>Un esempio svolto</h3><div class="box ex">' + c.esempio + '</div>' }),
         el('div.prose', el('h3', 'Errori frequenti'), el('ul.errlist', c.errori.map(function (e) { return el('li', { html: e }); }))));
     } else if (level === 'adv') {
       box.appendChild(content.adv());
@@ -2305,10 +2462,29 @@ SA.ui = (function () {
     }
     return box;
   }
+  /* Formato delle schede: riquadri con intestazione (def, thm, ex, nota), formule composte e numerate,
+   * indice interno quando la scheda ha almeno quattro sezioni. */
+  var BOX = { def: 'Definizione', thm: 'Risultato', ex: 'Esempio', nota: 'Nota' };
+  function decorate(box) {
+    box.querySelectorAll('.box').forEach(function (b) {
+      if (b.querySelector(':scope > .box-t')) return;
+      var kind = Object.keys(BOX).filter(function (k) { return b.classList.contains(k); })[0];
+      var t = b.getAttribute('data-title') || (kind ? BOX[kind] : null); if (t) b.insertBefore(el('span.box-t', t), b.firstChild);
+    });
+    if (SA.math) SA.math.typeset(box);
+    var hs = box.querySelectorAll('h3');
+    if (hs.length >= 4) {
+      var toc = el('nav.sheet-toc', { 'aria-label': 'Indice della scheda' }, el('span.box-t', 'In questa scheda'), el('ol', Array.prototype.map.call(hs, function (h) {
+        return el('li', el('button', { type: 'button', onclick: function () { h.scrollIntoView({ behavior: 'smooth', block: 'start' }); } }, h.textContent));
+      })));
+      var first = box.querySelector('.objectives'); if (first) first.parentNode.insertBefore(toc, first.nextSibling); else box.insertBefore(toc, box.firstChild);
+    }
+    return box;
+  }
   function renderLevel() {
     levels.querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.level === currentLevel)); });
     drawerBody.innerHTML = '';
-    drawerBody.appendChild(extended(currentLevel));
+    drawerBody.appendChild(decorate(extended(currentLevel)));
     drawerBody.scrollTop = 0;
   }
   function openDrawer(title, c, level) {
@@ -2530,7 +2706,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   };
   var STEPS = [['Domanda', 'Un problema concreto, con una previsione facoltativa'], ['Esperimento', 'Dati generati sotto i tuoi occhi, passo dopo passo'],
     ['Teoria e simulazione', 'Esatto, asintotico o Monte Carlo: sempre dichiarato'], ['Interpretazione', 'Che cosa significa, quando vale, dove si rompe'],
-    ['Approfondisci', 'Teoria, esercizi e bibliografia'], ['Codice R', 'Lo stesso esperimento, con gli stessi numeri']];
+    ['Approfondisci', 'Teoria, esercizi e bibliografia'], ['Codice R', 'Lo stesso esperimento, verificato in R']];
   function labCountText() {
     var n = SA.catalog.reduce(function (a, p) { return a + p.labs.length; }, 0);
     var W = { 16: 'Sedici', 17: 'Diciassette', 18: 'Diciotto', 19: 'Diciannove', 20: 'Venti', 21: 'Ventuno', 22: 'Ventidue', 23: 'Ventitré', 24: 'Ventiquattro' };
@@ -2542,12 +2718,21 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
       el('div.hero-text',
         el('div.kicker', 'Atlante interattivo di probabilità e statistica'),
         el('h1', 'Vedere la statistica ', el('em', 'mentre accade')),
-        el('p.lede', labCountText() + ' per studenti universitari. Ognuno parte da una domanda, genera i dati sotto i tuoi occhi e confronta ciò che osservi con ciò che la teoria garantisce. Lo script R riproduce esattamente lo stesso esperimento.'),
+        el('p.lede', labCountText() + ', dalla probabilità all’apprendimento statistico. Ognuno parte da una domanda, genera i dati sotto i tuoi occhi e confronta ciò che osservi con ciò che la teoria garantisce. Ogni esperimento si ripete in R con lo script fornito.'),
         el('div.hero-actions', el('button.btn.btn-primary', { type: 'button', 'aria-haspopup': 'dialog', onclick: openMap }, 'Sfoglia l’atlante: la mappa dei laboratori'))),
       el('div.hero-art', { html: '<div class="hero-logo">' + SA.art.logo(132) + '</div>' + ['distribuzioni', 'intervalli', 'regressione', 'lgn-tcl'].map(function (k, i) { return '<div class="mosaic m' + i + '">' + SA.art.get(k) + '</div>'; }).join('') })));
     page.appendChild(el('section.how', el('div.step-label', 'Come funziona un laboratorio'),
       el('ol.how-steps', STEPS.map(function (s, i) { return el('li', el('span.how-num', String(i + 1)), el('strong', s[0]), el('span', s[1])); }))));
-    // le quattro parti come tessere: un clic apre una finestra con i laboratori della parte
+    // come leggere l'atlante: natura dei risultati e livelli di riproducibilità in R
+    var B = SA.ui.badge, lv = function (code, title, text) { return el('li', el('span.rlevel', code), el('div', el('strong', title), el('span', text))); };
+    page.appendChild(el('section.legend-home', { id: 'come-leggere' },
+      el('div.legend-col', el('div.step-label', 'Come leggere i risultati'), el('p', 'Ogni valore teorico dichiara la propria natura, per non confondere ciò che vale sempre con ciò che vale al limite.'),
+        el('ul.legend-list', el('li', B('exact'), el('span', 'vale per ogni numerosità, senza approssimazioni')), el('li', B('asym'), el('span', 'vale al crescere di n: per n piccolo può essere impreciso')),
+          el('li', B('approx'), el('span', 'formula o calcolo numerico approssimato, con l’errore indicato')), el('li', B('mc'), el('span', 'stima ottenuta dalla simulazione, con il suo errore casuale')))),
+      el('div.legend-col', el('div.step-label', 'Che cosa riproduce lo script R'), el('p', 'Il generatore di numeri casuali di R è ricostruito nel browser. Ogni script dichiara fin dove arriva la corrispondenza.'),
+        el('ul.legend-list.levels', lv('R0', 'Stessi dati', 'stesso seed, stessi campioni, stesse suddivisioni'), lv('R1', 'Stesse misure', 'stesse stime ed errori, a meno dell’arrotondamento'),
+          lv('R2', 'Stesso algoritmo', 'stessi passi e stesse regole nei casi di parità'), lv('R3', 'Confronto di metodo', 'pacchetti che seguono regole diverse: risultati vicini, non identici')))));
+    // le otto parti come tessere: un clic apre una finestra con i laboratori della parte
     var parts = el('div.parts.part-tiles', { id: 'parti' });
     SA.catalog.forEach(function (p) {
       var d = PART_DESC[p.part];
@@ -2682,7 +2867,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   function footer() {
     return el('footer.foot',
       el('p', 'StatAtlas · progetto didattico di Gianluca Sottile. Alcuni laboratori traggono ispirazione dalle idee di Simul2000 di Marcello Chiodi (Università di Palermo); codice e testi sono originali.'),
-      el('p', 'Numeri casuali generati con il Mersenne-Twister di R: con lo stesso seed, R ≥ 4.1 riproduce gli stessi campioni.'));
+      el('p', 'Numeri casuali generati con il Mersenne-Twister di R: con lo stesso seed, R ≥ 4.1 riproduce gli stessi campioni. Tutti gli script sono stati eseguiti e confrontati in R.'));
   }
 
   /* Arricchisce ogni laboratorio con copertina, obiettivi, “che cosa stiamo valutando” e guida alla tabella */
@@ -2722,7 +2907,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   document.addEventListener('keydown', function (ev) { if (ev.key === 'Escape' && zoom) { ev.stopPropagation(); closeZoom(); } }, true);
   window.addEventListener('hashchange', closeZoom);
   function enhanceLab(page, id) {
-    zoomable(page);
+    zoomable(page); if (SA.math) SA.math.typeset(page);
     var c = SA.content && SA.content[id], head = page.querySelector('.lab-head');
     if (head) {
       var text = head.firstElementChild, btn = head.querySelector(':scope > .btn');
@@ -3347,7 +3532,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
       return el('div.prose', { html:
         '<h3>Tre modi di descrivere una legge</h3>' +
         '<p>Una variabile aleatoria <span class="m">X</span> è descritta completamente dalla <strong>funzione di ripartizione</strong> F(x) = P(X ≤ x), definita per ogni legge. Per una legge discreta si usano anche le probabilità P(X = x); per una legge continua la <strong>densità</strong> f(x), con F(x) = ∫ f(t) dt fino a x.</p>' +
-        '<div class="eq">P(a &lt; X ≤ b) = F(b) − F(a)</div>' +
+        '<div class="eq" data-tex="P(a < X \\le b) = F(b) - F(a)"></div>' +
         '<p>Nel continuo è l’area sotto f tra a e b; nel discreto è la somma delle probabilità dei punti in (a, b].</p>' +
         '<h3>' + L.label + '</h3><div class="eq">' + L.formula + '</div><p>' + L.story + '</p>' +
         '<h3>Momenti: non sempre esistono</h3>' +
@@ -3361,11 +3546,11 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
         '<h3>Proprietà della funzione di ripartizione</h3>' +
         '<p>F è non decrescente, continua a destra, con limiti 0 in −∞ e 1 in +∞; ogni funzione con queste proprietà è la ripartizione di qualche legge. I salti di F sono gli atomi: P(X = x) = F(x) − F(x⁻).</p>' +
         '<h3>Inversione generalizzata</h3>' +
-        '<div class="eq">F⁻¹(u) = inf { x : F(x) ≥ u }, &nbsp; 0 &lt; u &lt; 1</div>' +
+        '<div class="eq" data-tex="F^{-1}(u) = \\inf\\{x : F(x) \\ge u\\}, \\quad 0 < u < 1"></div>' +
         '<p>Per la continuità a destra, F⁻¹(u) ≤ x ⟺ u ≤ F(x). Se U ~ U(0, 1) allora P(F⁻¹(U) ≤ x) = P(U ≤ F(x)) = F(x): la variabile F⁻¹(U) ha esattamente ripartizione F, anche per leggi discrete. È la definizione usata da <code>qbinom</code>, <code>qpois</code> e simili in R.</p>' +
         '<h3>Glivenko–Cantelli e DKW</h3>' +
         '<p>La funzione di ripartizione empirica F̂<sub>N</sub>(x) = #{Xᵢ ≤ x}/N converge uniformemente a F quasi certamente (Glivenko–Cantelli). La disuguaglianza di Dvoretzky–Kiefer–Wolfowitz, con la costante ottimale di Massart (1990), dà una velocità esplicita:</p>' +
-        '<div class="eq">P( sup<sub>x</sub> |F̂<sub>N</sub>(x) − F(x)| &gt; ε ) ≤ 2 e<sup>−2Nε²</sup></div>' +
+        '<div class="eq" data-tex="P\\left(\\sup_{x} |\\hat{F}_N(x) - F(x)| > \\varepsilon\\right) \\le 2 e^{-2N\\varepsilon^2}"></div>' +
         '<p>Ponendo il secondo membro uguale a 0,05 si ottiene ε = √(log(40)/(2N)): la banda nel grafico. Vale per ogni N e ogni F (per le leggi discrete è conservativa). La statistica sup|F̂ − F| è quella del test di Kolmogorov–Smirnov.</p>' +
         '<h3>Esistenza dei momenti</h3>' +
         '<p>E|X|<sup>r</sup> &lt; ∞ dipende dalle code: se f(x) ~ c|x|<sup>−(α+1)</sup>, esistono i momenti di ordine r &lt; α. Per la t(ν) α = ν; per la Cauchy α = 1; per la F(ν₁, ν₂) α = ν₂/2.</p>' });
@@ -3691,7 +3876,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
         '<div class="callout warn">Indipendenza ⇒ ρ = 0, ma ρ = 0 ⇏ indipendenza. Le marginali non determinano la congiunta.</div>' });
     },
     adv: function () {
-      return el('div.prose', { html: '<h3>Normale bivariata</h3><div class="eq">f(x, y) = [2π√(1 − ρ²)]<sup>−1</sup> exp{−(x² − 2ρxy + y²) / (2(1 − ρ²))}</div><p>Costruzione: X = Z₁, Y = ρZ₁ + √(1 − ρ²)Z₂ con Z₁, Z₂ indipendenti N(0, 1). Allora Y | X = x ~ N(ρx, 1 − ρ²): regressione lineare e omoschedastica. Per vettori normali ρ = 0 ⇔ indipendenza, perché la densità si fattorizza.</p>' +
+      return el('div.prose', { html: '<h3>Normale bivariata</h3><div class="eq" data-tex="f(x, y) = \\frac{1}{2\\pi\\sqrt{1-\\rho^2}} \\exp\\left\\{-\\frac{x^2 - 2\\rho x y + y^2}{2(1-\\rho^2)}\\right\\}"></div><p>Costruzione: X = Z₁, Y = ρZ₁ + √(1 − ρ²)Z₂ con Z₁, Z₂ indipendenti N(0, 1). Allora Y | X = x ~ N(ρx, 1 − ρ²): regressione lineare e omoschedastica. Per vettori normali ρ = 0 ⇔ indipendenza, perché la densità si fattorizza.</p>' +
         '<h3>Il modello quadratico</h3><p>Cov(X, X² − 1 + τZ) = E(X³) = 0. Ma Var(Y) = Var(X²) + τ² = 2 + τ² e Cov(X², Y) = Var(X²) = 2, quindi ρ(X², Y) = √(2/(2 + τ²)).</p>' +
         '<h3>Condizionare a un punto</h3><p>Per X continua P(X = x₀) = 0: la striscia |X − x₀| ≤ h stima f(y | x₀) con un errore di ordine h (distorsione) e una varianza di ordine 1/(n h). È lo stesso compromesso dei metodi di regressione non parametrica.</p>' });
     }
@@ -4016,7 +4201,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   var THEORY = {
     base: function () {
       return el('div.prose', { html: '<h3>Tutto parte dall’uniforme</h3><p>Un computer genera numeri pseudocasuali che imitano U(0, 1). Ogni altra legge si ottiene trasformandoli. Il metodo più generale è l’<strong>inversione</strong>: X = F⁻¹(U).</p>' +
-        '<div class="eq">P(F⁻¹(U) ≤ x) = P(U ≤ F(x)) = F(x)</div>' +
+        '<div class="eq" data-tex="P(F^{-1}(U) \\le x) = P(U \\le F(x)) = F(x)"></div>' +
         '<p>Esempio: per l’Esponenziale F(x) = 1 − e<sup>−λx</sup>, quindi F⁻¹(u) = −log(1 − u)/λ.</p>' +
         '<h3>Integrare con il caso</h3><p>Se U ~ U(0, 1), allora E[f(U)] = ∫₀¹ f(x) dx = I. La media di f(Uᵢ) stima quindi I, e per la legge dei grandi numeri converge. L’<strong>hit-or-miss</strong> invece lancia punti (U, V) nel quadrato e conta quanti cadono sotto la curva: la proporzione stima l’area I.</p>' +
         '<div class="callout">Entrambi i metodi hanno errore dell’ordine di 1/√n, indipendentemente dalla dimensione del problema: per questo il Monte Carlo è prezioso negli integrali in molte variabili.</div>' });
@@ -4024,7 +4209,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     adv: function () {
       return el('div.prose', { html: '<h3>Inversa generalizzata</h3><p>F⁻¹(u) = inf{x : F(x) ≥ u}. Per la continuità a destra di F vale F⁻¹(u) ≤ x ⟺ u ≤ F(x), da cui la tesi anche con salti e tratti piatti. Viceversa, se F è continua, F(X) ~ U(0, 1) (trasformazione integrale di probabilità).</p>' +
         '<h3>Confronto delle varianze</h3><p>Per la media: Var f(U) = ∫f² − I². Per l’hit-or-miss l’indicatore 1{V ≤ f(U)} è Bernoulli(I), con varianza I(1 − I). Se 0 ≤ f ≤ 1, allora f² ≤ f e</p>' +
-        '<div class="eq">Var f(U) = ∫f² − I² ≤ ∫f − I² = I(1 − I)</div><p>con uguaglianza solo se f assume i soli valori 0 e 1. Il rapporto delle varianze dice quante coppie in più servono all’hit-or-miss per la stessa precisione. È il primo esempio di <em>riduzione della varianza</em> per condizionamento: E[1{V ≤ f(U)} | U] = f(U), e condizionare non aumenta mai la varianza (Rao–Blackwell).</p>' +
+        '<div class="eq" data-tex="\\Var f(U) = \\int f^2 - I^2 \\le \\int f - I^2 = I(1 - I)"></div><p>con uguaglianza solo se f assume i soli valori 0 e 1. Il rapporto delle varianze dice quante coppie in più servono all’hit-or-miss per la stessa precisione. È il primo esempio di <em>riduzione della varianza</em> per condizionamento: E[1{V ≤ f(U)} | U] = f(U), e condizionare non aumenta mai la varianza (Rao–Blackwell).</p>' +
         '<h3>Errore Monte Carlo</h3><p>Per il teorema centrale, Î<sub>n</sub> ≈ N(I, σ²/n): l’intervallo Î ± 1,96 σ̂/√n ha copertura approssimativa 95%. Le bande del grafico usano la σ teorica.</p>' });
     }
   };
@@ -4415,7 +4600,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
       return el('div.prose', { html:
         '<h3>Due teoremi, due oggetti diversi</h3>' +
         '<p>La <strong>legge dei grandi numeri</strong> parla di <em>una</em> media che cresce con n: x̄ₙ si avvicina a μ. Il <strong>teorema centrale</strong> parla della <em>distribuzione</em> di x̄ₙ attraverso tanti campioni: centrata e riscalata, diventa normale.</p>' +
-        '<div class="eq">x̄ₙ → μ &nbsp;&nbsp;&nbsp;&nbsp; √n (x̄ₙ − μ) / σ ⇒ N(0, 1)</div>' +
+        '<div class="eq" data-tex="\\bar{x}_n \\to \\mu \\qquad \\frac{\\sqrt{n}\\,(\\bar{x}_n - \\mu)}{\\sigma} \\Rightarrow N(0, 1)"></div>' +
         '<h3>Che cosa è esatto e che cosa no</h3><ul>' +
         '<li>E(x̄ₙ) = μ e Var(x̄ₙ) = σ²/n valgono <strong>per ogni n</strong>.</li>' +
         '<li>La forma normale vale solo <strong>al limite</strong>: per n finito è un’approssimazione, buona o cattiva secondo l’asimmetria dei dati.</li>' +
@@ -4428,15 +4613,15 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
       return el('div.prose', { html:
         '<h3>Legge debole: una dimostrazione in una riga</h3>' +
         '<p>Se Var(X) = σ² &lt; ∞, per la disuguaglianza di Chebyshev</p>' +
-        '<div class="eq">P(|x̄ₙ − μ| ≥ ε) ≤ σ² / (n ε²) → 0</div>' +
+        '<div class="eq" data-tex="P(|\\bar{x}_n - \\mu| \\ge \\varepsilon) \\le \\frac{\\sigma^2}{n\\varepsilon^2} \\to 0"></div>' +
         '<p>La versione di Khinchin richiede solo E|X| &lt; ∞; la legge forte (Kolmogorov) afferma la convergenza quasi certa sotto la stessa ipotesi, ed è questa che descrive le singole traiettorie.</p>' +
         '<h3>Teorema centrale (Lindeberg–Lévy)</h3>' +
         '<p>Se X₁, X₂, … sono i.i.d. con 0 &lt; σ² &lt; ∞, la funzione caratteristica di zₙ è φ(t/(σ√n))ⁿ, con φ quella di X − μ. Sviluppando φ(s) = 1 − σ²s²/2 + o(s²) si ottiene</p>' +
-        '<div class="eq">φ<sub>zₙ</sub>(t) = (1 − t²/(2n) + o(1/n))ⁿ → e<sup>−t²/2</sup></div>' +
+        '<div class="eq" data-tex="\\varphi_{z_n}(t) = \\left(1 - \\frac{t^2}{2n} + o(1/n)\\right)^{n} \\to e^{-t^2/2}"></div>' +
         '<p>e il teorema di continuità di Lévy conclude.</p>' +
         '<h3>Quanto è buona l’approssimazione: Berry–Esseen</h3>' +
         '<p>Se ρ = E|X − μ|³ &lt; ∞,</p>' +
-        '<div class="eq">sup<sub>z</sub> |P(zₙ ≤ z) − Φ(z)| ≤ C ρ / (σ³ √n), &nbsp; C ≤ 0,4748</div>' +
+        '<div class="eq" data-tex="\\sup_{z} |P(z_n \\le z) - \\Phi(z)| \\le \\frac{C\\rho}{\\sigma^3\\sqrt{n}}, \\quad C \\le 0,4748"></div>' +
         '<p>(Shevtsova, 2011). È una garanzia valida per ogni n, ma spesso pessimistica: confrontala con la distanza osservata.</p>' +
         '<h3>Asimmetria della media</h3>' +
         '<p>Il terzo cumulante si somma su osservazioni indipendenti: κ₃(Σ Xᵢ) = n κ₃(X). Dividendo per (nσ²)<sup>3/2</sup> si ottiene γ(x̄ₙ) = γ/√n, esatto. Lo sviluppo di Edgeworth mostra che è il termine principale dell’errore del TCL: P(zₙ ≤ z) ≈ Φ(z) − γ(z² − 1)φ(z)/(6√n).</p>' +
@@ -4751,7 +4936,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   var THEORY = {
     base: function () {
       return el('div.prose', { html: '<h3>La domanda</h3><p>I dati sono compatibili con un modello F₀? Se F₀ ha parametri ignoti, li si stima prima: la domanda diventa “esiste un membro della famiglia compatibile con i dati?”.</p>' +
-        '<h3>Test X² di Pearson</h3><div class="eq">X² = Σ (Oⱼ − Eⱼ)² / Eⱼ</div><p>Oⱼ frequenze osservate, Eⱼ attese sotto il modello. Sotto H₀, per n grande, X² ≈ χ² con k − 1 − p gradi di libertà (k classi, p parametri stimati). Regola pratica: Eⱼ ≥ 5.</p>' +
+        '<h3>Test X² di Pearson</h3><div class="eq" data-tex="X^2 = \\sum_{j} \\frac{(O_j - E_j)^2}{E_j}"></div><p>Oⱼ frequenze osservate, Eⱼ attese sotto il modello. Sotto H₀, per n grande, X² ≈ χ² con k − 1 − p gradi di libertà (k classi, p parametri stimati). Regola pratica: Eⱼ ≥ 5.</p>' +
         '<h3>Il grafico quantile-quantile</h3><p>Ordina i dati e confrontali con i quantili del modello: se il modello è giusto, i punti stanno sulla retta. Una curva a “S” indica code diverse, una curvatura indica asimmetria. La banda verde è al 95% punto per punto.</p>' });
     },
     adv: function () {
@@ -5200,21 +5385,21 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
       return el('div.prose', { html:
         '<h3>Normalità asintotica della mediana</h3>' +
         '<p>Se la densità <span class="m">f</span> è continua e positiva in θ (mediana della popolazione), allora</p>' +
-        '<div class="eq">√n (M<sub>n</sub> − θ) &nbsp;→<sub>d</sub>&nbsp; N(0, 1 / (4 f(θ)²))</div>' +
+        '<div class="eq" data-tex="\\sqrt{n}\\,(M_n - \\theta) \\to N\\left(0, \\frac{1}{4 f(\\theta)^2}\\right)"></div>' +
         '<p>Idea della dimostrazione: M<sub>n</sub> ≤ θ + t/√n se e solo se almeno metà delle osservazioni cade sotto θ + t/√n. Il numero di tali osservazioni è binomiale con probabilità F(θ + t/√n) ≈ ½ + f(θ) t/√n; il teorema del limite centrale per la binomiale conclude.</p>' +
         '<p>Con f(θ) = 1/√(2π) (Normale) si ottiene π/(2n); con f(θ) = 1/2 (Laplace, b = 1) si ottiene 1/n; con f(θ) = 1/π (Cauchy) si ottiene π²/(4n).</p>' +
         '<h3>Laplace: la mediana è l’MLE</h3>' +
-        '<div class="eq">ℓ(θ) = −n log 2b − (1/b) Σ |x<sub>i</sub> − θ|</div>' +
+        '<div class="eq" data-tex="\\ell(\\theta) = -n \\log 2b - \\frac{1}{b}\\sum_{i} |x_i - \\theta|"></div>' +
         '<p>Massimizzare ℓ equivale a minimizzare Σ|xᵢ − θ|, che ha minimo nella mediana campionaria. Per n pari ogni valore tra le due osservazioni centrali è un MLE: la convenzione usuale prende il punto medio. ℓ non è derivabile nelle osservazioni, ma l’informazione di Fisher esiste e vale I(θ) = 1/b², per cui la mediana raggiunge il limite 1/n.</p>' +
         '<h3>Cauchy: perché la media non funziona</h3>' +
         '<p>La funzione caratteristica è φ(t) = exp(iθt − |t|). Per la media di n osservazioni indipendenti</p>' +
-        '<div class="eq">φ<sub>X̄</sub>(t) = φ(t/n)<sup>n</sup> = exp(iθt − |t|)</div>' +
+        '<div class="eq" data-tex="\\varphi_{\\bar{X}}(t) = \\varphi(t/n)^{n} = \\exp(i\\theta t - |t|)"></div>' +
         '<p>cioè X̄ ~ Cauchy(θ, 1) per ogni n: la media non è consistente. Non c’è contraddizione con la legge dei grandi numeri, che richiede E|X| &lt; ∞.</p>' +
         '<h3>Cauchy: l’MLE numerico</h3>' +
         '<p>Con scala nota pari a 1, l’equazione di verosimiglianza è</p>' +
-        '<div class="eq">ℓ′(θ) = Σ 2(x<sub>i</sub> − θ) / (1 + (x<sub>i</sub> − θ)²) = 0</div>' +
+        '<div class="eq" data-tex="\\ell\'(\\theta) = \\sum_{i} \\frac{2(x_i - \\theta)}{1 + (x_i - \\theta)^2} = 0"></div>' +
         '<p>Può avere più radici (massimi locali). StatAtlas parte dalla mediana, stimatore consistente, e itera</p>' +
-        '<div class="eq">θ<sub>k+1</sub> = Σ w<sub>i</sub> x<sub>i</sub> / Σ w<sub>i</sub>, &nbsp; w<sub>i</sub> = 1 / (1 + (x<sub>i</sub> − θ<sub>k</sub>)²)</div>' +
+        '<div class="eq" data-tex="\\theta_{k+1} = \\frac{\\sum_i w_i x_i}{\\sum_i w_i}, \\quad w_i = \\frac{1}{1 + (x_i - \\theta_k)^2}"></div>' +
         '<p>È un algoritmo MM: poiché log(1 + u) è concava in u, ogni passo massimizza una minorante della log-verosimiglianza, che quindi non diminuisce. Converge a un massimo locale; partendo da un valore iniziale consistente si ottiene la radice efficiente. L’informazione di Fisher per osservazione è I(θ) = 1/2, quindi Var(MLE) ≈ 2/n e l’efficienza della mediana rispetto all’MLE è 8/π² ≈ 0,81.</p>' +
         '<h3>Errore Monte Carlo</h3>' +
         '<p>Con M repliche indipendenti e stimatore approssimativamente normale, la deviazione standard simulata ha errore standard ≈ σ/√(2(M − 1)). Quando la varianza teorica non esiste (media Cauchy) questa garanzia cade: la deviazione standard empirica non converge.</p>' +
@@ -5669,13 +5854,13 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     base: function () {
       return el('div.prose', { html: '<h3>Verosimiglianza</h3><p>Osservato il campione x, la verosimiglianza L(θ) = ∏ f(xᵢ; θ) dice quanto ciascun valore del parametro rende plausibili i dati. Si lavora con ℓ(θ) = log L(θ). La stima di massima verosimiglianza θ̂ è il valore che la massimizza.</p>' +
         '<h3>Score e informazione</h3><p>Lo <strong>score</strong> è la pendenza U(θ) = ℓ′(θ); l’<strong>informazione osservata</strong> è la curvatura J(θ) = −ℓ″(θ). L’<strong>informazione di Fisher</strong> è la curvatura attesa per osservazione:</p>' +
-        '<div class="eq">I(θ) = E[−∂² log f(X; θ)/∂θ²] = Var[∂ log f(X; θ)/∂θ]</div>' +
+        '<div class="eq" data-tex="I(\\theta) = \\E\\left[-\\frac{\\partial^2 \\log f(X; \\theta)}{\\partial\\theta^2}\\right] = \\Var\\left[\\frac{\\partial \\log f(X; \\theta)}{\\partial\\theta}\\right]"></div>' +
         '<h3>Che cosa garantisce</h3><ul><li><strong>Cramér–Rao</strong>: ogni stimatore non distorto ha varianza ≥ 1/(n I(θ)).</li><li><strong>Normalità asintotica</strong>: θ̂ ≈ N(θ, 1/(n I(θ))) per n grande.</li><li><strong>Intervalli</strong>: Wald θ̂ ± 1,96/√J(θ̂) o, meglio, {θ : ℓ(θ̂) − ℓ(θ) ≤ 1,92}.</li></ul>' +
         '<div class="callout warn">Queste proprietà richiedono condizioni di regolarità. Il modello uniforme (0, θ) le viola: il supporto dipende da θ.</div>' });
     },
     adv: function () {
       return el('div.prose', { html: '<h3>Identità di Bartlett</h3><p>Derivando ∫ f(x; θ) dx = 1 sotto il segno di integrale (lecito se il supporto non dipende da θ):</p>' +
-        '<div class="eq">E[U(θ)] = 0, &nbsp;&nbsp; Var[U(θ)] = E[J(θ)] = n I(θ)</div>' +
+        '<div class="eq" data-tex="\\E[U(\\theta)] = 0, \\qquad \\Var[U(\\theta)] = \\E[J(\\theta)] = n I(\\theta)"></div>' +
         '<h3>Cramér–Rao</h3><p>Se E[T] = θ, derivando si ottiene Cov(T, U) = 1; per Cauchy–Schwarz 1 ≤ Var(T) Var(U), cioè Var(T) ≥ 1/(n I(θ)). L’uguaglianza vale solo nelle famiglie esponenziali con T statistica sufficiente nella parametrizzazione della media (es. x̄ per μ normale, x̄ per λ Poisson).</p>' +
         '<h3>Normalità asintotica</h3><p>Sviluppando 0 = U(θ̂) ≈ U(θ) − J(θ)(θ̂ − θ): √n(θ̂ − θ) ≈ [U(θ)/√n] / [J(θ)/n] → N(0, I(θ)) / I(θ) = N(0, 1/I(θ)), per TCL sul numeratore e legge dei grandi numeri sul denominatore.</p>' +
         '<h3>Rapporto di verosimiglianza</h3><p>2[ℓ(θ̂) − ℓ(θ)] → χ²₁ (Wilks), da cui la soglia qchisq(0,95, 1)/2 = 1,92. L’intervallo che ne deriva è invariante per riparametrizzazione e segue l’asimmetria della verosimiglianza, a differenza di Wald.</p>' +
@@ -5945,7 +6130,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
         '<h3>Copertura nominale, esatta, osservata</h3><p>La <em>nominale</em> è il livello dichiarato. La <em>esatta</em> è la vera probabilità di copertura del metodo per i parametri scelti: per dati binomiali o Poisson StatAtlas la calcola sommando su tutti i valori possibili della statistica. L’<em>osservata</em> è la frequenza nella simulazione, con il suo errore Monte Carlo.</p>' });
     },
     adv: function () {
-      return el('div.prose', { html: '<h3>Dualità con i test</h3><p>C(x) = {θ₀ : il test di livello α non rifiuta H₀: θ = θ₀}. Wald inverte il test con varianza stimata in p̂; Wilson il test score con varianza in p₀:</p><div class="eq">|p̂ − p₀| ≤ z √(p₀(1 − p₀)/n)</div><p>e risolvere la disequazione quadratica in p₀ dà la formula di Wilson.</p>' +
+      return el('div.prose', { html: '<h3>Dualità con i test</h3><p>C(x) = {θ₀ : il test di livello α non rifiuta H₀: θ = θ₀}. Wald inverte il test con varianza stimata in p̂; Wilson il test score con varianza in p₀:</p><div class="eq" data-tex="|\\hat{p} - p_0| \\le z\\sqrt{\\frac{p_0(1 - p_0)}{n}}"></div><p>e risolvere la disequazione quadratica in p₀ dà la formula di Wilson.</p>' +
         '<h3>Perché Wald fallisce</h3><p>La copertura di Wald oscilla con n e p a causa della discretezza (Brown, Cai e DasGupta, 2001), e crolla per p vicino a 0 o 1: se p̂ = 0 l’intervallo è {0}. P(p̂ = 0) = (1 − p)ⁿ, che per p = 0,1 e n = 20 vale circa 0,12.</p>' +
         '<h3>Garwood</h3><p>Usa la relazione tra Poisson e Gamma: P(S ≥ s) = P(G ≤ nλ) con G ~ Gamma(s, 1), da cui gli estremi con quantili χ²<sub>2s</sub> e χ²<sub>2s+2</sub>. La copertura esatta è una funzione a dente di sega di λ, sempre ≥ 1 − α.</p>' +
         '<h3>Pivot esponenziale</h3><p>Se Xᵢ ~ Exp(λ), allora λXᵢ ~ Exp(1) e 2λΣXᵢ ~ Gamma(n, 1/2) = χ²(2n).</p>' +
@@ -6171,7 +6356,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
       return el('div.prose', { html: '<h3>Due ipotesi, due errori</h3><table class="tv"><thead><tr><th></th><th>Non rifiuto H₀</th><th>Rifiuto H₀</th></tr></thead><tbody>' +
         '<tr><td>H₀ vera</td><td>corretto</td><td>errore di I tipo (α)</td></tr><tr><td>H₁ vera</td><td>errore di II tipo (β)</td><td>corretto: potenza 1 − β</td></tr></tbody></table>' +
         '<h3>Il test Z</h3><p>Con dati N(μ, σ²) e σ nota, z = √n (x̄ − μ₀)/σ ha legge N(0, 1) se μ = μ₀ e N(δ√n, 1) se μ = μ₀ + δσ. Si rifiuta se |z| &gt; z<sub>1−α/2</sub> (bilaterale) o z &gt; z<sub>1−α</sub> (unilaterale).</p>' +
-        '<div class="eq">potenza(δ) = Φ(δ√n − z<sub>1−α/2</sub>) + Φ(−δ√n − z<sub>1−α/2</sub>)</div>' +
+        '<div class="eq" data-tex="\\text{potenza}(\\delta) = \\Phi(\\delta\\sqrt{n} - z_{1-\\alpha/2}) + \\Phi(-\\delta\\sqrt{n} - z_{1-\\alpha/2})"></div>' +
         '<div class="callout warn">“Statisticamente significativo” non vuol dire “importante”: con n enorme anche un effetto irrilevante dà un p-value piccolo. Riporta sempre la stima dell’effetto e un intervallo.</div>' });
     },
     adv: function () {
@@ -6447,15 +6632,15 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   }
   var THEORY = {
     base: function () {
-      return el('div.prose', { html: '<h3>Il modello</h3><div class="eq">Yᵢ = β₀ + β₁xᵢ + εᵢ, &nbsp; εᵢ indipendenti, E(εᵢ) = 0, Var(εᵢ) = σ²</div>' +
+      return el('div.prose', { html: '<h3>Il modello</h3><div class="eq" data-tex="Y_i = \\beta_0 + \\beta_1 x_i + \\varepsilon_i, \\quad \\varepsilon_i \\text{ indipendenti}, \\; \\E(\\varepsilon_i) = 0, \\; \\Var(\\varepsilon_i) = \\sigma^2"></div>' +
         '<p>I minimi quadrati scelgono la retta che rende minima Σ(yᵢ − b₀ − b₁xᵢ)²: β̂₁ = Sxy/Sxx, β̂₀ = ȳ − β̂₁x̄. Sono non distorti e, tra gli stimatori lineari non distorti, hanno varianza minima (Gauss–Markov), senza bisogno della normalità.</p>' +
-        '<h3>Due intervalli diversi</h3><div class="eq">ŷ(x) ± t<sub>n−2</sub> s √(1/n + (x − x̄)²/Sxx) &nbsp;&nbsp; e &nbsp;&nbsp; ŷ(x) ± t<sub>n−2</sub> s √(1 + 1/n + (x − x̄)²/Sxx)</div>' +
+        '<h3>Due intervalli diversi</h3><div class="eq" data-tex="\\hat{y}(x) \\pm t_{n-2}\\, s\\sqrt{\\frac{1}{n} + \\frac{(x - \\bar{x})^2}{S_{xx}}} \\qquad \\hat{y}(x) \\pm t_{n-2}\\, s\\sqrt{1 + \\frac{1}{n} + \\frac{(x - \\bar{x})^2}{S_{xx}}}"></div>' +
         '<p>Il primo riguarda la retta (un parametro); il secondo una futura osservazione (una variabile aleatoria). L’1 in più sotto radice è il rumore della nuova osservazione.</p>' +
         '<div class="callout warn">La normalità serve per gli intervalli t esatti; l’indipendenza e la varianza costante servono sempre.</div>' });
     },
     adv: function () {
       return el('div.prose', { html: '<h3>Hat matrix e leverage</h3><p>ŷ = Hy con H = X(XᵀX)⁻¹Xᵀ, la hat matrix, cioè la matrice di proiezione ortogonale sullo spazio generato dalle colonne di X. L’elemento diagonale hᵢ = 1/n + (xᵢ − x̄)²/Sxx è il leverage del punto i: Σhᵢ = 2, quindi il leverage medio è 2/n. Var(eᵢ) = σ²(1 − hᵢ): i punti ad alto leverage hanno residui piccoli <em>perché</em> attirano la retta.</p>' +
-        '<h3>Distanza di Cook</h3><div class="eq">Dᵢ = rᵢ² hᵢ / [p (1 − hᵢ)], &nbsp; rᵢ = eᵢ / (s √(1 − hᵢ))</div><p>con p = 2 parametri. Misura lo spostamento delle stime quando si toglie il punto i; soglie usuali 0,5 e 1. Le curve nel grafico sono i luoghi a D costante.</p>' +
+        '<h3>Distanza di Cook</h3><div class="eq" data-tex="D_i = \\frac{r_i^2 h_i}{p(1 - h_i)}, \\quad r_i = \\frac{e_i}{s\\sqrt{1 - h_i}}"></div><p>con p = 2 parametri. Misura lo spostamento delle stime quando si toglie il punto i; soglie usuali 0,5 e 1. Le curve nel grafico sono i luoghi a D costante.</p>' +
         '<h3>Distribuzioni esatte</h3><p>Con errori normali: β̂₁ ~ N(β₁, σ²/Sxx), (n − 2)s²/σ² ~ χ²<sub>n−2</sub> indipendente da β̂, da cui le statistiche t. Senza normalità β̂₁ è comunque approssimativamente normale per n grande (TCL di Lindeberg, se nessun xᵢ domina Sxx), ma l’intervallo di previsione resta legato alla legge dell’errore.</p>' });
     }
   };
@@ -6702,12 +6887,12 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   }
   var THEORY = {
     base: function () {
-      return el('div.prose', { html: '<h3>Tre criteri</h3><div class="eq">min Σ |yᵢ − b₀ − b₁xᵢ|<sup>p</sup></div><p>p = 2: minimi quadrati; p = 1: minimi valori assoluti (regressione mediana); 1 &lt; p &lt; 2: compromesso. Più p è piccolo, meno pesano i residui grandi.</p>' +
+      return el('div.prose', { html: '<h3>Tre criteri</h3><div class="eq" data-tex="\\min_{b_0, b_1} \\sum_{i} |y_i - b_0 - b_1 x_i|^{p}"></div><p>p = 2: minimi quadrati; p = 1: minimi valori assoluti (regressione mediana); 1 &lt; p &lt; 2: compromesso. Più p è piccolo, meno pesano i residui grandi.</p>' +
         '<h3>Robustezza ed efficienza</h3><p>Un singolo valore anomalo può spostare arbitrariamente la retta L2. L1 resiste ai valori anomali nella y (non a quelli con alto leverage, cioè anomali nella x). Il prezzo: con errori normali L1 ha efficienza 2/π ≈ 0,64 rispetto a L2.</p>' +
         '<div class="callout">Ogni criterio corrisponde alla massima verosimiglianza per una legge degli errori: L2 ↔ Normale, L1 ↔ Laplace, Lp ↔ normale generalizzata f(e) ∝ exp(−|e|<sup>p</sup>/c).</div>' });
     },
     adv: function () {
-      return el('div.prose', { html: '<h3>M-stimatori</h3><p>Lp risolve Σ ψ(rᵢ) xᵢ = 0 con ψ(r) = |r|<sup>p−1</sup> sign(r). Per errori simmetrici e disegno fisso</p><div class="eq">Var(β̂₁) ≈ [E ψ(ε)² / (E ψ′(ε))²] / Sxx</div>' +
+      return el('div.prose', { html: '<h3>M-stimatori</h3><p>Lp risolve Σ ψ(rᵢ) xᵢ = 0 con ψ(r) = |r|<sup>p−1</sup> sign(r). Per errori simmetrici e disegno fisso</p><div class="eq" data-tex="\\Var(\\hat{\\beta}_1) \\approx \\frac{\\E\\,\\psi(\\varepsilon)^2}{(\\E\\,\\psi\'(\\varepsilon))^2} \\cdot \\frac{1}{S_{xx}}"></div>' +
         '<p>Per p = 2 si ottiene σ²/Sxx; per p = 1 (ψ = sign) E ψ′ diventa 2f(0) e la varianza 1/(4 f(0)² Sxx). StatAtlas calcola i valori attesi per integrazione numerica.</p>' +
         '<h3>Minimi quadrati ripesati</h3><p>Il gradiente di Σ|rᵢ|<sup>p</sup> si annulla dove Σ wᵢ rᵢ xᵢ = 0 con wᵢ = |rᵢ|<sup>p−2</sup>: si alternano pesi e minimi quadrati ponderati. Per p &lt; 2 i pesi esplodono per residui nulli: si usa una soglia (10⁻⁶). Per p = 1 l’algoritmo converge lentamente; la soluzione esatta è un problema di programmazione lineare (Koenker e Bassett, 1978).</p>' +
         '<h3>Punto di rottura (breakdown point)</h3><p>Nella regressione L1 il punto di rottura è comunque 1/n se i valori anomali sono anche punti ad alto leverage: per una robustezza piena servono stimatori come LTS o MM.</p>' });
@@ -6922,13 +7107,13 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   var THEORY = {
     base: function () {
       return el('div.prose', { html: '<h3>Tre ingredienti</h3><ul><li>una legge per la risposta nella famiglia esponenziale (Binomiale, Poisson, Normale, Gamma…);</li><li>un predittore lineare η = β₀ + β₁x;</li><li>un legame g(μ) = η.</li></ul>' +
-        '<div class="eq">logit(p) = log(p/(1 − p)) = β₀ + β₁x &nbsp;&nbsp;&nbsp; log(μ) = β₀ + β₁x</div>' +
+        '<div class="eq" data-tex="\\text{logit}(p) = \\log\\frac{p}{1 - p} = \\beta_0 + \\beta_1 x \\qquad \\log \\mu = \\beta_0 + \\beta_1 x"></div>' +
         '<p>Interpretazione: nella logistica e<sup>β₁</sup> è il odds ratio per un aumento unitario di x; nella Poisson e<sup>β₁</sup> è il fattore moltiplicativo della media.</p>' +
         '<div class="callout warn">Le inferenze standard (errori standard, test di Wald, intervalli) sono asintotiche. Con dati scarsi o separazione possono essere fuorvianti.</div>' });
     },
     adv: function () {
       return el('div.prose', { html: '<h3>scoring di Fisher</h3><p>Con legame canonico lo score è Xᵀ(y − μ) e l’informazione XᵀWX con W = diag(Var(Yᵢ)). Il passo di Newton coincide con una regressione ponderata della working response zᵢ = ηᵢ + (yᵢ − μᵢ)/(dμ/dη) sui predittori, con pesi wᵢ: da qui “minimi quadrati ponderati iterativi (IRLS)”.</p>' +
-        '<h3>Normalità asintotica</h3><div class="eq">β̂ ≈ N(β, (XᵀWX)⁻¹)</div><p>La curva del grafico usa W calcolata nel vero β; R stima gli errori standard con W calcolata in β̂.</p>' +
+        '<h3>Normalità asintotica</h3><div class="eq" data-tex="\\hat{\\beta} \\approx N\\left(\\beta, (X^{\\top} W X)^{-1}\\right)"></div><p>La curva del grafico usa W calcolata nel vero β; R stima gli errori standard con W calcolata in β̂.</p>' +
         '<h3>Distorsione e separazione</h3><p>La distorsione di primo ordine è O(1/n) (Cox e Snell, 1968) e allontana le stime da zero nella logistica. Se esiste una retta che separa perfettamente 0 e 1 la log-verosimiglianza tende a 0 lungo una direzione: la stima diverge (Albert e Anderson, 1984). La verosimiglianza penalizzata di Firth corregge entrambi i problemi.</p>' +
         '<h3>Devianza</h3><p>D = 2[ℓ(saturo) − ℓ(β̂)]. Per la Poisson con medie grandi D ≈ χ²<sub>n−2</sub>; per dati binari individuali questa approssimazione non vale.</p>' });
     }
@@ -7146,7 +7331,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   }
   var THEORY = {
     base: function () {
-      return el('div.prose', { html: '<h3>Il modello</h3><div class="eq">Xₜ = φ₁Xₜ₋₁ + φ₂Xₜ₋₂ + εₜ + θ₁εₜ₋₁, &nbsp; εₜ rumore bianco N(0, 1)</div>' +
+      return el('div.prose', { html: '<h3>Il modello</h3><div class="eq" data-tex="X_t = \\varphi_1 X_{t-1} + \\varphi_2 X_{t-2} + \\varepsilon_t + \\theta_1 \\varepsilon_{t-1}, \\quad \\varepsilon_t \\sim N(0, 1) \\text{ rumore bianco}"></div>' +
         '<h3>Stazionarietà</h3><p>Il processo è stazionario se le radici di 1 − φ₁z − φ₂z² stanno fuori dal cerchio unitario (equivalentemente, le reciproche dentro). Per l’AR(2): φ₁ + φ₂ &lt; 1, φ₂ − φ₁ &lt; 1, |φ₂| &lt; 1.</p>' +
         '<h3>Riconoscere il modello</h3><table class="tv"><thead><tr><th></th><th>ACF</th><th>PACF</th></tr></thead><tbody><tr><td>AR(p)</td><td>decresce</td><td>zero dopo p</td></tr><tr><td>MA(q)</td><td>zero dopo q</td><td>decresce</td></tr><tr><td>ARMA</td><td>decresce</td><td>decresce</td></tr></tbody></table>' +
         '<div class="callout warn">Il burn-in serve a dimenticare il valore iniziale arbitrario xₜ = 0: senza, i primi valori non seguono la legge stazionaria.</div>' });
@@ -7392,14 +7577,14 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   var THEORY = {
     base: function () {
       return el('div.prose', { html: '<h3>Dalla media ai quantili</h3><p>La regressione lineare classica modella E(Y | x). La regressione quantilica modella il quantile condizionato Q<sub>τ</sub>(Y | x) = β₀(τ) + β₁(τ)x per ogni τ in (0, 1): la mediana per τ = 0,5, le code per τ vicino a 0 o 1.</p>' +
-        '<div class="eq">β̂(τ) = argmin Σ ρ<sub>τ</sub>(yᵢ − b₀ − b₁xᵢ), &nbsp; ρ<sub>τ</sub>(u) = u (τ − 1{u &lt; 0})</div>' +
+        '<div class="eq" data-tex="\\hat{\\beta}(\\tau) = \\argmin_{b} \\sum_{i} \\rho_\\tau(y_i - b_0 - b_1 x_i), \\quad \\rho_\\tau(u) = u\\,(\\tau - \\mathbf{1}\\{u < 0\\})"></div>' +
         '<p>Per τ = 0,5 si ritrova la regressione L1 del laboratorio 11. Non serve alcuna ipotesi sulla legge degli errori, ed è robusta ai valori anomali nella y.</p>' +
         '<div class="callout">Quando le rette per τ diversi hanno pendenze diverse, la x non sposta solo il centro della distribuzione ma ne cambia la dispersione o la forma: è eteroschedasticità, o asimmetria che varia con x.</div>' });
     },
     adv: function () {
       return el('div.prose', { html: '<h3>Programmazione lineare</h3><p>Scrivendo yᵢ − xᵢᵀb = uᵢ⁺ − uᵢ⁻ il problema diventa min Σ τuᵢ⁺ + (1 − τ)uᵢ⁻ con vincoli lineari: un problema di programmazione lineare. Una soluzione ottima sta su un vertice, cioè interpola p osservazioni (qui p = 2): StatAtlas esplora tutte le coppie e trova la soluzione esatta. R usa l’algoritmo del simplesso di Barrodale e Roberts (<code>rq(method = "br")</code>).</p>' +
         '<h3>Proprietà di sottogradiente</h3><p>All’ottimo la quota di residui negativi è ≤ τ e quella di residui non positivi è ≥ τ: per questo circa una quota τ di punti sta sotto la retta.</p>' +
-        '<h3>Distribuzione asintotica</h3><div class="eq">√n (β̂(τ) − β(τ)) → N(0, τ(1 − τ) H⁻¹ J H⁻¹)</div><p>con J = E[xxᵀ] e H = E[f<sub>Y|x</sub>(Q<sub>τ</sub>) xxᵀ]: la precisione dipende dalla densità condizionata nel quantile, che va stimata (metodi di Hendricks–Koenker o bootstrap; in R <code>summary(fit, se = "nid")</code>).</p>' +
+        '<h3>Distribuzione asintotica</h3><div class="eq" data-tex="\\sqrt{n}\\,(\\hat{\\beta}(\\tau) - \\beta(\\tau)) \\to N\\left(0, \\tau(1 - \\tau) H^{-1} J H^{-1}\\right)"></div><p>con J = E[xxᵀ] e H = E[f<sub>Y|x</sub>(Q<sub>τ</sub>) xxᵀ]: la precisione dipende dalla densità condizionata nel quantile, che va stimata (metodi di Hendricks–Koenker o bootstrap; in R <code>summary(fit, se = "nid")</code>).</p>' +
         '<h3>Attraversamento dei quantili</h3><p>Stimate separatamente, le rette per τ diversi possono incrociarsi all’interno del campo dei dati, il che è incoerente. Rimedi: riordinamento (Chernozhukov, Fernández-Val e Galichon, 2010) o stima congiunta con vincoli di non attraversamento.</p>' });
     }
   };
@@ -7721,7 +7906,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   }
   var THEORY = {
     base: function () {
-      return el('div.prose', { html: '<h3>Tre penalizzazioni</h3><div class="eq">min (1/2n)‖y − Xβ‖² + λ [ (1 − α)/2 ‖β‖₂² + α‖β‖₁ ]</div><p>α = 0: <strong>ridge</strong>; α = 1: <strong>lasso</strong>; 0 &lt; α &lt; 1: <strong>elastic net</strong>. È la forma usata da <code>glmnet</code>. Equivale a minimizzare la somma dei quadrati dei residui con un vincolo sulla norma dei coefficienti: ogni λ corrisponde a un’ampiezza t del vincolo.</p>' +
+      return el('div.prose', { html: '<h3>Tre penalizzazioni</h3><div class="eq" data-tex="\\min_{\\beta} \\frac{1}{2n}\\|y - X\\beta\\|^2 + \\lambda\\left[\\frac{1 - \\alpha}{2}\\|\\beta\\|_2^2 + \\alpha\\|\\beta\\|_1\\right]"></div><p>α = 0: <strong>ridge</strong>; α = 1: <strong>lasso</strong>; 0 &lt; α &lt; 1: <strong>elastic net</strong>. È la forma usata da <code>glmnet</code>. Equivale a minimizzare la somma dei quadrati dei residui con un vincolo sulla norma dei coefficienti: ogni λ corrisponde a un’ampiezza t del vincolo.</p>' +
         '<h3>Perché penalizzare</h3><p>Con molti predittori, o predittori correlati, i minimi quadrati sono non distorti ma hanno varianza elevata. Ridurre i coefficienti verso zero introduce una piccola distorsione e diminuisce molto la varianza: l’errore complessivo può diminuire.</p>' +
         '<div class="callout warn">I predittori vanno standardizzati: la penalizzazione tratta tutti i coefficienti allo stesso modo, quindi dipende dalle unità di misura. <code>glmnet</code> lo fa per impostazione predefinita.</div>' });
     },
@@ -8007,12 +8192,12 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
       return el('div.prose', { html: '<h3>Stimare una funzione</h3><p>Il modello è y = f(x) + ε con f ignota e liscia. Invece di fissare una forma (retta, parabola) si lascia ai dati il compito di stabilirla, controllando la <strong>complessità</strong>.</p>' +
         '<h3>Quattro strategie</h3><ul><li><strong>Polinomio globale</strong>: un’unica formula su tutto l’intervallo; la complessità è il grado.</li><li><strong>Spline di regressione</strong>: polinomi cubici a tratti raccordati nei nodi; la complessità è il numero di basi (nodi + 4).</li>' +
         '<li><strong>P-spline</strong>: molte basi e una penalità sulla rugosità dei coefficienti; la complessità è λ.</li><li><strong>Regressione locale</strong>: una retta pesata attorno a ogni punto; la complessità è l’ampiezza di banda h.</li></ul>' +
-        '<div class="eq">EQM = distorsione² + varianza, &nbsp; gradi di libertà effettivi = tr(S)</div>' +
+        '<div class="eq" data-tex="\\text{EQM} = \\text{distorsione}^2 + \\text{varianza}, \\qquad \\text{gradi di libertà effettivi} = \\tr(S)"></div>' +
         '<div class="callout">Poca complessità: curva rigida, distorsione alta. Troppa: curva che insegue il rumore, varianza alta. Il minimo dell’errore sta nel mezzo, e lo si stima con la validazione incrociata.</div>' });
     },
     adv: function () {
       return el('div.prose', { html: '<h3>Lisciatori lineari</h3><p>Per tutti i metodi ŷ = Sy con S che dipende solo dalle x e dal parametro di complessità. Ne seguono E ŷ = Sf e Var ŷ = σ²SSᵀ: distorsione e varianza sono esatte. Per le spline di regressione S è una matrice di proiezione (tr S = numero di basi); per P-spline e kernel no, e tr(S) è un numero non intero.</p>' +
-        '<h3>Validazione incrociata in forma chiusa</h3><div class="eq">CV = (1/n) Σ [(yᵢ − ŷᵢ)/(1 − Sᵢᵢ)]²</div><p>vale per ogni lisciatore lineare che riproduce le costanti: non serve riadattare il modello n volte. La GCV sostituisce Sᵢᵢ con tr(S)/n.</p>' +
+        '<h3>Validazione incrociata in forma chiusa</h3><div class="eq" data-tex="\\text{CV} = \\frac{1}{n}\\sum_{i=1}^{n} \\left(\\frac{y_i - \\hat{y}_i}{1 - S_{ii}}\\right)^2"></div><p>vale per ogni lisciatore lineare che riproduce le costanti: non serve riadattare il modello n volte. La GCV sostituisce Sᵢᵢ con tr(S)/n.</p>' +
         '<h3>Spline di lisciamento</h3><p>La soluzione di min Σ(yᵢ − g(xᵢ))² + λ∫g″² è una spline cubica naturale con nodi in tutte le xᵢ (teorema di Reinsch). Le P-spline di Eilers e Marx approssimano la stessa idea con molte B-spline e una penalità sulle differenze dei coefficienti.</p>' +
         '<h3>Regressione locale e bordi</h3><p>La media locale (Nadaraya–Watson) ha distorsione di ordine h ai bordi; la retta locale la riduce a h², per questo è il default di <code>loess</code>. Con banda ottima l’errore decresce come n<sup>−4/5</sup>, più lentamente del 1/n parametrico: è il prezzo della flessibilità.</p>' });
     }
@@ -8249,7 +8434,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   }
   var THEORY = {
     base: function () {
-      return el('div.prose', { html: '<h3>Il modello</h3><div class="eq">Yᵢ = β₀ + β₁xᵢ + δ(xᵢ − ψ)₊ + εᵢ</div><p>(u)₊ = max(0, u). La media è continua in ψ, con pendenza β₁ a sinistra e β₁ + δ a destra. Se ψ fosse noto, il modello sarebbe lineare nei parametri (β₀, β₁, δ).</p>' +
+      return el('div.prose', { html: '<h3>Il modello</h3><div class="eq" data-tex="Y_i = \\beta_0 + \\beta_1 x_i + \\delta\\,(x_i - \\psi)_{+} + \\varepsilon_i"></div><p>(u)₊ = max(0, u). La media è continua in ψ, con pendenza β₁ a sinistra e β₁ + δ a destra. Se ψ fosse noto, il modello sarebbe lineare nei parametri (β₀, β₁, δ).</p>' +
         '<h3>Stima per profilo</h3><p>Per ogni ψ candidato si calcolano i minimi quadrati e la somma dei quadrati dei residui RSS(ψ); la stima è il ψ che la rende minima. Si escludono i candidati troppo vicini ai bordi, dove da un lato resterebbero pochissime osservazioni.</p>' +
         '<div class="callout warn">Il breakpoint è un parametro <strong>non regolare</strong>: RSS(ψ) non è derivabile nei punti xᵢ e, se δ = 0, ψ scompare dal modello. Gli intervalli e i test “di routine” non hanno la copertura o il livello dichiarati.</div>' });
     },
@@ -8518,7 +8703,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   }
   var THEORY = {
     base: function () {
-      return el('div.prose', { html: '<h3>Tre errori diversi</h3><p>Per un modello stimato f̂: l’errore di <strong>training</strong> è la media dei residui al quadrato sui dati usati per stimarlo; l’errore di <strong>generalizzazione</strong> è</p><div class="eq">Err = E[(Y − f̂(X))²] = σ² + E[(f(X) − f̂(X))²]</div><p>su una nuova coppia (X, Y), con f̂ fissata; l’errore sul <strong>test</strong> è la sua stima con punti mai usati.</p>' +
+      return el('div.prose', { html: '<h3>Tre errori diversi</h3><p>Per un modello stimato f̂: l’errore di <strong>training</strong> è la media dei residui al quadrato sui dati usati per stimarlo; l’errore di <strong>generalizzazione</strong> è</p><div class="eq" data-tex="\\text{Err} = \\E\\left[(Y - \\hat{f}(X))^2\\right] = \\sigma^2 + \\E\\left[(f(X) - \\hat{f}(X))^2\\right]"></div><p>su una nuova coppia (X, Y), con f̂ fissata; l’errore sul <strong>test</strong> è la sua stima con punti mai usati.</p>' +
         '<h3>Validazione incrociata a K fold</h3><p>Il training si divide in K parti; ogni parte viene prevista dal modello stimato sulle altre K − 1. La media degli errori fuori fold stima Err per ogni complessità e permette di scegliere senza toccare il test.</p>' +
         '<h3>Protocollo</h3><ol><li>Separare subito il test.</li><li>Generare i fold una sola volta, indipendentemente dal grado.</li><li>Ogni trasformazione (standardizzazione, selezione) si stima dentro il training di ciascun fold.</li><li>Scegliere con la CV, ristimare su tutto il training, valutare sul test <em>una volta</em>.</li></ol>' +
         '<div class="callout warn">Usare il test per scegliere e poi riportarne l’errore produce una stima ottimistica: il test diventa parte dell’addestramento.</div>' });
@@ -8836,7 +9021,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   }
   var THEORY = {
     base: function () {
-      return el('div.prose', { html: '<h3>La regola dei k vicini</h3><p>Dato un punto x, si prendono i k punti di training più vicini N<sub>k</sub>(x) e si stima</p><div class="eq">p̂(x) = (1/k) Σ<sub>i ∈ N<sub>k</sub>(x)</sub> 1{yᵢ = 1}</div><p>assegnando la classe 1 se p̂(x) &gt; 1/2. Con k dispari e due classi non ci sono parità nei voti.</p>' +
+      return el('div.prose', { html: '<h3>La regola dei k vicini</h3><p>Dato un punto x, si prendono i k punti di training più vicini N<sub>k</sub>(x) e si stima</p><div class="eq" data-tex="\\hat{p}(x) = \\frac{1}{k}\\sum_{i \\in N_k(x)} \\mathbf{1}\\{y_i = 1\\}"></div><p>assegnando la classe 1 se p̂(x) &gt; 1/2. Con k dispari e due classi non ci sono parità nei voti.</p>' +
         '<h3>Errore di Bayes</h3><p>La regola di Bayes sceglie la classe con P(Y = 1 | x) più alta; il suo errore R* è il minimo possibile. Con due normali di medie ±δ/2 e varianza unitaria R* = Φ(−δ/2); nello scenario XOR R* = 2Φ(δ/2)Φ(−δ/2).</p>' +
         '<h3>Misure di qualità</h3><p>Accuratezza, sensibilità (veri 1 riconosciuti) e specificità (veri 0 riconosciuti) si stimano sul test; gli intervalli di Wilson tengono conto del numero di casi in ciascuna classe.</p>' +
         '<div class="callout warn">Le distanze cambiano con le unità di misura: senza standardizzazione una variabile con scala grande decide da sola i vicini.</div>' });
@@ -9121,13 +9306,13 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   }
   var THEORY = {
     base: function () {
-      return el('div.prose', { html: '<h3>Alberi di classificazione</h3><p>Un albero divide lo spazio in rettangoli con domande del tipo x<sub>j</sub> &lt; s. A ogni nodo si sceglie la coppia (j, s) che riduce di più l’impurità di Gini, G(p) = 2p(1 − p), pesata per la numerosità dei figli; nelle foglie si prevede la classe più frequente.</p>' +
+      return el('div.prose', { html: '<h3>Alberi di classificazione</h3><p>Un albero divide lo spazio in rettangoli con domande del tipo x<sub>j</sub> &lt; s. A ogni nodo si sceglie la coppia (j, s) che riduce di più l’impurità di Gini, G(p) = 2p(1 − p), pesata per la numerosità dei figli; nelle foglie si prevede la classe più frequente.</p><div class="eq" data-tex="G(p) = 2p(1 - p), \\qquad \\Delta = G_{\\text{nodo}} - \\frac{n_s}{n}\\,G_s - \\frac{n_d}{n}\\,G_d \\ge 0"></div>' +
         '<h3>Bagging</h3><p>Si stimano B alberi su campioni bootstrap (n estrazioni con reinserimento) e si fa votare la maggioranza. Ogni campione lascia fuori in media (1 − 1/n)ⁿ ≈ 37% delle osservazioni: sono le osservazioni <em>out-of-bag</em>.</p>' +
         '<h3>Foresta casuale</h3><p>Come il bagging, ma a ogni nodo le variabili candidate sono solo mtry estratte a caso (di solito √p). Gli alberi diventano meno simili tra loro.</p>' +
         '<div class="callout warn">L’errore OOB va calcolato per ogni osservazione solo con gli alberi che non l’hanno vista; mescolare alberi che l’hanno usata lo rende ottimista come l’errore di training.</div>' });
     },
     adv: function () {
-      return el('div.prose', { html: '<h3>Perché la media aiuta</h3><p>Se B previsioni hanno varianza σ² e correlazione a coppie ρ, la loro media ha varianza ρσ² + (1 − ρ)σ²/B (Breiman, 2001). Il secondo termine sparisce con B; il primo si riduce solo diminuendo ρ: è il ruolo di mtry.</p>' +
+      return el('div.prose', { html: '<h3>Perché la media aiuta</h3><p>Se B previsioni hanno varianza σ² e correlazione a coppie ρ, la loro media ha varianza</p><div class="eq" data-tex="\\Var(\\bar{T}_B) = \\rho\\sigma^2 + \\frac{1 - \\rho}{B}\\,\\sigma^2"></div><p>(Breiman, 2001). Il secondo termine sparisce con B; il primo si riduce solo diminuendo ρ: è il ruolo di mtry.</p>' +
         '<h3>Limiti</h3><p>La media non corregge la distorsione: con frontiere oblique (scenario diagonale) gli alberi costruiscono scalinate, e anche la foresta le approssima a gradini. Con molte variabili di rumore e mtry piccolo, molti nodi non trovano variabili utili e la foresta peggiora.</p>' +
         '<h3>Importanza delle variabili</h3><p>Sommando le riduzioni di Gini per variabile su tutti gli alberi, o permutando una variabile nei dati OOB e misurando quanto cresce l’errore, si ottengono misure d’importanza; la prima favorisce le variabili con molte soglie possibili.</p>' });
     }
@@ -9353,13 +9538,13 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     var asy = S.asy, why = S.std ? 'non usata: PCA sulla correlazione' : S.outlier ? 'non valida con il valore anomalo' : 'λ₁ = λ₂: asse non identificato';
     tblBody.innerHTML = '';
     tblBody.append(
-      el('tr', el('td', 'Varianza spiegata dalle prime ' + S.k + ' componenti'), el('td', fmt(100 * cumPop, 1) + '%'), el('td', fmt(100 * cum, 1) + '% (campione corrente)'), el('td', b('exact'))),
+      el('tr', el('td', S.k === 1 ? 'Varianza spiegata dalla prima componente' : 'Varianza spiegata dalle prime ' + S.k + ' componenti'), el('td', fmt(100 * cumPop, 1) + '%'), el('td', fmt(100 * cum, 1) + '% (campione corrente)'), el('td', b('exact'))),
       el('tr', el('td', 'Errore di ricostruzione con k = ' + S.k + ': diretto · (n−1)/n Σⱼ>ₖ λ̂ⱼ'), el('td', 'identità esatta'), el('td', fmt(direct, 5) + ' · ' + fmt(formula, 5)), el('td', b('exact'))),
       el('tr', el('td', 'λ̂₁: media e deviazione standard nelle repliche'), el('td', asy ? fmt(asy.l1, 3) + ' · ' + fmt(asy.sd1, 3) : '— (' + why + ')'), el('td', k ? fmt(meanOf(S.l1, k), 3) + ' · ' + fmt(sdOf(S.l1, k), 3) : '—'), el('td', b(asy ? 'asym' : 'mc'))),
       el('tr', el('td', 'sin² dell’angolo tra PC1 stimata e vera (media)'), el('td', asy ? fmt(asy.sin2, 4) : '— (' + why + ')'), el('td', k ? fmt(meanOf(S.ang.map(function (a) { return Math.pow(Math.sin(a * Math.PI / 180), 2); }), k), 4) : '—'), el('td', b(asy ? 'asym' : 'mc'))),
       p > 2 ? el('tr', el('td', 'Distanza tra i sottospazi PC1–PC2 stimato e vero (media)'), el('td', '0 se n → ∞ (λ₂ > λ₃)'), el('td', k ? fmt(meanOf(S.sub, k), 4) : '—'), el('td', b('mc'))) : null,
       el('tr', el('td', 'Controlli numerici'), el('td', 'Σ PVE = 1; score incorrelati; ricostruzione esatta con k = p; errore non crescente; ‖SV − VΛ‖ ≈ 0'),
-        el('td', fmt(L.reduce(function (x, y) { return x + y / tot; }, 0), 6) + ' · max|r| = ' + maxc.toExponential(1) + ' · ' + full.toExponential(1) + ' · ' + (dec ? '✓' : '✗') + ' · ' + pc.res.toExponential(1)), el('td', b('exact'))));
+        el('td', fmt(L.reduce(function (x, y) { return x + y / tot; }, 0), 6) + ' · max|r| = ' + maxc.toExponential(1).replace('.', ',').replace('e-', 'e−') + ' · ' + full.toExponential(1).replace('.', ',').replace('e-', 'e−') + ' · ' + (dec ? '✓' : '✗') + ' · ' + pc.res.toExponential(1).replace('.', ',').replace('e-', 'e−')), el('td', b('exact'))));
     kpiBox.innerHTML = '';
     kpiBox.append(el('div.kpi', el('b', S.k0 + ' / ' + S.B), el('span', 'campioni')),
       el('div.kpi', el('b', fmt(S.pop.values[0] / S.pop.values[1], 2)), el('span', 'rapporto λ₁/λ₂ della popolazione: quanto è separato il primo asse')),
@@ -9415,7 +9600,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   var THEORY = {
     base: function () {
       return el('div.prose', { html: '<h3>Definizione</h3><p>Con Z la matrice dei dati centrati (n × p), S = ZᵀZ/(n − 1). Gli autovettori v₁, …, vₚ di S (ortonormali) sono le direzioni principali, gli autovalori λ₁ ≥ … ≥ λₚ le varianze degli <em>score</em> T = ZV.</p>' +
-        '<div class="eq">PVEⱼ = λⱼ / Σₗ λₗ &nbsp;&nbsp;·&nbsp;&nbsp; ‖Z − TₖVₖᵀ‖²_F / n = (n − 1)/n · Σⱼ>ₖ λⱼ</div>' +
+        '<div class="eq" data-tex="\\text{PVE}_j = \\frac{\\lambda_j}{\\sum_{l} \\lambda_l} \\qquad \\frac{\\|Z - T_k V_k^{\\top}\\|_F^2}{n} = \\frac{n - 1}{n}\\sum_{j > k} \\lambda_j"></div>' +
         '<h3>Due letture equivalenti</h3><p>Massima varianza: v₁ rende massima la varianza di Zv tra i vettori di norma 1. Migliore approssimazione: TₖVₖᵀ è la matrice di rango k più vicina a Z (teorema di Eckart–Young).</p>' +
         '<div class="callout warn">Standardizzare significa fare la PCA della matrice di correlazione: un oggetto diverso, con autovalori e assi diversi. Si sceglie prima di guardare i risultati, in base al significato delle unità di misura.</div>' });
     },
@@ -9673,7 +9858,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   }
   var THEORY = {
     base: function () {
-      return el('div.prose', { html: '<h3>k-means</h3><p>Si cercano gruppi G₁, …, G<sub>K</sub> e centri c₁, …, c<sub>K</sub> che rendano minima</p><div class="eq">WCSS = Σₖ Σ<sub>i ∈ Gₖ</sub> ‖xᵢ − cₖ‖²</div><p>Lloyd: (1) ogni punto va al centro più vicino; (2) ogni centro diventa la media del suo gruppo. Nessuno dei due passi aumenta la WCSS e le partizioni possibili sono finite: l’algoritmo si ferma, ma in un minimo locale.</p>' +
+      return el('div.prose', { html: '<h3>k-means</h3><p>Si cercano gruppi G₁, …, G<sub>K</sub> e centri c₁, …, c<sub>K</sub> che rendano minima</p><div class="eq" data-tex="\\text{WCSS} = \\sum_{k=1}^{K} \\sum_{i \\in G_k} \\|x_i - c_k\\|^2"></div><p>Lloyd: (1) ogni punto va al centro più vicino; (2) ogni centro diventa la media del suo gruppo. Nessuno dei due passi aumenta la WCSS e le partizioni possibili sono finite: l’algoritmo si ferma, ma in un minimo locale.</p>' +
         '<h3>Gerarchico agglomerativo</h3><p>Si parte da n gruppi di un punto e si uniscono, n − 1 volte, i due più vicini. Distanza tra gruppi: minima (singolo), massima (completo), media (medio), o incremento della WCSS (Ward). Il dendrogramma riporta l’altezza di ogni fusione; tagliarlo a una quota dà una partizione.</p>' +
         '<div class="callout warn">Le etichette dei gruppi sono arbitrarie (label switching): per confrontare partizioni si usano misure invarianti per permutazione, come l’indice di Rand corretto.</div>' });
     },
@@ -9949,7 +10134,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   }
   var THEORY = {
     base: function () {
-      return el('div.prose', { html: '<h3>Definizioni</h3><p>N<sub>ε</sub>(x) = punti a distanza ≤ ε da x (x compreso). x è <strong>core</strong> se |N<sub>ε</sub>(x)| ≥ minPts. y è <em>raggiungibile per densità</em> da x se esiste una catena di core x = p₁, …, p<sub>m</sub> con p<sub>i+1</sub> ∈ N<sub>ε</sub>(pᵢ) e y ∈ N<sub>ε</sub>(p<sub>m</sub>). Un cluster è un insieme massimale di punti connessi per densità; i punti non raggiungibili da nessun core sono rumore.</p>' +
+      return el('div.prose', { html: '<h3>Definizioni</h3><p>N<sub>ε</sub>(x) = punti a distanza ≤ ε da x (x compreso). x è <strong>core</strong> se |N<sub>ε</sub>(x)| ≥ minPts:</p><div class="eq" data-tex="N_\\varepsilon(x) = \\{y : \\|x - y\\| \\le \\varepsilon\\}, \\qquad x \\text{ core} \\iff |N_\\varepsilon(x)| \\ge \\text{minPts}"></div><p> y è <em>raggiungibile per densità</em> da x se esiste una catena di core x = p₁, …, p<sub>m</sub> con p<sub>i+1</sub> ∈ N<sub>ε</sub>(pᵢ) e y ∈ N<sub>ε</sub>(p<sub>m</sub>). Un cluster è un insieme massimale di punti connessi per densità; i punti non raggiungibili da nessun core sono rumore.</p>' +
         '<h3>Algoritmo</h3><p>Si visita ogni punto; da un core non ancora assegnato parte un nuovo cluster, che si espande aggiungendo i vicini e, se core, i loro vicini. È la costruzione animata nel grafico principale.</p>' +
         '<h3>Scegliere ε e minPts</h3><p>Il grafico delle k-distanze (k = minPts − 1) ordina le distanze dal k-esimo vicino: un ginocchio suggerisce ε. minPts cresce con la dimensione (regola pratica: almeno p + 1, spesso 2p).</p>' +
         '<div class="callout warn">I punti di bordo vicini a due cluster sono assegnati in base all’ordine di visita: core e rumore sono ben definiti, i bordi contesi no.</div>' });
@@ -10153,7 +10338,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
       el('tr', el('td', 'Parametri della rete'), el('td', '4H + 1 = ' + SA.nn.nParams(S.H)), el('td', S.tr.X.length + ' osservazioni di training'), el('td', b('exact'))),
       el('tr', el('td', 'Perdita: training · validazione (epoca ' + S.e + ')'), el('td', 'log 2 = 0,693 con p = 0,5 ovunque'), el('td', fmt(h.tr[L], 4) + ' · ' + fmt(h.va[L], 4)), el('td', b('none'))),
       el('tr', el('td', 'Accuratezza: training · validazione'), el('td', '—'), el('td', fmt(h.atr[L], 3) + ' · ' + fmt(h.ava[L], 3)), el('td', b('none'))),
-      el('tr', el('td', 'Controllo del gradiente (differenze finite centrali)'), el('td', 'errore relativo ≈ 0 (< 1e−6)'), el('td', isFinite(gc) ? gc.toExponential(1) : '— (divergenza)'), el('td', b('exact'))),
+      el('tr', el('td', 'Controllo del gradiente (differenze finite centrali)'), el('td', 'errore relativo ≈ 0 (< 1e−6)'), el('td', isFinite(gc) ? gc.toExponential(1).replace('.', ',').replace('e-', 'e−') : '— (divergenza)'), el('td', b('exact'))),
       el('tr', el('td', 'Stato dell’addestramento'), el('td', 'discesa a lotto intero, η = ' + String(S.eta).replace('.', ',')), el('td', S.diverged ? '✗ divergenza all’epoca ' + S.e : h.tr[L] > h.tr[0] ? 'perdita salita: η probabilmente troppo alto' : '✓ perdita scesa da ' + fmt(h.tr[0], 3)), el('td', b('none'))),
       el('tr', el('td', SEEDS + ' inizializzazioni: accuratezza di validazione ≥ 0,85 · perdita di training min–max'), el('td', 'la perdita non è convessa: esiti diversi'), el('td', m ? succ + ' / ' + SEEDS + ' · ' + (okm.length ? fmt(Math.min.apply(null, okm.map(function (r) { return r.tr; })), 3) + '–' + fmt(Math.max.apply(null, okm.map(function (r) { return r.tr; })), 3) : '—') + (okm.length < m.length ? ' · ' + (m.length - okm.length) + ' divergenze' : '') : 'premi il pulsante'), el('td', b('mc'))));
     kpiBox.innerHTML = '';
@@ -10215,7 +10400,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   }
   var THEORY = {
     base: function () {
-      return el('div.prose', { html: '<h3>Il modello</h3><div class="eq">h = φ(W₁x + b₁) &nbsp;·&nbsp; p = σ(w₂ᵀh + b₂)</div><p>φ = tanh o ReLU, σ = sigmoide. La perdita è l’entropia incrociata media −[y log p + (1 − y) log(1 − p)], calcolata in forma stabile a partire da z = w₂ᵀh + b₂, più (λ/2)‖W‖².</p>' +
+      return el('div.prose', { html: '<h3>Il modello</h3><div class="eq" data-tex="h = \\varphi(W_1 x + b_1) \\qquad p = \\sigma(w_2^{\\top} h + b_2)"></div><p>φ = tanh o ReLU, σ = sigmoide. La perdita è l’entropia incrociata media −[y log p + (1 − y) log(1 − p)], calcolata in forma stabile a partire da z = w₂ᵀh + b₂, più (λ/2)‖W‖².</p>' +
         '<h3>Backpropagation</h3><p>Per un’osservazione: δ<sub>out</sub> = p − y; ∂ℓ/∂w₂ = δ<sub>out</sub> h; δ<sub>h</sub> = δ<sub>out</sub> w₂ ⊙ φ′(a); ∂ℓ/∂W₁ = δ<sub>h</sub> xᵀ. È la regola della catena applicata strato per strato, dall’uscita verso l’ingresso.</p>' +
         '<h3>Discesa del gradiente</h3><p>θ ← θ − η ∇L(θ), con il gradiente medio su tutto il training (lotto intero). Il learning rate η decide la lunghezza del passo: troppo piccolo è lento, troppo grande oscilla o diverge.</p>' +
         '<div class="callout warn">Una buona accuratezza di training non dice nulla sulla generalizzazione: si guarda la validazione, e il test si tiene da parte (lab 18).</div>' });

@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.14.0 — 13/11/2026 · formule tipografiche e nuovo formato delle schede
+- **`src/core/math.js`**: compositore di formule senza librerie esterne (sottoinsieme di LaTeX: frazioni, radici, sommatorie e operatori con limiti, apici e pedici impilati, accenti, greco, funzioni in tondo, delimitatori alti). Le formule in evidenza si scrivono con `data-tex`, sono numerate per scheda e richiamabili con `<a data-eqref>`.
+- **41 formule ricomposte** nelle schede Essenziale e Avanzato dei 24 laboratori; aggiunte le formule mancanti nei lab 20 (impurità di Gini e riduzione, varianza della media di alberi correlati) e 23 (intorno ε e punti core).
+- **Schede**: indice interno «In questa scheda» quando le sezioni sono almeno quattro; riquadri con intestazione (`.box.def`, `.box.thm`, `.box.ex`, `.box.nota`); l’esempio svolto è in un riquadro; gli avvisi portano l’etichetta «Attenzione».
+- **Home**: nuovo blocco «Come leggere i risultati» (esatto, asintotico, approssimato, Monte Carlo) e «Che cosa riproduce lo script R» (livelli R0–R3); testi aggiornati (non più «esattamente lo stesso esperimento»).
+- **README**: tabella dei livelli di riproducibilità, descrizione e struttura aggiornate.
+- Rifiniture: singolare «prima componente» nel lab 21; numeri in notazione scientifica con la virgola nei lab 21 e 24.
+
 ## 1.13.0 — 13/11/2026 · laboratori 17–24 verificati in R
 - La verifica in R dell’utente (`verifica_statatlas.R`) supera tutti i 48 controlli: generatore, esecuzione dei 24 script e confronti numerici dei lab 17–24. Tolte le etichette «Anteprima · script R da verificare».
 - Nuovo `verifica/verifica_statatlas_01_16.R` (generato da `tests/gen_verifica_R_01_16.js`): confronti numerici anche per i lab 01–16 (momenti campionari, correlazioni, coperture, potenza, stime di regressione, GLM, autocorrelazioni, regressione quantilica, soluzione lasso, distorsione e varianza delle spline).

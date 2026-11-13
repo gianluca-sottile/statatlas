@@ -186,7 +186,7 @@
         '<div class="callout warn">Indipendenza ⇒ ρ = 0, ma ρ = 0 ⇏ indipendenza. Le marginali non determinano la congiunta.</div>' });
     },
     adv: function () {
-      return el('div.prose', { html: '<h3>Normale bivariata</h3><div class="eq">f(x, y) = [2π√(1 − ρ²)]<sup>−1</sup> exp{−(x² − 2ρxy + y²) / (2(1 − ρ²))}</div><p>Costruzione: X = Z₁, Y = ρZ₁ + √(1 − ρ²)Z₂ con Z₁, Z₂ indipendenti N(0, 1). Allora Y | X = x ~ N(ρx, 1 − ρ²): regressione lineare e omoschedastica. Per vettori normali ρ = 0 ⇔ indipendenza, perché la densità si fattorizza.</p>' +
+      return el('div.prose', { html: '<h3>Normale bivariata</h3><div class="eq" data-tex="f(x, y) = \\frac{1}{2\\pi\\sqrt{1-\\rho^2}} \\exp\\left\\{-\\frac{x^2 - 2\\rho x y + y^2}{2(1-\\rho^2)}\\right\\}"></div><p>Costruzione: X = Z₁, Y = ρZ₁ + √(1 − ρ²)Z₂ con Z₁, Z₂ indipendenti N(0, 1). Allora Y | X = x ~ N(ρx, 1 − ρ²): regressione lineare e omoschedastica. Per vettori normali ρ = 0 ⇔ indipendenza, perché la densità si fattorizza.</p>' +
         '<h3>Il modello quadratico</h3><p>Cov(X, X² − 1 + τZ) = E(X³) = 0. Ma Var(Y) = Var(X²) + τ² = 2 + τ² e Cov(X², Y) = Var(X²) = 2, quindi ρ(X², Y) = √(2/(2 + τ²)).</p>' +
         '<h3>Condizionare a un punto</h3><p>Per X continua P(X = x₀) = 0: la striscia |X − x₀| ≤ h stima f(y | x₀) con un errore di ordine h (distorsione) e una varianza di ordine 1/(n h). È lo stesso compromesso dei metodi di regressione non parametrica.</p>' });
     }

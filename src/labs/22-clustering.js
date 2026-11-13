@@ -188,7 +188,7 @@
   }
   var THEORY = {
     base: function () {
-      return el('div.prose', { html: '<h3>k-means</h3><p>Si cercano gruppi G₁, …, G<sub>K</sub> e centri c₁, …, c<sub>K</sub> che rendano minima</p><div class="eq">WCSS = Σₖ Σ<sub>i ∈ Gₖ</sub> ‖xᵢ − cₖ‖²</div><p>Lloyd: (1) ogni punto va al centro più vicino; (2) ogni centro diventa la media del suo gruppo. Nessuno dei due passi aumenta la WCSS e le partizioni possibili sono finite: l’algoritmo si ferma, ma in un minimo locale.</p>' +
+      return el('div.prose', { html: '<h3>k-means</h3><p>Si cercano gruppi G₁, …, G<sub>K</sub> e centri c₁, …, c<sub>K</sub> che rendano minima</p><div class="eq" data-tex="\\text{WCSS} = \\sum_{k=1}^{K} \\sum_{i \\in G_k} \\|x_i - c_k\\|^2"></div><p>Lloyd: (1) ogni punto va al centro più vicino; (2) ogni centro diventa la media del suo gruppo. Nessuno dei due passi aumenta la WCSS e le partizioni possibili sono finite: l’algoritmo si ferma, ma in un minimo locale.</p>' +
         '<h3>Gerarchico agglomerativo</h3><p>Si parte da n gruppi di un punto e si uniscono, n − 1 volte, i due più vicini. Distanza tra gruppi: minima (singolo), massima (completo), media (medio), o incremento della WCSS (Ward). Il dendrogramma riporta l’altezza di ogni fusione; tagliarlo a una quota dà una partizione.</p>' +
         '<div class="callout warn">Le etichette dei gruppi sono arbitrarie (label switching): per confrontare partizioni si usano misure invarianti per permutazione, come l’indice di Rand corretto.</div>' });
     },

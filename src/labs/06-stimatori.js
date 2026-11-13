@@ -381,21 +381,21 @@
       return el('div.prose', { html:
         '<h3>Normalità asintotica della mediana</h3>' +
         '<p>Se la densità <span class="m">f</span> è continua e positiva in θ (mediana della popolazione), allora</p>' +
-        '<div class="eq">√n (M<sub>n</sub> − θ) &nbsp;→<sub>d</sub>&nbsp; N(0, 1 / (4 f(θ)²))</div>' +
+        '<div class="eq" data-tex="\\sqrt{n}\\,(M_n - \\theta) \\to N\\left(0, \\frac{1}{4 f(\\theta)^2}\\right)"></div>' +
         '<p>Idea della dimostrazione: M<sub>n</sub> ≤ θ + t/√n se e solo se almeno metà delle osservazioni cade sotto θ + t/√n. Il numero di tali osservazioni è binomiale con probabilità F(θ + t/√n) ≈ ½ + f(θ) t/√n; il teorema del limite centrale per la binomiale conclude.</p>' +
         '<p>Con f(θ) = 1/√(2π) (Normale) si ottiene π/(2n); con f(θ) = 1/2 (Laplace, b = 1) si ottiene 1/n; con f(θ) = 1/π (Cauchy) si ottiene π²/(4n).</p>' +
         '<h3>Laplace: la mediana è l’MLE</h3>' +
-        '<div class="eq">ℓ(θ) = −n log 2b − (1/b) Σ |x<sub>i</sub> − θ|</div>' +
+        '<div class="eq" data-tex="\\ell(\\theta) = -n \\log 2b - \\frac{1}{b}\\sum_{i} |x_i - \\theta|"></div>' +
         '<p>Massimizzare ℓ equivale a minimizzare Σ|xᵢ − θ|, che ha minimo nella mediana campionaria. Per n pari ogni valore tra le due osservazioni centrali è un MLE: la convenzione usuale prende il punto medio. ℓ non è derivabile nelle osservazioni, ma l’informazione di Fisher esiste e vale I(θ) = 1/b², per cui la mediana raggiunge il limite 1/n.</p>' +
         '<h3>Cauchy: perché la media non funziona</h3>' +
         '<p>La funzione caratteristica è φ(t) = exp(iθt − |t|). Per la media di n osservazioni indipendenti</p>' +
-        '<div class="eq">φ<sub>X̄</sub>(t) = φ(t/n)<sup>n</sup> = exp(iθt − |t|)</div>' +
+        '<div class="eq" data-tex="\\varphi_{\\bar{X}}(t) = \\varphi(t/n)^{n} = \\exp(i\\theta t - |t|)"></div>' +
         '<p>cioè X̄ ~ Cauchy(θ, 1) per ogni n: la media non è consistente. Non c’è contraddizione con la legge dei grandi numeri, che richiede E|X| &lt; ∞.</p>' +
         '<h3>Cauchy: l’MLE numerico</h3>' +
         '<p>Con scala nota pari a 1, l’equazione di verosimiglianza è</p>' +
-        '<div class="eq">ℓ′(θ) = Σ 2(x<sub>i</sub> − θ) / (1 + (x<sub>i</sub> − θ)²) = 0</div>' +
+        '<div class="eq" data-tex="\\ell\'(\\theta) = \\sum_{i} \\frac{2(x_i - \\theta)}{1 + (x_i - \\theta)^2} = 0"></div>' +
         '<p>Può avere più radici (massimi locali). StatAtlas parte dalla mediana, stimatore consistente, e itera</p>' +
-        '<div class="eq">θ<sub>k+1</sub> = Σ w<sub>i</sub> x<sub>i</sub> / Σ w<sub>i</sub>, &nbsp; w<sub>i</sub> = 1 / (1 + (x<sub>i</sub> − θ<sub>k</sub>)²)</div>' +
+        '<div class="eq" data-tex="\\theta_{k+1} = \\frac{\\sum_i w_i x_i}{\\sum_i w_i}, \\quad w_i = \\frac{1}{1 + (x_i - \\theta_k)^2}"></div>' +
         '<p>È un algoritmo MM: poiché log(1 + u) è concava in u, ogni passo massimizza una minorante della log-verosimiglianza, che quindi non diminuisce. Converge a un massimo locale; partendo da un valore iniziale consistente si ottiene la radice efficiente. L’informazione di Fisher per osservazione è I(θ) = 1/2, quindi Var(MLE) ≈ 2/n e l’efficienza della mediana rispetto all’MLE è 8/π² ≈ 0,81.</p>' +
         '<h3>Errore Monte Carlo</h3>' +
         '<p>Con M repliche indipendenti e stimatore approssimativamente normale, la deviazione standard simulata ha errore standard ≈ σ/√(2(M − 1)). Quando la varianza teorica non esiste (media Cauchy) questa garanzia cade: la deviazione standard empirica non converge.</p>' +

@@ -178,14 +178,14 @@
   var THEORY = {
     base: function () {
       return el('div.prose', { html: '<h3>Dalla media ai quantili</h3><p>La regressione lineare classica modella E(Y | x). La regressione quantilica modella il quantile condizionato Q<sub>τ</sub>(Y | x) = β₀(τ) + β₁(τ)x per ogni τ in (0, 1): la mediana per τ = 0,5, le code per τ vicino a 0 o 1.</p>' +
-        '<div class="eq">β̂(τ) = argmin Σ ρ<sub>τ</sub>(yᵢ − b₀ − b₁xᵢ), &nbsp; ρ<sub>τ</sub>(u) = u (τ − 1{u &lt; 0})</div>' +
+        '<div class="eq" data-tex="\\hat{\\beta}(\\tau) = \\argmin_{b} \\sum_{i} \\rho_\\tau(y_i - b_0 - b_1 x_i), \\quad \\rho_\\tau(u) = u\\,(\\tau - \\mathbf{1}\\{u < 0\\})"></div>' +
         '<p>Per τ = 0,5 si ritrova la regressione L1 del laboratorio 11. Non serve alcuna ipotesi sulla legge degli errori, ed è robusta ai valori anomali nella y.</p>' +
         '<div class="callout">Quando le rette per τ diversi hanno pendenze diverse, la x non sposta solo il centro della distribuzione ma ne cambia la dispersione o la forma: è eteroschedasticità, o asimmetria che varia con x.</div>' });
     },
     adv: function () {
       return el('div.prose', { html: '<h3>Programmazione lineare</h3><p>Scrivendo yᵢ − xᵢᵀb = uᵢ⁺ − uᵢ⁻ il problema diventa min Σ τuᵢ⁺ + (1 − τ)uᵢ⁻ con vincoli lineari: un problema di programmazione lineare. Una soluzione ottima sta su un vertice, cioè interpola p osservazioni (qui p = 2): StatAtlas esplora tutte le coppie e trova la soluzione esatta. R usa l’algoritmo del simplesso di Barrodale e Roberts (<code>rq(method = "br")</code>).</p>' +
         '<h3>Proprietà di sottogradiente</h3><p>All’ottimo la quota di residui negativi è ≤ τ e quella di residui non positivi è ≥ τ: per questo circa una quota τ di punti sta sotto la retta.</p>' +
-        '<h3>Distribuzione asintotica</h3><div class="eq">√n (β̂(τ) − β(τ)) → N(0, τ(1 − τ) H⁻¹ J H⁻¹)</div><p>con J = E[xxᵀ] e H = E[f<sub>Y|x</sub>(Q<sub>τ</sub>) xxᵀ]: la precisione dipende dalla densità condizionata nel quantile, che va stimata (metodi di Hendricks–Koenker o bootstrap; in R <code>summary(fit, se = "nid")</code>).</p>' +
+        '<h3>Distribuzione asintotica</h3><div class="eq" data-tex="\\sqrt{n}\\,(\\hat{\\beta}(\\tau) - \\beta(\\tau)) \\to N\\left(0, \\tau(1 - \\tau) H^{-1} J H^{-1}\\right)"></div><p>con J = E[xxᵀ] e H = E[f<sub>Y|x</sub>(Q<sub>τ</sub>) xxᵀ]: la precisione dipende dalla densità condizionata nel quantile, che va stimata (metodi di Hendricks–Koenker o bootstrap; in R <code>summary(fit, se = "nid")</code>).</p>' +
         '<h3>Attraversamento dei quantili</h3><p>Stimate separatamente, le rette per τ diversi possono incrociarsi all’interno del campo dei dati, il che è incoerente. Rimedi: riordinamento (Chernozhukov, Fernández-Val e Galichon, 2010) o stima congiunta con vincoli di non attraversamento.</p>' });
     }
   };

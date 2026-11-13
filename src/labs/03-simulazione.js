@@ -255,7 +255,7 @@
   var THEORY = {
     base: function () {
       return el('div.prose', { html: '<h3>Tutto parte dall’uniforme</h3><p>Un computer genera numeri pseudocasuali che imitano U(0, 1). Ogni altra legge si ottiene trasformandoli. Il metodo più generale è l’<strong>inversione</strong>: X = F⁻¹(U).</p>' +
-        '<div class="eq">P(F⁻¹(U) ≤ x) = P(U ≤ F(x)) = F(x)</div>' +
+        '<div class="eq" data-tex="P(F^{-1}(U) \\le x) = P(U \\le F(x)) = F(x)"></div>' +
         '<p>Esempio: per l’Esponenziale F(x) = 1 − e<sup>−λx</sup>, quindi F⁻¹(u) = −log(1 − u)/λ.</p>' +
         '<h3>Integrare con il caso</h3><p>Se U ~ U(0, 1), allora E[f(U)] = ∫₀¹ f(x) dx = I. La media di f(Uᵢ) stima quindi I, e per la legge dei grandi numeri converge. L’<strong>hit-or-miss</strong> invece lancia punti (U, V) nel quadrato e conta quanti cadono sotto la curva: la proporzione stima l’area I.</p>' +
         '<div class="callout">Entrambi i metodi hanno errore dell’ordine di 1/√n, indipendentemente dalla dimensione del problema: per questo il Monte Carlo è prezioso negli integrali in molte variabili.</div>' });
@@ -263,7 +263,7 @@
     adv: function () {
       return el('div.prose', { html: '<h3>Inversa generalizzata</h3><p>F⁻¹(u) = inf{x : F(x) ≥ u}. Per la continuità a destra di F vale F⁻¹(u) ≤ x ⟺ u ≤ F(x), da cui la tesi anche con salti e tratti piatti. Viceversa, se F è continua, F(X) ~ U(0, 1) (trasformazione integrale di probabilità).</p>' +
         '<h3>Confronto delle varianze</h3><p>Per la media: Var f(U) = ∫f² − I². Per l’hit-or-miss l’indicatore 1{V ≤ f(U)} è Bernoulli(I), con varianza I(1 − I). Se 0 ≤ f ≤ 1, allora f² ≤ f e</p>' +
-        '<div class="eq">Var f(U) = ∫f² − I² ≤ ∫f − I² = I(1 − I)</div><p>con uguaglianza solo se f assume i soli valori 0 e 1. Il rapporto delle varianze dice quante coppie in più servono all’hit-or-miss per la stessa precisione. È il primo esempio di <em>riduzione della varianza</em> per condizionamento: E[1{V ≤ f(U)} | U] = f(U), e condizionare non aumenta mai la varianza (Rao–Blackwell).</p>' +
+        '<div class="eq" data-tex="\\Var f(U) = \\int f^2 - I^2 \\le \\int f - I^2 = I(1 - I)"></div><p>con uguaglianza solo se f assume i soli valori 0 e 1. Il rapporto delle varianze dice quante coppie in più servono all’hit-or-miss per la stessa precisione. È il primo esempio di <em>riduzione della varianza</em> per condizionamento: E[1{V ≤ f(U)} | U] = f(U), e condizionare non aumenta mai la varianza (Rao–Blackwell).</p>' +
         '<h3>Errore Monte Carlo</h3><p>Per il teorema centrale, Î<sub>n</sub> ≈ N(I, σ²/n): l’intervallo Î ± 1,96 σ̂/√n ha copertura approssimativa 95%. Le bande del grafico usano la σ teorica.</p>' });
     }
   };

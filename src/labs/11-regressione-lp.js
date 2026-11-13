@@ -186,12 +186,12 @@
   }
   var THEORY = {
     base: function () {
-      return el('div.prose', { html: '<h3>Tre criteri</h3><div class="eq">min Σ |yᵢ − b₀ − b₁xᵢ|<sup>p</sup></div><p>p = 2: minimi quadrati; p = 1: minimi valori assoluti (regressione mediana); 1 &lt; p &lt; 2: compromesso. Più p è piccolo, meno pesano i residui grandi.</p>' +
+      return el('div.prose', { html: '<h3>Tre criteri</h3><div class="eq" data-tex="\\min_{b_0, b_1} \\sum_{i} |y_i - b_0 - b_1 x_i|^{p}"></div><p>p = 2: minimi quadrati; p = 1: minimi valori assoluti (regressione mediana); 1 &lt; p &lt; 2: compromesso. Più p è piccolo, meno pesano i residui grandi.</p>' +
         '<h3>Robustezza ed efficienza</h3><p>Un singolo valore anomalo può spostare arbitrariamente la retta L2. L1 resiste ai valori anomali nella y (non a quelli con alto leverage, cioè anomali nella x). Il prezzo: con errori normali L1 ha efficienza 2/π ≈ 0,64 rispetto a L2.</p>' +
         '<div class="callout">Ogni criterio corrisponde alla massima verosimiglianza per una legge degli errori: L2 ↔ Normale, L1 ↔ Laplace, Lp ↔ normale generalizzata f(e) ∝ exp(−|e|<sup>p</sup>/c).</div>' });
     },
     adv: function () {
-      return el('div.prose', { html: '<h3>M-stimatori</h3><p>Lp risolve Σ ψ(rᵢ) xᵢ = 0 con ψ(r) = |r|<sup>p−1</sup> sign(r). Per errori simmetrici e disegno fisso</p><div class="eq">Var(β̂₁) ≈ [E ψ(ε)² / (E ψ′(ε))²] / Sxx</div>' +
+      return el('div.prose', { html: '<h3>M-stimatori</h3><p>Lp risolve Σ ψ(rᵢ) xᵢ = 0 con ψ(r) = |r|<sup>p−1</sup> sign(r). Per errori simmetrici e disegno fisso</p><div class="eq" data-tex="\\Var(\\hat{\\beta}_1) \\approx \\frac{\\E\\,\\psi(\\varepsilon)^2}{(\\E\\,\\psi\'(\\varepsilon))^2} \\cdot \\frac{1}{S_{xx}}"></div>' +
         '<p>Per p = 2 si ottiene σ²/Sxx; per p = 1 (ψ = sign) E ψ′ diventa 2f(0) e la varianza 1/(4 f(0)² Sxx). StatAtlas calcola i valori attesi per integrazione numerica.</p>' +
         '<h3>Minimi quadrati ripesati</h3><p>Il gradiente di Σ|rᵢ|<sup>p</sup> si annulla dove Σ wᵢ rᵢ xᵢ = 0 con wᵢ = |rᵢ|<sup>p−2</sup>: si alternano pesi e minimi quadrati ponderati. Per p &lt; 2 i pesi esplodono per residui nulli: si usa una soglia (10⁻⁶). Per p = 1 l’algoritmo converge lentamente; la soluzione esatta è un problema di programmazione lineare (Koenker e Bassett, 1978).</p>' +
         '<h3>Punto di rottura (breakdown point)</h3><p>Nella regressione L1 il punto di rottura è comunque 1/n se i valori anomali sono anche punti ad alto leverage: per una robustezza piena servono stimatori come LTS o MM.</p>' });

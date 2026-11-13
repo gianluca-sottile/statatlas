@@ -560,7 +560,7 @@
       return el('div.prose', { html:
         '<h3>Tre modi di descrivere una legge</h3>' +
         '<p>Una variabile aleatoria <span class="m">X</span> è descritta completamente dalla <strong>funzione di ripartizione</strong> F(x) = P(X ≤ x), definita per ogni legge. Per una legge discreta si usano anche le probabilità P(X = x); per una legge continua la <strong>densità</strong> f(x), con F(x) = ∫ f(t) dt fino a x.</p>' +
-        '<div class="eq">P(a &lt; X ≤ b) = F(b) − F(a)</div>' +
+        '<div class="eq" data-tex="P(a < X \\le b) = F(b) - F(a)"></div>' +
         '<p>Nel continuo è l’area sotto f tra a e b; nel discreto è la somma delle probabilità dei punti in (a, b].</p>' +
         '<h3>' + L.label + '</h3><div class="eq">' + L.formula + '</div><p>' + L.story + '</p>' +
         '<h3>Momenti: non sempre esistono</h3>' +
@@ -574,11 +574,11 @@
         '<h3>Proprietà della funzione di ripartizione</h3>' +
         '<p>F è non decrescente, continua a destra, con limiti 0 in −∞ e 1 in +∞; ogni funzione con queste proprietà è la ripartizione di qualche legge. I salti di F sono gli atomi: P(X = x) = F(x) − F(x⁻).</p>' +
         '<h3>Inversione generalizzata</h3>' +
-        '<div class="eq">F⁻¹(u) = inf { x : F(x) ≥ u }, &nbsp; 0 &lt; u &lt; 1</div>' +
+        '<div class="eq" data-tex="F^{-1}(u) = \\inf\\{x : F(x) \\ge u\\}, \\quad 0 < u < 1"></div>' +
         '<p>Per la continuità a destra, F⁻¹(u) ≤ x ⟺ u ≤ F(x). Se U ~ U(0, 1) allora P(F⁻¹(U) ≤ x) = P(U ≤ F(x)) = F(x): la variabile F⁻¹(U) ha esattamente ripartizione F, anche per leggi discrete. È la definizione usata da <code>qbinom</code>, <code>qpois</code> e simili in R.</p>' +
         '<h3>Glivenko–Cantelli e DKW</h3>' +
         '<p>La funzione di ripartizione empirica F̂<sub>N</sub>(x) = #{Xᵢ ≤ x}/N converge uniformemente a F quasi certamente (Glivenko–Cantelli). La disuguaglianza di Dvoretzky–Kiefer–Wolfowitz, con la costante ottimale di Massart (1990), dà una velocità esplicita:</p>' +
-        '<div class="eq">P( sup<sub>x</sub> |F̂<sub>N</sub>(x) − F(x)| &gt; ε ) ≤ 2 e<sup>−2Nε²</sup></div>' +
+        '<div class="eq" data-tex="P\\left(\\sup_{x} |\\hat{F}_N(x) - F(x)| > \\varepsilon\\right) \\le 2 e^{-2N\\varepsilon^2}"></div>' +
         '<p>Ponendo il secondo membro uguale a 0,05 si ottiene ε = √(log(40)/(2N)): la banda nel grafico. Vale per ogni N e ogni F (per le leggi discrete è conservativa). La statistica sup|F̂ − F| è quella del test di Kolmogorov–Smirnov.</p>' +
         '<h3>Esistenza dei momenti</h3>' +
         '<p>E|X|<sup>r</sup> &lt; ∞ dipende dalle code: se f(x) ~ c|x|<sup>−(α+1)</sup>, esistono i momenti di ordine r &lt; α. Per la t(ν) α = ν; per la Cauchy α = 1; per la F(ν₁, ν₂) α = ν₂/2.</p>' });

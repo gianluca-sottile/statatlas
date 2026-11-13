@@ -6,7 +6,7 @@
 
 <p align="center">
   <em>Vedere la statistica mentre accade.</em><br>
-  Un atlante interattivo di probabilità e inferenza statistica: ventiquattro laboratori, dati generati sotto i tuoi occhi e codice R che riproduce esattamente lo stesso esperimento.
+  Un atlante interattivo di probabilità, inferenza e apprendimento statistico: ventiquattro laboratori, dati generati sotto i tuoi occhi e codice R verificato che ripete lo stesso esperimento.
 </p>
 
 <p align="center">
@@ -18,7 +18,7 @@
 </p>
 
 <p align="center">
-  <img alt="Versione" src="https://img.shields.io/badge/versione-1.13.0-9A3412">
+  <img alt="Versione" src="https://img.shields.io/badge/versione-1.14.0-9A3412">
   <img alt="Lingua" src="https://img.shields.io/badge/lingua-italiano-1C1B19">
   <img alt="Offline" src="https://img.shields.io/badge/funziona-offline-1F6F43">
   <img alt="Dipendenze" src="https://img.shields.io/badge/dipendenze-nessuna-1E4E8C">
@@ -31,10 +31,10 @@
 
 Molti concetti della statistica — la legge dei grandi numeri, il teorema centrale, la copertura di un intervallo, la potenza di un test — sono affermazioni su **che cosa succede ripetendo un esperimento molte volte**. StatAtlas rende visibile proprio questo: ogni osservazione, ogni campione, ogni intervallo viene generato davanti allo studente, e il risultato si confronta passo dopo passo con ciò che la teoria garantisce.
 
-- **Didattica attiva.** Ogni laboratorio parte da una domanda e chiede una previsione *prima* di mostrare i dati.
+- **Didattica attiva.** Ogni laboratorio parte da una domanda; chi vuole può fare una previsione *prima* di vedere i dati.
 - **Rigore dichiarato.** Ogni risultato teorico è etichettato come *esatto*, *asintotico*, *approssimato* o *Monte Carlo*: non si confonde mai ciò che vale per ogni n con ciò che vale al limite.
-- **Stessi numeri in R.** Il generatore di numeri casuali di R è reimplementato nel browser: lo script fornito, con lo stesso seed, riproduce gli stessi campioni.
-- **Due livelli di lettura.** Un pannello *Approfondisci* con teoria essenziale, derivazioni avanzate, esercizi con soluzione e bibliografia.
+- **Stessi numeri in R.** Il generatore di numeri casuali di R è reimplementato nel browser: lo script fornito, con lo stesso seed, riproduce gli stessi campioni. Ogni script dichiara fin dove arriva la corrispondenza (livelli R0–R3) ed è stato verificato in R.
+- **Due livelli di lettura.** Un pannello *Approfondisci* con teoria essenziale, derivazioni avanzate, esercizi con soluzione e bibliografia; formule composte tipograficamente e numerate, senza librerie esterne.
 - **Nessuna installazione.** Un unico file `index.html`, che funziona anche offline. Nessun server, nessuna libreria esterna.
 
 ## I laboratori
@@ -88,6 +88,15 @@ set.seed(2026)
 runif(3)   # gli stessi tre numeri che StatAtlas genera con seed 2026
 ```
 
+### Livelli di riproducibilità
+
+| Livello | Che cosa coincide | Esempi |
+|---|---|---|
+| **R0** · stessi dati | Stesso seed, stessi campioni, stesse suddivisioni training/test e fold, stessi campioni bootstrap | tutti i laboratori |
+| **R1** · stesse misure | Stesse stime ed errori, a meno dell’arrotondamento | `prcomp` nel lab 21, `lm` con `poly()` nel lab 18 |
+| **R2** · stesso algoritmo | Stessi passi e stesse regole nei casi di parità | CART e foreste del lab 20, DBSCAN del lab 23, discesa del gradiente del lab 24, `kmeans(algorithm = "Lloyd")` |
+| **R3** · confronto di metodo | Pacchetti che seguono regole diverse: risultati vicini, non identici | `segmented`, `ranger`, `class::knn`, `dbscan`, `nnet` |
+
 Gli script richiedono R ≥ 4.1 e il pacchetto `tidyverse`; alcuni laboratori usano solo funzioni di base di R (`persp`, `glm`, `arima`), i laboratori 14 e 15 anche `quantreg` e `glmnet`, il 17 `segmented`. Anche la suddivisione training/test e i fold del laboratorio 18 coincidono con quelli di R (`sample()`, R ≥ 3.6).
 
 ## Uso
@@ -107,12 +116,14 @@ StatAtlas/
 ├── src/
 │   ├── shell.html
 │   ├── styles/           ← design system: token, componenti, strato editoriale
-│   ├── core/             ← generatore compatibile con R, leggi, grafici SVG e 3D,
+│   ├── core/             ← generatore compatibile con R, leggi, formule (math.js), algebra lineare,
+│   │                       ricampionamento, kNN e alberi, clustering, reti neurali, grafici SVG e 3D,
 │   │                       componenti, illustrazioni, contenuti didattici, navigazione
 │   └── labs/             ← un file per laboratorio
 ├── tests/
-│   ├── test_core.js      ← test numerici contro valori di riferimento di R
+│   ├── test_*.js         ← test numerici (generatore, leggi, algebra lineare, ricampionamento, ML, clustering, reti)
 │   └── smoke/            ← test di caricamento dei laboratori (jsdom)
+├── verifica/             ← script R di verifica automatica contro i valori del browser
 └── assets/logo.svg
 ```
 
@@ -143,7 +154,7 @@ Il file si rigenera dopo una modifica con `node tests/gen_verifica_R.js` (vedi l
 
 ## Come citare
 
-> Sottile G. (2026). *StatAtlas: un atlante interattivo di probabilità e inferenza statistica*, versione 1.13.0. https://github.com/gianluca-sottile/statatlas
+> Sottile G. (2026). *StatAtlas: un atlante interattivo di probabilità e inferenza statistica*, versione 1.14.0. https://github.com/gianluca-sottile/statatlas
 
 ## Crediti
 

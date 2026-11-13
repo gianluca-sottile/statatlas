@@ -193,12 +193,12 @@
       return el('div.prose', { html: '<h3>Stimare una funzione</h3><p>Il modello è y = f(x) + ε con f ignota e liscia. Invece di fissare una forma (retta, parabola) si lascia ai dati il compito di stabilirla, controllando la <strong>complessità</strong>.</p>' +
         '<h3>Quattro strategie</h3><ul><li><strong>Polinomio globale</strong>: un’unica formula su tutto l’intervallo; la complessità è il grado.</li><li><strong>Spline di regressione</strong>: polinomi cubici a tratti raccordati nei nodi; la complessità è il numero di basi (nodi + 4).</li>' +
         '<li><strong>P-spline</strong>: molte basi e una penalità sulla rugosità dei coefficienti; la complessità è λ.</li><li><strong>Regressione locale</strong>: una retta pesata attorno a ogni punto; la complessità è l’ampiezza di banda h.</li></ul>' +
-        '<div class="eq">EQM = distorsione² + varianza, &nbsp; gradi di libertà effettivi = tr(S)</div>' +
+        '<div class="eq" data-tex="\\text{EQM} = \\text{distorsione}^2 + \\text{varianza}, \\qquad \\text{gradi di libertà effettivi} = \\tr(S)"></div>' +
         '<div class="callout">Poca complessità: curva rigida, distorsione alta. Troppa: curva che insegue il rumore, varianza alta. Il minimo dell’errore sta nel mezzo, e lo si stima con la validazione incrociata.</div>' });
     },
     adv: function () {
       return el('div.prose', { html: '<h3>Lisciatori lineari</h3><p>Per tutti i metodi ŷ = Sy con S che dipende solo dalle x e dal parametro di complessità. Ne seguono E ŷ = Sf e Var ŷ = σ²SSᵀ: distorsione e varianza sono esatte. Per le spline di regressione S è una matrice di proiezione (tr S = numero di basi); per P-spline e kernel no, e tr(S) è un numero non intero.</p>' +
-        '<h3>Validazione incrociata in forma chiusa</h3><div class="eq">CV = (1/n) Σ [(yᵢ − ŷᵢ)/(1 − Sᵢᵢ)]²</div><p>vale per ogni lisciatore lineare che riproduce le costanti: non serve riadattare il modello n volte. La GCV sostituisce Sᵢᵢ con tr(S)/n.</p>' +
+        '<h3>Validazione incrociata in forma chiusa</h3><div class="eq" data-tex="\\text{CV} = \\frac{1}{n}\\sum_{i=1}^{n} \\left(\\frac{y_i - \\hat{y}_i}{1 - S_{ii}}\\right)^2"></div><p>vale per ogni lisciatore lineare che riproduce le costanti: non serve riadattare il modello n volte. La GCV sostituisce Sᵢᵢ con tr(S)/n.</p>' +
         '<h3>Spline di lisciamento</h3><p>La soluzione di min Σ(yᵢ − g(xᵢ))² + λ∫g″² è una spline cubica naturale con nodi in tutte le xᵢ (teorema di Reinsch). Le P-spline di Eilers e Marx approssimano la stessa idea con molte B-spline e una penalità sulle differenze dei coefficienti.</p>' +
         '<h3>Regressione locale e bordi</h3><p>La media locale (Nadaraya–Watson) ha distorsione di ordine h ai bordi; la retta locale la riduce a h², per questo è il default di <code>loess</code>. Con banda ottima l’errore decresce come n<sup>−4/5</sup>, più lentamente del 1/n parametrico: è il prezzo della flessibilità.</p>' });
     }

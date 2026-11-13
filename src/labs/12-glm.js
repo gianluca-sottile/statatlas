@@ -156,13 +156,13 @@
   var THEORY = {
     base: function () {
       return el('div.prose', { html: '<h3>Tre ingredienti</h3><ul><li>una legge per la risposta nella famiglia esponenziale (Binomiale, Poisson, Normale, Gamma…);</li><li>un predittore lineare η = β₀ + β₁x;</li><li>un legame g(μ) = η.</li></ul>' +
-        '<div class="eq">logit(p) = log(p/(1 − p)) = β₀ + β₁x &nbsp;&nbsp;&nbsp; log(μ) = β₀ + β₁x</div>' +
+        '<div class="eq" data-tex="\\text{logit}(p) = \\log\\frac{p}{1 - p} = \\beta_0 + \\beta_1 x \\qquad \\log \\mu = \\beta_0 + \\beta_1 x"></div>' +
         '<p>Interpretazione: nella logistica e<sup>β₁</sup> è il odds ratio per un aumento unitario di x; nella Poisson e<sup>β₁</sup> è il fattore moltiplicativo della media.</p>' +
         '<div class="callout warn">Le inferenze standard (errori standard, test di Wald, intervalli) sono asintotiche. Con dati scarsi o separazione possono essere fuorvianti.</div>' });
     },
     adv: function () {
       return el('div.prose', { html: '<h3>scoring di Fisher</h3><p>Con legame canonico lo score è Xᵀ(y − μ) e l’informazione XᵀWX con W = diag(Var(Yᵢ)). Il passo di Newton coincide con una regressione ponderata della working response zᵢ = ηᵢ + (yᵢ − μᵢ)/(dμ/dη) sui predittori, con pesi wᵢ: da qui “minimi quadrati ponderati iterativi (IRLS)”.</p>' +
-        '<h3>Normalità asintotica</h3><div class="eq">β̂ ≈ N(β, (XᵀWX)⁻¹)</div><p>La curva del grafico usa W calcolata nel vero β; R stima gli errori standard con W calcolata in β̂.</p>' +
+        '<h3>Normalità asintotica</h3><div class="eq" data-tex="\\hat{\\beta} \\approx N\\left(\\beta, (X^{\\top} W X)^{-1}\\right)"></div><p>La curva del grafico usa W calcolata nel vero β; R stima gli errori standard con W calcolata in β̂.</p>' +
         '<h3>Distorsione e separazione</h3><p>La distorsione di primo ordine è O(1/n) (Cox e Snell, 1968) e allontana le stime da zero nella logistica. Se esiste una retta che separa perfettamente 0 e 1 la log-verosimiglianza tende a 0 lungo una direzione: la stima diverge (Albert e Anderson, 1984). La verosimiglianza penalizzata di Firth corregge entrambi i problemi.</p>' +
         '<h3>Devianza</h3><p>D = 2[ℓ(saturo) − ℓ(β̂)]. Per la Poisson con medie grandi D ≈ χ²<sub>n−2</sub>; per dati binari individuali questa approssimazione non vale.</p>' });
     }

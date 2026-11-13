@@ -246,7 +246,7 @@
   }
   var THEORY = {
     base: function () {
-      return el('div.prose', { html: '<h3>La regola dei k vicini</h3><p>Dato un punto x, si prendono i k punti di training più vicini N<sub>k</sub>(x) e si stima</p><div class="eq">p̂(x) = (1/k) Σ<sub>i ∈ N<sub>k</sub>(x)</sub> 1{yᵢ = 1}</div><p>assegnando la classe 1 se p̂(x) &gt; 1/2. Con k dispari e due classi non ci sono parità nei voti.</p>' +
+      return el('div.prose', { html: '<h3>La regola dei k vicini</h3><p>Dato un punto x, si prendono i k punti di training più vicini N<sub>k</sub>(x) e si stima</p><div class="eq" data-tex="\\hat{p}(x) = \\frac{1}{k}\\sum_{i \\in N_k(x)} \\mathbf{1}\\{y_i = 1\\}"></div><p>assegnando la classe 1 se p̂(x) &gt; 1/2. Con k dispari e due classi non ci sono parità nei voti.</p>' +
         '<h3>Errore di Bayes</h3><p>La regola di Bayes sceglie la classe con P(Y = 1 | x) più alta; il suo errore R* è il minimo possibile. Con due normali di medie ±δ/2 e varianza unitaria R* = Φ(−δ/2); nello scenario XOR R* = 2Φ(δ/2)Φ(−δ/2).</p>' +
         '<h3>Misure di qualità</h3><p>Accuratezza, sensibilità (veri 1 riconosciuti) e specificità (veri 0 riconosciuti) si stimano sul test; gli intervalli di Wilson tengono conto del numero di casi in ciascuna classe.</p>' +
         '<div class="callout warn">Le distanze cambiano con le unità di misura: senza standardizzazione una variabile con scala grande decide da sola i vicini.</div>' });

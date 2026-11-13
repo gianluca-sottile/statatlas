@@ -265,7 +265,7 @@
   }
   var THEORY = {
     base: function () {
-      return el('div.prose', { html: '<h3>Tre penalizzazioni</h3><div class="eq">min (1/2n)‖y − Xβ‖² + λ [ (1 − α)/2 ‖β‖₂² + α‖β‖₁ ]</div><p>α = 0: <strong>ridge</strong>; α = 1: <strong>lasso</strong>; 0 &lt; α &lt; 1: <strong>elastic net</strong>. È la forma usata da <code>glmnet</code>. Equivale a minimizzare la somma dei quadrati dei residui con un vincolo sulla norma dei coefficienti: ogni λ corrisponde a un’ampiezza t del vincolo.</p>' +
+      return el('div.prose', { html: '<h3>Tre penalizzazioni</h3><div class="eq" data-tex="\\min_{\\beta} \\frac{1}{2n}\\|y - X\\beta\\|^2 + \\lambda\\left[\\frac{1 - \\alpha}{2}\\|\\beta\\|_2^2 + \\alpha\\|\\beta\\|_1\\right]"></div><p>α = 0: <strong>ridge</strong>; α = 1: <strong>lasso</strong>; 0 &lt; α &lt; 1: <strong>elastic net</strong>. È la forma usata da <code>glmnet</code>. Equivale a minimizzare la somma dei quadrati dei residui con un vincolo sulla norma dei coefficienti: ogni λ corrisponde a un’ampiezza t del vincolo.</p>' +
         '<h3>Perché penalizzare</h3><p>Con molti predittori, o predittori correlati, i minimi quadrati sono non distorti ma hanno varianza elevata. Ridurre i coefficienti verso zero introduce una piccola distorsione e diminuisce molto la varianza: l’errore complessivo può diminuire.</p>' +
         '<div class="callout warn">I predittori vanno standardizzati: la penalizzazione tratta tutti i coefficienti allo stesso modo, quindi dipende dalle unità di misura. <code>glmnet</code> lo fa per impostazione predefinita.</div>' });
     },

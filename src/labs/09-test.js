@@ -156,7 +156,7 @@
       return el('div.prose', { html: '<h3>Due ipotesi, due errori</h3><table class="tv"><thead><tr><th></th><th>Non rifiuto H₀</th><th>Rifiuto H₀</th></tr></thead><tbody>' +
         '<tr><td>H₀ vera</td><td>corretto</td><td>errore di I tipo (α)</td></tr><tr><td>H₁ vera</td><td>errore di II tipo (β)</td><td>corretto: potenza 1 − β</td></tr></tbody></table>' +
         '<h3>Il test Z</h3><p>Con dati N(μ, σ²) e σ nota, z = √n (x̄ − μ₀)/σ ha legge N(0, 1) se μ = μ₀ e N(δ√n, 1) se μ = μ₀ + δσ. Si rifiuta se |z| &gt; z<sub>1−α/2</sub> (bilaterale) o z &gt; z<sub>1−α</sub> (unilaterale).</p>' +
-        '<div class="eq">potenza(δ) = Φ(δ√n − z<sub>1−α/2</sub>) + Φ(−δ√n − z<sub>1−α/2</sub>)</div>' +
+        '<div class="eq" data-tex="\\text{potenza}(\\delta) = \\Phi(\\delta\\sqrt{n} - z_{1-\\alpha/2}) + \\Phi(-\\delta\\sqrt{n} - z_{1-\\alpha/2})"></div>' +
         '<div class="callout warn">“Statisticamente significativo” non vuol dire “importante”: con n enorme anche un effetto irrilevante dà un p-value piccolo. Riporta sempre la stima dell’effetto e un intervallo.</div>' });
     },
     adv: function () {

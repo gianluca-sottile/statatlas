@@ -178,7 +178,7 @@
   }
   var THEORY = {
     base: function () {
-      return el('div.prose', { html: '<h3>Il modello</h3><div class="eq">Yᵢ = β₀ + β₁xᵢ + δ(xᵢ − ψ)₊ + εᵢ</div><p>(u)₊ = max(0, u). La media è continua in ψ, con pendenza β₁ a sinistra e β₁ + δ a destra. Se ψ fosse noto, il modello sarebbe lineare nei parametri (β₀, β₁, δ).</p>' +
+      return el('div.prose', { html: '<h3>Il modello</h3><div class="eq" data-tex="Y_i = \\beta_0 + \\beta_1 x_i + \\delta\\,(x_i - \\psi)_{+} + \\varepsilon_i"></div><p>(u)₊ = max(0, u). La media è continua in ψ, con pendenza β₁ a sinistra e β₁ + δ a destra. Se ψ fosse noto, il modello sarebbe lineare nei parametri (β₀, β₁, δ).</p>' +
         '<h3>Stima per profilo</h3><p>Per ogni ψ candidato si calcolano i minimi quadrati e la somma dei quadrati dei residui RSS(ψ); la stima è il ψ che la rende minima. Si escludono i candidati troppo vicini ai bordi, dove da un lato resterebbero pochissime osservazioni.</p>' +
         '<div class="callout warn">Il breakpoint è un parametro <strong>non regolare</strong>: RSS(ψ) non è derivabile nei punti xᵢ e, se δ = 0, ψ scompare dal modello. Gli intervalli e i test “di routine” non hanno la copertura o il livello dichiarati.</div>' });
     },

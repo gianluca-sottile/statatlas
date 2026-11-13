@@ -324,7 +324,7 @@
       return el('div.prose', { html:
         '<h3>Due teoremi, due oggetti diversi</h3>' +
         '<p>La <strong>legge dei grandi numeri</strong> parla di <em>una</em> media che cresce con n: x̄ₙ si avvicina a μ. Il <strong>teorema centrale</strong> parla della <em>distribuzione</em> di x̄ₙ attraverso tanti campioni: centrata e riscalata, diventa normale.</p>' +
-        '<div class="eq">x̄ₙ → μ &nbsp;&nbsp;&nbsp;&nbsp; √n (x̄ₙ − μ) / σ ⇒ N(0, 1)</div>' +
+        '<div class="eq" data-tex="\\bar{x}_n \\to \\mu \\qquad \\frac{\\sqrt{n}\\,(\\bar{x}_n - \\mu)}{\\sigma} \\Rightarrow N(0, 1)"></div>' +
         '<h3>Che cosa è esatto e che cosa no</h3><ul>' +
         '<li>E(x̄ₙ) = μ e Var(x̄ₙ) = σ²/n valgono <strong>per ogni n</strong>.</li>' +
         '<li>La forma normale vale solo <strong>al limite</strong>: per n finito è un’approssimazione, buona o cattiva secondo l’asimmetria dei dati.</li>' +
@@ -337,15 +337,15 @@
       return el('div.prose', { html:
         '<h3>Legge debole: una dimostrazione in una riga</h3>' +
         '<p>Se Var(X) = σ² &lt; ∞, per la disuguaglianza di Chebyshev</p>' +
-        '<div class="eq">P(|x̄ₙ − μ| ≥ ε) ≤ σ² / (n ε²) → 0</div>' +
+        '<div class="eq" data-tex="P(|\\bar{x}_n - \\mu| \\ge \\varepsilon) \\le \\frac{\\sigma^2}{n\\varepsilon^2} \\to 0"></div>' +
         '<p>La versione di Khinchin richiede solo E|X| &lt; ∞; la legge forte (Kolmogorov) afferma la convergenza quasi certa sotto la stessa ipotesi, ed è questa che descrive le singole traiettorie.</p>' +
         '<h3>Teorema centrale (Lindeberg–Lévy)</h3>' +
         '<p>Se X₁, X₂, … sono i.i.d. con 0 &lt; σ² &lt; ∞, la funzione caratteristica di zₙ è φ(t/(σ√n))ⁿ, con φ quella di X − μ. Sviluppando φ(s) = 1 − σ²s²/2 + o(s²) si ottiene</p>' +
-        '<div class="eq">φ<sub>zₙ</sub>(t) = (1 − t²/(2n) + o(1/n))ⁿ → e<sup>−t²/2</sup></div>' +
+        '<div class="eq" data-tex="\\varphi_{z_n}(t) = \\left(1 - \\frac{t^2}{2n} + o(1/n)\\right)^{n} \\to e^{-t^2/2}"></div>' +
         '<p>e il teorema di continuità di Lévy conclude.</p>' +
         '<h3>Quanto è buona l’approssimazione: Berry–Esseen</h3>' +
         '<p>Se ρ = E|X − μ|³ &lt; ∞,</p>' +
-        '<div class="eq">sup<sub>z</sub> |P(zₙ ≤ z) − Φ(z)| ≤ C ρ / (σ³ √n), &nbsp; C ≤ 0,4748</div>' +
+        '<div class="eq" data-tex="\\sup_{z} |P(z_n \\le z) - \\Phi(z)| \\le \\frac{C\\rho}{\\sigma^3\\sqrt{n}}, \\quad C \\le 0,4748"></div>' +
         '<p>(Shevtsova, 2011). È una garanzia valida per ogni n, ma spesso pessimistica: confrontala con la distanza osservata.</p>' +
         '<h3>Asimmetria della media</h3>' +
         '<p>Il terzo cumulante si somma su osservazioni indipendenti: κ₃(Σ Xᵢ) = n κ₃(X). Dividendo per (nσ²)<sup>3/2</sup> si ottiene γ(x̄ₙ) = γ/√n, esatto. Lo sviluppo di Edgeworth mostra che è il termine principale dell’errore del TCL: P(zₙ ≤ z) ≈ Φ(z) − γ(z² − 1)φ(z)/(6√n).</p>' +

@@ -161,7 +161,7 @@ SA.ui = (function () {
     if (level === 'base') {
       if (c) box.appendChild(el('div.objectives', el('div.step-label', 'Obiettivi di apprendimento'), el('ul', c.obiettivi.map(function (o) { return el('li', o); }))));
       box.appendChild(content.base());
-      if (c) box.append(el('div.prose', { html: '<h3>Un esempio svolto</h3>' + c.esempio }),
+      if (c) box.append(el('div.prose', { html: '<h3>Un esempio svolto</h3><div class="box ex">' + c.esempio + '</div>' }),
         el('div.prose', el('h3', 'Errori frequenti'), el('ul.errlist', c.errori.map(function (e) { return el('li', { html: e }); }))));
     } else if (level === 'adv') {
       box.appendChild(content.adv());
@@ -179,10 +179,29 @@ SA.ui = (function () {
     }
     return box;
   }
+  /* Formato delle schede: riquadri con intestazione (def, thm, ex, nota), formule composte e numerate,
+   * indice interno quando la scheda ha almeno quattro sezioni. */
+  var BOX = { def: 'Definizione', thm: 'Risultato', ex: 'Esempio', nota: 'Nota' };
+  function decorate(box) {
+    box.querySelectorAll('.box').forEach(function (b) {
+      if (b.querySelector(':scope > .box-t')) return;
+      var kind = Object.keys(BOX).filter(function (k) { return b.classList.contains(k); })[0];
+      var t = b.getAttribute('data-title') || (kind ? BOX[kind] : null); if (t) b.insertBefore(el('span.box-t', t), b.firstChild);
+    });
+    if (SA.math) SA.math.typeset(box);
+    var hs = box.querySelectorAll('h3');
+    if (hs.length >= 4) {
+      var toc = el('nav.sheet-toc', { 'aria-label': 'Indice della scheda' }, el('span.box-t', 'In questa scheda'), el('ol', Array.prototype.map.call(hs, function (h) {
+        return el('li', el('button', { type: 'button', onclick: function () { h.scrollIntoView({ behavior: 'smooth', block: 'start' }); } }, h.textContent));
+      })));
+      var first = box.querySelector('.objectives'); if (first) first.parentNode.insertBefore(toc, first.nextSibling); else box.insertBefore(toc, box.firstChild);
+    }
+    return box;
+  }
   function renderLevel() {
     levels.querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.level === currentLevel)); });
     drawerBody.innerHTML = '';
-    drawerBody.appendChild(extended(currentLevel));
+    drawerBody.appendChild(decorate(extended(currentLevel)));
     drawerBody.scrollTop = 0;
   }
   function openDrawer(title, c, level) {
