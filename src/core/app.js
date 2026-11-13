@@ -22,7 +22,8 @@ SA.catalog = [
   { part: 'V', title: 'Regressione moderna', labs: [
     { id: 'quantilica', num: '14', title: 'Regressione quantilica', blurb: 'Rette per ogni quantile, perdita asimmetrica, soluzione esatta, punti trascinabili.', status: 'ready' },
     { id: 'penalizzata', num: '15', title: 'Ridge, lasso ed elastic net', blurb: 'Lo spazio delle soluzioni, i percorsi di regolarizzazione e il compromesso distorsione–varianza.', status: 'ready' },
-    { id: 'spline', num: '16', title: 'Regressione non parametrica e spline', blurb: 'Polinomi, spline, P-spline e kernel: complessità, gradi di libertà effettivi e validazione incrociata.', status: 'ready' } ] }
+    { id: 'spline', num: '16', title: 'Regressione non parametrica e spline', blurb: 'Polinomi, spline, P-spline e kernel: complessità, gradi di libertà effettivi e validazione incrociata.', status: 'ready' },
+    { id: 'segmentata', num: '17', title: 'Regressione segmentata e breakpoint', blurb: 'Una pendenza che cambia: profilo RSS(ψ), breakpoint non identificato, test bootstrap del cambiamento.', status: 'ready', verifyR: true } ] }
 ];
 SA.labs = {};
 SA.registerLab = function (id, def) { SA.labs[id] = def; };
@@ -75,13 +76,18 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   var STEPS = [['Domanda', 'Un problema concreto, con una previsione facoltativa'], ['Esperimento', 'Dati generati sotto i tuoi occhi, passo dopo passo'],
     ['Teoria e simulazione', 'Esatto, asintotico o Monte Carlo: sempre dichiarato'], ['Interpretazione', 'Che cosa significa, quando vale, dove si rompe'],
     ['Approfondisci', 'Teoria, esercizi e bibliografia'], ['Codice R', 'Lo stesso esperimento, con gli stessi numeri']];
+  function labCountText() {
+    var n = SA.catalog.reduce(function (a, p) { return a + p.labs.length; }, 0);
+    var W = { 16: 'Sedici', 17: 'Diciassette', 18: 'Diciotto', 19: 'Diciannove', 20: 'Venti', 21: 'Ventuno', 22: 'Ventidue', 23: 'Ventitré', 24: 'Ventiquattro' };
+    return (W[n] || String(n)) + ' laboratori';
+  }
   function home() {
     var page = el('div.page.page-home');
     page.appendChild(el('header.hero.hero-home',
       el('div.hero-text',
         el('div.kicker', 'Atlante interattivo di probabilità e statistica'),
         el('h1', 'Vedere la statistica ', el('em', 'mentre accade')),
-        el('p.lede', 'Sedici laboratori per studenti universitari. Ognuno parte da una domanda, genera i dati sotto i tuoi occhi e confronta ciò che osservi con ciò che la teoria garantisce. Lo script R riproduce esattamente lo stesso esperimento.'),
+        el('p.lede', labCountText() + ' per studenti universitari. Ognuno parte da una domanda, genera i dati sotto i tuoi occhi e confronta ciò che osservi con ciò che la teoria garantisce. Lo script R riproduce esattamente lo stesso esperimento.'),
         el('div.hero-actions', el('button.btn.btn-primary', { type: 'button', 'aria-haspopup': 'dialog', onclick: openMap }, 'Sfoglia l’atlante: la mappa dei laboratori'))),
       el('div.hero-art', { html: '<div class="hero-logo">' + SA.art.logo(132) + '</div>' + ['distribuzioni', 'intervalli', 'regressione', 'lgn-tcl'].map(function (k, i) { return '<div class="mosaic m' + i + '">' + SA.art.get(k) + '</div>'; }).join('') })));
     page.appendChild(el('section.how', el('div.step-label', 'Come funziona un laboratorio'),
@@ -112,7 +118,8 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     ['stimatori', 'regressione-lp', 'media contro mediana: efficienza e robustezza'], ['fisher', 'glm', 'verosimiglianza e scoring di Fisher (IRLS)'],
     ['regressione', 'glm', 'dal modello lineare al legame'], ['bivariata', 'arma', 'la dipendenza nel tempo: autocorrelazione'],
     ['regressione-lp', 'quantilica', 'L1 è la regressione del quantile 0,5'], ['regressione', 'penalizzata', 'penalizzare i minimi quadrati'],
-    ['regressione', 'spline', 'dalla retta alla curva'], ['penalizzata', 'spline', 'la penalità sulla rugosità (P-spline)'], ['adattamento', 'spline', 'scegliere la complessità guardando i dati']
+    ['regressione', 'spline', 'dalla retta alla curva'], ['penalizzata', 'spline', 'la penalità sulla rugosità (P-spline)'], ['adattamento', 'spline', 'scegliere la complessità guardando i dati'],
+    ['spline', 'segmentata', 'una spline lineare con un solo nodo, di posizione ignota'], ['regressione', 'segmentata', 'il modello lineare con un termine (x − ψ)₊'], ['test', 'segmentata', 'testare un parametro che esiste solo sotto l’alternativa']
   ];
   function openMap() {
     closePart(); modalLast = document.activeElement;
@@ -188,7 +195,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
       el('div.cards', p.labs.map(function (l) {
         var ready = l.status === 'ready', st = STATUS[l.status];
         var inner = [el('div.card-art', { html: SA.art.get(l.id), 'aria-hidden': 'true' }),
-          el('div.card-body', el('span.num', 'Laboratorio ' + l.num), el('h3', l.title), el('p', l.blurb), ready ? el('span.card-go', 'Apri il laboratorio →') : el('span.tag' + (st[0] ? '.' + st[0] : ''), st[1]))];
+          el('div.card-body', el('span.num', 'Laboratorio ' + l.num), el('h3', l.title), el('p', l.blurb), ready ? el('span.card-go', 'Apri il laboratorio →') : el('span.tag' + (st[0] ? '.' + st[0] : ''), st[1]), l.verifyR ? el('span.tag.tag-new', { style: 'margin-top:6px;align-self:flex-start' }, 'Anteprima · script R da verificare') : null)];
         return ready ? el('a.card', { href: '#/' + l.id, onclick: closePart }, inner) : el('div.card.is-soon', inner);
       })));
     document.body.append(modalBack, modal); document.body.style.overflow = 'hidden';
@@ -220,6 +227,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     if (head) {
       var text = head.firstElementChild, btn = head.querySelector(':scope > .btn');
       if (c) text.appendChild(el('ul.chips', { 'aria-label': 'Obiettivi' }, c.obiettivi.map(function (o) { return el('li', o); })));
+      if (SA.findLab(id).lab.verifyR) text.appendChild(el('div.callout.warn', { style: 'max-width:70ch' }, el('strong', 'Anteprima. '), 'Laboratorio nuovo: lo script R non è ancora stato verificato in un’installazione reale di R. I risultati del browser sono testati; quelli dello script vanno confermati.'));
       if (btn) text.appendChild(el('div.head-actions', btn));
       var info = SA.findLab(id);
       head.appendChild(el('figure.lab-cover', { html: SA.art.get(id) + '<figcaption>Tavola ' + info.lab.num + ' · ' + info.part.title + '</figcaption>', 'aria-hidden': 'true' }));

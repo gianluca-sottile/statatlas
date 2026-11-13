@@ -6,7 +6,7 @@
 
 <p align="center">
   <em>Vedere la statistica mentre accade.</em><br>
-  Un atlante interattivo di probabilità e inferenza statistica: sedici laboratori, dati generati sotto i tuoi occhi e codice R che riproduce esattamente lo stesso esperimento.
+  Un atlante interattivo di probabilità e inferenza statistica: diciassette laboratori, dati generati sotto i tuoi occhi e codice R che riproduce esattamente lo stesso esperimento.
 </p>
 
 <p align="center">
@@ -18,7 +18,7 @@
 </p>
 
 <p align="center">
-  <img alt="Versione" src="https://img.shields.io/badge/versione-1.4.0-9A3412">
+  <img alt="Versione" src="https://img.shields.io/badge/versione-1.5.0-9A3412">
   <img alt="Lingua" src="https://img.shields.io/badge/lingua-italiano-1C1B19">
   <img alt="Offline" src="https://img.shields.io/badge/funziona-offline-1F6F43">
   <img alt="Dipendenze" src="https://img.shields.io/badge/dipendenze-nessuna-1E4E8C">
@@ -57,6 +57,7 @@ Molti concetti della statistica — la legge dei grandi numeri, il teorema centr
 | **V · Regressione moderna** | 14 · Regressione quantilica | Rette per ogni quantile, perdita asimmetrica, soluzione esatta, punti trascinabili |
 | | 15 · Ridge, lasso ed elastic net | Spazio delle soluzioni, percorsi di regolarizzazione, distorsione–varianza |
 | | 16 · Regressione non parametrica e spline | Polinomi, spline, P-spline e kernel: basi, gradi di libertà effettivi, validazione incrociata |
+| | 17 · Regressione segmentata e breakpoint *(anteprima)* | Profilo RSS(ψ), breakpoint non identificato, test bootstrap dell’esistenza del cambiamento |
 
 ## Come è fatto un laboratorio
 
@@ -122,7 +123,7 @@ npm install jsdom && node tests/smoke/smoke_fase7.js index.html   # smoke test
 
 ## Come citare
 
-> Sottile G. (2026). *StatAtlas: un atlante interattivo di probabilità e inferenza statistica*, versione 1.4.0. https://github.com/gianluca-sottile/statatlas
+> Sottile G. (2026). *StatAtlas: un atlante interattivo di probabilità e inferenza statistica*, versione 1.5.0. https://github.com/gianluca-sottile/statatlas
 
 ## Crediti
 

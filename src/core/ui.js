@@ -267,6 +267,21 @@ SA.ui = (function () {
     return r;
   }
 
+  /* Lavoro pesante a blocchi, cooperativo e annullabile (UI-01): esegue work(i) per i = 0…total−1
+   * a fette di ~12 ms, chiama onProgress(i, total) e onDone(); restituisce {cancel()}. */
+  function chunked(total, work, onProgress, onDone) {
+    var i = 0, alive = true;
+    function slice() {
+      if (!alive) return;
+      var t0 = Date.now();
+      while (i < total && Date.now() - t0 < 12) work(i++);
+      if (onProgress) onProgress(i, total);
+      if (i < total) setTimeout(slice, 0); else if (onDone) onDone();
+    }
+    setTimeout(slice, 0);
+    return { cancel: function () { alive = false; } };
+  }
+
   /* Campo con slider e valore */
   function slider(label, o) {
     var out = el('output', o.format ? o.format(o.value) : String(o.value));
@@ -277,6 +292,6 @@ SA.ui = (function () {
     f.input = inp; f.output = out; return f;
   }
 
-  return { el: el, icon: icon, runner: runner, slider: slider, button: button, toast: toast, download: download, copy: copy, codeBlock: codeBlock,
+  return { el: el, icon: icon, runner: runner, slider: slider, chunked: chunked, button: button, toast: toast, download: download, copy: copy, codeBlock: codeBlock,
     exportPNG: exportPNG, csv: csv, openDrawer: openDrawer, closeDrawer: closeDrawer, badge: badge, step: step, highlightR: highlightR };
 })();

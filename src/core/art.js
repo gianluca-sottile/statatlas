@@ -125,6 +125,13 @@ SA.art = (function () {
     for (var j = 1; j < 8; j++) s += '<line x1="' + (20 + j * 35) + '" x2="' + (20 + j * 35) + '" y1="168" y2="160" stroke="var(--accent)" stroke-width="2"/>';
     return frame(s, 'Spline e basi');
   };
+  L.segmentata = function () {
+    var r = rnd(41), s = '', f = function (x) { return 150 - 0.12 * (x - 20) - 0.45 * Math.max(0, x - 190); };
+    for (var i = 0; i < 40; i++) { var x = 22 + i * 7; s += '<circle cx="' + x + '" cy="' + (f(x) + 9 * gauss(r)).toFixed(1) + '" r="2.6" fill="var(--ink)" fill-opacity=".45"/>'; }
+    s += '<polyline points="20,150 190,129.6 300,80.1" fill="none" stroke="var(--accent)" stroke-width="3"/><line x1="20" y1="158" x2="300" y2="96" stroke="var(--c1)" stroke-width="2" stroke-dasharray="9 4"/>';
+    s += '<line x1="190" y1="20" x2="190" y2="170" stroke="var(--ink)" stroke-dasharray="3 3"/><path d="M60,40 Q125,46 190,22 T300,44" fill="none" stroke="var(--c3)" stroke-width="2"/>';
+    return frame(s, 'Spezzata e profilo');
+  };
   /* ---- parti ---- */
   L.partI = L.distribuzioni; L.partII = L['lgn-tcl']; L.partIII = L.intervalli; L.partIV = L.regressione; L.partV = L.penalizzata;
   function get(id) { return L[id] ? L[id]() : ''; }

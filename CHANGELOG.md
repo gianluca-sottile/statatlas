@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.5.0 — 13/11/2026 · inizio del ciclo 2.0 (BASE-01, CORE-01, LAB-17)
+- **BASE-01**: fotografia della baseline 1.4.1 in `docs/BASELINE.md` (commit, build, 49 test, smoke). Piano 2.0 in `docs/PIANO_2_0.md`.
+- **CORE-01**: `src/core/linalg.js` — minimi quadrati con QR di Householder, autodecomposizione simmetrica (Jacobi), base ortonormale per disegni fissi; `tests/test_linalg.js` (16 test).
+- **UI-01 (primo passo)**: `SA.ui.chunked`, lavoro pesante a blocchi e annullabile (usato dal bootstrap del lab 17).
+- **Lab 17 Regressione segmentata e breakpoint** (Parte V, *anteprima*): profilo RSS(ψ) su griglia con QR, insieme plausibile indicativo, distribuzione Monte Carlo di ψ̂ con quota di stime al bordo, caso non identificato δ = 0, test bootstrap sotto H₀ con ricerca di ψ ripetuta, confronto dell’errore con retta e spline. R: stessi dati (R0) e stessa griglia (R2); `segmented` e `davies.test` come confronto di metodo (R3).
+- Conteggio dei laboratori nella home ricavato dal catalogo; nuovi legami nella mappa.
+
 ## 1.4.1 — 11/11/2026
 - Lab 15, vista Percorsi: la correlazione equicorrelata non è definita positiva per ρ < −1/7 con 8 predittori e produceva NaN. Ora Σᵢⱼ = ρ^|i−j| (schema di Tibshirani, 1996), valida per ogni |ρ| < 1, anche negativa; aggiornati etichetta e script R.
 - Lab 15, vista geometrica: nuovo punto di partenza (1,8; 0,4) per rendere visibile l’effetto di ρ, e nota sul caso in cui il contatto lungo un lato del rombo non dipende da ρ.
