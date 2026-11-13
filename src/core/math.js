@@ -56,7 +56,7 @@ SA.math = (function () {
         if (name === '\\') return { h: '<br>', k: 'open' };
         if (name === 'frac' || name === 'tfrac' || name === 'dfrac') { var a = arg(), b = arg(); return { h: '<span class="m-frac"><span class="m-num">' + a + '</span><span class="m-den">' + b + '</span></span>' }; }
         if (name === 'binom') { var p = arg(), q = arg(); return { h: '<span class="m-delim m-tall">(</span><span class="m-frac m-nobar"><span class="m-num">' + p + '</span><span class="m-den">' + q + '</span></span><span class="m-delim m-tall">)</span>' }; }
-        if (name === 'sqrt') return { h: '<span class="m-sqrt"><span class="m-surd">√</span><span class="m-rad">' + arg() + '</span></span>' };
+        if (name === 'sqrt') return { h: '<span class="m-sqrt"><svg class="m-surd" viewBox="0 0 10 30" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M0.6 17.5 L3 15.6 L6.2 29.2 L10 0.5" fill="none" stroke="currentColor" stroke-width="1" vector-effect="non-scaling-stroke" stroke-linejoin="round"/></svg><span class="m-rad">' + arg() + '</span></span>' };
         if (ACC[name]) { var x = arg(), plain = x.replace(/<[^>]+>/g, ''); return { h: plain.length === 1 ? x.replace(plain, plain + ACC[name]) : '<span class="m-acc m-' + name + '">' + x + '</span>' }; }
         if (name === 'overline') return { h: '<span class="m-acc m-bar">' + arg() + '</span>' };
         if (name === 'text' || name === 'mathrm' || name === 'operatorname') { while (src[i] === ' ') i++; var t = ''; if (src[i] === '{') { i++; var d = 1; while (i < n) { if (src[i] === '{') d++; else if (src[i] === '}' && --d === 0) { i++; break; } t += src[i++]; } } return { h: '<span class="m-text">' + esc(t).replace(/ /g, '&nbsp;') + '</span>' }; }
@@ -67,6 +67,7 @@ SA.math = (function () {
         if (GREEK[name]) return { h: '<i>' + GREEK[name] + '</i>' };
         if (UPPER[name]) return { h: UPPER[name] };
         if (REL[name]) return { h: '<span class="m-rel">' + REL[name] + '</span>', k: 'bin' };
+        if (name === 'pm' || name === 'mp') return { h: '<span class="m-bin">' + (name === 'pm' ? '±' : '∓') + '</span>', k: 'bin' };
         if (SYM[name] !== undefined) return { h: SYM[name], k: name === 'cdot' || name === 'times' ? 'ord' : undefined };
         return { h: '<span class="m-text">' + esc(name) + '</span>' };
       }

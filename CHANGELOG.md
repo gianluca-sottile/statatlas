@@ -6,6 +6,7 @@
 - **Schede**: indice interno «In questa scheda» quando le sezioni sono almeno quattro; riquadri con intestazione (`.box.def`, `.box.thm`, `.box.ex`, `.box.nota`); l’esempio svolto è in un riquadro; gli avvisi portano l’etichetta «Attenzione».
 - **Home**: nuovo blocco «Come leggere i risultati» (esatto, asintotico, approssimato, Monte Carlo) e «Che cosa riproduce lo script R» (livelli R0–R3); testi aggiornati (non più «esattamente lo stesso esperimento»).
 - **README**: tabella dei livelli di riproducibilità, descrizione e struttura aggiornate.
+- Correzioni dopo la prima prova a schermo: radice disegnata in SVG che si allunga con il radicando e si unisce alla barra; barra di frazione estesa a tutta la larghezza; ± con spaziatura da operatore; spaziatura ridotta degli operatori nei pedici (t<sub>n−2</sub>); cifre sempre diritte; parentesi e graffe \left … \right più alte.
 - Rifiniture: singolare «prima componente» nel lab 21; numeri in notazione scientifica con la virgola nei lab 21 e 24.
 
 ## 1.13.0 — 13/11/2026 · laboratori 17–24 verificati in R

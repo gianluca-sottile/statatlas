@@ -526,23 +526,23 @@ html.zoom-open, html.zoom-open body { overflow: hidden; }
 .transport > .btn-icon { flex: none; }
 
 /* ---------- formule composte (core/math.js) ---------- */
-.m { font-family: var(--serif); font-size: 1.06em; line-height: 1.2; white-space: nowrap; font-variant-numeric: lining-nums; }
+.m { font-family: var(--serif); font-size: 1.06em; font-style: normal; line-height: 1.2; white-space: nowrap; font-variant-numeric: lining-nums; font-feature-settings: "lnum" 1, "onum" 0; }
 .m i { font-style: italic; }
 .m sub, .m sup { font-size: .72em; line-height: 0; }
 .m-rel { margin: 0 .3em; } .m-bin { margin: 0 .22em; }
 .m-sp1 { display: inline-block; width: .17em; } .m-sp2 { display: inline-block; width: .3em; } .m-sp3 { display: inline-block; width: 1em; } .m-sp4 { display: inline-block; width: 2em; }
 .m-text, .m-fn { font-style: normal; } .m-fn { margin-right: .1em; }
-.m-frac { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; margin: 0 .14em; text-align: center; }
-.m-num { padding: 0 .28em .1em; border-bottom: 1px solid currentColor; } .m-den { padding: .12em .28em 0; }
+.m-frac { display: inline-flex; flex-direction: column; align-items: stretch; vertical-align: middle; margin: 0 .14em; text-align: center; }
+.m-num { padding: 0 .22em .12em; border-bottom: 1px solid currentColor; } .m-den { padding: .14em .22em 0; }
 .m-nobar .m-num { border-bottom: 0; }
 .m-frac .m-frac { font-size: .88em; }
-.m-sqrt { display: inline-flex; align-items: stretch; vertical-align: middle; margin: 0 .06em; }
-.m-surd { font-size: 1.15em; line-height: 1; align-self: flex-end; transform: scaleY(1.12); transform-origin: bottom; margin-right: -.03em; }
-.m-rad { border-top: 1px solid currentColor; padding: .1em .14em 0 .12em; margin-top: .08em; }
+.m-sqrt { display: inline-flex; align-items: stretch; vertical-align: middle; margin: 0 .1em 0 .12em; }
+.m-surd { display: block; flex: none; width: .62em; height: auto; overflow: visible; }
+.m-rad { border-top: 1px solid currentColor; padding: .16em .16em .02em .1em; }
 .m-op { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; margin: 0 .2em; }
 .m-lim { font-size: .68em; line-height: 1.15; min-height: .2em; } .m-bigsym { font-size: 1.55em; line-height: 1; }
 .m-ss { display: inline-flex; flex-direction: column; vertical-align: middle; font-size: .72em; line-height: 1.05; margin-left: .05em; }
-.m-delim.m-tall { font-size: 1.5em; font-weight: 300; vertical-align: middle; line-height: 1; position: relative; top: -.04em; }
+.m-delim.m-tall { display: inline-block; font-size: 1.5em; font-weight: 300; vertical-align: middle; line-height: 1; transform: scaleY(1.45); margin: 0 .04em; position: relative; top: -.05em; }
 .m-acc.m-bar { border-top: 1px solid currentColor; padding-top: .02em; }
 .m-acc.m-hat, .m-acc.m-tilde { position: relative; display: inline-block; }
 .m-acc.m-hat::before { content: "^"; position: absolute; left: 0; right: 0; top: -.62em; text-align: center; font-style: normal; transform: scaleX(1.8); }
@@ -576,6 +576,11 @@ a.eqref { color: var(--accent); text-decoration: none; font-variant-numeric: tab
 .legend-list.levels li div { display: grid; }
 .legend-list .badge { justify-self: start; }
 .rlevel { font: 700 .8rem var(--sans); color: var(--accent); border: 1px solid var(--accent); border-radius: 6px; padding: 2px 6px; text-align: center; }
+
+/* operatori nei pedici, negli apici e nei limiti: spaziatura ridotta */
+.m sub .m-bin, .m sup .m-bin, .m-ss .m-bin, .m-lim .m-bin { margin: 0 .06em; }
+.m sub .m-rel, .m sup .m-rel, .m-ss .m-rel, .m-lim .m-rel { margin: 0 .1em; }
+.m-ss { margin-right: .06em; }
 
 </style>
 </head>
@@ -1103,7 +1108,7 @@ SA.math = (function () {
         if (name === '\\') return { h: '<br>', k: 'open' };
         if (name === 'frac' || name === 'tfrac' || name === 'dfrac') { var a = arg(), b = arg(); return { h: '<span class="m-frac"><span class="m-num">' + a + '</span><span class="m-den">' + b + '</span></span>' }; }
         if (name === 'binom') { var p = arg(), q = arg(); return { h: '<span class="m-delim m-tall">(</span><span class="m-frac m-nobar"><span class="m-num">' + p + '</span><span class="m-den">' + q + '</span></span><span class="m-delim m-tall">)</span>' }; }
-        if (name === 'sqrt') return { h: '<span class="m-sqrt"><span class="m-surd">√</span><span class="m-rad">' + arg() + '</span></span>' };
+        if (name === 'sqrt') return { h: '<span class="m-sqrt"><svg class="m-surd" viewBox="0 0 10 30" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M0.6 17.5 L3 15.6 L6.2 29.2 L10 0.5" fill="none" stroke="currentColor" stroke-width="1" vector-effect="non-scaling-stroke" stroke-linejoin="round"/></svg><span class="m-rad">' + arg() + '</span></span>' };
         if (ACC[name]) { var x = arg(), plain = x.replace(/<[^>]+>/g, ''); return { h: plain.length === 1 ? x.replace(plain, plain + ACC[name]) : '<span class="m-acc m-' + name + '">' + x + '</span>' }; }
         if (name === 'overline') return { h: '<span class="m-acc m-bar">' + arg() + '</span>' };
         if (name === 'text' || name === 'mathrm' || name === 'operatorname') { while (src[i] === ' ') i++; var t = ''; if (src[i] === '{') { i++; var d = 1; while (i < n) { if (src[i] === '{') d++; else if (src[i] === '}' && --d === 0) { i++; break; } t += src[i++]; } } return { h: '<span class="m-text">' + esc(t).replace(/ /g, '&nbsp;') + '</span>' }; }
@@ -1114,6 +1119,7 @@ SA.math = (function () {
         if (GREEK[name]) return { h: '<i>' + GREEK[name] + '</i>' };
         if (UPPER[name]) return { h: UPPER[name] };
         if (REL[name]) return { h: '<span class="m-rel">' + REL[name] + '</span>', k: 'bin' };
+        if (name === 'pm' || name === 'mp') return { h: '<span class="m-bin">' + (name === 'pm' ? '±' : '∓') + '</span>', k: 'bin' };
         if (SYM[name] !== undefined) return { h: SYM[name], k: name === 'cdot' || name === 'times' ? 'ord' : undefined };
         return { h: '<span class="m-text">' + esc(name) + '</span>' };
       }
