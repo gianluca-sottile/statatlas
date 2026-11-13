@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.12.0 — 13/11/2026 · Parte VIII (LAB-24): tutti i 24 laboratori
+- **CORE-05**: `src/core/nn.js` — rete 2 → H → 1 (tanh o ReLU, uscita sigmoide), entropia incrociata stabile, penalità L2, backpropagation, discesa a lotto intero, controllo del gradiente con differenze centrali, rilevazione della divergenza; `tests/test_nn.js` (11 test).
+- **Lab 24 Reti neurali e backpropagation** (Parte VIII, *anteprima*): XOR, dati separabili, due lune; superficie di probabilità e frontiera; schema della rete con pesi, passaggio in avanti e δ della backpropagation per un’osservazione scelta con un clic; perdita di training e validazione con il minimo della validazione; addestramento cooperativo un’epoca alla volta; venti inizializzazioni sugli stessi dati (a blocchi, annullabile); controllo del gradiente in tabella. R: stessi dati e pesi iniziali (R0), stessa discesa del gradiente scritta in R (R2), `nnet`/`torch` come confronto (R3).
+- La mappa dell’atlante ha ora otto parti su due righe, 24 nodi e 47 legami.
+
 ## 1.11.0 — 13/11/2026 · Parte VII completa (LAB-23)
 - `cluster.js`: DBSCAN con convenzione deterministica dichiarata (visita in ordine di indice, espansione FIFO, bordo al primo cluster), intorni, k-distanze, silhouette; 8 nuovi test (definizioni, invarianza di core e rumore all’ordine dei dati).
 - **Lab 23 DBSCAN e confronto tra metodi** (Parte VII, *anteprima*): lune, cerchi concentrici, densità diverse e dati uniformi senza gruppi, punti anomali, scala e standardizzazione; espansione animata con core, bordo e rumore e intorno ε di un punto scelto con un clic; grafico delle k-distanze; ARI e quota di rumore al variare di ε; k-means, Ward e DBSCAN affiancati con ARI e silhouette; bordi contesi; controllo che l’animazione coincida con la procedura di riferimento. R: stessi dati (R0), DBSCAN didattico identico (R2), `dbscan::dbscan` come confronto (R3).

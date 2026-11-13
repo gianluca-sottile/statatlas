@@ -185,8 +185,16 @@ SA.art = (function () {
     s += '<circle cx="165" cy="80" r="22" fill="var(--accent)" fill-opacity=".1" stroke="var(--accent)" stroke-width="1.6" stroke-dasharray="4 3"/>';
     return frame(s, 'Densità e rumore');
   };
+  L['reti-neurali'] = function () {
+    var s = '', L1 = [[50, 65], [50, 125]], L2 = [[160, 35], [160, 75], [160, 115], [160, 155]], O = [[270, 95]];
+    L1.forEach(function (a, i) { L2.forEach(function (b, j) { s += '<line x1="' + a[0] + '" y1="' + a[1] + '" x2="' + b[0] + '" y2="' + b[1] + '" stroke="' + ((i + j) % 2 ? 'var(--c1)' : 'var(--c2)') + '" stroke-width="' + (1 + (i * 2 + j) % 3) + '" stroke-opacity=".7"/>'; }); });
+    L2.forEach(function (b, j) { s += '<line x1="' + b[0] + '" y1="' + b[1] + '" x2="270" y2="95" stroke="' + (j % 2 ? 'var(--c2)' : 'var(--c1)') + '" stroke-width="' + (1.5 + j % 3) + '" stroke-opacity=".7"/>'; });
+    L1.concat(L2, O).forEach(function (q, k) { s += '<circle cx="' + q[0] + '" cy="' + q[1] + '" r="' + (k === 6 ? 15 : 11) + '" fill="var(--card)" stroke="var(--ink)" stroke-width="2"/>'; });
+    s += '<path d="M255,140 Q230,170 190,172" fill="none" stroke="var(--accent)" stroke-width="2.4" marker-end=""/><text x="196" y="166" font-size="13" fill="var(--accent)">δ</text>';
+    return frame(s, 'Strati e pesi');
+  };
   /* ---- parti ---- */
-  L.partI = L.distribuzioni; L.partII = L['lgn-tcl']; L.partIII = L.intervalli; L.partIV = L.regressione; L.partV = L.penalizzata; L.partVI = L.validazione; L.partVII = L.pca;
+  L.partI = L.distribuzioni; L.partII = L['lgn-tcl']; L.partIII = L.intervalli; L.partIV = L.regressione; L.partV = L.penalizzata; L.partVI = L.validazione; L.partVII = L.pca; L.partVIII = L['reti-neurali'];
   function get(id) { return L[id] ? L[id]() : ''; }
   return { get: get, logo: L.logo };
 })();

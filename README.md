@@ -6,7 +6,7 @@
 
 <p align="center">
   <em>Vedere la statistica mentre accade.</em><br>
-  Un atlante interattivo di probabilità e inferenza statistica: ventitré laboratori, dati generati sotto i tuoi occhi e codice R che riproduce esattamente lo stesso esperimento.
+  Un atlante interattivo di probabilità e inferenza statistica: ventiquattro laboratori, dati generati sotto i tuoi occhi e codice R che riproduce esattamente lo stesso esperimento.
 </p>
 
 <p align="center">
@@ -18,7 +18,7 @@
 </p>
 
 <p align="center">
-  <img alt="Versione" src="https://img.shields.io/badge/versione-1.11.0-9A3412">
+  <img alt="Versione" src="https://img.shields.io/badge/versione-1.12.0-9A3412">
   <img alt="Lingua" src="https://img.shields.io/badge/lingua-italiano-1C1B19">
   <img alt="Offline" src="https://img.shields.io/badge/funziona-offline-1F6F43">
   <img alt="Dipendenze" src="https://img.shields.io/badge/dipendenze-nessuna-1E4E8C">
@@ -64,6 +64,7 @@ Molti concetti della statistica — la legge dei grandi numeri, il teorema centr
 | **VII · Riduzione dimensionale e clustering** | 21 · Componenti principali *(anteprima)* | Assi di massima varianza, scree plot, biplot, ricostruzione, stabilità degli assi (asintotica di Anderson) |
 | | 22 · k-means e clustering gerarchico *(anteprima)* | Lloyd passo dopo passo, minimi locali e riavvii, dendrogrammi e legami, indice di Rand corretto |
 | | 23 · DBSCAN e confronto tra metodi *(anteprima)* | Core, bordo e rumore, k-distanze e scelta di ε, lune e cerchi contro k-means e Ward |
+| **VIII · Reti neurali** | 24 · Reti neurali e backpropagation *(anteprima)* | Pesi e passaggio in avanti, gradiente verificato con differenze finite, learning rate, sovradattamento, inizializzazioni |
 
 ## Come è fatto un laboratorio
 
@@ -118,19 +119,19 @@ StatAtlas/
 ```bash
 python3 build.py                                   # ricostruisce index.html
 node tests/test_core.js                            # test numerici
-node tests/test_linalg.js && node tests/test_resampling.js && node tests/test_ml.js && node tests/test_cluster.js
+node tests/test_linalg.js && node tests/test_resampling.js && node tests/test_ml.js && node tests/test_cluster.js && node tests/test_nn.js
 npm install jsdom && node tests/smoke/smoke_fase7.js index.html   # smoke test
 ```
 
 ### Verifiche
 
-- 120 test numerici superati (49 + 16 algebra lineare + 15 ricampionamento, incluso `sample()` di R, + 14 kNN e alberi + 26 clustering e DBSCAN): generatore (`runif`, `rnorm`), quantili e funzioni di ripartizione (`qnorm`, `pt`, `qbeta`, `qf`, `qgamma`, …) confrontati con R.
+- 131 test numerici superati (49 + 16 algebra lineare + 15 ricampionamento, incluso `sample()` di R, + 14 kNN e alberi + 26 clustering e DBSCAN + 11 reti neurali): generatore (`runif`, `rnorm`), quantili e funzioni di ripartizione (`qnorm`, `pt`, `qbeta`, `qf`, `qgamma`, …) confrontati con R.
 - Smoke test di tutti i laboratori; contrasto dei colori conforme a WCAG 2.1 AA.
 - Da completare: esecuzione sistematica degli script R e collaudo su Safari, Firefox e dispositivi mobili.
 
 ## Come citare
 
-> Sottile G. (2026). *StatAtlas: un atlante interattivo di probabilità e inferenza statistica*, versione 1.11.0. https://github.com/gianluca-sottile/statatlas
+> Sottile G. (2026). *StatAtlas: un atlante interattivo di probabilità e inferenza statistica*, versione 1.12.0. https://github.com/gianluca-sottile/statatlas
 
 ## Crediti
 

@@ -31,7 +31,9 @@ SA.catalog = [
   { part: 'VII', title: 'Riduzione dimensionale e clustering', labs: [
     { id: 'pca', num: '21', title: 'Componenti principali', blurb: 'Gli assi di massima varianza: autovalori, varianza spiegata, ricostruzione, segni e stabilità degli assi.', status: 'ready', verifyR: true },
     { id: 'clustering', num: '22', title: 'k-means e clustering gerarchico', blurb: 'Lloyd passo dopo passo, minimi locali e più avvii, dendrogrammi e legami, gruppi trovati contro gruppi veri.', status: 'ready', verifyR: true },
-    { id: 'dbscan', num: '23', title: 'DBSCAN e confronto tra metodi', blurb: 'Gruppi come regioni dense: core, bordo e rumore, scelta di ε, lune e cerchi contro k-means e Ward.', status: 'ready', verifyR: true } ] }
+    { id: 'dbscan', num: '23', title: 'DBSCAN e confronto tra metodi', blurb: 'Gruppi come regioni dense: core, bordo e rumore, scelta di ε, lune e cerchi contro k-means e Ward.', status: 'ready', verifyR: true } ] },
+  { part: 'VIII', title: 'Reti neurali', labs: [
+    { id: 'reti-neurali', num: '24', title: 'Reti neurali e backpropagation', blurb: 'Una rete piccola vista per intero: pesi, passaggio in avanti, gradiente, learning rate, sovradattamento e inizializzazioni.', status: 'ready', verifyR: true } ] }
 ];
 SA.labs = {};
 SA.registerLab = function (id, def) { SA.labs[id] = def; };
@@ -81,7 +83,8 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     IV: ['partIV', 'Modelli che legano una risposta a dei predittori o al proprio passato: regressione lineare, robusta e generalizzata, serie temporali.'],
     V: ['partV', 'Oltre la media e oltre la retta: quantili condizionati, stime penalizzate con molti predittori e curve stimate dai dati.'],
     VI: ['partVI', 'Prevedere bene su dati nuovi: errore di generalizzazione, validazione, e metodi che imparano la forma della relazione dai dati.'],
-    VII: ['partVII', 'Dati senza una risposta da prevedere: trovare poche direzioni che riassumono molte variabili, e gruppi di osservazioni simili.']
+    VII: ['partVII', 'Dati senza una risposta da prevedere: trovare poche direzioni che riassumono molte variabili, e gruppi di osservazioni simili.'],
+    VIII: ['partVIII', 'Modelli costruiti a strati e addestrati con il gradiente: come una rete piccola impara una frontiera non lineare, e dove può sbagliare.']
   };
   var STEPS = [['Domanda', 'Un problema concreto, con una previsione facoltativa'], ['Esperimento', 'Dati generati sotto i tuoi occhi, passo dopo passo'],
     ['Teoria e simulazione', 'Esatto, asintotico o Monte Carlo: sempre dichiarato'], ['Interpretazione', 'Che cosa significa, quando vale, dove si rompe'],
@@ -135,7 +138,8 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     ['knn', 'alberi', 'dalle regioni dei vicini ai rettangoli degli alberi'], ['validazione', 'alberi', 'l’errore out-of-bag come validazione gratuita'], ['simulazione', 'alberi', 'il bootstrap: ricampionare per simulare nuovi dati'],
     ['bivariata', 'pca', 'la covarianza e i suoi assi: ellissi di concentrazione'], ['regressione', 'pca', 'proiezioni ortogonali e minimi quadrati'], ['penalizzata', 'pca', 'ridge restringe di più le direzioni a bassa varianza'],
     ['pca', 'clustering', 'distanze euclidee e scelta della scala'], ['knn', 'clustering', 'vicinanza senza etichette'], ['bivariata', 'clustering', 'miscugli di normali come popolazioni generatrici'],
-    ['clustering', 'dbscan', 'dai centri alla densità: gruppi di forma qualunque'], ['knn', 'dbscan', 'intorni di raggio ε e k-distanze']
+    ['clustering', 'dbscan', 'dai centri alla densità: gruppi di forma qualunque'], ['knn', 'dbscan', 'intorni di raggio ε e k-distanze'],
+    ['validazione', 'reti-neurali', 'validazione e arresto anticipato'], ['knn', 'reti-neurali', 'frontiere non lineari apprese dai dati'], ['glm', 'reti-neurali', 'l’uscita è una regressione logistica su variabili costruite'], ['penalizzata', 'reti-neurali', 'la penalità L2 sui pesi (weight decay)']
   ];
   function openMap() {
     closePart(); modalLast = document.activeElement;
