@@ -239,7 +239,7 @@
         'var_media <- integrate(\\(x) f(x)^2, 0, 1)$value - I^2',
         'var_hm    <- I * (1 - I)',
         'c(var_media = var_media, var_hm = var_hm, rapporto = var_hm / var_media)', '',
-        'sim |> slice_tail(n = 1) |> select(media, hit_or_miss)', '',
+        'sim |> slice_tail(n = 1) |> dplyr::select(media, hit_or_miss)', '',
         'sim |>', '  pivot_longer(c(media, hit_or_miss), names_to = "metodo", values_to = "stima") |>',
         '  ggplot(aes(n, stima, colour = metodo, linetype = metodo)) +',
         '  geom_hline(yintercept = I, linetype = "dashed") +',

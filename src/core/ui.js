@@ -221,7 +221,7 @@ SA.ui = (function () {
     r.playBtn = button(' Avvia', { icon: 'play', cls: 'btn-primary', onclick: function () { r.set(!r.running); } });
     function label() {
       r.playBtn.innerHTML = ''; r.playBtn.appendChild(icon(r.running ? 'pause' : 'play'));
-      r.playBtn.appendChild(document.createTextNode(r.running ? ' Pausa' : (o.progress() > 0 && !o.done() ? ' Riprendi' : ' Avvia')));
+      r.playBtn.appendChild(document.createTextNode(r.running ? ' Pausa' : o.done() ? ' Riavvia' : o.progress() > 0 ? ' Riprendi' : ' Avvia'));
       r.playBtn.setAttribute('aria-pressed', String(r.running));
       bar.style.width = (100 * o.progress()) + '%';
     }
@@ -237,6 +237,7 @@ SA.ui = (function () {
     }
     r.set = function (on) {
       if (r.task) return;
+      if (on && o.done()) { o.reset(); o.render(true); } // simulazione finita: «Riavvia» ricomincia con lo stesso seed
       r.running = !!on && !o.done();
       if (r.running && !r.raf) r.raf = requestAnimationFrame(loop);
       if (!r.running) o.render(true);

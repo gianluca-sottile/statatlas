@@ -224,7 +224,7 @@ traiettorie <- tibble(
   ungroup()
 
 # Valore finale di ciascuna traiettoria
-traiettorie |> filter(n == N) |> select(traiettoria, media)
+traiettorie |> filter(n == N) |> dplyr::select(traiettoria, media)
 
 banda <- tibble(n = seq_len(N), basso = mu - 1.96 * sigma / sqrt(n), alto = mu + 1.96 * sigma / sqrt(n))
 
@@ -564,7 +564,7 @@ theme_statatlas <- function(base_size = 12) {
 griglia <- tibble(x = seq(-0.5, 10.5, length.out = 200))
 bande <- bind_cols(griglia,
   as_tibble(predict(fit, griglia, interval = "confidence")) |> rename(ci_lo = lwr, ci_hi = upr),
-  as_tibble(predict(fit, griglia, interval = "prediction")) |> select(pi_lo = lwr, pi_hi = upr))
+  as_tibble(predict(fit, griglia, interval = "prediction")) |> dplyr::select(pi_lo = lwr, pi_hi = upr))
 ggplot(bande, aes(x)) +
   geom_ribbon(aes(ymin = pi_lo, ymax = pi_hi), fill = "#009E73", alpha = 0.12) +
   geom_ribbon(aes(ymin = ci_lo, ymax = ci_hi), fill = "#0072B2", alpha = 0.25) +
@@ -609,7 +609,7 @@ sim <- tibble(replica = seq_len(M)) |>
          L1 = map_dbl(y, \(y) fit_lp(x, y, 1)[2]),
          Lp = map_dbl(y, \(y) fit_lp(x, y, p)[2]))
 
-stime <- sim |> select(L2, L1, Lp) |> pivot_longer(everything(), names_to = "metodo", values_to = "pendenza")
+stime <- sim |> dplyr::select(L2, L1, Lp) |> pivot_longer(everything(), names_to = "metodo", values_to = "pendenza")
 stime |> group_by(metodo) |>
   summarise(media = mean(pendenza), dev_std = sd(pendenza), iqr = IQR(pendenza), mse = mean((pendenza - b1)^2))
 
@@ -886,9 +886,9 @@ stime <- map_dbl(seq_len(B), \(b) griglia[which.min(profilo(genera()))])
 tibble(media = mean(stime), distorsione = mean(stime) - psi, rmse = sqrt(mean((stime - psi)^2)),
        bordo = mean(stime %in% range(griglia)))
 
-# Campione numero 1 (quello mostrato) e test bootstrap sotto H0: delta = 0
+# Campione numero 300 (quello mostrato) e test bootstrap sotto H0: delta = 0
 set.seed(2026)
-for (r in seq_len(1)) y <- genera()
+for (r in seq_len(300)) y <- genera()
 rss <- profilo(y); psi_hat <- griglia[which.min(rss)]
 fit_lin <- lm(y ~ x)
 T_oss <- n * log(sum(resid(fit_lin)^2) / min(rss))
@@ -969,8 +969,8 @@ map_dfr(repliche, "curve") |> group_by(d) |> summarise(across(everything(), mean
   geom_hline(yintercept = sigma^2, linetype = "dotted") + coord_cartesian(ylim = c(0, NA)) +
   labs(x = "grado del polinomio", y = "errore quadratico medio") + theme_statatlas()
 
-# Replica numero 1 (quella mostrata)
-repliche[[1]]$curve
+# Replica numero 200 (quella mostrata)
+repliche[[200]]$curve
 
 ]---",
   `knn` = r"---[
@@ -1027,7 +1027,7 @@ theme_statatlas <- function(base_size = 12) {
   theme_minimal(base_size = base_size, base_family = "serif") +
     theme(panel.grid.minor = element_blank(), plot.background = element_rect(fill = "#FAF8F3", colour = NA))
 }
-curve |> select(-replica) |> group_by(k) |> summarise(across(everything(), mean)) |>
+curve |> dplyr::select(-replica) |> group_by(k) |> summarise(across(everything(), mean)) |>
   pivot_longer(-k, names_to = "errore", values_to = "valore") |>
   ggplot(aes(k, valore, colour = errore)) + geom_line(linewidth = 1) +
   geom_hline(yintercept = errore_bayes, linetype = "dashed") +
@@ -1285,7 +1285,7 @@ plot(kd, type = "l", ylab = "k-distanza"); abline(h = eps, lty = 2)
 # ───────────────────────────────────────────────────────────────
 library(tidyverse)
 
-n <- 200; sigma <- 0.1; n_val <- 60; H <- 4; eta <- 1; lambda <- 0; E <- 2000
+n <- 200; sigma <- 0.1; n_val <- 60; H <- 4; eta <- 0.5; lambda <- 0; E <- 2000
 set.seed(2026)
 U <- matrix(runif(2 * n), ncol = 2, byrow = TRUE); Z <- matrix(rnorm(2 * n), ncol = 2, byrow = TRUE)
 X0 <- 2 * U - 1; y <- as.numeric(X0[, 1] * X0[, 2] > 0)
@@ -1399,10 +1399,10 @@ if (!is.null(e)) local({
 }, envir = e)
 e <- esegui("reti-neurali")
 if (!is.null(e)) local({
-  confronta("24", "perdita finale: training e validazione", unname(fit$storia[E + 1, ]), c(0.1741, 0.2366), 6e-5)
+  confronta("24", "perdita finale: training e validazione", unname(fit$storia[E + 1, ]), c(0.1748, 0.2622), 6e-5)
   confronta("24", "accuratezza di validazione", mean((plogis(avanti(fit$par, Xva)$z) > 0.5) == yva), 0.883, 6e-4)
   registra("24", "controllo del gradiente (differenze finite)", max(abs(num - unlist(gradiente(par0, Xtr, ytr)))) / max(abs(num)) < 1e-6)
-  confronta("24", "20 inizializzazioni: perdita di training min e max", range(esiti$training), c(0.132, 0.21), 6e-4)
+  confronta("24", "20 inizializzazioni: perdita di training min e max", range(esiti$training), c(0.14, 0.195), 6e-4)
 }, envir = e)
 
 cat("\n═══ Riepilogo ═══════════════════════════════════════════════\n")

@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.12.2 — 13/11/2026 · correzioni dopo la prima verifica in R
+- **Ingrandimento dei grafici** riscritto: il riquadro viene spostato in una finestra sopra la pagina (non esce più dallo schermo, scorre al suo interno), si chiude con ✕, Esc, clic fuori o cambio di pagina, e lo scorrimento della pagina torna sempre disponibile; i grafici restano aggiornati dal vivo.
+- **Pulsanti di avvio**: il pulsante principale ha larghezza stabile (non deforma più il riquadro dei controlli); a simulazione finita diventa «Riavvia» e la ricomincia con lo stesso seed (anche nel lab 06).
+- **Script R** (esiti della verifica dell’utente): `dplyr::select()` esplicito nei lab 03, 04, 10, 11, 19 (un `select` di un altro pacchetto, tipicamente MASS, mascherava quello di dplyr); nei lab 17 e 18 lo script si aggiorna a fine esperimento, così il «campione mostrato» coincide con quello del browser; lab 24 con η predefinito 0,5 (con η = 1 su XOR la traiettoria è sensibile agli arrotondamenti e R e browser si separano nelle cifre finali dopo ~1000 epoche: spiegato nell’interpretazione) e soglia di successo delle 20 inizializzazioni a 0,85.
+- `verifica/verifica_statatlas.R` rigenerato; estrattore jsdom in `tests/estrai_per_verifica_R.js`.
+
 ## 1.12.1 — 13/11/2026 · aggiustamenti prima della revisione finale
 - **Lab 01, mappa delle relazioni**: ridisegnata su quattro righe e completata (da 19 a 30 legami). Aggiunti: Bernoulli → Geometrica, Binomiale negativa → Poisson, miscuglio Poisson–Gamma → Binomiale negativa, processo di Poisson (Esponenziale → Poisson), parte intera di un’Esponenziale → Geometrica, χ² → Normale, χ² → t, Z₁/Z₂ → Cauchy, ν₁F → χ², F → Beta, statistiche d’ordine delle Uniformi → Beta, χ²(2) = Esponenziale(1/2). Precisati i casi particolari (Bernoulli = Binomiale(1, p), Geometrica = Binomiale negativa(1, p), Esponenziale = Gamma(1, λ)) e la parametrizzazione della Weibull.
 - **Lab 20**: le partizioni e i diagrammi degli alberi sono sostituiti da tre frontiere affiancate (un albero fisso, bagging, foresta casuale) che evolvono a ogni albero aggiunto, con la tinta proporzionale alla quota di voti e la frontiera stimata in nero; nuova striscia di fotogrammi dopo 1, 5, 25, 100 … alberi.

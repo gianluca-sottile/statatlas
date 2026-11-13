@@ -412,9 +412,10 @@
     if (full || S.frame % 6 === 0 || !S.running) updateTable();
   }
   function setRunning(on) {
+    if (on && S.k >= S.M) { reset(); } // simulazione finita: «Riavvia» ricomincia
     S.running = on && S.k < S.M;
     playBtn.innerHTML = ''; playBtn.appendChild(SA.ui.icon(S.running ? 'pause' : 'play'));
-    playBtn.appendChild(document.createTextNode(S.running ? ' Pausa' : (S.k ? ' Riprendi' : ' Avvia')));
+    playBtn.appendChild(document.createTextNode(S.running ? ' Pausa' : S.k >= S.M ? ' Riavvia' : S.k ? ' Riprendi' : ' Avvia'));
     playBtn.setAttribute('aria-pressed', String(S.running));
     if (S.running && !raf) raf = requestAnimationFrame(loop);
     if (!S.running) render(true);

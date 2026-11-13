@@ -196,7 +196,7 @@
       'griglia <- tibble(x = seq(-0.5, 10.5, length.out = 200))',
       'bande <- bind_cols(griglia,',
       '  as_tibble(predict(fit, griglia, interval = "confidence")) |> rename(ci_lo = lwr, ci_hi = upr),',
-      '  as_tibble(predict(fit, griglia, interval = "prediction")) |> select(pi_lo = lwr, pi_hi = upr))',
+      '  as_tibble(predict(fit, griglia, interval = "prediction")) |> dplyr::select(pi_lo = lwr, pi_hi = upr))',
       'ggplot(bande, aes(x)) +',
       '  geom_ribbon(aes(ymin = pi_lo, ymax = pi_hi), fill = "#009E73", alpha = 0.12) +',
       '  geom_ribbon(aes(ymin = ci_lo, ymax = ci_hi), fill = "#0072B2", alpha = 0.25) +',

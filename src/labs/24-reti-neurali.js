@@ -20,7 +20,7 @@
     return { tr: pick(sp.train), va: pick(sp.test) };
   }
   function newState(prev) {
-    var s = { data: 'xor', n: 200, sigma: 0.1, pv: 0.3, H: 4, act: 'tanh', eta: 1, lambda: 0, E: 2000, seed: 2026, iseed: 1, pred: null, sel: 0 };
+    var s = { data: 'xor', n: 200, sigma: 0.1, pv: 0.3, H: 4, act: 'tanh', eta: 0.5, lambda: 0, E: 2000, seed: 2026, iseed: 1, pred: null, sel: 0 };
     if (prev) for (var k in s) if (prev[k] !== undefined) s[k] = prev[k];
     var D = gen(s); s.tr = D.tr; s.va = D.va;
     s.net = SA.nn.init(new SA.RRNG(s.iseed), s.H, s.act); s.net0 = SA.nn.clone(s.net);
@@ -122,15 +122,15 @@
   var tblBody, kpiBox, fbBox, interpBox, predBox;
   function updateTable() {
     var fmt = SA.fmt, b = SA.ui.badge, h = S.hist, L = h.tr.length - 1, gc = S.diverged ? NaN : SA.nn.gradCheck(S.net, S.tr.X, S.tr.y, S.lambda);
-    var m = S.multi, okm = m ? m.filter(function (r) { return !r.div; }) : [], succ = okm.filter(function (r) { return r.ava >= 0.9; }).length;
+    var m = S.multi, okm = m ? m.filter(function (r) { return !r.div; }) : [], succ = okm.filter(function (r) { return r.ava >= 0.85; }).length;
     tblBody.innerHTML = '';
     tblBody.append(
       el('tr', el('td', 'Parametri della rete'), el('td', '4H + 1 = ' + SA.nn.nParams(S.H)), el('td', S.tr.X.length + ' osservazioni di training'), el('td', b('exact'))),
       el('tr', el('td', 'Perdita: training · validazione (epoca ' + S.e + ')'), el('td', 'log 2 = 0,693 con p = 0,5 ovunque'), el('td', fmt(h.tr[L], 4) + ' · ' + fmt(h.va[L], 4)), el('td', b('none'))),
       el('tr', el('td', 'Accuratezza: training · validazione'), el('td', '—'), el('td', fmt(h.atr[L], 3) + ' · ' + fmt(h.ava[L], 3)), el('td', b('none'))),
       el('tr', el('td', 'Controllo del gradiente (differenze finite centrali)'), el('td', 'errore relativo ≈ 0 (< 1e−6)'), el('td', isFinite(gc) ? gc.toExponential(1) : '— (divergenza)'), el('td', b('exact'))),
-      el('tr', el('td', 'Stato dell’addestramento'), el('td', 'discesa a lotto intero, η = ' + S.eta), el('td', S.diverged ? '✗ divergenza all’epoca ' + S.e : h.tr[L] > h.tr[0] ? 'perdita salita: η probabilmente troppo alto' : '✓ perdita scesa da ' + fmt(h.tr[0], 3)), el('td', b('none'))),
-      el('tr', el('td', SEEDS + ' inizializzazioni: validazione ≥ 0,9 · perdita di training min–max'), el('td', 'la perdita non è convessa: esiti diversi'), el('td', m ? succ + ' / ' + SEEDS + ' · ' + (okm.length ? fmt(Math.min.apply(null, okm.map(function (r) { return r.tr; })), 3) + '–' + fmt(Math.max.apply(null, okm.map(function (r) { return r.tr; })), 3) : '—') + (okm.length < m.length ? ' · ' + (m.length - okm.length) + ' divergenze' : '') : 'premi il pulsante'), el('td', b('mc'))));
+      el('tr', el('td', 'Stato dell’addestramento'), el('td', 'discesa a lotto intero, η = ' + String(S.eta).replace('.', ',')), el('td', S.diverged ? '✗ divergenza all’epoca ' + S.e : h.tr[L] > h.tr[0] ? 'perdita salita: η probabilmente troppo alto' : '✓ perdita scesa da ' + fmt(h.tr[0], 3)), el('td', b('none'))),
+      el('tr', el('td', SEEDS + ' inizializzazioni: accuratezza di validazione ≥ 0,85 · perdita di training min–max'), el('td', 'la perdita non è convessa: esiti diversi'), el('td', m ? succ + ' / ' + SEEDS + ' · ' + (okm.length ? fmt(Math.min.apply(null, okm.map(function (r) { return r.tr; })), 3) + '–' + fmt(Math.max.apply(null, okm.map(function (r) { return r.tr; })), 3) : '—') + (okm.length < m.length ? ' · ' + (m.length - okm.length) + ' divergenze' : '') : 'premi il pulsante'), el('td', b('mc'))));
     kpiBox.innerHTML = '';
     kpiBox.append(el('div.kpi', el('b', S.e + ' / ' + S.E), el('span', 'epoche')),
       el('div.kpi', el('b', '2 → ' + S.H + ' → 1'), el('span', 'architettura (' + S.act + ')')),
@@ -154,7 +154,7 @@
   function interpretation() {
     interpBox.innerHTML = '<p>Ogni neurone nascosto calcola una combinazione lineare degli ingressi e la trasforma con una funzione non lineare; l’uscita combina i neuroni e passa per la sigmoide, come una regressione logistica sulle variabili create dalla rete. Con abbastanza neuroni si può approssimare qualunque frontiera regolare.</p>' +
       '<p>L’addestramento minimizza l’entropia incrociata con la <strong>discesa del gradiente</strong>; la <strong>backpropagation</strong> calcola il gradiente propagando all’indietro l’errore p − y attraverso i pesi (i δ nello schema). Il controllo con le differenze finite verifica che il gradiente sia giusto.</p>' +
-      '<p class="muted">Con un learning rate troppo alto la perdita oscilla o esplode; con molti neuroni, poco rumore e nessuna penalità la perdita di training continua a scendere mentre quella di validazione risale: è il sovradattamento, che si contrasta con la penalità L2 o fermandosi al minimo della validazione.</p>';
+      '<p class="muted">Con un learning rate troppo alto la perdita oscilla o esplode; con molti neuroni, poco rumore e nessuna penalità la perdita di training continua a scendere mentre quella di validazione risale: è il sovradattamento, che si contrasta con la penalità L2 o fermandosi al minimo della validazione. Con η vicino al limite di stabilità (qui già η = 1 su XOR) la traiettoria diventa sensibile agli arrotondamenti: differenze nell’ultima cifra crescono epoca dopo epoca, e anche R e il browser possono separarsi nelle cifre finali.</p>';
   }
   function codeR() {
     var d = S.data;
@@ -221,7 +221,7 @@
       SA.ui.slider('Rumore σ', { min: 0, max: 0.4, step: 0.02, value: S.sigma, format: function (v) { return SA.fmt(v, 2); }, onchange: function (v) { S.sigma = v; restart(); } }),
       el('div', { style: 'display:grid;grid-template-columns:1fr 1fr;gap:10px' },
         sel('Neuroni nascosti H', 'H', [2, 3, 4, 6, 8]), sel('Attivazione', 'act', ['tanh', 'relu'], function (v) { return v === 'tanh' ? 'tanh' : 'ReLU'; }, false),
-        sel('Learning rate η', 'eta', [0.03, 0.1, 0.3, 1, 3, 10, 30], function (v) { return SA.fmt(v, 2); }), sel('Penalità L2 λ', 'lambda', [0, 0.0001, 0.001, 0.01, 0.1], function (v) { return v ? String(v).replace('.', ',') : '0'; }),
+        sel('Learning rate η', 'eta', [0.03, 0.1, 0.3, 0.5, 1, 3, 10, 30], function (v) { return SA.fmt(v, 2); }), sel('Penalità L2 λ', 'lambda', [0, 0.0001, 0.001, 0.01, 0.1], function (v) { return v ? String(v).replace('.', ',') : '0'; }),
         sel('Epoche', 'E', [500, 2000, 5000]), sel('n', 'n', [60, 200, 400]),
         sel('Quota di validazione', 'pv', [0.3, 0.5], function (v) { return SA.fmt(v, 1); }),
         el('label.field', el('span', 'Seed dei dati'), el('input', { type: 'number', value: S.seed, min: 1, onchange: function () { S.seed = Math.max(1, Math.floor(+this.value || 1)); restart(); } })),

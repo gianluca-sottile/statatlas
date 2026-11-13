@@ -240,7 +240,7 @@
       'curve |> group_by(replica) |> slice_min(loo, n = 1, with_ties = FALSE) |> ungroup() |>', '  summarise(k_medio = mean(k), test_al_k_scelto = mean(test))',
       'curve |> filter(k == 1) |> summarise(training = mean(training), test = mean(test), cover_hart = 2 * errore_bayes * (1 - errore_bayes))', '',
       'theme_statatlas <- function(base_size = 12) {', '  theme_minimal(base_size = base_size, base_family = "serif") +', '    theme(panel.grid.minor = element_blank(), plot.background = element_rect(fill = "#FAF8F3", colour = NA))', '}',
-      'curve |> select(-replica) |> group_by(k) |> summarise(across(everything(), mean)) |>', '  pivot_longer(-k, names_to = "errore", values_to = "valore") |>',
+      'curve |> dplyr::select(-replica) |> group_by(k) |> summarise(across(everything(), mean)) |>', '  pivot_longer(-k, names_to = "errore", values_to = "valore") |>',
       '  ggplot(aes(k, valore, colour = errore)) + geom_line(linewidth = 1) +', '  geom_hline(yintercept = errore_bayes, linetype = "dashed") +', '  labs(x = "k", y = "tasso di errore") + theme_statatlas()', '',
       '# Confronto di metodo (R3)', '# library(class); knn(train = tr$x, test = te$x, cl = factor(tr$y), k = ' + S.kShow + ')', ''].join('\n');
   }

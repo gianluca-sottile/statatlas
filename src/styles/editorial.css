@@ -210,11 +210,18 @@ table.tv tr.row-sel td { background: var(--accent-soft); font-weight: 600; }
 .trio5 { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 8px; }
 @media (max-width: 640px) { .duo, .trio { grid-template-columns: 1fr; } }
 
-/* pulsante di ingrandimento dei grafici */
-.fig-zoom-btn { position: absolute; top: 8px; right: 8px; z-index: 2; width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--rule); background: var(--card); color: var(--ink-2); font-size: 16px; line-height: 1; cursor: pointer; opacity: .75; }
+/* pulsante di ingrandimento dei grafici e finestra modale */
+.fig-zoom-btn { position: absolute; top: 8px; right: 8px; z-index: 2; width: 30px; height: 30px; display: grid; place-items: center; border-radius: 8px; border: 1px solid var(--rule); background: var(--card); color: var(--ink-2); font-size: 15px; line-height: 1; cursor: pointer; opacity: .8; }
 .fig-zoom-btn:hover, .fig-zoom-btn:focus-visible { opacity: 1; border-color: var(--accent); color: var(--accent); }
 .fig > .fig-title { padding-right: 38px; }
-.fig.fig-zoomed { position: fixed; inset: 16px; z-index: 80; overflow: auto; padding: 24px 28px; box-shadow: 0 0 0 100vmax rgba(0,0,0,.45); }
-.fig.fig-zoomed svg { max-height: calc(100vh - 140px); width: 100%; }
-.fig.fig-zoomed .duo, .fig.fig-zoomed .trio { grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); }
-body.has-zoom { overflow: hidden; }
+.fig-modal { position: fixed; inset: 0; z-index: 200; background: rgba(20, 18, 15, .62); display: flex; align-items: flex-start; justify-content: center; padding: 3vh 2vw; overflow-y: auto; overscroll-behavior: contain; }
+.fig-modal-box { width: min(1500px, 96vw); margin: auto 0; }
+.fig.fig-in-modal { margin: 0; box-shadow: 0 24px 60px -20px rgba(0, 0, 0, .5); }
+.fig.fig-in-modal svg:not([aria-hidden]) { width: 100%; height: auto; max-height: 80vh; }
+.fig.fig-in-modal .duo, .fig.fig-in-modal .trio { grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); }
+html.zoom-open, html.zoom-open body { overflow: hidden; }
+/* barra di avvio: il pulsante principale occupa lo spazio restante, così cambiare «Avvia/Pausa/Riprendi/Riavvia»
+   non sposta né deforma gli altri pulsanti */
+.transport { display: grid; grid-template-columns: minmax(0, 1fr) repeat(3, auto); gap: 6px; align-items: stretch; }
+.transport > .btn-primary { justify-content: center; white-space: nowrap; min-width: 0; overflow: hidden; }
+.transport > .btn-icon { flex: none; }

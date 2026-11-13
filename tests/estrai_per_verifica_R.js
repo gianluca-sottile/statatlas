@@ -1,3 +1,5 @@
+// Estrae, per ogni laboratorio, il codice R e la tabella dopo «Completa» (lab 17: anche il bootstrap; lab 24: anche le 20 inizializzazioni).
+// Uso: NODE_PATH=<jsdom> node tests/estrai_per_verifica_R.js index.html '["distribuzioni", …]' estrazione.json
 const {JSDOM}=require('jsdom');const fs=require('fs');
 const html=fs.readFileSync(process.argv[2],'utf8');
 const ids=JSON.parse(process.argv[3]);
@@ -12,4 +14,4 @@ const sleep=ms=>new Promise(r=>setTimeout(r,ms));
  const code=d.querySelector('pre')?d.querySelector('pre').textContent:'';
  const rows=[...d.querySelectorAll('table.tv tbody tr')].map(r=>[...r.children].slice(0,3).map(c=>c.textContent));
  out[id]={code,rows};w.close();}
- fs.writeFileSync('process.argv[4] || 'estrazione.json'',JSON.stringify(out));console.log('ok',Object.keys(out).length);process.exit(0);})();
+ fs.writeFileSync(process.argv[4] || 'estrazione.json',JSON.stringify(out));console.log('ok',Object.keys(out).length);process.exit(0);})();

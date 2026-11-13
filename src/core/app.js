@@ -244,21 +244,41 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   }
 
   /* Arricchisce ogni laboratorio con copertina, obiettivi, “che cosa stiamo valutando” e guida alla tabella */
-  /* ingrandimento dei pannelli: ogni grafico può occupare tutto lo schermo (Esc o di nuovo il pulsante per chiudere) */
+  /* ingrandimento dei pannelli: il riquadro viene spostato in una finestra sopra la pagina (aggiornamenti dal vivo
+   * compresi) e rimesso al suo posto alla chiusura: Esc, clic fuori, pulsante ✕ o cambio di pagina. */
+  var zoom = null;
+  function closeZoom() {
+    if (!zoom) return;
+    var z = zoom; zoom = null;
+    z.ph.parentNode.replaceChild(z.fig, z.ph); z.fig.classList.remove('fig-in-modal');
+    z.btn.textContent = '⤢'; z.btn.setAttribute('aria-label', 'Ingrandisci il grafico'); z.btn.title = 'Ingrandisci il grafico';
+    z.overlay.remove(); document.documentElement.classList.remove('zoom-open');
+    var cur = SA.currentLab && SA.labs[SA.currentLab]; if (cur && cur.redraw) cur.redraw();
+    z.btn.focus();
+  }
+  function openZoom(fig, btn) {
+    closeZoom();
+    var ph = el('div.fig-placeholder', { style: 'height:' + fig.offsetHeight + 'px' });
+    var box = el('div.fig-modal-box', { role: 'dialog', 'aria-modal': 'true', 'aria-label': (fig.querySelector('h3') || {}).textContent || 'Grafico ingrandito' });
+    var overlay = el('div.fig-modal', box);
+    overlay.addEventListener('click', function (ev) { if (ev.target === overlay) closeZoom(); });
+    fig.parentNode.replaceChild(ph, fig); box.appendChild(fig); fig.classList.add('fig-in-modal');
+    document.body.appendChild(overlay); document.documentElement.classList.add('zoom-open');
+    btn.textContent = '✕'; btn.setAttribute('aria-label', 'Chiudi l’ingrandimento'); btn.title = 'Chiudi (Esc)';
+    zoom = { fig: fig, ph: ph, overlay: overlay, btn: btn };
+    var cur = SA.currentLab && SA.labs[SA.currentLab]; if (cur && cur.redraw) cur.redraw();
+    btn.focus();
+  }
   function zoomable(page) {
     page.querySelectorAll('.fig').forEach(function (f) {
       if (f.querySelector(':scope > .fig-zoom-btn')) return;
-      var b = el('button.fig-zoom-btn', { type: 'button', title: 'Ingrandisci il grafico', 'aria-label': 'Ingrandisci il grafico', 'aria-pressed': 'false' }, '⤢');
-      b.addEventListener('click', function () {
-        var on = !f.classList.contains('fig-zoomed');
-        page.querySelectorAll('.fig-zoomed').forEach(function (z) { z.classList.remove('fig-zoomed'); z.querySelector('.fig-zoom-btn').setAttribute('aria-pressed', 'false'); });
-        if (on) { f.classList.add('fig-zoomed'); b.setAttribute('aria-pressed', 'true'); b.focus(); }
-        document.body.classList.toggle('has-zoom', on);
-      });
+      var b = el('button.fig-zoom-btn', { type: 'button', title: 'Ingrandisci il grafico', 'aria-label': 'Ingrandisci il grafico' }, '⤢');
+      b.addEventListener('click', function () { if (zoom && zoom.fig === f) closeZoom(); else openZoom(f, b); });
       f.insertBefore(b, f.firstChild);
     });
   }
-  document.addEventListener('keydown', function (ev) { if (ev.key === 'Escape') { var z = document.querySelector('.fig-zoomed'); if (z) { z.classList.remove('fig-zoomed'); document.body.classList.remove('has-zoom'); } } });
+  document.addEventListener('keydown', function (ev) { if (ev.key === 'Escape' && zoom) { ev.stopPropagation(); closeZoom(); } }, true);
+  window.addEventListener('hashchange', closeZoom);
   function enhanceLab(page, id) {
     zoomable(page);
     var c = SA.content && SA.content[id], head = page.querySelector('.lab-head');

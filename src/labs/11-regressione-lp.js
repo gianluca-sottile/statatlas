@@ -173,7 +173,7 @@
       '         L2 = map_dbl(y, \\(y) fit_lp(x, y, 2)[2]),',
       '         L1 = map_dbl(y, \\(y) fit_lp(x, y, 1)[2]),',
       '         Lp = map_dbl(y, \\(y) fit_lp(x, y, p)[2]))', '',
-      'stime <- sim |> select(L2, L1, Lp) |> pivot_longer(everything(), names_to = "metodo", values_to = "pendenza")',
+      'stime <- sim |> dplyr::select(L2, L1, Lp) |> pivot_longer(everything(), names_to = "metodo", values_to = "pendenza")',
       'stime |> group_by(metodo) |>',
       '  summarise(media = mean(pendenza), dev_std = sd(pendenza), iqr = IQR(pendenza), mse = mean((pendenza - b1)^2))', '',
       'theme_statatlas <- function(base_size = 12) {', '  theme_minimal(base_size = base_size, base_family = "serif") +',

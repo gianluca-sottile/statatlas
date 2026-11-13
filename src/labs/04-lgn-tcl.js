@@ -267,7 +267,7 @@
         '  mutate(media = cummean(x)) |>',
         '  ungroup()', '',
         '# Valore finale di ciascuna traiettoria',
-        'traiettorie |> filter(n == N) |> select(traiettoria, media)', '');
+        'traiettorie |> filter(n == N) |> dplyr::select(traiettoria, media)', '');
       if (!P.cauchy) L.push('banda <- tibble(n = seq_len(N), basso = mu - 1.96 * sigma / sqrt(n), alto = mu + 1.96 * sigma / sqrt(n))', '',
         'ggplot(traiettorie, aes(n, media, colour = traiettoria)) +',
         '  geom_ribbon(data = banda, aes(n, ymin = basso, ymax = alto), inherit.aes = FALSE, fill = "grey60", alpha = 0.15) +',

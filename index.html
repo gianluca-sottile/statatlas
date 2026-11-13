@@ -509,14 +509,21 @@ table.tv tr.row-sel td { background: var(--accent-soft); font-weight: 600; }
 .trio5 { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 8px; }
 @media (max-width: 640px) { .duo, .trio { grid-template-columns: 1fr; } }
 
-/* pulsante di ingrandimento dei grafici */
-.fig-zoom-btn { position: absolute; top: 8px; right: 8px; z-index: 2; width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--rule); background: var(--card); color: var(--ink-2); font-size: 16px; line-height: 1; cursor: pointer; opacity: .75; }
+/* pulsante di ingrandimento dei grafici e finestra modale */
+.fig-zoom-btn { position: absolute; top: 8px; right: 8px; z-index: 2; width: 30px; height: 30px; display: grid; place-items: center; border-radius: 8px; border: 1px solid var(--rule); background: var(--card); color: var(--ink-2); font-size: 15px; line-height: 1; cursor: pointer; opacity: .8; }
 .fig-zoom-btn:hover, .fig-zoom-btn:focus-visible { opacity: 1; border-color: var(--accent); color: var(--accent); }
 .fig > .fig-title { padding-right: 38px; }
-.fig.fig-zoomed { position: fixed; inset: 16px; z-index: 80; overflow: auto; padding: 24px 28px; box-shadow: 0 0 0 100vmax rgba(0,0,0,.45); }
-.fig.fig-zoomed svg { max-height: calc(100vh - 140px); width: 100%; }
-.fig.fig-zoomed .duo, .fig.fig-zoomed .trio { grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); }
-body.has-zoom { overflow: hidden; }
+.fig-modal { position: fixed; inset: 0; z-index: 200; background: rgba(20, 18, 15, .62); display: flex; align-items: flex-start; justify-content: center; padding: 3vh 2vw; overflow-y: auto; overscroll-behavior: contain; }
+.fig-modal-box { width: min(1500px, 96vw); margin: auto 0; }
+.fig.fig-in-modal { margin: 0; box-shadow: 0 24px 60px -20px rgba(0, 0, 0, .5); }
+.fig.fig-in-modal svg:not([aria-hidden]) { width: 100%; height: auto; max-height: 80vh; }
+.fig.fig-in-modal .duo, .fig.fig-in-modal .trio { grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); }
+html.zoom-open, html.zoom-open body { overflow: hidden; }
+/* barra di avvio: il pulsante principale occupa lo spazio restante, così cambiare «Avvia/Pausa/Riprendi/Riavvia»
+   non sposta né deforma gli altri pulsanti */
+.transport { display: grid; grid-template-columns: minmax(0, 1fr) repeat(3, auto); gap: 6px; align-items: stretch; }
+.transport > .btn-primary { justify-content: center; white-space: nowrap; min-width: 0; overflow: hidden; }
+.transport > .btn-icon { flex: none; }
 
 </style>
 </head>
@@ -2108,7 +2115,7 @@ SA.content = {
     obiettivi: ['Descrivere una rete con uno strato nascosto: pesi, attivazioni, uscita sigmoide', 'Calcolare il gradiente con la backpropagation e verificarlo con le differenze finite', 'Riconoscere gli effetti del learning rate, della penalità L2 e del numero di neuroni', 'Distinguere errore di training e di validazione, e valutare l’effetto dell’inizializzazione'],
     valutiamo: [['Frontiera', 'come la regione di classificazione si piega durante l’addestramento'], ['Gradiente', 'gli errori δ propagati all’indietro e il controllo con differenze finite'], ['Addestramento', 'perdita di training e validazione epoca per epoca, divergenza con η alto'], ['Inizializzazione', 'esiti di venti partenze diverse sugli stessi dati']],
     tabella: 'Il numero di parametri e il controllo del gradiente sono verifiche esatte. Perdite e accuratezze si riferiscono all’epoca corrente; con p = 0,5 ovunque la perdita vale log 2 ≈ 0,693, il riferimento di una rete che non ha imparato nulla. La riga sulle inizializzazioni riassume venti addestramenti completi sugli stessi dati.',
-    esempio: '<p><strong>Esempio svolto.</strong> Su XOR con H = 4, tanh e η = 1, dopo 2000 epoche la perdita di training scende da 0,80 a 0,17 e l’accuratezza di validazione arriva a 0,88 (il rumore σ = 0,1 sposta alcuni punti oltre gli assi). Con η = 30 la perdita sale invece di scendere; con H = 2 solo 4 inizializzazioni su 20 superano 0,9 in validazione: le altre si fermano in soluzioni che separano bene solo parte dei quadranti. Con H = 8, poco rumore e n = 60 la validazione smette di migliorare molto prima del training.</p>',
+    esempio: '<p><strong>Esempio svolto.</strong> Su XOR con H = 4, tanh e η = 0,5, dopo 2000 epoche la perdita di training scende da 0,80 a 0,17 e l’accuratezza di validazione arriva a 0,88 (il rumore σ = 0,1 sposta alcuni punti oltre gli assi, quindi più di così è difficile). Le 20 inizializzazioni arrivano tutte tra 0,87 e 0,90. Con H = 2, invece, solo 4 su 20 raggiungono 0,92: le altre si fermano a perdite tra 0,34 e 0,46, separando bene solo parte dei quadranti. Con η = 30 la perdita sale invece di scendere. Con H = 8, poco rumore e n = 60 la validazione smette di migliorare molto prima del training.</p>',
     errori: ['Giudicare la rete dall’accuratezza di training', 'Usare un learning rate alto per “fare prima”', 'Considerare definitivo il risultato di una sola inizializzazione', 'Confondere il numero di parametri con la complessità effettiva della funzione appresa'],
     avanzato: '<h3>Ottimizzatori</h3><p>Il gradiente stocastico (mini-batch) aggiunge rumore che aiuta a uscire dalle zone piatte; il momento e Adam adattano direzione e lunghezza del passo. Cambiano il percorso e spesso la soluzione finale.</p><h3>Reti profonde</h3><p>Con più strati il gradiente può svanire o esplodere (soprattutto con sigmoide e tanh); ReLU, inizializzazioni scalate e normalizzazione dei lotti rendono addestrabili reti molto profonde.</p><h3>Doppia discesa</h3><p>Aumentando molto il numero di parametri, l’errore di test può risalire vicino al punto in cui la rete interpola i dati e poi scendere di nuovo: il compromesso distorsione–varianza classico non descrive sempre i modelli sovraparametrizzati.</p>',
     esercizi: [['Perché con tutti i pesi iniziali uguali a zero la rete non impara nulla di utile?', 'Tutti i neuroni nascosti calcolano la stessa funzione e ricevono lo stesso gradiente: restano identici a ogni passo (simmetria non rotta).'], ['Quanti parametri ha una rete 2 → H → 1?', '2H pesi in ingresso, H intercette nascoste, H pesi in uscita e un’intercetta: 4H + 1.'], ['Perché la BCE si calcola da z e non da p?', 'Per z grandi p si arrotonda a 0 o 1 e log p diventa −∞; la forma max(z, 0) − yz + log(1 + e^−|z|) resta finita e precisa.']],
@@ -2340,7 +2347,7 @@ SA.ui = (function () {
     r.playBtn = button(' Avvia', { icon: 'play', cls: 'btn-primary', onclick: function () { r.set(!r.running); } });
     function label() {
       r.playBtn.innerHTML = ''; r.playBtn.appendChild(icon(r.running ? 'pause' : 'play'));
-      r.playBtn.appendChild(document.createTextNode(r.running ? ' Pausa' : (o.progress() > 0 && !o.done() ? ' Riprendi' : ' Avvia')));
+      r.playBtn.appendChild(document.createTextNode(r.running ? ' Pausa' : o.done() ? ' Riavvia' : o.progress() > 0 ? ' Riprendi' : ' Avvia'));
       r.playBtn.setAttribute('aria-pressed', String(r.running));
       bar.style.width = (100 * o.progress()) + '%';
     }
@@ -2356,6 +2363,7 @@ SA.ui = (function () {
     }
     r.set = function (on) {
       if (r.task) return;
+      if (on && o.done()) { o.reset(); o.render(true); } // simulazione finita: «Riavvia» ricomincia con lo stesso seed
       r.running = !!on && !o.done();
       if (r.running && !r.raf) r.raf = requestAnimationFrame(loop);
       if (!r.running) o.render(true);
@@ -2678,21 +2686,41 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   }
 
   /* Arricchisce ogni laboratorio con copertina, obiettivi, “che cosa stiamo valutando” e guida alla tabella */
-  /* ingrandimento dei pannelli: ogni grafico può occupare tutto lo schermo (Esc o di nuovo il pulsante per chiudere) */
+  /* ingrandimento dei pannelli: il riquadro viene spostato in una finestra sopra la pagina (aggiornamenti dal vivo
+   * compresi) e rimesso al suo posto alla chiusura: Esc, clic fuori, pulsante ✕ o cambio di pagina. */
+  var zoom = null;
+  function closeZoom() {
+    if (!zoom) return;
+    var z = zoom; zoom = null;
+    z.ph.parentNode.replaceChild(z.fig, z.ph); z.fig.classList.remove('fig-in-modal');
+    z.btn.textContent = '⤢'; z.btn.setAttribute('aria-label', 'Ingrandisci il grafico'); z.btn.title = 'Ingrandisci il grafico';
+    z.overlay.remove(); document.documentElement.classList.remove('zoom-open');
+    var cur = SA.currentLab && SA.labs[SA.currentLab]; if (cur && cur.redraw) cur.redraw();
+    z.btn.focus();
+  }
+  function openZoom(fig, btn) {
+    closeZoom();
+    var ph = el('div.fig-placeholder', { style: 'height:' + fig.offsetHeight + 'px' });
+    var box = el('div.fig-modal-box', { role: 'dialog', 'aria-modal': 'true', 'aria-label': (fig.querySelector('h3') || {}).textContent || 'Grafico ingrandito' });
+    var overlay = el('div.fig-modal', box);
+    overlay.addEventListener('click', function (ev) { if (ev.target === overlay) closeZoom(); });
+    fig.parentNode.replaceChild(ph, fig); box.appendChild(fig); fig.classList.add('fig-in-modal');
+    document.body.appendChild(overlay); document.documentElement.classList.add('zoom-open');
+    btn.textContent = '✕'; btn.setAttribute('aria-label', 'Chiudi l’ingrandimento'); btn.title = 'Chiudi (Esc)';
+    zoom = { fig: fig, ph: ph, overlay: overlay, btn: btn };
+    var cur = SA.currentLab && SA.labs[SA.currentLab]; if (cur && cur.redraw) cur.redraw();
+    btn.focus();
+  }
   function zoomable(page) {
     page.querySelectorAll('.fig').forEach(function (f) {
       if (f.querySelector(':scope > .fig-zoom-btn')) return;
-      var b = el('button.fig-zoom-btn', { type: 'button', title: 'Ingrandisci il grafico', 'aria-label': 'Ingrandisci il grafico', 'aria-pressed': 'false' }, '⤢');
-      b.addEventListener('click', function () {
-        var on = !f.classList.contains('fig-zoomed');
-        page.querySelectorAll('.fig-zoomed').forEach(function (z) { z.classList.remove('fig-zoomed'); z.querySelector('.fig-zoom-btn').setAttribute('aria-pressed', 'false'); });
-        if (on) { f.classList.add('fig-zoomed'); b.setAttribute('aria-pressed', 'true'); b.focus(); }
-        document.body.classList.toggle('has-zoom', on);
-      });
+      var b = el('button.fig-zoom-btn', { type: 'button', title: 'Ingrandisci il grafico', 'aria-label': 'Ingrandisci il grafico' }, '⤢');
+      b.addEventListener('click', function () { if (zoom && zoom.fig === f) closeZoom(); else openZoom(f, b); });
       f.insertBefore(b, f.firstChild);
     });
   }
-  document.addEventListener('keydown', function (ev) { if (ev.key === 'Escape') { var z = document.querySelector('.fig-zoomed'); if (z) { z.classList.remove('fig-zoomed'); document.body.classList.remove('has-zoom'); } } });
+  document.addEventListener('keydown', function (ev) { if (ev.key === 'Escape' && zoom) { ev.stopPropagation(); closeZoom(); } }, true);
+  window.addEventListener('hashchange', closeZoom);
   function enhanceLab(page, id) {
     zoomable(page);
     var c = SA.content && SA.content[id], head = page.querySelector('.lab-head');
@@ -3972,7 +4000,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
         'var_media <- integrate(\\(x) f(x)^2, 0, 1)$value - I^2',
         'var_hm    <- I * (1 - I)',
         'c(var_media = var_media, var_hm = var_hm, rapporto = var_hm / var_media)', '',
-        'sim |> slice_tail(n = 1) |> select(media, hit_or_miss)', '',
+        'sim |> slice_tail(n = 1) |> dplyr::select(media, hit_or_miss)', '',
         'sim |>', '  pivot_longer(c(media, hit_or_miss), names_to = "metodo", values_to = "stima") |>',
         '  ggplot(aes(n, stima, colour = metodo, linetype = metodo)) +',
         '  geom_hline(yintercept = I, linetype = "dashed") +',
@@ -4330,7 +4358,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
         '  mutate(media = cummean(x)) |>',
         '  ungroup()', '',
         '# Valore finale di ciascuna traiettoria',
-        'traiettorie |> filter(n == N) |> select(traiettoria, media)', '');
+        'traiettorie |> filter(n == N) |> dplyr::select(traiettoria, media)', '');
       if (!P.cauchy) L.push('banda <- tibble(n = seq_len(N), basso = mu - 1.96 * sigma / sqrt(n), alto = mu + 1.96 * sigma / sqrt(n))', '',
         'ggplot(traiettorie, aes(n, media, colour = traiettoria)) +',
         '  geom_ribbon(data = banda, aes(n, ymin = basso, ymax = alto), inherit.aes = FALSE, fill = "grey60", alpha = 0.15) +',
@@ -5203,9 +5231,10 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     if (full || S.frame % 6 === 0 || !S.running) updateTable();
   }
   function setRunning(on) {
+    if (on && S.k >= S.M) { reset(); } // simulazione finita: «Riavvia» ricomincia
     S.running = on && S.k < S.M;
     playBtn.innerHTML = ''; playBtn.appendChild(SA.ui.icon(S.running ? 'pause' : 'play'));
-    playBtn.appendChild(document.createTextNode(S.running ? ' Pausa' : (S.k ? ' Riprendi' : ' Avvia')));
+    playBtn.appendChild(document.createTextNode(S.running ? ' Pausa' : S.k >= S.M ? ' Riavvia' : S.k ? ' Riprendi' : ' Avvia'));
     playBtn.setAttribute('aria-pressed', String(S.running));
     if (S.running && !raf) raf = requestAnimationFrame(loop);
     if (!S.running) render(true);
@@ -6406,7 +6435,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
       'griglia <- tibble(x = seq(-0.5, 10.5, length.out = 200))',
       'bande <- bind_cols(griglia,',
       '  as_tibble(predict(fit, griglia, interval = "confidence")) |> rename(ci_lo = lwr, ci_hi = upr),',
-      '  as_tibble(predict(fit, griglia, interval = "prediction")) |> select(pi_lo = lwr, pi_hi = upr))',
+      '  as_tibble(predict(fit, griglia, interval = "prediction")) |> dplyr::select(pi_lo = lwr, pi_hi = upr))',
       'ggplot(bande, aes(x)) +',
       '  geom_ribbon(aes(ymin = pi_lo, ymax = pi_hi), fill = "#009E73", alpha = 0.12) +',
       '  geom_ribbon(aes(ymin = ci_lo, ymax = ci_hi), fill = "#0072B2", alpha = 0.25) +',
@@ -6660,7 +6689,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
       '         L2 = map_dbl(y, \\(y) fit_lp(x, y, 2)[2]),',
       '         L1 = map_dbl(y, \\(y) fit_lp(x, y, 1)[2]),',
       '         Lp = map_dbl(y, \\(y) fit_lp(x, y, p)[2]))', '',
-      'stime <- sim |> select(L2, L1, Lp) |> pivot_longer(everything(), names_to = "metodo", values_to = "pendenza")',
+      'stime <- sim |> dplyr::select(L2, L1, Lp) |> pivot_longer(everything(), names_to = "metodo", values_to = "pendenza")',
       'stime |> group_by(metodo) |>',
       '  summarise(media = mean(pendenza), dev_std = sd(pendenza), iqr = IQR(pendenza), mse = mean((pendenza - b1)^2))', '',
       'theme_statatlas <- function(base_size = 12) {', '  theme_minimal(base_size = base_size, base_family = "serif") +',
@@ -8233,7 +8262,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
 
   var run, codeBox, ctrlBox;
   function restart() { if (bootTask) { bootTask.cancel(); bootTask = null; } run.stop(); S = newState(S); step(); legends(); interpretation(); codeBox.refresh(); render(true); run.refresh(); if (bootBtn) { bootBtn.disabled = false; bootBtn.textContent = 'Test bootstrap dell’esistenza del cambiamento'; } }
-  function render(full) { drawFit(); if (full || run.frame % 3 === 0 || !run.running) { drawProfile(); drawMC(); drawCompare(); updateTable(); } }
+  function render(full) { drawFit(); if (full || run.frame % 3 === 0 || !run.running) { drawProfile(); drawMC(); drawCompare(); updateTable(); } if (full && !run.running && codeBox) codeBox.refresh(); }
   function buildControls() {
     ctrlBox.innerHTML = '';
     var sl = function (lab, key, mn, mx, st, d) { return SA.ui.slider(lab, { min: mn, max: mx, step: st, value: S[key], format: function (v) { return SA.fmt(v, d); }, onchange: function (v) { S[key] = v; restart(); } }); };
@@ -8504,7 +8533,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
 
   var run, codeBox, ctrlBox, showSlider;
   function restart() { var D0 = S.D; run.stop(); S = newState(S); step(); legends(); interpretation(); codeBox.refresh(); if (S.D !== D0) buildControls(); render(true); run.refresh(); }
-  function render(full) { drawFit(); drawCurves(); if (full || run.frame % 3 === 0 || !run.running) { drawBias(); drawChoice(); updateTable(); } }
+  function render(full) { drawFit(); drawCurves(); if (full || run.frame % 3 === 0 || !run.running) { drawBias(); drawChoice(); updateTable(); } if (full && !run.running && codeBox) codeBox.refresh(); }
   function buildControls() {
     ctrlBox.innerHTML = '';
     var sel = function (lab, key, vals, fmtv) { return el('label.field', el('span', lab), el('select', { onchange: function () { S[key] = +this.value; restart(); } }, vals.map(function (v) { return el('option', { value: v, selected: v === S[key] }, fmtv ? fmtv(v) : String(v)); }))); };
@@ -8801,7 +8830,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
       'curve |> group_by(replica) |> slice_min(loo, n = 1, with_ties = FALSE) |> ungroup() |>', '  summarise(k_medio = mean(k), test_al_k_scelto = mean(test))',
       'curve |> filter(k == 1) |> summarise(training = mean(training), test = mean(test), cover_hart = 2 * errore_bayes * (1 - errore_bayes))', '',
       'theme_statatlas <- function(base_size = 12) {', '  theme_minimal(base_size = base_size, base_family = "serif") +', '    theme(panel.grid.minor = element_blank(), plot.background = element_rect(fill = "#FAF8F3", colour = NA))', '}',
-      'curve |> select(-replica) |> group_by(k) |> summarise(across(everything(), mean)) |>', '  pivot_longer(-k, names_to = "errore", values_to = "valore") |>',
+      'curve |> dplyr::select(-replica) |> group_by(k) |> summarise(across(everything(), mean)) |>', '  pivot_longer(-k, names_to = "errore", values_to = "valore") |>',
       '  ggplot(aes(k, valore, colour = errore)) + geom_line(linewidth = 1) +', '  geom_hline(yintercept = errore_bayes, linetype = "dashed") +', '  labs(x = "k", y = "tasso di errore") + theme_statatlas()', '',
       '# Confronto di metodo (R3)', '# library(class); knn(train = tr$x, test = te$x, cl = factor(tr$y), k = ' + S.kShow + ')', ''].join('\n');
   }
@@ -10016,7 +10045,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     return { tr: pick(sp.train), va: pick(sp.test) };
   }
   function newState(prev) {
-    var s = { data: 'xor', n: 200, sigma: 0.1, pv: 0.3, H: 4, act: 'tanh', eta: 1, lambda: 0, E: 2000, seed: 2026, iseed: 1, pred: null, sel: 0 };
+    var s = { data: 'xor', n: 200, sigma: 0.1, pv: 0.3, H: 4, act: 'tanh', eta: 0.5, lambda: 0, E: 2000, seed: 2026, iseed: 1, pred: null, sel: 0 };
     if (prev) for (var k in s) if (prev[k] !== undefined) s[k] = prev[k];
     var D = gen(s); s.tr = D.tr; s.va = D.va;
     s.net = SA.nn.init(new SA.RRNG(s.iseed), s.H, s.act); s.net0 = SA.nn.clone(s.net);
@@ -10118,15 +10147,15 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   var tblBody, kpiBox, fbBox, interpBox, predBox;
   function updateTable() {
     var fmt = SA.fmt, b = SA.ui.badge, h = S.hist, L = h.tr.length - 1, gc = S.diverged ? NaN : SA.nn.gradCheck(S.net, S.tr.X, S.tr.y, S.lambda);
-    var m = S.multi, okm = m ? m.filter(function (r) { return !r.div; }) : [], succ = okm.filter(function (r) { return r.ava >= 0.9; }).length;
+    var m = S.multi, okm = m ? m.filter(function (r) { return !r.div; }) : [], succ = okm.filter(function (r) { return r.ava >= 0.85; }).length;
     tblBody.innerHTML = '';
     tblBody.append(
       el('tr', el('td', 'Parametri della rete'), el('td', '4H + 1 = ' + SA.nn.nParams(S.H)), el('td', S.tr.X.length + ' osservazioni di training'), el('td', b('exact'))),
       el('tr', el('td', 'Perdita: training · validazione (epoca ' + S.e + ')'), el('td', 'log 2 = 0,693 con p = 0,5 ovunque'), el('td', fmt(h.tr[L], 4) + ' · ' + fmt(h.va[L], 4)), el('td', b('none'))),
       el('tr', el('td', 'Accuratezza: training · validazione'), el('td', '—'), el('td', fmt(h.atr[L], 3) + ' · ' + fmt(h.ava[L], 3)), el('td', b('none'))),
       el('tr', el('td', 'Controllo del gradiente (differenze finite centrali)'), el('td', 'errore relativo ≈ 0 (< 1e−6)'), el('td', isFinite(gc) ? gc.toExponential(1) : '— (divergenza)'), el('td', b('exact'))),
-      el('tr', el('td', 'Stato dell’addestramento'), el('td', 'discesa a lotto intero, η = ' + S.eta), el('td', S.diverged ? '✗ divergenza all’epoca ' + S.e : h.tr[L] > h.tr[0] ? 'perdita salita: η probabilmente troppo alto' : '✓ perdita scesa da ' + fmt(h.tr[0], 3)), el('td', b('none'))),
-      el('tr', el('td', SEEDS + ' inizializzazioni: validazione ≥ 0,9 · perdita di training min–max'), el('td', 'la perdita non è convessa: esiti diversi'), el('td', m ? succ + ' / ' + SEEDS + ' · ' + (okm.length ? fmt(Math.min.apply(null, okm.map(function (r) { return r.tr; })), 3) + '–' + fmt(Math.max.apply(null, okm.map(function (r) { return r.tr; })), 3) : '—') + (okm.length < m.length ? ' · ' + (m.length - okm.length) + ' divergenze' : '') : 'premi il pulsante'), el('td', b('mc'))));
+      el('tr', el('td', 'Stato dell’addestramento'), el('td', 'discesa a lotto intero, η = ' + String(S.eta).replace('.', ',')), el('td', S.diverged ? '✗ divergenza all’epoca ' + S.e : h.tr[L] > h.tr[0] ? 'perdita salita: η probabilmente troppo alto' : '✓ perdita scesa da ' + fmt(h.tr[0], 3)), el('td', b('none'))),
+      el('tr', el('td', SEEDS + ' inizializzazioni: accuratezza di validazione ≥ 0,85 · perdita di training min–max'), el('td', 'la perdita non è convessa: esiti diversi'), el('td', m ? succ + ' / ' + SEEDS + ' · ' + (okm.length ? fmt(Math.min.apply(null, okm.map(function (r) { return r.tr; })), 3) + '–' + fmt(Math.max.apply(null, okm.map(function (r) { return r.tr; })), 3) : '—') + (okm.length < m.length ? ' · ' + (m.length - okm.length) + ' divergenze' : '') : 'premi il pulsante'), el('td', b('mc'))));
     kpiBox.innerHTML = '';
     kpiBox.append(el('div.kpi', el('b', S.e + ' / ' + S.E), el('span', 'epoche')),
       el('div.kpi', el('b', '2 → ' + S.H + ' → 1'), el('span', 'architettura (' + S.act + ')')),
@@ -10150,7 +10179,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   function interpretation() {
     interpBox.innerHTML = '<p>Ogni neurone nascosto calcola una combinazione lineare degli ingressi e la trasforma con una funzione non lineare; l’uscita combina i neuroni e passa per la sigmoide, come una regressione logistica sulle variabili create dalla rete. Con abbastanza neuroni si può approssimare qualunque frontiera regolare.</p>' +
       '<p>L’addestramento minimizza l’entropia incrociata con la <strong>discesa del gradiente</strong>; la <strong>backpropagation</strong> calcola il gradiente propagando all’indietro l’errore p − y attraverso i pesi (i δ nello schema). Il controllo con le differenze finite verifica che il gradiente sia giusto.</p>' +
-      '<p class="muted">Con un learning rate troppo alto la perdita oscilla o esplode; con molti neuroni, poco rumore e nessuna penalità la perdita di training continua a scendere mentre quella di validazione risale: è il sovradattamento, che si contrasta con la penalità L2 o fermandosi al minimo della validazione.</p>';
+      '<p class="muted">Con un learning rate troppo alto la perdita oscilla o esplode; con molti neuroni, poco rumore e nessuna penalità la perdita di training continua a scendere mentre quella di validazione risale: è il sovradattamento, che si contrasta con la penalità L2 o fermandosi al minimo della validazione. Con η vicino al limite di stabilità (qui già η = 1 su XOR) la traiettoria diventa sensibile agli arrotondamenti: differenze nell’ultima cifra crescono epoca dopo epoca, e anche R e il browser possono separarsi nelle cifre finali.</p>';
   }
   function codeR() {
     var d = S.data;
@@ -10217,7 +10246,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
       SA.ui.slider('Rumore σ', { min: 0, max: 0.4, step: 0.02, value: S.sigma, format: function (v) { return SA.fmt(v, 2); }, onchange: function (v) { S.sigma = v; restart(); } }),
       el('div', { style: 'display:grid;grid-template-columns:1fr 1fr;gap:10px' },
         sel('Neuroni nascosti H', 'H', [2, 3, 4, 6, 8]), sel('Attivazione', 'act', ['tanh', 'relu'], function (v) { return v === 'tanh' ? 'tanh' : 'ReLU'; }, false),
-        sel('Learning rate η', 'eta', [0.03, 0.1, 0.3, 1, 3, 10, 30], function (v) { return SA.fmt(v, 2); }), sel('Penalità L2 λ', 'lambda', [0, 0.0001, 0.001, 0.01, 0.1], function (v) { return v ? String(v).replace('.', ',') : '0'; }),
+        sel('Learning rate η', 'eta', [0.03, 0.1, 0.3, 0.5, 1, 3, 10, 30], function (v) { return SA.fmt(v, 2); }), sel('Penalità L2 λ', 'lambda', [0, 0.0001, 0.001, 0.01, 0.1], function (v) { return v ? String(v).replace('.', ',') : '0'; }),
         sel('Epoche', 'E', [500, 2000, 5000]), sel('n', 'n', [60, 200, 400]),
         sel('Quota di validazione', 'pv', [0.3, 0.5], function (v) { return SA.fmt(v, 1); }),
         el('label.field', el('span', 'Seed dei dati'), el('input', { type: 'number', value: S.seed, min: 1, onchange: function () { S.seed = Math.max(1, Math.floor(+this.value || 1)); restart(); } })),

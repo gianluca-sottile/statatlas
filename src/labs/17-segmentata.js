@@ -191,7 +191,7 @@
 
   var run, codeBox, ctrlBox;
   function restart() { if (bootTask) { bootTask.cancel(); bootTask = null; } run.stop(); S = newState(S); step(); legends(); interpretation(); codeBox.refresh(); render(true); run.refresh(); if (bootBtn) { bootBtn.disabled = false; bootBtn.textContent = 'Test bootstrap dell’esistenza del cambiamento'; } }
-  function render(full) { drawFit(); if (full || run.frame % 3 === 0 || !run.running) { drawProfile(); drawMC(); drawCompare(); updateTable(); } }
+  function render(full) { drawFit(); if (full || run.frame % 3 === 0 || !run.running) { drawProfile(); drawMC(); drawCompare(); updateTable(); } if (full && !run.running && codeBox) codeBox.refresh(); }
   function buildControls() {
     ctrlBox.innerHTML = '';
     var sl = function (lab, key, mn, mx, st, d) { return SA.ui.slider(lab, { min: mn, max: mx, step: st, value: S[key], format: function (v) { return SA.fmt(v, d); }, onchange: function (v) { S[key] = v; restart(); } }); };

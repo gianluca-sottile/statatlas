@@ -217,7 +217,7 @@
 
   var run, codeBox, ctrlBox, showSlider;
   function restart() { var D0 = S.D; run.stop(); S = newState(S); step(); legends(); interpretation(); codeBox.refresh(); if (S.D !== D0) buildControls(); render(true); run.refresh(); }
-  function render(full) { drawFit(); drawCurves(); if (full || run.frame % 3 === 0 || !run.running) { drawBias(); drawChoice(); updateTable(); } }
+  function render(full) { drawFit(); drawCurves(); if (full || run.frame % 3 === 0 || !run.running) { drawBias(); drawChoice(); updateTable(); } if (full && !run.running && codeBox) codeBox.refresh(); }
   function buildControls() {
     ctrlBox.innerHTML = '';
     var sel = function (lab, key, vals, fmtv) { return el('label.field', el('span', lab), el('select', { onchange: function () { S[key] = +this.value; restart(); } }, vals.map(function (v) { return el('option', { value: v, selected: v === S[key] }, fmtv ? fmtv(v) : String(v)); }))); };
