@@ -170,6 +170,13 @@ SA.art = (function () {
     s += '<line x1="' + (160 + 36 * sn) + '" y1="' + (95 - 36 * c) + '" x2="' + (160 - 36 * sn) + '" y2="' + (95 + 36 * c) + '" stroke="var(--c1)" stroke-width="3"/>';
     return frame(s, 'Assi principali');
   };
+  L.clustering = function () {
+    var r = rnd(83), s = '', C = [[90, 70, 'var(--c1)'], [215, 60, 'var(--c2)'], [160, 135, 'var(--c3)']];
+    C.forEach(function (c) { for (var i = 0; i < 18; i++) s += '<circle cx="' + (c[0] + 20 * gauss(r)).toFixed(1) + '" cy="' + (c[1] + 14 * gauss(r)).toFixed(1) + '" r="2.8" fill="' + c[2] + '" fill-opacity=".7"/>'; });
+    C.forEach(function (c) { s += '<path d="M' + (c[0] - 7) + ',' + (c[1] - 7) + 'L' + (c[0] + 7) + ',' + (c[1] + 7) + 'M' + (c[0] - 7) + ',' + (c[1] + 7) + 'L' + (c[0] + 7) + ',' + (c[1] - 7) + '" stroke="var(--ink)" stroke-width="3"/>'; });
+    s += '<path d="M30,172 V160 H60 V172 M45,160 V150 H95 V172 M70,150 V138 H130 V172" fill="none" stroke="var(--ink)" stroke-opacity=".45" stroke-width="1.3"/>';
+    return frame(s, 'Gruppi e centri');
+  };
   /* ---- parti ---- */
   L.partI = L.distribuzioni; L.partII = L['lgn-tcl']; L.partIII = L.intervalli; L.partIV = L.regressione; L.partV = L.penalizzata; L.partVI = L.validazione; L.partVII = L.pca;
   function get(id) { return L[id] ? L[id]() : ''; }

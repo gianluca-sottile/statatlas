@@ -29,7 +29,8 @@ SA.catalog = [
     { id: 'knn', num: '19', title: 'k vicini più prossimi', blurb: 'Classificare con i vicini: frontiere di decisione, errore di Bayes, scelta di k e il peso delle unità di misura.', status: 'ready', verifyR: true },
     { id: 'alberi', num: '20', title: 'Alberi, bagging e random forest', blurb: 'Un albero è instabile; molti alberi resi diversi votano meglio: bootstrap, out-of-bag e scelta casuale delle variabili.', status: 'ready', verifyR: true } ] },
   { part: 'VII', title: 'Riduzione dimensionale e clustering', labs: [
-    { id: 'pca', num: '21', title: 'Componenti principali', blurb: 'Gli assi di massima varianza: autovalori, varianza spiegata, ricostruzione, segni e stabilità degli assi.', status: 'ready', verifyR: true } ] }
+    { id: 'pca', num: '21', title: 'Componenti principali', blurb: 'Gli assi di massima varianza: autovalori, varianza spiegata, ricostruzione, segni e stabilità degli assi.', status: 'ready', verifyR: true },
+    { id: 'clustering', num: '22', title: 'k-means e clustering gerarchico', blurb: 'Lloyd passo dopo passo, minimi locali e più avvii, dendrogrammi e legami, gruppi trovati contro gruppi veri.', status: 'ready', verifyR: true } ] }
 ];
 SA.labs = {};
 SA.registerLab = function (id, def) { SA.labs[id] = def; };
@@ -131,7 +132,8 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     ['penalizzata', 'validazione', 'scegliere λ con la validazione incrociata'], ['spline', 'validazione', 'dalla LOOCV in forma chiusa al protocollo training/test'], ['regressione', 'validazione', 'errore di training contro errore di previsione'],
     ['validazione', 'knn', 'scegliere k con la validazione leave-one-out'], ['glm', 'knn', 'dalla regressione logistica a una stima locale di P(Y = 1 | x)'], ['bivariata', 'knn', 'classi come normali bivariate: la regola di Bayes'],
     ['knn', 'alberi', 'dalle regioni dei vicini ai rettangoli degli alberi'], ['validazione', 'alberi', 'l’errore out-of-bag come validazione gratuita'], ['simulazione', 'alberi', 'il bootstrap: ricampionare per simulare nuovi dati'],
-    ['bivariata', 'pca', 'la covarianza e i suoi assi: ellissi di concentrazione'], ['regressione', 'pca', 'proiezioni ortogonali e minimi quadrati'], ['penalizzata', 'pca', 'ridge restringe di più le direzioni a bassa varianza']
+    ['bivariata', 'pca', 'la covarianza e i suoi assi: ellissi di concentrazione'], ['regressione', 'pca', 'proiezioni ortogonali e minimi quadrati'], ['penalizzata', 'pca', 'ridge restringe di più le direzioni a bassa varianza'],
+    ['pca', 'clustering', 'distanze euclidee e scelta della scala'], ['knn', 'clustering', 'vicinanza senza etichette'], ['bivariata', 'clustering', 'miscugli di normali come popolazioni generatrici']
   ];
   function openMap() {
     closePart(); modalLast = document.activeElement;

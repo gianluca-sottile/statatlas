@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.10.0 — 13/11/2026 · LAB-22
+- **CORE-04**: `src/core/cluster.js` — Lloyd (assegnazione e aggiornamento come `kmeans(algorithm = "Lloyd")`, gruppi vuoti che conservano il centro), gerarchico con Lance–Williams (singolo, completo, medio, Ward.D2), `cutree`, ordine delle foglie, indice di Rand corretto; `tests/test_cluster.js` (18 test).
+- **Lab 22 k-means e clustering gerarchico** (Parte VII, *anteprima*): tre popolazioni (sferiche, allungate, con dispersioni diverse) a distanza regolabile, valore anomalo, standardizzazione; Lloyd mostrato mezzo passo alla volta con i percorsi dei centri; più avvii e minimi locali con le curve della WCSS; centri iniziali trascinabili; dendrogramma con taglio in K gruppi e partizione corrispondente; ARI rispetto alle popolazioni e tra metodi; controlli (WCSS monotona, n − 1 fusioni, altezze non decrescenti, invarianza alle etichette). R: stessi dati (R0), `kmeans` Lloyd con gli stessi centri iniziali (R2), `hclust`.
+
 ## 1.9.0 — 13/11/2026 · Parte VII, LAB-21
 - **Lab 21 Componenti principali** (Parte VII, *anteprima*): popolazione normale con autovalori e assi noti (λ₁ regolabile, rotazione θ, p da 2 a 6), unità di misura di x₂, standardizzazione, valore anomalo; nuvola centrata con assi stimati e veri e proiezioni su PC1; scree plot con quote della popolazione; biplot con convenzione dichiarata; errore di ricostruzione (identità con gli autovalori scartati); distribuzione Monte Carlo dell’angolo di PC1 contro l’asintotica di Anderson; distanza tra sottospazi; controlli numerici (Σ PVE, score incorrelati, ‖SV − VΛ‖). R: stessi dati (R0), `prcomp` con segni allineati (R1).
 
