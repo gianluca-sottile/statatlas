@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.6.0 — 13/11/2026 · Parte VI, Apprendimento supervisionato (CORE-02, LAB-18)
+- **CORE-02**: `src/core/resampling.js` — `sample()` di R riprodotto esattamente (R ≥ 3.6, campionamento per rifiuto), suddivisione training/test, fold `sample(rep_len(1:K, m))`, bootstrap, controllo della partizione; `la.nestedPredict` per modelli annidati con una sola ortogonalizzazione; `tests/test_resampling.js` (15 test, incluse permutazioni note di R).
+- **Lab 18 Validazione e overfitting** (Parte VI, *anteprima*): regressione polinomiale di grado 0–12 su tre funzioni vere; errore di training, validazione incrociata a K fold, test ed errore di generalizzazione Err(d) calcolato con la funzione vera; distribuzione del grado scelto; confronto tra protocollo corretto (scelta con CV, test usato una volta) e scorretto (scelta sul test) con la distorsione di ciascuno; controllo dei fold a ogni replica. R: stessi dati, stessa suddivisione e stessi fold (R0), stesse metriche (R1).
+- Nuova Parte VI nella home e nella mappa (18 nodi, 29 legami); larghezza dei nodi della mappa adattata al numero di parti.
+
 ## 1.5.0 — 13/11/2026 · inizio del ciclo 2.0 (BASE-01, CORE-01, LAB-17)
 - **BASE-01**: fotografia della baseline 1.4.1 in `docs/BASELINE.md` (commit, build, 49 test, smoke). Piano 2.0 in `docs/PIANO_2_0.md`.
 - **CORE-01**: `src/core/linalg.js` — minimi quadrati con QR di Householder, autodecomposizione simmetrica (Jacobi), base ortonormale per disegni fissi; `tests/test_linalg.js` (16 test).

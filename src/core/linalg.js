@@ -85,5 +85,29 @@ SA.la = (function () {
     for (var k = 0; k < Q.length; k++) { var s = 0, q = Q[k]; for (var i = 0; i < n; i++) s += q[i] * y[i]; r -= s * s; }
     return Math.max(0, r);
   }
-  return { lsq: lsq, symEig: symEig, matMul: matMul, t: t, orthoBasis: orthoBasis, rssQ: rssQ };
+  /* Modelli annidati: il modello j usa le prime j+1 colonne di X. Gram–Schmidt modificato (due passate) con prodotti
+   * scalari sulle sole righe di stima Xtr; la stessa trasformazione è applicata alle righe nuove Xnew.
+   * Restituisce rss[j] sui dati di stima e pred[j][i] = previsione del modello j nella riga nuova i. */
+  function nestedPredict(Xtr, y, Xnew) {
+    var m = Xtr.length, q = Xnew.length, p = Xtr[0].length, Qa = [], Qb = [], i, j, k, pass;
+    var rss = [], pred = [], yy = 0, cur = new Float64Array(q);
+    for (i = 0; i < m; i++) yy += y[i] * y[i];
+    for (j = 0; j < p; j++) {
+      var a = new Float64Array(m), b = new Float64Array(q);
+      for (i = 0; i < m; i++) a[i] = Xtr[i][j]; for (i = 0; i < q; i++) b[i] = Xnew[i][j];
+      for (pass = 0; pass < 2; pass++) for (k = 0; k < Qa.length; k++) {
+        var s = 0, qa = Qa[k], qb = Qb[k]; for (i = 0; i < m; i++) s += qa[i] * a[i];
+        for (i = 0; i < m; i++) a[i] -= s * qa[i]; for (i = 0; i < q; i++) b[i] -= s * qb[i];
+      }
+      var nr = 0; for (i = 0; i < m; i++) nr += a[i] * a[i]; nr = Math.sqrt(nr);
+      if (nr > 1e-10) {
+        for (i = 0; i < m; i++) a[i] /= nr; for (i = 0; i < q; i++) b[i] /= nr; Qa.push(a); Qb.push(b);
+        var c = 0; for (i = 0; i < m; i++) c += a[i] * y[i]; yy -= c * c;
+        for (i = 0; i < q; i++) cur[i] += c * b[i];
+      } // colonna dipendente: il modello j coincide con il precedente
+      rss.push(Math.max(0, yy)); pred.push(Float64Array.from(cur));
+    }
+    return { rss: rss, pred: pred, rank: Qa.length };
+  }
+  return { lsq: lsq, symEig: symEig, matMul: matMul, t: t, orthoBasis: orthoBasis, rssQ: rssQ, nestedPredict: nestedPredict };
 })();

@@ -23,7 +23,9 @@ SA.catalog = [
     { id: 'quantilica', num: '14', title: 'Regressione quantilica', blurb: 'Rette per ogni quantile, perdita asimmetrica, soluzione esatta, punti trascinabili.', status: 'ready' },
     { id: 'penalizzata', num: '15', title: 'Ridge, lasso ed elastic net', blurb: 'Lo spazio delle soluzioni, i percorsi di regolarizzazione e il compromesso distorsione–varianza.', status: 'ready' },
     { id: 'spline', num: '16', title: 'Regressione non parametrica e spline', blurb: 'Polinomi, spline, P-spline e kernel: complessità, gradi di libertà effettivi e validazione incrociata.', status: 'ready' },
-    { id: 'segmentata', num: '17', title: 'Regressione segmentata e breakpoint', blurb: 'Una pendenza che cambia: profilo RSS(ψ), breakpoint non identificato, test bootstrap del cambiamento.', status: 'ready', verifyR: true } ] }
+    { id: 'segmentata', num: '17', title: 'Regressione segmentata e breakpoint', blurb: 'Una pendenza che cambia: profilo RSS(ψ), breakpoint non identificato, test bootstrap del cambiamento.', status: 'ready', verifyR: true } ] },
+  { part: 'VI', title: 'Apprendimento supervisionato', labs: [
+    { id: 'validazione', num: '18', title: 'Validazione e overfitting', blurb: 'Training, test e validazione incrociata: scegliere la complessità senza ingannarsi sull’errore di previsione.', status: 'ready', verifyR: true } ] }
 ];
 SA.labs = {};
 SA.registerLab = function (id, def) { SA.labs[id] = def; };
@@ -71,7 +73,8 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     II: ['partII', 'Che cosa succede quando si raccolgono molti dati: la media si stabilizza, la sua incertezza prende la forma di una campana, e un modello si può mettere alla prova.'],
     III: ['partIII', 'Dai dati ai parametri: stimatori e loro efficienza, verosimiglianza, intervalli di confidenza e test, con le garanzie che offrono e i loro limiti.'],
     IV: ['partIV', 'Modelli che legano una risposta a dei predittori o al proprio passato: regressione lineare, robusta e generalizzata, serie temporali.'],
-    V: ['partV', 'Oltre la media e oltre la retta: quantili condizionati, stime penalizzate con molti predittori e curve stimate dai dati.']
+    V: ['partV', 'Oltre la media e oltre la retta: quantili condizionati, stime penalizzate con molti predittori e curve stimate dai dati.'],
+    VI: ['partVI', 'Prevedere bene su dati nuovi: errore di generalizzazione, validazione, e metodi che imparano la forma della relazione dai dati.']
   };
   var STEPS = [['Domanda', 'Un problema concreto, con una previsione facoltativa'], ['Esperimento', 'Dati generati sotto i tuoi occhi, passo dopo passo'],
     ['Teoria e simulazione', 'Esatto, asintotico o Monte Carlo: sempre dichiarato'], ['Interpretazione', 'Che cosa significa, quando vale, dove si rompe'],
@@ -119,11 +122,12 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     ['regressione', 'glm', 'dal modello lineare al legame'], ['bivariata', 'arma', 'la dipendenza nel tempo: autocorrelazione'],
     ['regressione-lp', 'quantilica', 'L1 è la regressione del quantile 0,5'], ['regressione', 'penalizzata', 'penalizzare i minimi quadrati'],
     ['regressione', 'spline', 'dalla retta alla curva'], ['penalizzata', 'spline', 'la penalità sulla rugosità (P-spline)'], ['adattamento', 'spline', 'scegliere la complessità guardando i dati'],
-    ['spline', 'segmentata', 'una spline lineare con un solo nodo, di posizione ignota'], ['regressione', 'segmentata', 'il modello lineare con un termine (x − ψ)₊'], ['test', 'segmentata', 'testare un parametro che esiste solo sotto l’alternativa']
+    ['spline', 'segmentata', 'una spline lineare con un solo nodo, di posizione ignota'], ['regressione', 'segmentata', 'il modello lineare con un termine (x − ψ)₊'], ['test', 'segmentata', 'testare un parametro che esiste solo sotto l’alternativa'],
+    ['penalizzata', 'validazione', 'scegliere λ con la validazione incrociata'], ['spline', 'validazione', 'dalla LOOCV in forma chiusa al protocollo training/test'], ['regressione', 'validazione', 'errore di training contro errore di previsione']
   ];
   function openMap() {
     closePart(); modalLast = document.activeElement;
-    var P = SA.plot, t = SA.theme(), W = 1000, H = 560, cols = SA.catalog.length, colW = W / cols, pos = {};
+    var P = SA.plot, t = SA.theme(), W = 1000, H = 560, cols = SA.catalog.length, colW = W / cols, NW = Math.min(168, colW - 12), pos = {};
     SA.catalog.forEach(function (p, ci) { var n = p.labs.length; p.labs.forEach(function (l, li) { pos[l.id] = { x: colW * (ci + 0.5), y: 90 + (H - 110) * (li + 0.5) / n, lab: l, part: p }; }); });
     var caption = el('div.feedback', { role: 'status', style: 'max-width:none;margin-top:12px' }, 'Passa sopra un laboratorio per vedere i suoi legami; clicca per aprirlo.');
     var box = el('div.atlas-map');
@@ -131,7 +135,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     SA.catalog.forEach(function (p, ci) {
       P.svg('rect', { x: colW * ci + 6, y: 8, width: colW - 12, height: H - 16, rx: 12, fill: ci % 2 ? t.paper_2 : t.card, stroke: t.rule }, svg);
       P.text(svg, colW * (ci + 0.5), 40, p.part, { 'text-anchor': 'middle', fill: t.accent, 'font-family': t.serif, 'font-size': 26, 'font-weight': 700 });
-      P.text(svg, colW * (ci + 0.5), 62, p.title, { 'text-anchor': 'middle', fill: t.ink_2, 'font-size': 13 });
+      P.text(svg, colW * (ci + 0.5), 62, p.title, { 'text-anchor': 'middle', fill: t.ink_2, 'font-size': cols > 5 ? 10.5 : 13 });
     });
     var edges = LINKS.map(function (e) {
       var a = pos[e[0]], b = pos[e[1]], mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2 - (a.x === b.x ? 0 : 0), bend = a.x === b.x ? 60 : 0;
@@ -141,13 +145,13 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     var nodes = {};
     Object.keys(pos).forEach(function (id) {
       var q = pos[id], g = P.svg('g', { tabindex: 0, role: 'link', 'aria-label': 'Laboratorio ' + q.lab.num + ': ' + q.lab.title, style: 'cursor:pointer' }, svg);
-      P.svg('rect', { x: q.x - 84, y: q.y - 24, width: 168, height: 48, rx: 10, fill: t.card, stroke: t.rule_2, 'stroke-width': 1.4 }, g);
-      P.text(g, q.x - 72, q.y - 4, q.lab.num, { fill: t.accent, 'font-family': t.serif, 'font-size': 15, 'font-weight': 700 });
+      P.svg('rect', { x: q.x - NW / 2, y: q.y - 24, width: NW, height: 48, rx: 10, fill: t.card, stroke: t.rule_2, 'stroke-width': 1.4 }, g);
+      P.text(g, q.x - NW / 2 + 10, q.y - 4, q.lab.num, { fill: t.accent, 'font-family': t.serif, 'font-size': 15, 'font-weight': 700 });
       var words = q.lab.title.split(' '), l1 = '', l2 = '';
       words.forEach(function (w) { if ((l1 + ' ' + w).trim().length <= 17 && !l2) l1 = (l1 + ' ' + w).trim(); else l2 = (l2 + ' ' + w).trim(); });
       if (l2.length > 19) l2 = l2.slice(0, 18) + '…';
-      P.text(g, q.x - 46, q.y - 4, l1, { fill: t.ink, 'font-size': 12.5, 'font-weight': 600 });
-      if (l2) P.text(g, q.x - 46, q.y + 12, l2, { fill: t.ink, 'font-size': 12.5, 'font-weight': 600 });
+      P.text(g, q.x - NW / 2 + 36, q.y - 4, l1, { fill: t.ink, 'font-size': 12.5, 'font-weight': 600 });
+      if (l2) P.text(g, q.x - NW / 2 + 36, q.y + 12, l2, { fill: t.ink, 'font-size': 12.5, 'font-weight': 600 });
       nodes[id] = g;
       var on = function () {
         edges.forEach(function (e) { var hit = e.from === id || e.to === id; e.path.setAttribute('stroke', hit ? t.accent : t.rule); e.path.setAttribute('stroke-width', hit ? 2.6 : 1); e.path.setAttribute('stroke-opacity', hit ? 1 : 0.5); });

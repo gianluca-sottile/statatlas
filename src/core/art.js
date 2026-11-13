@@ -132,8 +132,17 @@ SA.art = (function () {
     s += '<line x1="190" y1="20" x2="190" y2="170" stroke="var(--ink)" stroke-dasharray="3 3"/><path d="M60,40 Q125,46 190,22 T300,44" fill="none" stroke="var(--c3)" stroke-width="2"/>';
     return frame(s, 'Spezzata e profilo');
   };
+  L.validazione = function () {
+    var r = rnd(53), s = '', tr = function (x) { return 150 - 110 * Math.exp(-(x - 20) / 70); }, te = function (x) { return 124 - 0.0029 * (x - 128) * (x - 128); };
+    for (var k = 0; k < 5; k++) s += '<rect x="' + (24 + k * 56) + '" y="154" width="52" height="14" rx="3" fill="' + (k === 2 ? 'var(--c2)' : 'var(--c3)') + '" fill-opacity="' + (k === 2 ? '.55' : '.25') + '"/>';
+    for (var i = 0; i < 12; i++) { var x = 30 + i * 23; s += '<circle cx="' + x + '" cy="' + (tr(x) + 6 * gauss(r)).toFixed(1) + '" r="2.4" fill="var(--ink)" fill-opacity=".4"/>'; }
+    s += '<polyline points="' + pts(curve(tr, 20, 300)) + '" fill="none" stroke="var(--c1)" stroke-width="3"/>';
+    s += '<polyline points="' + pts(curve(te, 20, 300)) + '" fill="none" stroke="var(--c2)" stroke-width="3" stroke-dasharray="9 4"/>';
+    s += '<line x1="128" y1="18" x2="128" y2="148" stroke="var(--accent)" stroke-dasharray="3 3"/>';
+    return frame(s, 'Training, test e fold');
+  };
   /* ---- parti ---- */
-  L.partI = L.distribuzioni; L.partII = L['lgn-tcl']; L.partIII = L.intervalli; L.partIV = L.regressione; L.partV = L.penalizzata;
+  L.partI = L.distribuzioni; L.partII = L['lgn-tcl']; L.partIII = L.intervalli; L.partIV = L.regressione; L.partV = L.penalizzata; L.partVI = L.validazione;
   function get(id) { return L[id] ? L[id]() : ''; }
   return { get: get, logo: L.logo };
 })();
