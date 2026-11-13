@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.11.0 — 13/11/2026 · Parte VII completa (LAB-23)
+- `cluster.js`: DBSCAN con convenzione deterministica dichiarata (visita in ordine di indice, espansione FIFO, bordo al primo cluster), intorni, k-distanze, silhouette; 8 nuovi test (definizioni, invarianza di core e rumore all’ordine dei dati).
+- **Lab 23 DBSCAN e confronto tra metodi** (Parte VII, *anteprima*): lune, cerchi concentrici, densità diverse e dati uniformi senza gruppi, punti anomali, scala e standardizzazione; espansione animata con core, bordo e rumore e intorno ε di un punto scelto con un clic; grafico delle k-distanze; ARI e quota di rumore al variare di ε; k-means, Ward e DBSCAN affiancati con ARI e silhouette; bordi contesi; controllo che l’animazione coincida con la procedura di riferimento. R: stessi dati (R0), DBSCAN didattico identico (R2), `dbscan::dbscan` come confronto (R3).
+
 ## 1.10.0 — 13/11/2026 · LAB-22
 - **CORE-04**: `src/core/cluster.js` — Lloyd (assegnazione e aggiornamento come `kmeans(algorithm = "Lloyd")`, gruppi vuoti che conservano il centro), gerarchico con Lance–Williams (singolo, completo, medio, Ward.D2), `cutree`, ordine delle foglie, indice di Rand corretto; `tests/test_cluster.js` (18 test).
 - **Lab 22 k-means e clustering gerarchico** (Parte VII, *anteprima*): tre popolazioni (sferiche, allungate, con dispersioni diverse) a distanza regolabile, valore anomalo, standardizzazione; Lloyd mostrato mezzo passo alla volta con i percorsi dei centri; più avvii e minimi locali con le curve della WCSS; centri iniziali trascinabili; dendrogramma con taglio in K gruppi e partizione corrispondente; ARI rispetto alle popolazioni e tra metodi; controlli (WCSS monotona, n − 1 fusioni, altezze non decrescenti, invarianza alle etichette). R: stessi dati (R0), `kmeans` Lloyd con gli stessi centri iniziali (R2), `hclust`.

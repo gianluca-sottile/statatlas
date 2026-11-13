@@ -177,6 +177,14 @@ SA.art = (function () {
     s += '<path d="M30,172 V160 H60 V172 M45,160 V150 H95 V172 M70,150 V138 H130 V172" fill="none" stroke="var(--ink)" stroke-opacity=".45" stroke-width="1.3"/>';
     return frame(s, 'Gruppi e centri');
   };
+  L.dbscan = function () {
+    var r = rnd(97), s = '';
+    for (var i = 0; i < 34; i++) { var t = Math.PI * i / 33; s += '<circle cx="' + (95 + 70 * Math.cos(t) + 5 * gauss(r)).toFixed(1) + '" cy="' + (110 - 60 * Math.sin(t) + 5 * gauss(r)).toFixed(1) + '" r="3" fill="var(--c1)" fill-opacity=".75"/>'; }
+    for (i = 0; i < 34; i++) { var t2 = Math.PI * i / 33; s += '<circle cx="' + (165 - 70 * Math.cos(t2) + 5 * gauss(r)).toFixed(1) + '" cy="' + (80 + 60 * Math.sin(t2) + 5 * gauss(r)).toFixed(1) + '" r="3" fill="var(--c2)" fill-opacity=".75"/>'; }
+    [[40, 40], [285, 160], [280, 35], [30, 165]].forEach(function (q) { s += '<path d="M' + (q[0] - 4) + ',' + (q[1] - 4) + 'l8,8m-8,0l8,-8" stroke="var(--ink)" stroke-opacity=".6" stroke-width="1.6"/>'; });
+    s += '<circle cx="165" cy="80" r="22" fill="var(--accent)" fill-opacity=".1" stroke="var(--accent)" stroke-width="1.6" stroke-dasharray="4 3"/>';
+    return frame(s, 'Densità e rumore');
+  };
   /* ---- parti ---- */
   L.partI = L.distribuzioni; L.partII = L['lgn-tcl']; L.partIII = L.intervalli; L.partIV = L.regressione; L.partV = L.penalizzata; L.partVI = L.validazione; L.partVII = L.pca;
   function get(id) { return L[id] ? L[id]() : ''; }

@@ -30,7 +30,8 @@ SA.catalog = [
     { id: 'alberi', num: '20', title: 'Alberi, bagging e random forest', blurb: 'Un albero è instabile; molti alberi resi diversi votano meglio: bootstrap, out-of-bag e scelta casuale delle variabili.', status: 'ready', verifyR: true } ] },
   { part: 'VII', title: 'Riduzione dimensionale e clustering', labs: [
     { id: 'pca', num: '21', title: 'Componenti principali', blurb: 'Gli assi di massima varianza: autovalori, varianza spiegata, ricostruzione, segni e stabilità degli assi.', status: 'ready', verifyR: true },
-    { id: 'clustering', num: '22', title: 'k-means e clustering gerarchico', blurb: 'Lloyd passo dopo passo, minimi locali e più avvii, dendrogrammi e legami, gruppi trovati contro gruppi veri.', status: 'ready', verifyR: true } ] }
+    { id: 'clustering', num: '22', title: 'k-means e clustering gerarchico', blurb: 'Lloyd passo dopo passo, minimi locali e più avvii, dendrogrammi e legami, gruppi trovati contro gruppi veri.', status: 'ready', verifyR: true },
+    { id: 'dbscan', num: '23', title: 'DBSCAN e confronto tra metodi', blurb: 'Gruppi come regioni dense: core, bordo e rumore, scelta di ε, lune e cerchi contro k-means e Ward.', status: 'ready', verifyR: true } ] }
 ];
 SA.labs = {};
 SA.registerLab = function (id, def) { SA.labs[id] = def; };
@@ -133,7 +134,8 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     ['validazione', 'knn', 'scegliere k con la validazione leave-one-out'], ['glm', 'knn', 'dalla regressione logistica a una stima locale di P(Y = 1 | x)'], ['bivariata', 'knn', 'classi come normali bivariate: la regola di Bayes'],
     ['knn', 'alberi', 'dalle regioni dei vicini ai rettangoli degli alberi'], ['validazione', 'alberi', 'l’errore out-of-bag come validazione gratuita'], ['simulazione', 'alberi', 'il bootstrap: ricampionare per simulare nuovi dati'],
     ['bivariata', 'pca', 'la covarianza e i suoi assi: ellissi di concentrazione'], ['regressione', 'pca', 'proiezioni ortogonali e minimi quadrati'], ['penalizzata', 'pca', 'ridge restringe di più le direzioni a bassa varianza'],
-    ['pca', 'clustering', 'distanze euclidee e scelta della scala'], ['knn', 'clustering', 'vicinanza senza etichette'], ['bivariata', 'clustering', 'miscugli di normali come popolazioni generatrici']
+    ['pca', 'clustering', 'distanze euclidee e scelta della scala'], ['knn', 'clustering', 'vicinanza senza etichette'], ['bivariata', 'clustering', 'miscugli di normali come popolazioni generatrici'],
+    ['clustering', 'dbscan', 'dai centri alla densità: gruppi di forma qualunque'], ['knn', 'dbscan', 'intorni di raggio ε e k-distanze']
   ];
   function openMap() {
     closePart(); modalLast = document.activeElement;
