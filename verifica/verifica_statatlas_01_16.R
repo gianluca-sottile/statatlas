@@ -881,7 +881,7 @@ if (!is.null(e)) local({
 }, envir = e)
 e <- esegui("intervalli")
 if (!is.null(e)) local({
-  confronta("08", "copertura e ampiezza media", c(mean(sim$copre), mean(sim$alto - sim$basso)), c(0.95, 1.753), c(0.00006, 0.00006))
+  confronta("08", "copertura e ampiezza media", c(mean(sim$copre), mean(sim$alto - sim$basso)), c(0.9470000000000001, 1.753), c(0.00006, 0.00006))
 }, envir = e)
 e <- esegui("test")
 if (!is.null(e)) local({

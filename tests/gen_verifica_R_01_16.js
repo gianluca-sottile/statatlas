@@ -24,7 +24,7 @@ const CHECK = {
   fisher: () => `confronta("07", "score: media e varianza; informazione osservata media", c(mean(sim$U), var(sim$U), mean(sim$Jt)), c(${v('fisher', 'Media dello score', 2)}, ${v('fisher', 'Varianza dello score', 2)}, ${v('fisher', 'Informazione osservata', 2)}), ${T4})
   confronta("07", "media e varianza di θ̂", c(mean(sim$stima), var(sim$stima)), c(${v('fisher', 'Media di θ̂', 2)}, ${v('fisher', 'Varianza di θ̂', 2)}), c(${T4}, ${T5}))
   confronta("07", "copertura di Wald", mean(sim$wald), ${v('fisher', 'Copertura Wald', 2)}, ${T3})`,
-  intervalli: () => `confronta("08", "copertura e ampiezza media", c(mean(sim$copre), mean(sim$alto - sim$basso)), c(${v('intervalli', 'Copertura', 2) / 100}, ${v('intervalli', 'Ampiezza', 2)}), c(${T4}, ${T4}))`,
+  intervalli: () => `confronta("08", "copertura e ampiezza media", c(mean(sim$copre), mean(sim$alto - sim$basso)), c(${v('intervalli', 'Copertura', 3) / 100}, ${v('intervalli', 'Ampiezza', 3)}), c(${T4}, ${T4}))`,
   test: () => `confronta("09", "errore di primo tipo e potenza simulati", c(mean(rifiuta(sim$z0)), mean(rifiuta(sim$z1))), c(${v('test', 'Errore di primo tipo', 2)}, ${v('test', 'Potenza', 2)}), ${T3})`,
   regressione: () => `confronta("10", "media e dev. std della pendenza", c(mean(sim$pendenza), sd(sim$pendenza)), c(${v('regressione', 'Media di β̂₁', 2)}, ${v('regressione', 'Dev. std', 2)}), ${T4})
   confronta("10", "coperture: banda per la media e intervallo di previsione", c(mean(sim$copre_media), mean(sim$copre_y0)), c(${v('regressione', 'Copertura dell’intervallo per', 2)}, ${v('regressione', 'Copertura dell’intervallo di previsione', 2)}), ${T3})`,
