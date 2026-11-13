@@ -236,7 +236,7 @@
       var s2 = SA.ui.step('2', 'La tua previsione'); predBox = el('div'); s2.body.appendChild(predBox);
       var s3 = SA.ui.step('3', 'Esperimento', 'Lloyd passo dopo passo e dendrogramma');
       ctrlBox = el('div.panel.controls'); figA = el('div', { style: 'touch-action:none' }); figB = el('div'); figC = el('div'); figD = el('div'); legA = el('div.legend');
-      var two = function (a, b) { return el('div', { style: 'display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px' }, a, b); };
+      var two = function (a, b) { return el('div.duo', a, b); };
       s3.body.appendChild(el('div.lab-grid', ctrlBox, el('div.figure',
         el('div.fig', el('div.fig-title', el('h3', 'k-means: assegnazioni, centri e loro percorso'), legA), figA),
         el('div.fig', el('div.fig-title', el('h3', 'WCSS a ogni mezzo passo'), el('div.legend', el('span.muted', 'arancio: avvio corrente · verde: migliore · grigio: altri avvii'))), figB),

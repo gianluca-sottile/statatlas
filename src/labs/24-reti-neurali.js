@@ -242,7 +242,7 @@
       var s3 = SA.ui.step('3', 'Esperimento', 'Addestramento epoca per epoca');
       ctrlBox = el('div.panel.controls'); figA = el('div', { style: 'touch-action:none' }); figB = el('div'); figC = el('div'); figD = el('div'); legA = el('div.legend'); legC = el('div.legend');
       multiBtn = SA.ui.button('Ripeti con ' + SEEDS + ' inizializzazioni', { onclick: function () { runMulti(multiBtn); } });
-      var two = function (a, b) { return el('div', { style: 'display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px' }, a, b); };
+      var two = function (a, b) { return el('div.duo', a, b); };
       s3.body.appendChild(el('div.lab-grid', ctrlBox, el('div.figure',
         two(el('div.fig', el('div.fig-title', el('h3', 'Frontiera e probabilità stimata'), legA), figA), el('div.fig', el('div.fig-title', el('h3', 'La rete: pesi, passaggio in avanti e δ')), figB)),
         el('div.fig', el('div.fig-title', el('h3', 'Perdita durante l’addestramento'), legC), figC),

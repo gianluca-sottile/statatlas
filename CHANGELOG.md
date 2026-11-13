@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.12.1 — 13/11/2026 · aggiustamenti prima della revisione finale
+- **Lab 01, mappa delle relazioni**: ridisegnata su quattro righe e completata (da 19 a 30 legami). Aggiunti: Bernoulli → Geometrica, Binomiale negativa → Poisson, miscuglio Poisson–Gamma → Binomiale negativa, processo di Poisson (Esponenziale → Poisson), parte intera di un’Esponenziale → Geometrica, χ² → Normale, χ² → t, Z₁/Z₂ → Cauchy, ν₁F → χ², F → Beta, statistiche d’ordine delle Uniformi → Beta, χ²(2) = Esponenziale(1/2). Precisati i casi particolari (Bernoulli = Binomiale(1, p), Geometrica = Binomiale negativa(1, p), Esponenziale = Gamma(1, λ)) e la parametrizzazione della Weibull.
+- **Lab 20**: le partizioni e i diagrammi degli alberi sono sostituiti da tre frontiere affiancate (un albero fisso, bagging, foresta casuale) che evolvono a ogni albero aggiunto, con la tinta proporzionale alla quota di voti e la frontiera stimata in nero; nuova striscia di fotogrammi dopo 1, 5, 25, 100 … alberi.
+- **Grafici più grandi**: pagina più larga (fino a 1560 px), colonna dei controlli più stretta, pannelli affiancati che vanno a capo prima di rimpicciolirsi troppo (`.duo`, `.trio`), e un pulsante ⤢ su ogni grafico per ingrandirlo a tutto schermo (Esc per chiudere).
+- **Verifica R**: `verifica/verifica_statatlas.R`, file autonomo che esegue tutti gli script R e li confronta con i valori del browser; generato da `tests/gen_verifica_R.js`.
+
 ## 1.12.0 — 13/11/2026 · Parte VIII (LAB-24): tutti i 24 laboratori
 - **CORE-05**: `src/core/nn.js` — rete 2 → H → 1 (tanh o ReLU, uscita sigmoide), entropia incrociata stabile, penalità L2, backpropagation, discesa a lotto intero, controllo del gradiente con differenze centrali, rilevazione della divergenza; `tests/test_nn.js` (11 test).
 - **Lab 24 Reti neurali e backpropagation** (Parte VIII, *anteprima*): XOR, dati separabili, due lune; superficie di probabilità e frontiera; schema della rete con pesi, passaggio in avanti e δ della backpropagation per un’osservazione scelta con un clic; perdita di training e validazione con il minimo della validazione; addestramento cooperativo un’epoca alla volta; venti inizializzazioni sugli stessi dati (a blocchi, annullabile); controllo del gradiente in tabella. R: stessi dati e pesi iniziali (R0), stessa discesa del gradiente scritta in R (R2), `nnet`/`torch` come confronto (R3).

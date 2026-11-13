@@ -2,7 +2,7 @@
  * identità (logo, tavole illustrate), cornici editoriali, layout più ampio, grafici più grandi. */
 
 /* ---------- impaginazione generale ---------- */
-.page { max-width: 1380px; padding: 52px 56px 104px; }
+.page { max-width: 1560px; padding: 52px 56px 104px; }
 h1 { letter-spacing: -.02em; }
 h1 em { font-style: italic; color: var(--accent); font-weight: 600; }
 ::selection { background: var(--accent-soft); }
@@ -130,7 +130,7 @@ details.predict > :not(summary) { margin-left: 16px; margin-right: 16px; }
 .table-guide { font-size: var(--fs-1); color: var(--ink-2); background: var(--paper-2); border-left: 3px solid var(--st-asym); padding: 10px 14px; border-radius: 0 6px 6px 0; margin-bottom: 14px; max-width: 110ch; }
 
 /* ---------- esperimento: grafici più grandi ---------- */
-.lab-grid { grid-template-columns: 290px minmax(0, 1fr); gap: 28px; }
+.lab-grid { grid-template-columns: 272px minmax(0, 1fr); gap: 24px; }
 .panel.controls { border-radius: 12px; padding: 20px; box-shadow: var(--shadow); }
 .panel.controls::before { content: "Controlli"; display: block; font-size: .7rem; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-3); font-weight: 700; padding-bottom: 10px; margin-bottom: 2px; border-bottom: 1px solid var(--rule); }
 .figure { gap: 20px; }
@@ -203,3 +203,18 @@ table.tv tr.row-sel td { background: var(--accent-soft); font-weight: 600; }
   .sidebar::after { display: none; }
   .drawer-body { padding: 20px 18px 48px; }
 }
+
+/* pannelli affiancati: si dispongono su più righe prima di diventare troppo piccoli */
+.duo { display: grid; grid-template-columns: repeat(auto-fit, minmax(440px, 1fr)); gap: 16px; }
+.trio { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; }
+.trio5 { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 8px; }
+@media (max-width: 640px) { .duo, .trio { grid-template-columns: 1fr; } }
+
+/* pulsante di ingrandimento dei grafici */
+.fig-zoom-btn { position: absolute; top: 8px; right: 8px; z-index: 2; width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--rule); background: var(--card); color: var(--ink-2); font-size: 16px; line-height: 1; cursor: pointer; opacity: .75; }
+.fig-zoom-btn:hover, .fig-zoom-btn:focus-visible { opacity: 1; border-color: var(--accent); color: var(--accent); }
+.fig > .fig-title { padding-right: 38px; }
+.fig.fig-zoomed { position: fixed; inset: 16px; z-index: 80; overflow: auto; padding: 24px 28px; box-shadow: 0 0 0 100vmax rgba(0,0,0,.45); }
+.fig.fig-zoomed svg { max-height: calc(100vh - 140px); width: 100%; }
+.fig.fig-zoomed .duo, .fig.fig-zoomed .trio { grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); }
+body.has-zoom { overflow: hidden; }

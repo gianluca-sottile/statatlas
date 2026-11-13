@@ -25,7 +25,11 @@
     s.cart = SA.ml.tree(s.tr.X, s.tr.y, all, { maxDepth: s.maxDepth, minLeaf: s.minLeaf, mtry: s.p });
     s.cartErr = 0; for (i = 0; i < NT; i++) if (SA.ml.treePredict(s.cart, s.te.X[i]) !== s.te.y[i]) s.cartErr++; s.cartErr /= NT;
     s.k = 0; s.ok = true;
-    s.M = ['bag', 'rf'].map(function () { return { trees: [], vt: new Uint16Array(NT), vo: new Uint16Array(s.n), co: new Uint16Array(s.n), root: new Uint32Array(s.p), teErr: [], oobErr: [] }; });
+    s.M = ['bag', 'rf'].map(function () { return { trees: [], vt: new Uint16Array(NT), vo: new Uint16Array(s.n), co: new Uint16Array(s.n), root: new Uint32Array(s.p), teErr: [], oobErr: [], gv: new Uint16Array(NG * NG) }; });
+    // griglia del piano (x₁, x₂), altre variabili a 0: voti cumulati di ogni insieme per disegnare la frontiera che evolve
+    s.GP = []; for (i = 0; i < NG; i++) for (var j = 0; j < NG; j++) { var x = new Array(s.p).fill(0); x[0] = -2 + 4 * (i + 0.5) / NG; x[1] = -2 + 4 * (j + 0.5) / NG; s.GP.push(x); }
+    s.cartGrid = s.GP.map(function (x) { return SA.ml.treePredict(s.cart, x); });
+    s.snaps = []; s.SNAP = [1, 5, 25, 100, 500].filter(function (b) { return b < s.B; }).concat([s.B]);
     S = S0; return s;
   }
   function grow(M, mtry) {
@@ -34,6 +38,7 @@
     var t = SA.ml.tree(S.tr.X, S.tr.y, idx, { maxDepth: S.maxDepth, minLeaf: S.minLeaf, mtry: mtry, g: g });
     t.forEach(function (nd) { if (!nd.leaf && !(nd.dec > 0)) S.ok = false; if (nd.leaf && nd.n < S.minLeaf) S.ok = false; });
     M.trees.push(t); if (!t[0].leaf) M.root[t[0].j]++;
+    for (i = 0; i < S.GP.length; i++) M.gv[i] += SA.ml.treePredict(t, S.GP[i]);
     for (i = 0; i < NT; i++) M.vt[i] += SA.ml.treePredict(t, S.te.X[i]);
     for (i = 0; i < n; i++) if (!inb[i]) { M.vo[i] += SA.ml.treePredict(t, S.tr.X[i]); M.co[i]++; } // OOB: solo alberi che non hanno visto i
     var b = M.trees.length, e = 0, eo = 0, no = 0;
@@ -41,7 +46,12 @@
     for (i = 0; i < n; i++) if (M.co[i]) { no++; if ((2 * M.vo[i] > M.co[i] ? 1 : 0) !== S.tr.y[i]) eo++; }
     M.teErr.push(e / NT); M.oobErr.push(no ? eo / no : NaN);
   }
-  function step() { if (S.k >= S.B) return false; grow(S.M[0], S.p); grow(S.M[1], S.mtry); S.k++; return true; }
+  function share(M) { var b = Math.max(1, M.trees.length); return Array.prototype.map.call(M.gv, function (v) { return v / b; }); }
+  function step() {
+    if (S.k >= S.B) return false; grow(S.M[0], S.p); grow(S.M[1], S.mtry); S.k++;
+    if (S.SNAP.indexOf(S.k) >= 0) S.snaps.push({ b: S.k, bag: share(S.M[0]), rf: share(S.M[1]) });
+    return true;
+  }
   function agreement(M) { // quota media di coppie di alberi concordi sui punti di test
     var b = M.trees.length, s = 0; if (b < 2) return NaN;
     for (var i = 0; i < NT; i++) { var v = M.vt[i]; s += (v * (v - 1) + (b - v) * (b - v - 1)) / (b * (b - 1)); }
@@ -50,47 +60,42 @@
   function vname(j) { return 'x' + (j + 1); }
 
   /* ---------- grafici ---------- */
-  var pA = [], figB1, figB2, figC, figD, legA, legC, legD, gridCache = null;
-  function gridOf(predict) {
-    var c = new Uint8Array(NG * NG), x = new Array(S.p).fill(0);
-    for (var i = 0; i < NG; i++) for (var j = 0; j < NG; j++) { x[0] = -2 + 4 * (i + 0.5) / NG; x[1] = -2 + 4 * (j + 0.5) / NG; c[i * NG + j] = predict(x); }
-    return c;
-  }
-  function drawPart(box, cells, title) {
-    var P = SA.plot, F = P.frame(box, { W: 340, H: 330, m: { t: 28, r: 10, b: 38, l: 40 }, x: [-2, 2], y: [-2, 2], xlabel: 'x₁', ylabel: 'x₂', label: title });
-    var t = F.t, g = F.g, cw = (F.x(2) - F.x(-2)) / NG, d0 = '', d1 = '';
-    for (var i = 0; i < NG; i++) for (var j = 0; j < NG; j++) { var r = 'M' + (F.x(-2) + i * cw).toFixed(1) + ',' + (F.y(-2) - (j + 1) * cw).toFixed(1) + 'h' + (cw + 0.3).toFixed(1) + 'v' + (cw + 0.3).toFixed(1) + 'h' + (-cw - 0.3).toFixed(1) + 'z'; if (cells[i * NG + j]) d1 += r; else d0 += r; }
-    P.svg('path', { d: d0, fill: t.c1, 'fill-opacity': 0.16 }, g); P.svg('path', { d: d1, fill: t.c2, 'fill-opacity': 0.16 }, g);
+  var pA = [], figS, figC, figD, legA, legC, legD;
+  /* cells: quota di voti per la classe 1 in ogni cella (0…1); tinta più intensa = voto più netto; bordo = frontiera 0,5 */
+  function drawPart(box, cells, title, small) {
+    var P = SA.plot, F = P.frame(box, { W: 360, H: 360, m: { t: small ? 30 : 30, r: small ? 6 : 10, b: small ? 6 : 38, l: small ? 6 : 40 }, x: [-2, 2], y: [-2, 2], xlabel: small ? '' : 'x₁', ylabel: small ? '' : 'x₂', label: title });
+    var t = F.t, g = F.g, cw = (F.x(2) - F.x(-2)) / NG, d0 = [], d1 = [], edge = '', i, j, k;
+    if (small) box.querySelectorAll('svg text').forEach(function (n) { n.remove(); }); // fotogrammi: niente tacche, solo la forma
+    for (i = 0; i < NG; i++) for (j = 0; j < NG; j++) {
+      var v = cells[i * NG + j], lev = Math.min(4, Math.floor(Math.abs(v - 0.5) * 10)), x0 = F.x(-2) + i * cw, y0 = F.y(-2) - (j + 1) * cw;
+      var r = 'M' + x0.toFixed(1) + ',' + y0.toFixed(1) + 'h' + (cw + 0.3).toFixed(1) + 'v' + (cw + 0.3).toFixed(1) + 'h' + (-cw - 0.3).toFixed(1) + 'z';
+      (v > 0.5 ? d1 : d0)[lev] = ((v > 0.5 ? d1 : d0)[lev] || '') + r;
+      var c1 = v > 0.5; // tratti della frontiera tra celle di classe diversa
+      if (i < NG - 1 && (cells[(i + 1) * NG + j] > 0.5) !== c1) edge += 'M' + (x0 + cw).toFixed(1) + ',' + y0.toFixed(1) + 'v' + cw.toFixed(1);
+      if (j < NG - 1 && (cells[i * NG + j + 1] > 0.5) !== c1) edge += 'M' + x0.toFixed(1) + ',' + y0.toFixed(1) + 'h' + cw.toFixed(1);
+    }
+    for (k = 0; k < 5; k++) { if (d0[k]) P.svg('path', { d: d0[k], fill: t.c1, 'fill-opacity': 0.06 + 0.07 * k }, g); if (d1[k]) P.svg('path', { d: d1[k], fill: t.c2, 'fill-opacity': 0.06 + 0.07 * k }, g); }
     if (S.sc === 'circle') P.svg('circle', { cx: F.x(0), cy: F.y(0), r: F.x(Math.sqrt(R2)) - F.x(0), fill: 'none', stroke: t.c_theory, 'stroke-width': 1.8, 'stroke-dasharray': '6 4' }, g);
     else P.svg('line', { x1: F.x(-2), y1: F.y(2), x2: F.x(2), y2: F.y(-2), stroke: t.c_theory, 'stroke-width': 1.8, 'stroke-dasharray': '6 4' }, g);
-    var X = S.tr.X, y = S.tr.y;
-    P.dots(g, X.filter(function (x, k) { return !y[k]; }).map(function (x) { return [F.x(x[0]), F.y(x[1])]; }), 2.3, t.c1, 0.7);
-    P.dots(g, X.filter(function (x, k) { return y[k]; }).map(function (x) { return [F.x(x[0]), F.y(x[1])]; }), 2.3, t.c2, 0.7);
-    P.text(g, F.m.l + 2, 18, title, { fill: t.ink, 'font-size': 13, 'font-weight': 700 });
+    if (!small) { var X = S.tr.X, y = S.tr.y;
+      P.dots(g, X.filter(function (x, q) { return !y[q]; }).map(function (x) { return [F.x(x[0]), F.y(x[1])]; }), 2.2, t.c1, 0.65);
+      P.dots(g, X.filter(function (x, q) { return y[q]; }).map(function (x) { return [F.x(x[0]), F.y(x[1])]; }), 2.2, t.c2, 0.65); }
+    P.svg('path', { d: edge, fill: 'none', stroke: t.ink, 'stroke-width': small ? 1.6 : 2 }, g);
+    P.text(g, F.m.l + 2, 20, title, { fill: t.ink, 'font-size': small ? 15 : 13.5, 'font-weight': 700 });
   }
-  function drawParts(full) {
-    var M = S.M[S.show === 'bag' ? 0 : 1], last = S.M[0].trees[S.M[0].trees.length - 1];
-    if (!S.cartGrid) S.cartGrid = gridOf(function (x) { return SA.ml.treePredict(S.cart, x); });
-    drawPart(pA[0], S.cartGrid, 'Un albero (tutti i dati)');
-    drawPart(pA[1], gridOf(function (x) { return SA.ml.treePredict(last, x); }), 'Albero bootstrap n. ' + S.k);
-    if (full || !gridCache || run.frame % 5 === 0) { var b = M.trees.length; gridCache = gridOf(function (x) { var v = 0; for (var k = 0; k < b; k++) v += SA.ml.treePredict(M.trees[k], x); return 2 * v > b ? 1 : 0; }); }
-    drawPart(pA[2], gridCache, (S.show === 'bag' ? 'Bagging' : 'Foresta casuale') + ', ' + M.trees.length + ' alberi');
+  function drawParts() {
+    drawPart(pA[0], S.cartGrid, 'Un albero (fisso)');
+    drawPart(pA[1], share(S.M[0]), 'Bagging · ' + S.M[0].trees.length + ' alberi');
+    drawPart(pA[2], share(S.M[1]), 'Foresta casuale · ' + S.M[1].trees.length + ' alberi');
   }
-  function drawTree(box, nodes, title) {
-    var P = SA.plot, t = SA.theme(), W = 720, H = 210, DMAX = 3, svg;
-    box.innerHTML = ''; svg = P.svg('svg', { viewBox: '0 0 ' + W + ' ' + H, role: 'img', 'aria-label': title, 'font-family': t.sans, 'font-size': 11 }, box);
-    P.text(svg, 8, 16, title, { fill: t.ink, 'font-size': 13, 'font-weight': 700 });
-    var nLeaves = nodes.filter(function (nd) { return nd.leaf; }).length, nSplit = nodes.length - nLeaves;
-    P.text(svg, W - 8, 16, nSplit + ' divisioni · ' + nLeaves + ' foglie · profondità ' + Math.max.apply(null, nodes.map(function (nd) { return nd.depth; })), { 'text-anchor': 'end', fill: t.ink_3 });
-    (function draw(k, x0, x1, d, px, py) {
-      var nd = nodes[k], cx = (x0 + x1) / 2, cy = 40 + d * 50;
-      if (px != null) P.svg('line', { x1: px, y1: py + 11, x2: cx, y2: cy - 11, stroke: t.rule_2, 'stroke-width': 1.3 }, svg);
-      var cut = !nd.leaf && d >= DMAX, lab = nd.leaf ? 'classe ' + nd.cls + ' · ' + nd.n : cut ? '… (' + nd.n + ')' : vname(nd.j) + ' < ' + SA.fmt(nd.thr, 2);
-      var w = Math.min(x1 - x0 - 4, nd.leaf || cut ? 76 : 90);
-      P.svg('rect', { x: cx - w / 2, y: cy - 11, width: w, height: 22, rx: 5, fill: nd.leaf ? (nd.cls ? t.c2 : t.c1) : t.card, 'fill-opacity': nd.leaf ? 0.22 : 1, stroke: nd.leaf ? 'none' : (nd.j >= 2 ? t.accent : t.rule_2) }, svg);
-      P.text(svg, cx, cy + 4, lab, { 'text-anchor': 'middle', fill: nd.j >= 2 && !nd.leaf && !cut ? t.accent : t.ink, 'font-size': w < 60 ? 9 : 11 });
-      if (!nd.leaf && !cut) { draw(nd.l, x0, cx, d + 1, cx, cy); draw(nd.r, cx, x1, d + 1, cx, cy); }
-    })(0, 0, W, 0, null, null);
+  function drawSnaps() {
+    figS.innerHTML = ''; var key = S.show === 'bag' ? 'bag' : 'rf';
+    S.SNAP.forEach(function (b) {
+      var sn = S.snaps.filter(function (q) { return q.b === b; })[0], box = el('div');
+      figS.appendChild(box);
+      if (sn) drawPart(box, sn[key], b + (b === 1 ? ' albero' : ' alberi'), true);
+      else box.appendChild(el('p.muted', { style: 'padding:30px 6px;text-align:center;font-size:.85rem' }, b + ' alberi: non ancora raggiunti'));
+    });
   }
   function drawErr() {
     var P = SA.plot, b = Math.max(2, S.k), all = [S.cartErr, S.eps];
@@ -119,7 +124,7 @@
   function legends() {
     var t = SA.theme(), sw = SA.plot.legendSwatch, box = function (c, o) { return el('i', { style: 'display:inline-block;width:14px;height:10px;border-radius:2px;background:' + c + ';opacity:' + o }); };
     legA.innerHTML = ''; legC.innerHTML = ''; legD.innerHTML = '';
-    legA.append(el('span', box(t.c1, 0.4), 'classe 0'), el('span', box(t.c2, 0.4), 'classe 1'), el('span', sw(t.c_theory, '6 4'), 'frontiera di Bayes'), S.q ? el('span.muted', 'variabili di rumore fissate a 0') : null);
+    legA.append(el('span', box(t.c1, 0.4), 'classe 0'), el('span', box(t.c2, 0.4), 'classe 1'), el('span', sw(t.ink, null), 'frontiera stimata'), el('span', sw(t.c_theory, '6 4'), 'frontiera di Bayes'), el('span.muted', 'tinta più intensa = voto più netto' + (S.q ? '; variabili di rumore fissate a 0' : '')));
     legC.append(el('span', sw(t.c1, null), 'bagging · test'), el('span', sw(t.c1, '6 3'), 'bagging · OOB'), el('span', sw(t.c2, null), 'foresta · test'), el('span', sw(t.c2, '6 3'), 'foresta · OOB'));
     legD.append(el('span', box(t.c1, 0.8), 'bagging'), el('span', box(t.c2, 0.8), 'foresta casuale (mtry = ' + S.mtry + ')'));
   }
@@ -160,7 +165,7 @@
     fbBox.textContent = (S.pred === 'lower' ? '✓ ' : '✗ ') + 'Ogni albero bootstrap è instabile quanto quello originale (spesso un po’ peggiore), ma i loro errori non coincidono: la media dei voti ne riduce la varianza. Qui un albero sbaglia ' + SA.fmt(S.cartErr, 3) + ', il bagging ' + (e.length ? SA.fmt(e[e.length - 1], 3) : '—') + '. L’errore di Bayes ε = ' + SA.fmt(S.eps, 2) + ' resta un limite invalicabile, e la distorsione degli alberi (split paralleli agli assi) non si cancella.';
   }
   function interpretation() {
-    interpBox.innerHTML = '<p>Un albero profondo ha <strong>distorsione bassa e varianza alta</strong>: piccole variazioni dei dati cambiano la prima divisione e quindi tutto ciò che sta sotto. Confronta l’albero stimato su tutti i dati con quello dell’ultimo campione bootstrap: forme e soglie sono diverse, anche se i dati sono quasi gli stessi.</p>' +
+    interpBox.innerHTML = '<p>Un albero profondo ha <strong>distorsione bassa e varianza alta</strong>: piccole variazioni dei dati cambiano la prima divisione e quindi tutto ciò che sta sotto. Confronta l’albero fisso, stimato su tutti i dati, con il primo fotogramma (un solo albero, stimato su un campione bootstrap): rettangoli e soglie cambiano molto, anche se i dati sono quasi gli stessi. Nei fotogrammi successivi i voti di molti alberi smussano la frontiera.</p>' +
       '<p>Il <strong>bagging</strong> media molti alberi bootstrap: la varianza della media di B previsioni con correlazione ρ è ρσ² + (1 − ρ)σ²/B, quindi aggiungere alberi non fa mai danno ma il guadagno si ferma a ρσ². La <strong>foresta casuale</strong> abbassa ρ scegliendo a caso mtry variabili candidate a ogni nodo: gli alberi si somigliano meno (accordo più basso), e la media funziona meglio.</p>' +
       '<p class="muted">L’errore <strong>out-of-bag</strong> usa, per ogni osservazione, solo gli alberi che non l’hanno vista (circa il 37%): è una stima dell’errore di previsione gratuita e simile a quella sul test, senza bisogno di separare dati.</p>';
   }
@@ -217,10 +222,10 @@
   };
 
   var run, codeBox, ctrlBox;
-  function restart() { var p0 = S.p; run.stop(); S = newState(S); gridCache = null; step(); legends(); interpretation(); codeBox.refresh(); if (S.p !== p0) buildControls(); render(true); run.refresh(); }
+  function restart() { var p0 = S.p; run.stop(); S = newState(S); step(); legends(); interpretation(); codeBox.refresh(); if (S.p !== p0) buildControls(); render(true); run.refresh(); }
   function render(full) {
-    drawParts(full); drawErr();
-    if (full || run.frame % 3 === 0 || !run.running) { drawTree(figB1, S.cart, 'Albero stimato su tutti i dati'); drawTree(figB2, S.M[0].trees[S.M[0].trees.length - 1], 'Albero sul campione bootstrap n. ' + S.k + ' (bagging)'); drawRoot(); updateTable(); }
+    if (full || run.frame % 2 === 0 || !run.running) drawParts(); drawErr();
+    if (full || run.frame % 4 === 0 || !run.running) { drawSnaps(); drawRoot(); updateTable(); }
   }
   function buildControls() {
     ctrlBox.innerHTML = '';
@@ -233,15 +238,15 @@
         sel('n', 'n', [100, 200, 400]), sel('Variabili di rumore', 'q', [0, 3, 8]),
         sel('Profondità massima', 'maxDepth', [2, 4, 6, 30], function (v) { return v === 30 ? 'nessun limite' : String(v); }), sel('Min. per foglia', 'minLeaf', [1, 3, 5, 10]),
         sel('mtry (foresta)', 'mtry', mt, function (v) { return v + (v === S.p ? ' = p (bagging)' : ''); }), sel('Alberi B', 'B', [50, 100, 200, 500]),
-        el('label.field', el('span', 'Insieme mostrato'), el('select', { onchange: function () { S.show = this.value; gridCache = null; drawParts(true); } }, [['rf', 'foresta casuale'], ['bag', 'bagging']].map(function (o) { return el('option', { value: o[0], selected: o[0] === S.show }, o[1]); }))),
+        el('label.field', el('span', 'Fotogrammi di'), el('select', { onchange: function () { S.show = this.value; drawSnaps(); } }, [['rf', 'foresta casuale'], ['bag', 'bagging']].map(function (o) { return el('option', { value: o[0], selected: o[0] === S.show }, o[1]); }))),
         el('label.field', el('span', 'Seed'), el('input', { type: 'number', value: S.seed, min: 1, onchange: function () { S.seed = Math.max(1, Math.floor(+this.value || 1)); restart(); } }))));
     run.controls('Un albero in più per metodo').forEach(function (n) { ctrlBox.appendChild(n); });
   }
 
   SA.registerLab('alberi', {
     mount: function (page, info) {
-      el = SA.ui.el; S = newState(S); gridCache = null;
-      run = SA.ui.runner({ speed: 1, coop: true, step: step, render: render, done: function () { return S.k >= S.B; }, progress: function () { return S.k / S.B; }, reset: function () { S = newState(S); gridCache = null; step(); } });
+      el = SA.ui.el; S = newState(S);
+      run = SA.ui.runner({ speed: 1, coop: true, step: step, render: render, done: function () { return S.k >= S.B; }, progress: function () { return S.k / S.B; }, reset: function () { S = newState(S); step(); } });
       var openT = function (l) { SA.ui.openDrawer('Alberi ed ensemble', THEORY, l); };
       page.appendChild(el('header.lab-head', el('div', el('div.kicker', info.part.part + ' · ' + info.part.title + ' · Laboratorio ' + info.lab.num),
         el('h1', info.lab.title), el('p.lede', 'Un albero di decisione è facile da leggere e difficile da fidarsi: basta poco per cambiarlo. Farne votare molti, resi diversi apposta, è una delle idee più efficaci della statistica moderna.')),
@@ -249,11 +254,11 @@
       var s1 = SA.ui.step('1', 'Domanda'); s1.body.appendChild(el('p.question', 'Perché un albero è instabile, e perché aggregarne molti migliora la previsione?'));
       var s2 = SA.ui.step('2', 'La tua previsione'); predBox = el('div'); s2.body.appendChild(predBox);
       var s3 = SA.ui.step('3', 'Esperimento', 'Un albero, molti alberi');
-      ctrlBox = el('div.panel.controls'); pA = [el('div'), el('div'), el('div')]; figB1 = el('div'); figB2 = el('div'); figC = el('div'); figD = el('div');
+      ctrlBox = el('div.panel.controls'); pA = [el('div'), el('div'), el('div')]; figS = el('div.trio5'); figC = el('div'); figD = el('div');
       legA = el('div.legend'); legC = el('div.legend'); legD = el('div.legend');
       s3.body.appendChild(el('div.lab-grid', ctrlBox, el('div.figure',
-        el('div.fig', el('div.fig-title', el('h3', 'Partizioni del piano (x₁, x₂)'), legA), el('div', { style: 'display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:8px' }, pA[0], pA[1], pA[2])),
-        el('div.fig', el('div.fig-title', el('h3', 'Due alberi a confronto (primi tre livelli)'), el('div.legend', el('span.muted', 'in arancio le divisioni su variabili di rumore'))), figB1, figB2),
+        el('div.fig', el('div.fig-title', el('h3', 'Frontiere stimate: un albero, bagging e foresta casuale'), legA), el('div.trio', pA[0], pA[1], pA[2])),
+        el('div.fig', el('div.fig-title', el('h3', 'Come si forma la frontiera all’aumentare degli alberi'), el('div.legend', el('span.muted', 'fotogrammi salvati durante l’esperimento; scegli il metodo nei controlli'))), figS),
         el('div.fig', el('div.fig-title', el('h3', 'Errore al crescere del numero di alberi'), legC), figC),
         el('div.fig', el('div.fig-title', el('h3', 'Quanto si somigliano gli alberi: la prima divisione'), legD), figD),
         el('div.toolbar', SA.ui.button('Dati CSV', { icon: 'download', cls: 'btn-ghost', onclick: function () { var rows = [S.tr.X[0].map(function (v, j) { return vname(j); }).concat('y')]; S.tr.X.forEach(function (x, i) { rows.push(x.concat(S.tr.y[i])); }); SA.ui.download('statatlas_lab20_training.csv', SA.ui.csv(rows), 'text/csv'); } }),

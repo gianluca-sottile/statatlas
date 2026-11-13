@@ -318,30 +318,43 @@
 
   /* ---------- mappa delle relazioni ---------- */
   var NODES = {
-    bern: [70, 40], binom: [215, 40], hyper: [360, 40], pois: [505, 40], geom: [650, 40], nbinom: [795, 40],
-    unif: [70, 170], norm: [215, 170], lnorm: [360, 170], t: [505, 170], cauchy: [650, 170], f: [795, 170],
-    exp: [70, 300], gamma: [215, 300], chisq: [360, 300], beta: [505, 300], weibull: [650, 300]
+    hyper: [90, 45], binom: [250, 45], bern: [410, 45], geom: [570, 45], nbinom: [730, 45], pois: [890, 45],
+    lnorm: [90, 190], norm: [250, 190], t: [410, 190], cauchy: [570, 190], exp: [890, 190],
+    f: [250, 335], chisq: [410, 335], gamma: [730, 335], weibull: [890, 335],
+    beta: [410, 480], unif: [730, 480]
   };
+  /* [da, a, approssimazione?, testo, curvatura facoltativa] — relazioni tra le 17 leggi del laboratorio */
   var EDGES = [
-    ['bern', 'binom', 0, 'Somma di n Bernoulli(p) indipendenti → Binomiale(n, p)'],
+    ['bern', 'binom', 0, 'Somma di n Bernoulli(p) indipendenti → Binomiale(n, p); Bernoulli(p) = Binomiale(1, p)'],
+    ['bern', 'geom', 0, 'Numero di insuccessi prima del primo successo in prove di Bernoulli(p) indipendenti → Geometrica(p)'],
     ['hyper', 'binom', 1, 'Popolazione grande rispetto al campione: estrarre senza reinserimento ≈ con reinserimento'],
-    ['binom', 'pois', 1, 'n → ∞, p → 0 con np → λ: Binomiale(n, p) ≈ Poisson(λ)'],
-    ['geom', 'nbinom', 0, 'Somma di r Geometriche(p) indipendenti → Binomiale negativa(r, p)'],
+    ['binom', 'pois', 1, 'n → ∞, p → 0 con np → λ: Binomiale(n, p) ≈ Poisson(λ)', -60],
+    ['geom', 'nbinom', 0, 'Somma di r Geometriche(p) indipendenti → Binomiale negativa(r, p); Geometrica(p) = Binomiale negativa(1, p)'],
+    ['nbinom', 'pois', 1, 'r → ∞ con media r(1 − p)/p → λ fissata: Binomiale negativa ≈ Poisson(λ)'],
+    ['gamma', 'nbinom', 0, 'Miscuglio Poisson–Gamma: se Λ ~ Gamma(r, tasso p/(1 − p)) e Y | Λ ~ Poisson(Λ), allora Y ~ Binomiale negativa(r, p)'],
+    ['exp', 'pois', 0, 'Processo di Poisson: con tempi tra eventi Esponenziali(λ) indipendenti, il numero di eventi in un intervallo unitario è Poisson(λ)'],
+    ['exp', 'geom', 0, 'Parte intera: se X ~ Esponenziale(λ), ⌊X⌋ ~ Geometrica(1 − e^−λ)'],
     ['binom', 'norm', 1, 'Teorema centrale: Binomiale(n, p) ≈ N(np, np(1 − p)) per np(1 − p) grande'],
-    ['pois', 'norm', 1, 'Poisson(λ) ≈ N(λ, λ) per λ grande'],
-    ['norm', 'lnorm', 0, 'Se X ~ N(μ, σ²), allora exp(X) è Lognormale'],
-    ['norm', 'chisq', 0, 'Z₁² + … + Z_ν² con Zᵢ ~ N(0, 1) indipendenti → χ²(ν)'],
-    ['norm', 't', 0, 'Z / √(V/ν) con Z ~ N(0, 1), V ~ χ²(ν) indipendenti → t(ν)'],
-    ['t', 'norm', 1, 't(ν) → N(0, 1) per ν → ∞'],
-    ['t', 'cauchy', 0, 't con ν = 1 è la Cauchy standard (anche Z₁/Z₂)'],
-    ['chisq', 'f', 0, '(V₁/ν₁) / (V₂/ν₂) con χ² indipendenti → F(ν₁, ν₂)'],
+    ['pois', 'norm', 1, 'Poisson(λ) ≈ N(λ, λ) per λ grande', 30],
+    ['norm', 'lnorm', 0, 'Se X ~ N(μ, σ²), allora exp(X) è Lognormale(μ, σ); viceversa log Y ~ N(μ, σ²)'],
+    ['norm', 'chisq', 0, 'Z₁² + … + Z_ν² con Zᵢ ~ N(0, 1) indipendenti → χ²(ν)', -14],
+    ['chisq', 'norm', 1, 'χ²(ν) ≈ N(ν, 2ν) per ν grande (teorema centrale)', -14],
+    ['norm', 't', 0, 'Z / √(V/ν) con Z ~ N(0, 1), V ~ χ²(ν) indipendenti → t(ν)', -14],
+    ['t', 'norm', 1, 't(ν) → N(0, 1) per ν → ∞', -14],
+    ['chisq', 't', 0, 'Il denominatore della t: √(V/ν) con V ~ χ²(ν) indipendente da Z ~ N(0, 1)'],
+    ['t', 'cauchy', 0, 't con ν = 1 è la Cauchy standard'],
+    ['norm', 'cauchy', 0, 'Z₁ / Z₂ con Z₁, Z₂ ~ N(0, 1) indipendenti → Cauchy(0, 1)', -40],
+    ['chisq', 'f', 0, '(V₁/ν₁) / (V₂/ν₂) con V₁ ~ χ²(ν₁), V₂ ~ χ²(ν₂) indipendenti → F(ν₁, ν₂)', -14],
+    ['f', 'chisq', 1, 'ν₁ · F(ν₁, ν₂) → χ²(ν₁) per ν₂ → ∞', -14],
     ['t', 'f', 0, 'Se T ~ t(ν), allora T² ~ F(1, ν)'],
-    ['unif', 'exp', 0, 'Inversione: −log(1 − U)/λ ~ Esponenziale(λ)'],
-    ['exp', 'gamma', 0, 'Somma di k Esponenziali(λ) indipendenti → Gamma(k, λ)'],
+    ['f', 'beta', 0, 'Se X ~ F(ν₁, ν₂), allora ν₁X / (ν₂ + ν₁X) ~ Beta(ν₁/2, ν₂/2)'],
+    ['unif', 'exp', 0, 'Inversione: −log(U)/λ con U ~ Uniforme(0, 1) è Esponenziale(λ)'],
+    ['unif', 'beta', 0, 'Statistiche d’ordine: la k-esima più piccola di n Uniformi(0, 1) è Beta(k, n − k + 1); in particolare Beta(1, 1) = Uniforme(0, 1)'],
+    ['exp', 'gamma', 0, 'Somma di k Esponenziali(λ) indipendenti → Gamma(k, λ); Esponenziale(λ) = Gamma(1, λ)'],
+    ['exp', 'chisq', 0, 'χ²(2) = Esponenziale(tasso 1/2)'],
     ['gamma', 'chisq', 0, 'χ²(ν) = Gamma(forma ν/2, tasso 1/2)'],
     ['gamma', 'beta', 0, 'A/(A + B) con A ~ Gamma(α, λ), B ~ Gamma(β, λ) indipendenti → Beta(α, β)'],
-    ['beta', 'unif', 0, 'Beta(1, 1) = Uniforme(0, 1)'],
-    ['exp', 'weibull', 0, 'Weibull con forma k = 1 è Esponenziale; X^(1/k) con X ~ Exp(1) è Weibull(k, 1)']
+    ['exp', 'weibull', 0, 'Weibull con forma k = 1 è Esponenziale; λX^(1/k) con X ~ Exp(1) è Weibull(k, λ)']
   ];
   var mapBox, relList, mapCaption;
   function showEdge(e) {
@@ -352,19 +365,19 @@
   function drawMap() {
     var P = SA.plot, t = SA.theme();
     mapBox.innerHTML = '';
-    var root = P.svg('svg', { viewBox: '0 0 865 340', role: 'group', 'aria-label': 'Mappa delle relazioni tra le leggi', 'font-family': t.sans, 'font-size': 12 }, mapBox);
+    var root = P.svg('svg', { viewBox: '0 0 980 520', role: 'group', 'aria-label': 'Mappa delle relazioni tra le leggi', 'font-family': t.sans, 'font-size': 12 }, mapBox);
     var defs = P.svg('defs', null, root);
     ['n', 's'].forEach(function (k) {
       var m = P.svg('marker', { id: 'arr-' + k, viewBox: '0 0 10 10', refX: 9, refY: 5, markerWidth: 7, markerHeight: 7, orient: 'auto-start-reverse' }, defs);
       P.svg('path', { d: 'M0,0L10,5L0,10z', fill: k === 's' ? t.accent : t.rule_2 }, m);
     });
-    [['Discrete', 40], ['Famiglia normale', 170], ['Famiglia gamma', 300]].forEach(function (r) {
+    [['Discrete', 45], ['Normale e derivate', 190], ['Campionarie e famiglia gamma', 335], ['Uniforme e Beta', 480]].forEach(function (r) {
       var tx = P.svg('text', { x: 4, y: r[1] - 30, fill: t.ink_3, 'font-size': 10.5, 'letter-spacing': '.08em' }, root); tx.textContent = r[0].toUpperCase();
     });
     EDGES.forEach(function (e) {
       var a = NODES[e[0]], b = NODES[e[1]], sel = e[0] === S.law || e[1] === S.law;
       var dx = b[0] - a[0], dy = b[1] - a[1], len = Math.sqrt(dx * dx + dy * dy), ux = dx / len, uy = dy / len;
-      var bend = (e[0] === 't' && e[1] === 'norm') ? 40 : (e[0] === 'binom' && e[1] === 'norm') ? -18 : 0;
+      var bend = e[4] || 0;
       var x1 = a[0] + ux * 58, y1 = a[1] + uy * 20, x2 = b[0] - ux * 58, y2 = b[1] - uy * 20;
       if (Math.abs(dy) > Math.abs(dx)) { x1 = a[0] + ux * 30; y1 = a[1] + uy * 20; x2 = b[0] - ux * 30; y2 = b[1] - uy * 20; }
       var mx = (x1 + x2) / 2 - uy * bend, my = (y1 + y2) / 2 + ux * bend;

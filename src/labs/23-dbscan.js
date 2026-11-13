@@ -252,11 +252,11 @@
       var s2 = SA.ui.step('2', 'La tua previsione'); predBox = el('div'); s2.body.appendChild(predBox);
       var s3 = SA.ui.step('3', 'Esperimento', 'Espansione per densità e confronto');
       ctrlBox = el('div.panel.controls'); figA = el('div', { style: 'touch-action:none' }); figB = el('div'); figC = [el('div'), el('div'), el('div')]; figD = el('div'); legA = el('div.legend'); legD = el('div.legend');
-      var two = function (a, b) { return el('div', { style: 'display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px' }, a, b); };
+      var two = function (a, b) { return el('div.duo', a, b); };
       s3.body.appendChild(el('div.lab-grid', ctrlBox, el('div.figure',
         el('div.fig', el('div.fig-title', el('h3', 'DBSCAN passo dopo passo'), legA), figA),
         two(el('div.fig', el('div.fig-title', el('h3', 'Scegliere ε: k-distanze')), figB), el('div.fig', el('div.fig-title', el('h3', 'Sensibilità a ε'), legD), figD)),
-        el('div.fig', el('div.fig-title', el('h3', 'Tre metodi sugli stessi dati'), el('div.legend', el('span.muted', '✕ = rumore di DBSCAN'))), el('div', { style: 'display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px' }, figC[0], figC[1], figC[2])),
+        el('div.fig', el('div.fig-title', el('h3', 'Tre metodi sugli stessi dati'), el('div.legend', el('span.muted', '✕ = rumore di DBSCAN'))), el('div.trio', figC[0], figC[1], figC[2])),
         el('div.toolbar', SA.ui.button('Dati CSV', { icon: 'download', cls: 'btn-ghost', onclick: function () { var rows = [['x1', 'x2', 'popolazione', 'dbscan', 'core', 'kmeans', 'ward']]; S.X.forEach(function (x, i) { rows.push([x[0], x[1], S.truth[i], S.ref.cl[i], S.ref.core[i], S.km[i], S.ward[i]]); }); SA.ui.download('statatlas_lab23_dati.csv', SA.ui.csv(rows), 'text/csv'); } }),
           SA.ui.button('Figura PNG', { icon: 'download', cls: 'btn-ghost', onclick: function () { SA.ui.exportPNG([figA.querySelector('svg'), figD.querySelector('svg')], 'statatlas_lab23.png', ['DBSCAN', DATA[S.data].label + ' · ε = ' + S.eps + ' · minPts = ' + S.minPts + ' · seed ' + S.seed]); } })))));
       var s4 = SA.ui.step('4', 'Teoria e simulazione a confronto'); tblBody = el('tbody'); kpiBox = el('div.kpis');

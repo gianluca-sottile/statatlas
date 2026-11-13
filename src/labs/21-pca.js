@@ -263,7 +263,7 @@
       var s2 = SA.ui.step('2', 'La tua previsione'); predBox = el('div'); s2.body.appendChild(predBox);
       var s3 = SA.ui.step('3', 'Esperimento', 'Assi, varianza, ricostruzione');
       ctrlBox = el('div.panel.controls'); figA = el('div'); figB = el('div'); figC = el('div'); figD = el('div'); figE = el('div'); legA = el('div.legend'); legC = el('div.legend');
-      var two = function (a, b) { return el('div', { style: 'display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px' }, a, b); };
+      var two = function (a, b) { return el('div.duo', a, b); };
       s3.body.appendChild(el('div.lab-grid', ctrlBox, el('div.figure',
         two(el('div.fig', el('div.fig-title', el('h3', 'Dati centrati e assi principali'), legA), figA), el('div.fig', el('div.fig-title', el('h3', 'Biplot'), legC), figC)),
         two(el('div.fig', el('div.fig-title', el('h3', 'Varianza spiegata'), el('div.legend', el('span.muted', 'barre: quota per componente · linea: cumulata · rombi: popolazione'))), figB), el('div.fig', el('div.fig-title', el('h3', 'Errore di ricostruzione'), el('div.legend', el('span.muted', 'in arancio il k scelto'))), figD)),

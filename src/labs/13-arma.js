@@ -203,7 +203,7 @@
       s3.body.appendChild(el('div.lab-grid', ctrlBox, el('div.figure',
         el('div.fig', el('div.fig-title', el('h3', 'La serie'), legA), figA),
         el('div.fig', el('div.fig-title', el('h3', 'Memoria della serie'), legB),
-          el('div', { style: 'display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:8px' },
+          el('div.duo',
             el('div', el('div.muted', { style: 'font-size:.8rem;margin-bottom:2px' }, 'ACF'), figB), el('div', el('div.muted', { style: 'font-size:.8rem;margin-bottom:2px' }, 'PACF'), figC),
             el('div', el('div.muted', { style: 'font-size:.8rem;margin-bottom:2px' }, 'Radici reciproche: dentro il cerchio = stazionario/invertibile'), figD))),
         el('div.toolbar', SA.ui.button('Dati CSV', { icon: 'download', cls: 'btn-ghost', onclick: function () {

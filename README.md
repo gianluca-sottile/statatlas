@@ -18,7 +18,7 @@
 </p>
 
 <p align="center">
-  <img alt="Versione" src="https://img.shields.io/badge/versione-1.12.0-9A3412">
+  <img alt="Versione" src="https://img.shields.io/badge/versione-1.12.1-9A3412">
   <img alt="Lingua" src="https://img.shields.io/badge/lingua-italiano-1C1B19">
   <img alt="Offline" src="https://img.shields.io/badge/funziona-offline-1F6F43">
   <img alt="Dipendenze" src="https://img.shields.io/badge/dipendenze-nessuna-1E4E8C">
@@ -123,6 +123,16 @@ node tests/test_linalg.js && node tests/test_resampling.js && node tests/test_ml
 npm install jsdom && node tests/smoke/smoke_fase7.js index.html   # smoke test
 ```
 
+### Verifica degli script R
+
+`verifica/verifica_statatlas.R` esegue in R gli script dei 24 laboratori con i parametri predefiniti e confronta automaticamente i risultati con quelli del browser (generatore, campioni, stime, errori), stampando un riepilogo e salvando gli esiti in CSV:
+
+```bash
+Rscript verifica/verifica_statatlas.R
+```
+
+Il file si rigenera dopo una modifica con `node tests/gen_verifica_R.js` (vedi l’intestazione dello script).
+
 ### Verifiche
 
 - 131 test numerici superati (49 + 16 algebra lineare + 15 ricampionamento, incluso `sample()` di R, + 14 kNN e alberi + 26 clustering e DBSCAN + 11 reti neurali): generatore (`runif`, `rnorm`), quantili e funzioni di ripartizione (`qnorm`, `pt`, `qbeta`, `qf`, `qgamma`, …) confrontati con R.
@@ -131,7 +141,7 @@ npm install jsdom && node tests/smoke/smoke_fase7.js index.html   # smoke test
 
 ## Come citare
 
-> Sottile G. (2026). *StatAtlas: un atlante interattivo di probabilità e inferenza statistica*, versione 1.12.0. https://github.com/gianluca-sottile/statatlas
+> Sottile G. (2026). *StatAtlas: un atlante interattivo di probabilità e inferenza statistica*, versione 1.12.1. https://github.com/gianluca-sottile/statatlas
 
 ## Crediti
 
