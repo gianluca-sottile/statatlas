@@ -1,3 +1,39 @@
+# Changelog
+
+## 2.0.0 — 14/11/2026 · StatAtlas: 31 laboratori e nuova esperienza didattica
+
+**Release maggiore:** estensione dell'atlante a 31 laboratori in otto parti, con contenuti metodologici più approfonditi e interfaccia ottimizzata per desktop, smartphone e tablet.
+
+### Nuovi laboratori e organizzazione
+
+- **Parte VI — Apprendimento supervisionato:** introdotto il laboratorio 21 sul gradient boosting; reti neurali collocate nella stessa parte come laboratorio 22, accanto a kNN, alberi decisionali, bagging e random forest.
+- **Parte VII — Riduzione dimensionale e clustering:** PCA (23), k-means e clustering gerarchico (24), DBSCAN (25).
+- **Parte VIII — Statistica spaziale:** nuovi laboratori 26–31 su Moran globale, LISA/hotspot/MAUP, processi puntuali, variogrammi, kriging e regressione spaziale con validazione geografica.
+- Preservati gli identificativi pubblici dei laboratori per la compatibilità con i collegamenti già esistenti.
+
+### Teoria e usabilità
+
+- Aggiunta la guida contestuale espandibile **«Come usare il laboratorio»** a tutti e 31 gli esperimenti.
+- Ampliate le sezioni **Essenziale** e **Avanzato**, affiancate da esercizi, bibliografia e formule-cardine.
+- Migliorata l'esperienza touch: navigazione rapida su telefono, menu a scomparsa sui tablet, pulsanti di simulazione prioritari, zoom sui grafici e scorrimento di tabelle e formule.
+- Nei laboratori spaziali le simulazioni Monte Carlo partono solo mediante comando esplicito, senza autoplay all'apertura o dopo la modifica dei controlli.
+
+### Test e riproducibilità
+
+- Conservato il funzionamento **offline** in un unico `index.html`, generato con `python3 build.py`.
+- Estesi test numerici JavaScript, smoke test browser e verifiche indipendenti R per i nuovi moduli.
+- Confermata dall'autore l'esecuzione delle verifiche R per gradient boosting e laboratori spaziali 26–31. I componenti di calcolo non sono stati modificati dalla revisione responsive o dalla preparazione della release.
+- Rimane consigliato il collaudo manuale su Safari iOS/iPadOS fisici.
+
+### Documentazione e pubblicazione
+
+- Aggiornati README, versione e citazione alla 2.0.0, descrizione HTML, metadati di citazione, note e istruzioni di pubblicazione su GitHub.
+- I dettagli cronologici dei singoli batch sono conservati sotto come **archivio storico**: eventuali indicazioni «in sviluppo» o «da verificare» riflettono il loro stato al momento della scrittura, non lo stato della release 2.0.0.
+
+---
+
+## Archivio delle fasi di sviluppo precedenti alla release 2.0.0
+
 ## Responsive mobile/tablet · ergonomia e accessibilità (2026-11-14)
 
 - Interfaccia adattata a smartphone e tablet: menu laterale a scomparsa anche su tablet, backdrop, Escape, gestione focus/inert e chiusura alla navigazione.
@@ -82,7 +118,7 @@
 - Nuovo `core/boost.js` senza modificare il CART di classificazione esistente; test numerici `test_boost.js` e verifica R autonoma per tre scenari.
 - Da completare prima di un rilascio: esecuzione R reale e collaudo browser su dispositivi reali; implementazione dei sei laboratori spaziali e approfondimenti Essenziale/Avanzato estesi.
 
-# Changelog
+## Versioni precedenti alla 2.0.0
 
 ## 1.14.0 — 13/11/2026 · formule tipografiche e nuovo formato delle schede
 - **`src/core/math.js`**: compositore di formule senza librerie esterne (sottoinsieme di LaTeX: frazioni, radici, sommatorie e operatori con limiti, apici e pedici impilati, accenti, greco, funzioni in tondo, delimitatori alti). Le formule in evidenza si scrivono con `data-tex`, sono numerate per scheda e richiamabili con `<a data-eqref>`.

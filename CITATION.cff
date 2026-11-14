@@ -1,0 +1,11 @@
+cff-version: 1.2.0
+message: "Per citare StatAtlas, utilizza i metadati seguenti."
+title: "StatAtlas: un atlante interattivo di probabilità, inferenza, machine learning e statistica spaziale"
+type: software
+authors:
+  - family-names: Sottile
+    given-names: Gianluca
+repository-code: "https://github.com/gianluca-sottile/statatlas"
+url: "https://gianluca-sottile.github.io/statatlas/"
+version: "2.0.0"
+license: MIT

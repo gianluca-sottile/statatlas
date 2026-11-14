@@ -6,7 +6,7 @@
 
 <p align="center">
   <em>Vedere la statistica mentre accade.</em><br>
-  Un atlante interattivo di probabilità, inferenza, apprendimento statistico e metodi spaziali: trentuno laboratori, dati generati sotto i tuoi occhi e codice R riproducibile, da verificare a ogni estensione.
+  Un atlante interattivo di probabilità, inferenza, machine learning e statistica spaziale: 31 laboratori, simulazioni riproducibili in R e un unico file HTML utilizzabile anche offline.
 </p>
 
 <p align="center">
@@ -18,7 +18,7 @@
 </p>
 
 <p align="center">
-  <img alt="Versione" src="https://img.shields.io/badge/versione-1.14.0-9A3412">
+  <img alt="Versione" src="https://img.shields.io/badge/versione-2.0.0-9A3412">
   <img alt="Lingua" src="https://img.shields.io/badge/lingua-italiano-1C1B19">
   <img alt="Offline" src="https://img.shields.io/badge/funziona-offline-1F6F43">
   <img alt="Dipendenze" src="https://img.shields.io/badge/dipendenze-nessuna-1E4E8C">
@@ -132,66 +132,52 @@ Gli script richiedono R ≥ 4.1 e il pacchetto `tidyverse`; alcuni laboratori us
 
 ## Sviluppo
 
-Il progetto è scritto in HTML, CSS e JavaScript nativi, senza framework. I sorgenti sono modulari; uno script Python li riunisce nel file unico distribuito.
-
-```
-StatAtlas/
-├── index.html            ← file distribuito (generato)
-├── build.py              ← src/ → index.html
-├── src/
-│   ├── shell.html
-│   ├── styles/           ← design system: token, componenti, strato editoriale
-│   ├── core/             ← generatore compatibile con R, leggi, formule (math.js), algebra lineare,
-│   │                       ricampionamento, kNN, CART e gradient boosting, clustering, reti neurali, grafici SVG e 3D,
-│   │                       componenti, illustrazioni, contenuti e supplementi didattici, navigazione
-│   └── labs/             ← un file per laboratorio
-├── tests/
-│   ├── test_*.js         ← test numerici (generatore, leggi, algebra lineare, ricampionamento, ML, clustering, reti)
-│   └── smoke/            ← test di caricamento dei laboratori (jsdom)
-├── verifica/             ← script R di verifica automatica contro i valori del browser
-└── assets/logo.svg
-```
+StatAtlas 2.0.0 usa **HTML, CSS e JavaScript nativi**, senza dipendenze obbligatorie a runtime. Il codice modulare in `src/` è assemblato da `build.py` nell'unico file distribuibile `index.html`. La struttura comprende 31 file in `src/labs/`, il motore numerico in `src/core/`, i componenti didattici condivisi, le verifiche JS in `tests/` e i riferimenti R in `verifica/`.
 
 ```bash
-python3 build.py                                   # ricostruisce index.html
-node tests/test_core.js                            # test numerici
-node tests/test_linalg.js && node tests/test_resampling.js && node tests/test_ml.js && node tests/test_boost.js && node tests/test_cluster.js && node tests/test_nn.js
-npm install jsdom && node tests/smoke/smoke_fase7.js index.html   # smoke test
+python3 build.py                         # rigenera il file offline index.html
+for f in tests/test_*.js; do node "$f" || exit 1; done  # suite numerica/editoriale
 ```
 
-### Verifica degli script R
-
-`verifica/verifica_statatlas.R` esegue in R gli script dei 24 laboratori precedenti e richiama la verifica aggiuntiva del laboratorio 21 con i parametri predefiniti e confronta automaticamente i risultati con quelli del browser (generatore, campioni, stime, errori), stampando un riepilogo e salvando gli esiti in CSV:
+Per gli smoke test che richiedono jsdom, installare le dipendenze **solo nell'ambiente di sviluppo** (non servono agli utenti del sito):
 
 ```bash
-Rscript verifica/verifica_statatlas.R        # tutti i laboratori; controlli storici rinumerati per i lab 17–20 e 22–25, più il lab 21
-Rscript verifica/verifica_statatlas_01_16.R  # confronti numerici per i lab 01–16
-Rscript verifica/verifica_gradient_boosting.R # confronto JS-R in 3 scenari del lab 21
+npm install --no-save jsdom
+node tests/smoke/smoke_fase7.js index.html
 ```
 
-Il file generale si rigenera con `node tests/gen_verifica_R.js` a partire dall’estrazione jsdom; le verifiche autonome si rigenerano con `node tests/gen_boost_reference.js`, `node tests/gen_moran_reference.js`, `node tests/gen_point_reference.js` e `node tests/gen_geostat_reference.js`. Il file generale conserva i dati di riferimento dei precedenti 24 laboratori e riporta i nuovi numeri 22–25; una nuova estrazione completa con jsdom consentirà di rigenerarlo integralmente dal browser.
+Per ripetere i test responsive è necessario Python con Playwright e Chromium disponibili localmente:
 
-### Comportamento dei controlli nei laboratori spaziali
+```bash
+python3 tests/test_mobile_tablet.py
+```
 
-Nei LAB 26–29 le simulazioni **non partono automaticamente nemmeno all’apertura**.
-Cambiare il meccanismo generatore, i dati, il vicinato o la zonizzazione interrompe
-l'eventuale animazione e invalida le repliche Monte Carlo non più confrontabili: il nuovo stato
-è subito visibile, ma per avviare una nuova simulazione occorre usare **Avvia**, **Passo**
-o **Completa**. Cambiare solamente visualizzazione, alternativa, soglia, correzione
-per test multipli o numero B non rigenera i dati e conserva le repliche compatibili.
-Quando B diminuisce viene utilizzato il prefisso delle repliche già ottenute; la coda
-rimane disponibile in memoria se B viene successivamente aumentato.
+### Verifiche indipendenti in R
 
-### Verifiche
+Gli script R sono raccolti nella directory `verifica/`. Il master comprende i confronti storici e richiama le verifiche autonome dei moduli aggiunti. Le verifiche indipendenti dei nuovi metodi si possono anche eseguire singolarmente:
 
-- 397 test numerici superati in JavaScript (319 precedenti + 78 geostatistici LAB 29): generatore (`runif`, `rnorm`), quantili e funzioni di ripartizione (`qnorm`, `pt`, `qbeta`, `qf`, `qgamma`, …) confrontati con R.
-- Smoke test dei laboratori storici documentati dalla baseline; per i laboratori 26–29 sono stati collaudati in Chromium/Playwright, inclusi grafici, tabella, navigazione, export e layout mobile.
-- Gli script dei 24 laboratori precedenti erano stati verificati in R reale (48 controlli documentati al 13/11/2026); lo script del gradient boosting è stato eseguito dall’autore con esito positivo su tre scenari; gli script R dei LAB 26–28 sono stati verificati dall’autore, compresa la correzione opzionale `spatstat` per LAB 28. **Il LAB 29 e stato verificato in R reale dall’autore; il nuovo LAB 30 richiede ancora il confronto indipendente R sul Mac.**
-- Da completare: collaudo su Safari, Firefox e dispositivi mobili.
+```bash
+Rscript verifica/verifica_statatlas.R
+Rscript verifica/verifica_gradient_boosting.R
+Rscript verifica/verifica_moran.R
+Rscript verifica/verifica_lisa.R
+Rscript verifica/verifica_processi_puntuali.R
+Rscript verifica/verifica_variogrammi.R
+Rscript verifica/verifica_kriging.R
+Rscript verifica/verifica_regressione_spaziale.R
+```
+
+**Stato al 14 novembre 2026:** l'autore ha confermato in R le verifiche del gradient boosting (lab 21) e dei sei laboratori spaziali (26–31); le verifiche storiche sono documentate nel progetto. I calcoli JavaScript e i laboratori non sono stati modificati per questa preparazione di release. Restano raccomandate prove manuali su Safari iOS/iPadOS fisici, in particolare gesti touch, rotazione e download.
+
+### Comportamento delle simulazioni spaziali
+
+Nei laboratori **26–31** i dati e i grafici sono disponibili all'apertura, ma le simulazioni Monte Carlo **non partono automaticamente**. I comandi Avvia, Passo e Completa sono espliciti. Le modifiche strutturali invalidano i risultati non più comparabili; quelle di sola visualizzazione o inferenza conservano le repliche ancora valide, secondo le regole di ciascun esperimento.
+
+Per la storia delle modifiche, consultare [CHANGELOG.md](CHANGELOG.md). Per gli audit tecnici e responsive: [`docs/AUDIT_UI_TEORIA_31.md`](docs/AUDIT_UI_TEORIA_31.md) e [`docs/AUDIT_RESPONSIVE_31.md`](docs/AUDIT_RESPONSIVE_31.md).
 
 ## Come citare
 
-> Sottile G. (2026). *StatAtlas: un atlante interattivo di probabilità e inferenza statistica*, versione 1.14.0 (baseline; modifica sperimentale non pubblicata). https://github.com/gianluca-sottile/statatlas
+> Sottile G. (2026). *StatAtlas: un atlante interattivo di probabilità, inferenza, machine learning e statistica spaziale* (versione 2.0.0). https://github.com/gianluca-sottile/statatlas
 
 ## Crediti
 
@@ -205,96 +191,3 @@ Diversi laboratori traggono ispirazione dalle idee didattiche di **Simul2000** d
 - **Contenuti didattici** (testi, esercizi, illustrazioni): [Creative Commons Attribuzione 4.0 Internazionale (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/deed.it).
 
 Puoi usare, modificare e ridistribuire StatAtlas, anche nei tuoi corsi, citando l’autore.
-
-## Sviluppo sperimentale — Batch 2, laboratorio 26
-
-La Parte VIII si apre con **LAB 26 — Autocorrelazione spaziale e Moran**, sviluppato sopra `src/core/spatial.js` e `src/core/spatial-areal.js` senza dipendenze JS esterne. Sono disponibili cinque schemi generatori (due blocchi, alternanza, rumore indipendente, trend con errori indipendenti, SAR), possibilità di rimuovere il trend vero in modalità simulata, vicinati rook/queen/per distanza, pesi binari/standardizzati per riga, permutazioni animate, testo metodologico Essenziale/Avanzato, CSV e script R per il campione corrente. Gli ID delle lezioni precedenti non cambiano.
-
-La suite numerica JavaScript è stata eseguita e il confronto indipendente R del LAB 26 è stato successivamente confermato dall'autore. Anche la verifica R del LAB 21 sul gradient boosting ha dato esito positivo per i tre scenari (sine, step, binary). Il collaudo grafico in browser reale è stato completato nei batch successivi.
-
-```sh
-python3 build.py
-node tests/test_spatial_core.js
-node tests/test_spatial_areal.js
-node tests/test_moran_mount.js
-node tests/gen_moran_reference.js
-Rscript verifica/verifica_moran.R
-# oppure, nel master con pacchetti R già presenti:
-Rscript verifica/verifica_statatlas.R
-```
-
-
-## Sviluppo sperimentale — Batch 3, laboratorio 27
-
-La nuova **lezione 27 — Autocorrelazione locale, hotspot e MAUP** estende la Parte VIII utilizzando `src/core/spatial-local.js`. Comprende quadranti LISA, test locali bilaterali con permutazioni condizionali, correzioni BH/BY, aggregazione da 64 a 16 o 4 unità e modifica dei confini delle zone. Conserva la convenzione grafica standard StatAtlas: copertina SVG, obiettivi, previsione espandibile, guida, animazione e tabelle.
-
-Il motore e il laboratorio sono verificati in JavaScript e con un browser Chromium headless. **Il confronto R del LAB 27 è stato confermato dall’autore:** avviare `source("verifica/verifica_lisa.R")` da R, oppure eseguire `Rscript verifica/verifica_lisa.R` dalla radice del progetto. In alternativa, il master `verifica/verifica_statatlas.R` include il controllo LAB 27. Nessuna dipendenza R è richiesta per il file autonomo del LAB 27.
-
-```sh
-python3 build.py
-node tests/test_spatial_local.js
-node tests/gen_lisa_reference.js
-STATATLAS_CHROMIUM=/usr/bin/chromium python3 tests/smoke/smoke_lab27_browser.py
-```
-
-
-## Batch 4 — LAB 28: processi puntuali spaziali (14/11/2026)
-
-- `src/core/spatial-points.js`: processi di Poisson omogeneo e non omogeneo, Thomas, inibizione sequenziale, K translation-corrected, L(r)−r, test globale Monte Carlo condizionale su N, distanza nearest-neighbour e conteggi in quadrati.
-- `src/labs/28-processi-puntuali.js`: nuova lezione con SVG, obiettivi, previsione e feedback, esperimento guidato, quattro grafici e tabella, esportazioni, approfondimenti Essenziale/Avanzato, esercizi e bibliografia.
-- `tests/test_spatial_points.js`: 65 nuovi controlli numerici JS. `tests/smoke/smoke_lab28_browser.py`: collaudo reale Chromium di grafici, controlli, teoria e mobile.
-- `tests/gen_point_reference.js` genera la verifica R indipendente `verifica/verifica_processi_puntuali.R` su quattro configurazioni JS con controlli R1 e confronti metodologici CSR. **Eseguire lo script R prima di certificare il laboratorio.**
-- Il master R richiama la nuova verifica; identità e numerazione pubblica dei laboratori 01–27 mantenute.
-
-
-## Batch 5 — LAB 29: variogrammi e campi gaussiani (14/11/2026)
-
-- Nuovo `src/core/spatial-geostat.js`: campi gaussiani piccoli, covariance esponenziale, gaussiana e sferica, anisotropia geometrica, Cholesky, variogrammi empirici di Matheron, simulazioni Monte Carlo su siti fissi.
-- Nuovo `src/labs/29-variogrammi.js` con copertina SVG, obiettivi, previsione, mappa interattiva del campo e dei sensori, selezione di coppie, curve teoriche ed empiriche, istogramma di coppie, bande MC, tabelle, teoria essenziale/avanzata ed esportazioni.
-- LAB 26–29: apertura con simulazione ferma e dati/grafici già inizializzati; solo i comandi Avvia/Passo/Completa lanciano nuove repliche.
-- 78 controlli JS del LAB 29; test browser `smoke_spatial_controls.py` e `smoke_lab29_browser.py` per interazioni, downloads e mobile.
-- Script autonomo `verifica/verifica_variogrammi.R`, generato con `node tests/gen_geostat_reference.js`, quattro scenari JS–R con riferimento deterministico. **Il confronto R deve essere ancora eseguito sul Mac.**
-
-```sh
-python3 build.py
-node tests/test_spatial_geostat.js
-node tests/gen_geostat_reference.js
-python3 tests/smoke/smoke_spatial_controls.py
-python3 tests/smoke/smoke_lab29_browser.py
-Rscript verifica/verifica_variogrammi.R  # eseguire su Mac con R >= 4.1
-```
-
-
-## Batch 6 — LAB 30: kriging e disegno interattivo dei sensori (14/11/2026)
-
-- Nuovo `src/core/spatial-kriging.js`: kriging semplice e ordinario per il campo latente, varianze coerenti con un nugget osservazionale, soluzione Cholesky, IDW come riferimento privo di varianza modellistica.
-- Nuovo `src/labs/30-kriging.js`: stesso campo latente fisso durante aggiunta, spostamento e rimozione di sensori; verita' inizialmente nascosta, previsione, mappa dell'incertezza, confronto Monte Carlo e modalita' di modello mal specificato.
-- Struttura didattica completa: copertina SVG, obiettivi, previsione a tre opzioni, istruzioni, quattro grafici, tabella, approfondimenti Essenziale/Avanzato, esercizi e bibliografia.
-- **Avvio manuale**: nessuna simulazione Monte Carlo automatica all'apertura o dopo modifiche ai parametri. Disponibili Avvia, Passo e Completa.
-- Nuovi `tests/test_spatial_kriging.js`, `tests/gen_kriging_reference.js` e `tests/smoke/smoke_lab30_browser.py`. Confronto indipendente R in `verifica/verifica_kriging.R` (cinque scenari), registrato nel master `verifica_statatlas.R`.
-- La verifica R del LAB 29 e' stata confermata dall'autore; quella del LAB 30 va ancora eseguita.
-
-```sh
-python3 build.py
-node tests/test_spatial_kriging.js
-node tests/gen_kriging_reference.js
-python3 tests/smoke/smoke_lab30_browser.py
-Rscript verifica/verifica_kriging.R  # da eseguire sul Mac con R
-```
-
-
-## Batch 7 — LAB 31: regressione spaziale e validazione geografica (14/11/2026)
-
-- Nuovo motore `src/core/spatial-regression.js`: SAR e SEM gaussiani su griglia 6×6 con pesi rook normalizzati; stima ML tramite profilo discreto (33 valori), log-determinante LU e OLS condizionata ottenuta con QR; impatti SAR diretti, indiretti e totali.
-- `src/labs/31-regressione-spaziale.js`: simulatore completo nello stile StatAtlas (copertina SVG, obiettivi, previsione, quattro grafici, tabelle, Essenziale/Avanzato, esercizi, R), con confronto fra random CV e spatial block CV per kNN spaziale.
-- Nessuna partenza automatica dell'esperimento: la Monte Carlo CV inizia soltanto premendo Avvia, Passo o Completa. Le modifiche puramente grafiche non cancellano le repliche compatibili.
-- `tests/test_spatial_regression.js`, `tests/gen_spatial_regression_reference.js`, `tests/smoke/smoke_lab31_browser.py` verificano calcoli e interfaccia.
-- `verifica/verifica_regressione_spaziale.R`: cinque scenari indipendenti in R base, integrati nel file master `verifica_statatlas.R`. **LAB 31: verifica R ancora da eseguire dall'autore. LAB 30: verifica R confermata dall'autore il 14/11/2026.** Il confronto con `spatialreg` è metodologico (R3): i suoi ottimizzatori non sono gli stessi della ricerca discreta del simulatore.
-
-```sh
-python3 build.py
-node tests/test_spatial_regression.js
-node tests/gen_spatial_regression_reference.js
-python3 tests/smoke/smoke_lab31_browser.py
-Rscript verifica/verifica_regressione_spaziale.R
-```
