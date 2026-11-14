@@ -1,0 +1,204 @@
+/* StatAtlas · ottimizzazione mobile/tablet.
+ * Override responsive isolati; invariati motori numerici e componenti di simulazione.
+ * Breakpoint tablet: 1180px; touch/telefono: 860/640px. */
+
+.sidebar-close, .lab-mobile-nav, .table-scroll-hint { display: none; }
+.nav-backdrop[hidden] { display: none !important; }
+
+@media (max-width: 1180px) {
+  /* Anche i tablet orizzontali devono poter dedicare tutta la larghezza ai grafici. */
+  .app { display: block; grid-template-columns: minmax(0, 1fr); }
+  .sidebar {
+    position: fixed; inset: 0 auto 0 0; z-index: 46;
+    width: min(360px, 90vw); height: 100vh; height: 100dvh;
+    background: var(--paper); transform: translateX(-105%);
+    transition: transform .23s ease; overflow-y: auto;
+    overscroll-behavior: contain; padding-top: 12px;
+    box-shadow: 16px 0 44px -20px rgba(0,0,0,.35);
+  }
+  .sidebar.open { transform: translateX(0); }
+  .sidebar::after { display: none; }
+  .sidebar-close {
+    display: flex; margin: 0 0 12px auto; min-height: 44px;
+    font-size: .9rem; position: relative; z-index: 2;
+  }
+  .nav-backdrop:not([hidden]) {
+    display: block; position: fixed; inset: 0; z-index: 45;
+    background: rgba(16,15,13,.48);
+  }
+  body.mobile-menu-open { overflow: hidden; }
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 31; min-height: 62px;
+    padding: 8px max(20px, env(safe-area-inset-right)) 8px max(20px, env(safe-area-inset-left));
+    border-bottom: 1px solid var(--rule); background: var(--paper);
+  }
+  .topbar #menuBtn { min-width: 44px; min-height: 44px; }
+  .page { max-width: 1120px; padding: 32px 26px 100px; }
+  .lab-head { grid-template-columns: minmax(0,1fr) minmax(0, 330px); gap: 24px; }
+  .lab-head h1 { font-size: clamp(1.9rem, 3.1vw, 2.75rem); }
+  .lab-grid { grid-template-columns: minmax(0,1fr); }
+  .panel.controls { position: static; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px 18px; }
+  .panel.controls::before, .panel.controls > .transport,
+  .panel.controls > .progress { grid-column: 1 / -1; }
+  .btn, .seg button, select, input[type="number"] { min-height: 44px; }
+  .btn-icon { min-width: 44px; padding: 10px; }
+  .nav-link { min-height: 42px; align-items: center; }
+  details.predict > summary, .lab-howto > summary { min-height: 48px; }
+  .fig-zoom-btn { width: 44px; height: 44px; top: 7px; right: 7px; opacity: 1; }
+  .fig > .fig-title { padding-right: 50px; min-height: 42px; align-items: center; }
+  input[type="range"] { min-height: 36px; cursor: pointer; accent-color: var(--accent); touch-action: pan-y; }
+  .toolbar .btn { min-height: 44px; }
+  .modal { max-height: calc(100dvh - 40px); }
+  .drawer { height: 100vh; height: 100dvh; }
+  .drawer-body { flex: 1; min-height: 0; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+}
+
+@media (max-width: 860px) {
+  .page { padding: 24px 20px 100px; }
+  .hero-home { gap: 20px; }
+  .lab-head { grid-template-columns: 1fr; gap: 16px; padding-bottom: 22px; }
+  .lab-head h1 { font-size: clamp(1.8rem, 5vw, 2.4rem); }
+  .lab-cover { width: min(100%, 500px); max-width: none; }
+  .step { padding: 30px 0; }
+  .panel.controls { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .duo, .trio { grid-template-columns: minmax(0,1fr); }
+  .modal { width: min(100vw - 28px, 700px); }
+  .lab-mobile-nav {
+    display: flex; align-items: stretch; position: fixed; bottom: 0;
+    left: 0; right: 0; z-index: 29;
+    gap: 3px; background: var(--paper); border-top: 1px solid var(--rule-2);
+    padding: 7px max(12px,env(safe-area-inset-right)) calc(7px + env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));
+    box-shadow: 0 -6px 18px -15px rgba(0,0,0,.4);
+  }
+  .lab-mobile-nav button {
+    flex: 1; min-width: 0; min-height: 44px; padding: 8px 3px;
+    border: 0; border-radius: 8px; background: transparent; color: var(--ink-2);
+    font: 600 .82rem/1.25 var(--sans); cursor: pointer;
+  }
+  .lab-mobile-nav button:active { background: var(--accent-soft); color: var(--ink); }
+  .controls, .figure, .tbl-wrap, .lab-head { scroll-margin-top: 80px; }
+  body.mobile-menu-open .lab-mobile-nav, html.zoom-open .lab-mobile-nav,
+  body:has(.drawer.open) .lab-mobile-nav,
+  body:has(.modal) .lab-mobile-nav { visibility: hidden; pointer-events: none; }
+  .foot { margin-bottom: 25px; }
+}
+
+@media (max-width: 640px) {
+  .page { padding: 18px 14px calc(100px + env(safe-area-inset-bottom)); }
+  .hero-home h1 { font-size: clamp(2.05rem, 8vw, 2.65rem); }
+  .hero-art { gap: 6px; }
+  .hero-logo .logo { width: 72px; height: 72px; }
+  .part-tile .part-art { aspect-ratio: 16/7; }
+  .part-banner h2, .lab-head h1 { overflow-wrap: anywhere; }
+  .lab-head .lede { font-size: 1rem; line-height: 1.5; }
+  .chips { gap: 5px; margin-top: 12px; }
+  .chips li { font-size: .78rem; padding: 4px 9px 4px 22px; }
+  .step { padding: 24px 0; }
+  .step h2 { font-size: clamp(1.25rem, 5vw, 1.45rem); }
+  .step-num { width: 34px; height: 34px; font-size: 1rem; }
+  .question { font-size: clamp(1.3rem, 5.5vw, 1.55rem); padding-left: 12px; }
+  .focus-box { padding: 14px; }
+  .focus-grid, .panel.controls { grid-template-columns: minmax(0,1fr); }
+  .panel.controls { padding: 15px; gap: 13px; }
+  .transport { grid-template-columns: minmax(0,1fr) repeat(3,44px); gap: 5px; }
+  .transport > .btn { min-height: 46px; }
+  .transport > .btn-primary { min-width: 0; font-size: .9rem; }
+  .fig { padding: 13px 11px 12px; }
+  .fig-title h3 { font-size: 1.03rem; line-height: 1.3; }
+  .fig .legend { line-height: 1.45; font-size: .76rem; }
+  .kpis { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; }
+  .kpi { min-width: 0; padding: 11px; }
+  .kpi b { font-size: 1.35rem; overflow-wrap: anywhere; }
+  .tbl-wrap { max-width: 100%; overflow-x: auto; overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch; }
+  .table-scroll-hint { display: block; margin: 0 0 8px; color: var(--ink-3); font: 500 .79rem/1.4 var(--sans); }
+  table.tv { font-size: .86rem; }
+  table.tv th, table.tv td { padding: 10px; }
+  .code-bar { flex-wrap: wrap; align-items: center; gap: 6px; padding: 10px; }
+  .code-bar .toolbar { margin-left: auto; }
+  .code pre { max-height: 50dvh; padding: 12px; font-size: .82rem; line-height: 1.55; }
+  .lab-howto-list { grid-template-columns: 1fr; }
+  .lab-howto-body { padding: 12px; }
+  .legend-list li { grid-template-columns: 90px 1fr; }
+  .legend-home { grid-template-columns: 1fr; }
+  /* Il modal delle parti diventa un pannello inferiore con scroll indipendente. */
+  .modal {
+    inset: auto 0 0 0; top: auto; left: 0; transform: none; width: 100%;
+    max-height: calc(95dvh - env(safe-area-inset-top));
+    border-radius: 18px 18px 0 0; margin: 0; padding: 18px 14px calc(22px + env(safe-area-inset-bottom));
+    animation: none; overscroll-behavior: contain;
+  }
+  .modal-head { gap: 8px; align-items: start; }
+  .modal-head h2 { font-size: 1.65rem; }
+  .modal .cards { grid-template-columns: 1fr; gap: 10px; }
+  .modal .card-art { aspect-ratio: 16/5; }
+  /* Approfondimenti: area massima per il testo, tab accessibili con una mano. */
+  .drawer { width: 100%; border-left: 0; }
+  .drawer-head { gap: 10px; padding: max(12px,env(safe-area-inset-top)) 14px 12px; }
+  .drawer-head > :first-child { min-width: 0; }
+  .drawer-head h2 { overflow-wrap: anywhere; }
+  .seg-tabs { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); border-radius: 9px; }
+  .seg-tabs button { min-height: 44px; padding: 8px 7px; border: 0; }
+  .seg-tabs button:nth-child(2n) { border-left: 1px solid var(--rule-2); }
+  .seg-tabs button:nth-child(n+3) { border-top: 1px solid var(--rule-2); }
+  .drawer-body { padding: 16px 14px calc(40px + env(safe-area-inset-bottom)); }
+  .drawer-body h3 { font-size: 1.1rem; }
+  .exercise { grid-template-columns: 30px minmax(0,1fr); gap: 9px; padding: 12px 10px; }
+  .ex-num { width: 28px; height: 28px; }
+  .eq.eq-tex { font-size: .99rem; padding: 16px 48px 16px 12px; }
+  .eq { max-width: 100%; -webkit-overflow-scrolling: touch; }
+  /* Zoom dei grafici: scala leggibile e scorrimento orizzontale intenzionale. */
+  .fig-modal { padding: max(8px,env(safe-area-inset-top)) 0 max(8px,env(safe-area-inset-bottom)); }
+  .fig-modal-box { width: 100vw; max-height: 96dvh; overflow: auto; margin: auto 0; }
+  .fig.fig-in-modal { width: max(620px,100%); padding: 18px 15px; }
+  .fig-modal-close {
+    position: fixed; top: max(12px,env(safe-area-inset-top)); right: 12px;
+    z-index: 205; min-height: 44px; padding: 10px 14px;
+    border: 1px solid var(--rule-2); border-radius: 8px;
+    background: var(--card); color: var(--ink); box-shadow: var(--shadow);
+    font: 600 .87rem var(--sans); cursor: pointer;
+  }
+}
+
+/* Non modificare l'animazione su dispositivi touch privi di hover. */
+@media (hover: none) {
+  a.card:hover, .part-tile:hover { transform: none; }
+  a.card:hover .card-art svg, .part-tile:hover .part-art svg { transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sidebar { transition: none !important; }
+  .page > * { animation: none !important; }
+}
+@media print {
+  .lab-mobile-nav, .nav-backdrop, .sidebar-close, .table-scroll-hint { display: none !important; }
+}
+
+/* Rifiniture emerse dal controllo su viewport tablet reali. */
+.page h1[tabindex="-1"]:focus { outline: none; }
+.fig-modal-close { display: none; }
+@media (min-width: 700px) and (max-width: 1180px) {
+  .lab-head { grid-template-columns: minmax(0,1fr) minmax(240px,43%); gap: 22px; }
+  .lab-cover { width: 100%; max-width: none; }
+}
+@media (max-width: 640px) {
+  .fig-modal-close { display: inline-flex; align-items: center; gap: 7px; }
+}
+
+/* I comandi di simulazione diventano immediatamente raggiungibili: i parametri
+ * numerosi rimangono sotto, senza sdoppiare il runner o cambiarne lo stato. */
+.fig-mobile-tip { display: none; }
+@media (max-width: 1180px) {
+  .panel.controls::before { order: -4; }
+  .panel.controls > .transport { order: -3; grid-column: 1 / -1; }
+  .panel.controls > .progress { order: -2; grid-column: 1 / -1; }
+  .panel.controls > p.muted { order: -1; grid-column: 1 / -1; }
+}
+@media (max-width: 640px) {
+  .fig-mobile-tip {
+    display: block; margin: 8px 2px 2px;
+    font: 500 .76rem/1.45 var(--sans); color: var(--ink-3);
+  }
+}
+/* Evita che le animazioni di ingresso rallentino la lettura o lascino
+ * elementi semi-trasparenti durante la navigazione su telefono/tablet. */
+@media (max-width: 860px) { .page > * { animation: none; } }

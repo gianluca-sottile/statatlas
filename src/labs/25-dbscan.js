@@ -1,4 +1,4 @@
-/* StatAtlas · Lab 23 — DBSCAN e confronto tra metodi.
+/* StatAtlas · Lab 25 — DBSCAN e confronto tra metodi.
  * Dati in R²: lune, cerchi concentrici, tre gruppi di densità diversa, uniforme (nessun gruppo), più m punti anomali.
  * u = runif(n), Z = rnorm(2n) per righe, anomali = runif(2m, −2,5, 2,5) per righe. DBSCAN animato un punto alla volta,
  * con la stessa convenzione di SA.cluster.dbscan (verificata alla fine); k-means (Lloyd, 10 avvii) e Ward sugli stessi dati. */
@@ -174,7 +174,7 @@
   }
   function codeR() {
     var d = S.data;
-    return ['# ───────────────────────────────────────────────────────────────', '# StatAtlas · Lab 23 — DBSCAN e confronto tra metodi',
+    return ['# ───────────────────────────────────────────────────────────────', '# StatAtlas · Lab 25 — DBSCAN e confronto tra metodi',
       '# R0: stessi dati di StatAtlas (stesso seed). R2: DBSCAN didattico con la stessa convenzione',
       '#     (punti in ordine di indice, espansione FIFO, bordo al primo cluster che lo raggiunge) → stesse etichette.',
       '# R3: dbscan::dbscan() usa un altro ordine di visita: core e rumore coincidono, i bordi contesi possono differire.',
@@ -257,15 +257,15 @@
         el('div.fig', el('div.fig-title', el('h3', 'DBSCAN passo dopo passo'), legA), figA),
         two(el('div.fig', el('div.fig-title', el('h3', 'Scegliere ε: k-distanze')), figB), el('div.fig', el('div.fig-title', el('h3', 'Sensibilità a ε'), legD), figD)),
         el('div.fig', el('div.fig-title', el('h3', 'Tre metodi sugli stessi dati'), el('div.legend', el('span.muted', '✕ = rumore di DBSCAN'))), el('div.trio', figC[0], figC[1], figC[2])),
-        el('div.toolbar', SA.ui.button('Dati CSV', { icon: 'download', cls: 'btn-ghost', onclick: function () { var rows = [['x1', 'x2', 'popolazione', 'dbscan', 'core', 'kmeans', 'ward']]; S.X.forEach(function (x, i) { rows.push([x[0], x[1], S.truth[i], S.ref.cl[i], S.ref.core[i], S.km[i], S.ward[i]]); }); SA.ui.download('statatlas_lab23_dati.csv', SA.ui.csv(rows), 'text/csv'); } }),
-          SA.ui.button('Figura PNG', { icon: 'download', cls: 'btn-ghost', onclick: function () { SA.ui.exportPNG([figA.querySelector('svg'), figD.querySelector('svg')], 'statatlas_lab23.png', ['DBSCAN', DATA[S.data].label + ' · ε = ' + S.eps + ' · minPts = ' + S.minPts + ' · seed ' + S.seed]); } })))));
+        el('div.toolbar', SA.ui.button('Dati CSV', { icon: 'download', cls: 'btn-ghost', onclick: function () { var rows = [['x1', 'x2', 'popolazione', 'dbscan', 'core', 'kmeans', 'ward']]; S.X.forEach(function (x, i) { rows.push([x[0], x[1], S.truth[i], S.ref.cl[i], S.ref.core[i], S.km[i], S.ward[i]]); }); SA.ui.download('statatlas_lab25_dati.csv', SA.ui.csv(rows), 'text/csv'); } }),
+          SA.ui.button('Figura PNG', { icon: 'download', cls: 'btn-ghost', onclick: function () { SA.ui.exportPNG([figA.querySelector('svg'), figD.querySelector('svg')], 'statatlas_lab25.png', ['DBSCAN', DATA[S.data].label + ' · ε = ' + S.eps + ' · minPts = ' + S.minPts + ' · seed ' + S.seed]); } })))));
       var s4 = SA.ui.step('4', 'Teoria e simulazione a confronto'); tblBody = el('tbody'); kpiBox = el('div.kpis');
       s4.body.append(el('div.tbl-wrap', el('table.tv', el('thead', el('tr', el('th', 'Quantità'), el('th', 'Riferimento'), el('th', 'Risultato'), el('th', 'Natura'))), tblBody)),
         el('div.status-key', el('span', SA.ui.badge('exact'), ' proprietà verificata'), el('span', SA.ui.badge('none'), ' valore sui dati correnti')), kpiBox);
       var s5 = SA.ui.step('5', 'Interpretazione'); interpBox = el('div.prose');
       s5.body.append(interpBox, el('p', el('button.btn.btn-ghost', { type: 'button', onclick: function () { openT('adv'); } }, SA.ui.icon('book'), ' Densità variabili, legame singolo, valutazione (livello avanzato)')));
-      var s6 = SA.ui.step('6', 'Riproduci in R', 'DBSCAN didattico e confronto'); codeBox = SA.ui.codeBlock(codeR, 'statatlas_lab23_dbscan.R');
-      s6.body.append(el('p.prose', 'Riproducibilità: stessi dati (R0) e stesso DBSCAN con la stessa convenzione di visita (R2); kmeans (Lloyd) e hclust come nel lab 22; dbscan::dbscan come confronto (R3). Richiede R ≥ 3.6, tidyverse e cluster.'), codeBox);
+      var s6 = SA.ui.step('6', 'Riproduci in R', 'DBSCAN didattico e confronto'); codeBox = SA.ui.codeBlock(codeR, 'statatlas_lab25_dbscan.R');
+      s6.body.append(el('p.prose', 'Riproducibilità: stessi dati (R0) e stesso DBSCAN con la stessa convenzione di visita (R2); kmeans (Lloyd) e hclust come nel lab 24; dbscan::dbscan come confronto (R3). Richiede R ≥ 3.6, tidyverse e cluster.'), codeBox);
       page.append(s1, s2, s3, s4, s5, s6);
       buildControls(); buildPrediction(); legends(); interpretation(); bindClick(); render(true); run.refresh();
       document.addEventListener('keydown', run.key);

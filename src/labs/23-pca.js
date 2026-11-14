@@ -1,4 +1,4 @@
-/* StatAtlas · Lab 21 — PCA: geometria, varianza e ricostruzione.
+/* StatAtlas · Lab 23 — PCA: geometria, varianza e ricostruzione.
  * Popolazione normale p-variata: Σ = V diag(λ) Vᵀ, λ = (ρ, 1; 0,6; 0,35; 0,2; 0,1)₁…ₚ, V = rotazione di θ nel piano (1, 2).
  * Righe xᵢ = μ + V diag(√λ) eᵢ con eᵢ = rnorm(p) letto per righe; la seconda colonna è moltiplicata per l'unità u.
  * PCA campionaria: centratura (e standardizzazione facoltativa), S = ZᵀZ/(n − 1), autodecomposizione di Jacobi
@@ -191,7 +191,7 @@
       '<p class="muted">La PCA non usa nessuna variabile risposta: non cerca gruppi né la direzione più utile per prevedere. Un solo valore anomalo può ruotare gli assi, e la standardizzazione cambia la matrice analizzata.</p>';
   }
   function codeR() {
-    return ['# ───────────────────────────────────────────────────────────────', '# StatAtlas · Lab 21 — Analisi delle componenti principali',
+    return ['# ───────────────────────────────────────────────────────────────', '# StatAtlas · Lab 23 — Analisi delle componenti principali',
       '# R0: stessi dati di StatAtlas (stesso seed). R1: stessi autovalori, quote di varianza ed errori di ricostruzione;',
       '#     prcomp() usa la SVD: i segni degli autovettori possono differire e vanno allineati prima di confrontarli.',
       '# ───────────────────────────────────────────────────────────────', 'library(tidyverse)', '',
@@ -268,15 +268,15 @@
         two(el('div.fig', el('div.fig-title', el('h3', 'Dati centrati e assi principali'), legA), figA), el('div.fig', el('div.fig-title', el('h3', 'Biplot'), legC), figC)),
         two(el('div.fig', el('div.fig-title', el('h3', 'Varianza spiegata'), el('div.legend', el('span.muted', 'barre: quota per componente · linea: cumulata · rombi: popolazione'))), figB), el('div.fig', el('div.fig-title', el('h3', 'Errore di ricostruzione'), el('div.legend', el('span.muted', 'in arancio il k scelto'))), figD)),
         el('div.fig', el('div.fig-title', el('h3', 'Quanto è stabile la prima direzione nei campioni ripetuti')), figE),
-        el('div.toolbar', SA.ui.button('Dati CSV', { icon: 'download', cls: 'btn-ghost', onclick: function () { var rows = [S.cur.X[0].map(function (v, j) { return 'x' + (j + 1); })]; S.cur.X.forEach(function (x) { rows.push(x); }); SA.ui.download('statatlas_lab21_dati.csv', SA.ui.csv(rows), 'text/csv'); } }),
-          SA.ui.button('Score CSV', { icon: 'download', cls: 'btn-ghost', onclick: function () { var rows = [S.cur.P.T[0].map(function (v, j) { return 'PC' + (j + 1); })]; S.cur.P.T.forEach(function (t) { rows.push(t); }); SA.ui.download('statatlas_lab21_score.csv', SA.ui.csv(rows), 'text/csv'); } }),
-          SA.ui.button('Figura PNG', { icon: 'download', cls: 'btn-ghost', onclick: function () { SA.ui.exportPNG([figA.querySelector('svg'), figB.querySelector('svg')], 'statatlas_lab21.png', ['Componenti principali', 'p = ' + S.p + ' · λ₁ = ' + S.rho + ' · θ = ' + S.theta + '° · n = ' + S.n + ' · seed ' + S.seed]); } })))));
+        el('div.toolbar', SA.ui.button('Dati CSV', { icon: 'download', cls: 'btn-ghost', onclick: function () { var rows = [S.cur.X[0].map(function (v, j) { return 'x' + (j + 1); })]; S.cur.X.forEach(function (x) { rows.push(x); }); SA.ui.download('statatlas_lab23_dati.csv', SA.ui.csv(rows), 'text/csv'); } }),
+          SA.ui.button('Score CSV', { icon: 'download', cls: 'btn-ghost', onclick: function () { var rows = [S.cur.P.T[0].map(function (v, j) { return 'PC' + (j + 1); })]; S.cur.P.T.forEach(function (t) { rows.push(t); }); SA.ui.download('statatlas_lab23_score.csv', SA.ui.csv(rows), 'text/csv'); } }),
+          SA.ui.button('Figura PNG', { icon: 'download', cls: 'btn-ghost', onclick: function () { SA.ui.exportPNG([figA.querySelector('svg'), figB.querySelector('svg')], 'statatlas_lab23.png', ['Componenti principali', 'p = ' + S.p + ' · λ₁ = ' + S.rho + ' · θ = ' + S.theta + '° · n = ' + S.n + ' · seed ' + S.seed]); } })))));
       var s4 = SA.ui.step('4', 'Teoria e simulazione a confronto'); tblBody = el('tbody'); kpiBox = el('div.kpis');
       s4.body.append(el('div.tbl-wrap', el('table.tv', el('thead', el('tr', el('th', 'Quantità'), el('th', 'Popolazione / teoria'), el('th', 'Campione / simulazione'), el('th', 'Natura'))), tblBody)),
         el('div.status-key', el('span', SA.ui.badge('exact'), ' esatto (o identità algebrica)'), el('span', SA.ui.badge('asym'), ' asintotico, dati normali'), el('span', SA.ui.badge('mc'), ' Monte Carlo')), kpiBox);
       var s5 = SA.ui.step('5', 'Interpretazione'); interpBox = el('div.prose');
       s5.body.append(interpBox, el('p', el('button.btn.btn-ghost', { type: 'button', onclick: function () { openT('adv'); } }, SA.ui.icon('book'), ' Asintotica di Anderson, autovalori ripetuti, molte variabili (livello avanzato)')));
-      var s6 = SA.ui.step('6', 'Riproduci in R', 'Stessi dati, prcomp'); codeBox = SA.ui.codeBlock(codeR, 'statatlas_lab21_pca.R');
+      var s6 = SA.ui.step('6', 'Riproduci in R', 'Stessi dati, prcomp'); codeBox = SA.ui.codeBlock(codeR, 'statatlas_lab23_pca.R');
       s6.body.append(el('p.prose', 'Riproducibilità: stessi dati (R0) e stessi autovalori, quote di varianza ed errori (R1); i segni degli autovettori si allineano con la stessa convenzione. Richiede R ≥ 3.6 e tidyverse.'), codeBox);
       page.append(s1, s2, s3, s4, s5, s6);
       step(); buildControls(); buildPrediction(); legends(); interpretation(); render(true); run.refresh();

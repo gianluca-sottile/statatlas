@@ -27,19 +27,26 @@ SA.catalog = [
   { part: 'VI', title: 'Apprendimento supervisionato', labs: [
     { id: 'validazione', num: '18', title: 'Validazione e overfitting', blurb: 'Training, test e validazione incrociata: scegliere la complessità senza ingannarsi sull’errore di previsione.', status: 'ready' },
     { id: 'knn', num: '19', title: 'k vicini più prossimi', blurb: 'Classificare con i vicini: frontiere di decisione, errore di Bayes, scelta di k e il peso delle unità di misura.', status: 'ready' },
-    { id: 'alberi', num: '20', title: 'Alberi, bagging e random forest', blurb: 'Un albero è instabile; molti alberi resi diversi votano meglio: bootstrap, out-of-bag e scelta casuale delle variabili.', status: 'ready' } ] },
+    { id: 'alberi', num: '20', title: 'Alberi, bagging e random forest', blurb: 'Un albero è instabile; molti alberi resi diversi votano meglio: bootstrap, out-of-bag e scelta casuale delle variabili.', status: 'ready' },
+    { id: 'boost', num: '21', title: 'Gradient boosting', blurb: 'Alberi sequenziali sui pseudo-residui: funzione vera, perdita quadratica o logistica, shrinkage e early stopping.', status: 'ready' },
+    { id: 'reti-neurali', num: '22', title: 'Reti neurali e backpropagation', blurb: 'Una rete piccola vista per intero: pesi, passaggio in avanti, gradiente, learning rate, sovradattamento e inizializzazioni.', status: 'ready' } ] },
   { part: 'VII', title: 'Riduzione dimensionale e clustering', labs: [
-    { id: 'pca', num: '21', title: 'Componenti principali', blurb: 'Gli assi di massima varianza: autovalori, varianza spiegata, ricostruzione, segni e stabilità degli assi.', status: 'ready' },
-    { id: 'clustering', num: '22', title: 'k-means e clustering gerarchico', blurb: 'Lloyd passo dopo passo, minimi locali e più avvii, dendrogrammi e legami, gruppi trovati contro gruppi veri.', status: 'ready' },
-    { id: 'dbscan', num: '23', title: 'DBSCAN e confronto tra metodi', blurb: 'Gruppi come regioni dense: core, bordo e rumore, scelta di ε, lune e cerchi contro k-means e Ward.', status: 'ready' } ] },
-  { part: 'VIII', title: 'Reti neurali', labs: [
-    { id: 'reti-neurali', num: '24', title: 'Reti neurali e backpropagation', blurb: 'Una rete piccola vista per intero: pesi, passaggio in avanti, gradiente, learning rate, sovradattamento e inizializzazioni.', status: 'ready' } ] }
+    { id: 'pca', num: '23', title: 'Componenti principali', blurb: 'Gli assi di massima varianza: autovalori, varianza spiegata, ricostruzione, segni e stabilità degli assi.', status: 'ready' },
+    { id: 'clustering', num: '24', title: 'k-means e clustering gerarchico', blurb: 'Lloyd passo dopo passo, minimi locali e più avvii, dendrogrammi e legami, gruppi trovati contro gruppi veri.', status: 'ready' },
+    { id: 'dbscan', num: '25', title: 'DBSCAN e confronto tra metodi', blurb: 'Gruppi come regioni dense: core, bordo e rumore, scelta di ε, lune e cerchi contro k-means e Ward.', status: 'ready' } ] },
+  { part: 'VIII', title: 'Statistica spaziale', labs: [
+    { id: 'moran', num: '26', title: 'Autocorrelazione spaziale e Moran', blurb: 'Una mappa non è solo colore: pesi spaziali, Moran scatterplot e test permutazionale con dati simulati.', status: 'ready' },
+    { id: 'lisa', num: '27', title: 'Autocorrelazione locale, hotspot e MAUP', blurb: 'Dai quadranti LISA ai test locali per permutazione: correzioni multiple, hotspot e aggregazione territoriale.', status: 'ready' },
+    { id: 'processi-puntuali', num: '28', title: 'Processi puntuali spaziali', blurb: 'Poisson omogeneo e non omogeneo, Thomas, inibizione: K e L di Ripley, envelope CSR, test Monte Carlo globale.', status: 'ready' },
+    { id: 'variogrammi', num: '29', title: 'Variogrammi e campi aleatori spaziali', blurb: 'Campo gaussiano, nugget, range e anisotropia: coppie di sensori, stima empirica e Monte Carlo su siti fissi.', status: 'ready' },
+    { id: 'kriging', num: '30', title: 'Kriging e disegno dei sensori', blurb: 'Posiziona sensori su un campo nascosto, confronta simple/ordinary kriging e IDW, previsione, varianza e calibrazione Monte Carlo.', status: 'ready' },
+    { id: 'regressione-spaziale', num: '31', title: 'Regressione spaziale e validazione geografica', blurb: 'OLS, SAR e SEM: verosimiglianze, effetti diretti e indiretti, random contro spatial block CV.', status: 'ready' } ] }
 ];
 SA.labs = {};
 SA.registerLab = function (id, def) { SA.labs[id] = def; };
 
 (function () {
-  var el, current = null, main, sidebar;
+  var el, current = null, main, sidebar, menuBtn, menuBackdrop;
   var STATUS = { ready: ['tag-ready', 'Disponibile'], migrate: ['', 'In migrazione'], new: ['tag-new', 'Nuovo · in arrivo'] };
 
   function find(id) {
@@ -62,9 +69,50 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     var themeBtn = SA.ui.button('Tema', { icon: 'moon', cls: 'btn-ghost', onclick: toggleTheme, aria: 'Cambia tema chiaro/scuro' });
     var lang = el('button.btn.btn-ghost', { type: 'button', disabled: true, title: 'Versione inglese in preparazione' }, 'IT · EN');
     sidebar.append(
+      SA.ui.button('Chiudi indice', { icon: 'close', cls: 'btn-ghost sidebar-close', aria: 'Chiudi indice dei laboratori', onclick: function () { closeMenu(true); } }),
       el('a.brand', { href: '#/', html: SA.art.logo(38) + '<span class="brand-mark">Stat<span>Atlas</span></span>' }),
       el('p.brand-tag', 'Laboratori di probabilità e inferenza'),
       nav, el('div.sidebar-foot', themeBtn, lang));
+  }
+
+  /* Menu responsivo: lo sfondo viene bloccato, il focus resta raggiungibile e l'indice si chiude
+   * su scelta di una lezione, tocco fuori, Esc o ritorno alla vista desktop. */
+  function compactLayout() {
+    return window.matchMedia && window.matchMedia('(max-width: 1180px)').matches;
+  }
+  function updateMenuAccessibility() {
+    var open = sidebar.classList.contains('open') && compactLayout();
+    if (compactLayout() && !open) sidebar.setAttribute('inert', '');
+    else sidebar.removeAttribute('inert');
+    if (menuBtn) {
+      menuBtn.setAttribute('aria-expanded', String(open));
+      menuBtn.setAttribute('aria-label', open ? 'Chiudi indice dei laboratori' : 'Apri indice dei laboratori');
+    }
+    if (menuBackdrop) menuBackdrop.hidden = !open;
+    document.body.classList.toggle('mobile-menu-open', open);
+  }
+  function closeMenu(restore) {
+    var wasOpen = sidebar.classList.contains('open');
+    sidebar.classList.remove('open');
+    updateMenuAccessibility();
+    if (wasOpen && restore && menuBtn && menuBtn.getClientRects().length) menuBtn.focus();
+  }
+  function toggleMenu() {
+    if (sidebar.classList.contains('open')) { closeMenu(true); return; }
+    if (!compactLayout()) return;
+    sidebar.classList.add('open');
+    updateMenuAccessibility();
+    var close = sidebar.querySelector('.sidebar-close');
+    if (close) close.focus();
+  }
+  function mobileMenuKeydown(ev) {
+    if (!sidebar.classList.contains('open')) return;
+    if (ev.key === 'Escape') { ev.preventDefault(); closeMenu(true); return; }
+    if (ev.key !== 'Tab') return;
+    var focusable = Array.prototype.filter.call(sidebar.querySelectorAll('a[href], button:not([disabled])'), function (x) { return x.getClientRects().length; });
+    if (!focusable.length) return;
+    if (ev.shiftKey && document.activeElement === focusable[0]) { ev.preventDefault(); focusable[focusable.length - 1].focus(); }
+    else if (!ev.shiftKey && document.activeElement === focusable[focusable.length - 1]) { ev.preventDefault(); focusable[0].focus(); }
   }
 
   function toggleTheme() {
@@ -82,16 +130,16 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     III: ['partIII', 'Dai dati ai parametri: stimatori e loro efficienza, verosimiglianza, intervalli di confidenza e test, con le garanzie che offrono e i loro limiti.'],
     IV: ['partIV', 'Modelli che legano una risposta a dei predittori o al proprio passato: regressione lineare, robusta e generalizzata, serie temporali.'],
     V: ['partV', 'Oltre la media e oltre la retta: quantili condizionati, stime penalizzate con molti predittori e curve stimate dai dati.'],
-    VI: ['partVI', 'Prevedere bene su dati nuovi: errore di generalizzazione, validazione, e metodi che imparano la forma della relazione dai dati.'],
+    VI: ['partVI', 'Prevedere bene su dati nuovi: validazione, vicini, alberi ed ensemble, gradient boosting e reti neurali.'],
     VII: ['partVII', 'Dati senza una risposta da prevedere: trovare poche direzioni che riassumono molte variabili, e gruppi di osservazioni simili.'],
-    VIII: ['partVIII', 'Modelli costruiti a strati e addestrati con il gradiente: come una rete piccola impara una frontiera non lineare, e dove può sbagliare.']
+    VIII: ['partVIII', 'Osservazioni localizzate nello spazio: come cambiano l’inferenza, la previsione e la nozione di vicinanza.'],
   };
   var STEPS = [['Domanda', 'Un problema concreto, con una previsione facoltativa'], ['Esperimento', 'Dati generati sotto i tuoi occhi, passo dopo passo'],
     ['Teoria e simulazione', 'Esatto, asintotico o Monte Carlo: sempre dichiarato'], ['Interpretazione', 'Che cosa significa, quando vale, dove si rompe'],
-    ['Approfondisci', 'Teoria, esercizi e bibliografia'], ['Codice R', 'Lo stesso esperimento, verificato in R']];
+    ['Approfondisci', 'Teoria, esercizi e bibliografia'], ['Codice R', 'Script riproducibili con verifiche numeriche documentate']];
   function labCountText() {
     var n = SA.catalog.reduce(function (a, p) { return a + p.labs.length; }, 0);
-    var W = { 16: 'Sedici', 17: 'Diciassette', 18: 'Diciotto', 19: 'Diciannove', 20: 'Venti', 21: 'Ventuno', 22: 'Ventidue', 23: 'Ventitré', 24: 'Ventiquattro' };
+    var W = { 16: 'Sedici', 17: 'Diciassette', 18: 'Diciotto', 19: 'Diciannove', 20: 'Venti', 21: 'Ventuno', 22: 'Ventidue', 23: 'Ventitré', 24: 'Ventiquattro', 25: 'Venticinque', 26: 'Ventisei', 27: 'Ventisette', 28: 'Ventotto', 29: 'Ventinove', 30: 'Trenta', 31: 'Trentuno' };
     return (W[n] || String(n)) + ' laboratori';
   }
   function home() {
@@ -100,7 +148,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
       el('div.hero-text',
         el('div.kicker', 'Atlante interattivo di probabilità e statistica'),
         el('h1', 'Vedere la statistica ', el('em', 'mentre accade')),
-        el('p.lede', labCountText() + ', dalla probabilità all’apprendimento statistico. Ognuno parte da una domanda, genera i dati sotto i tuoi occhi e confronta ciò che osservi con ciò che la teoria garantisce. Ogni esperimento si ripete in R con lo script fornito.'),
+        el('p.lede', labCountText() + ', dalla probabilità alla statistica spaziale e all’apprendimento statistico. Ognuno parte da una domanda, genera i dati sotto i tuoi occhi e confronta ciò che osservi con ciò che la teoria garantisce. Ogni esperimento si ripete in R con lo script fornito.'),
         el('div.hero-actions', el('button.btn.btn-primary', { type: 'button', 'aria-haspopup': 'dialog', onclick: openMap }, 'Sfoglia l’atlante: la mappa dei laboratori'))),
       el('div.hero-art', { html: '<div class="hero-logo">' + SA.art.logo(132) + '</div>' + ['distribuzioni', 'intervalli', 'regressione', 'lgn-tcl'].map(function (k, i) { return '<div class="mosaic m' + i + '">' + SA.art.get(k) + '</div>'; }).join('') })));
     page.appendChild(el('section.how', el('div.step-label', 'Come funziona un laboratorio'),
@@ -114,7 +162,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
       el('div.legend-col', el('div.step-label', 'Che cosa riproduce lo script R'), el('p', 'Il generatore di numeri casuali di R è ricostruito nel browser. Ogni script dichiara fin dove arriva la corrispondenza.'),
         el('ul.legend-list.levels', lv('R0', 'Stessi dati', 'stesso seed, stessi campioni, stesse suddivisioni'), lv('R1', 'Stesse misure', 'stesse stime ed errori, a meno dell’arrotondamento'),
           lv('R2', 'Stesso algoritmo', 'stessi passi e stesse regole nei casi di parità'), lv('R3', 'Confronto di metodo', 'pacchetti che seguono regole diverse: risultati vicini, non identici')))));
-    // le otto parti come tessere: un clic apre una finestra con i laboratori della parte
+    // le parti come tessere: un clic apre una finestra con i laboratori della parte
     var parts = el('div.parts.part-tiles', { id: 'parti' });
     SA.catalog.forEach(function (p) {
       var d = PART_DESC[p.part];
@@ -145,15 +193,20 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     ['penalizzata', 'validazione', 'scegliere λ con la validazione incrociata'], ['spline', 'validazione', 'dalla LOOCV in forma chiusa al protocollo training/test'], ['regressione', 'validazione', 'errore di training contro errore di previsione'],
     ['validazione', 'knn', 'scegliere k con la validazione leave-one-out'], ['glm', 'knn', 'dalla regressione logistica a una stima locale di P(Y = 1 | x)'], ['bivariata', 'knn', 'classi come normali bivariate: la regola di Bayes'],
     ['knn', 'alberi', 'dalle regioni dei vicini ai rettangoli degli alberi'], ['validazione', 'alberi', 'l’errore out-of-bag come validazione gratuita'], ['simulazione', 'alberi', 'il bootstrap: ricampionare per simulare nuovi dati'],
+    ['alberi', 'boost', 'dall’aggregazione in parallelo all’ottimizzazione sequenziale'], ['validazione', 'boost', 'selezione del numero di alberi tramite validazione'], ['boost', 'reti-neurali', 'ottimizzazione di una funzione di perdita per passi successivi'],
     ['bivariata', 'pca', 'la covarianza e i suoi assi: ellissi di concentrazione'], ['regressione', 'pca', 'proiezioni ortogonali e minimi quadrati'], ['penalizzata', 'pca', 'ridge restringe di più le direzioni a bassa varianza'],
     ['pca', 'clustering', 'distanze euclidee e scelta della scala'], ['knn', 'clustering', 'vicinanza senza etichette'], ['bivariata', 'clustering', 'miscugli di normali come popolazioni generatrici'],
     ['clustering', 'dbscan', 'dai centri alla densità: gruppi di forma qualunque'], ['knn', 'dbscan', 'intorni di raggio ε e k-distanze'],
+    ['bivariata', 'moran', 'dalla dipendenza tra variabili alla dipendenza tra territori'], ['arma', 'moran', 'correlazione: dal tempo allo spazio'], ['simulazione', 'moran', 'permutazione spaziale come modello nullo'],
+    ['moran', 'lisa', 'dalla dipendenza globale ai pattern locali e ai test multipli'], ['test', 'lisa', 'molti test simultanei: p-value grezzi e correzione FDR'], ['clustering', 'lisa', 'hotspot spaziali e gruppi statistici non sono sinonimi'],
+    ['kriging', 'regressione-spaziale', 'dalla previsione spaziale alla modellazione territoriale'], ['moran', 'regressione-spaziale', 'dalla dipendenza territoriale alla regressione'], ['validazione', 'regressione-spaziale', 'cross-validation e trasferimento geografico'], ['variogrammi', 'kriging', 'dal variogramma alla previsione spaziale'], ['validazione', 'kriging', 'errore predittivo e calibrazione fuori campione'], ['spline', 'kriging', 'interpolazione e dipendenza tra osservazioni'], ['arma', 'variogrammi', 'covarianza e dipendenza: dal tempo alla distanza spaziale'], ['processi-puntuali', 'variogrammi', 'eventi puntuali e campi continui'],
+    ['simulazione', 'processi-puntuali', 'processo di Poisson e simulazione Monte Carlo'], ['lisa', 'processi-puntuali', 'dagli hotspot areali alle configurazioni di eventi puntuali'], ['dbscan', 'processi-puntuali', 'cluster algoritmici e aggregazione di un processo puntuale'],
     ['validazione', 'reti-neurali', 'validazione e arresto anticipato'], ['knn', 'reti-neurali', 'frontiere non lineari apprese dai dati'], ['glm', 'reti-neurali', 'l’uscita è una regressione logistica su variabili costruite'], ['penalizzata', 'reti-neurali', 'la penalità L2 sui pesi (weight decay)']
   ];
   function openMap() {
     closePart(); modalLast = document.activeElement;
-    // fino a 5 parti una riga; oltre, due righe da 4 colonne (parti I–IV sopra, V–VIII sotto)
-    var P = SA.plot, t = SA.theme(), W = 1000, np = SA.catalog.length, cols = np > 5 ? 4 : np, rows = Math.ceil(np / cols), RH = rows > 1 ? 340 : 560, H = RH * rows;
+    // Fino a cinque parti una riga, da sei a otto 4 colonne; oltre, griglia 3 x 3.
+    var P = SA.plot, t = SA.theme(), W = 1050, np = SA.catalog.length, cols = np >= 9 ? 3 : (np > 5 ? 4 : np), rows = Math.ceil(np / cols), RH = rows > 1 ? 345 : 560, H = RH * rows;
     var colW = W / cols, NW = Math.min(168, colW - 12), pos = {}, cx = function (ci) { return colW * (ci % cols + 0.5); }, top = function (ci) { return RH * Math.floor(ci / cols); };
     SA.catalog.forEach(function (p, ci) { var n = p.labs.length; p.labs.forEach(function (l, li) { pos[l.id] = { x: cx(ci), y: top(ci) + 90 + (RH - 110) * (li + 0.5) / Math.max(n, rows > 1 ? 4 : 1), lab: l, part: p }; }); });
     var caption = el('div.feedback', { role: 'status', style: 'max-width:none;margin-top:12px' }, 'Passa sopra un laboratorio per vedere i suoi legami; clicca per aprirlo.');
@@ -249,7 +302,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   function footer() {
     return el('footer.foot',
       el('p', 'StatAtlas · progetto didattico di Gianluca Sottile. Alcuni laboratori traggono ispirazione dalle idee di Simul2000 di Marcello Chiodi (Università di Palermo); codice e testi sono originali.'),
-      el('p', 'Numeri casuali generati con il Mersenne-Twister di R: con lo stesso seed, R ≥ 4.1 riproduce gli stessi campioni. Tutti gli script sono stati eseguiti e confrontati in R.'));
+      el('p', 'Numeri casuali generati con il Mersenne-Twister di R. La riproducibilità dei campioni e la concordanza con R sono documentate per ciascun laboratorio; i confronti R ancora da completare sono segnalati esplicitamente.'));
   }
 
   /* Arricchisce ogni laboratorio con copertina, obiettivi, “che cosa stiamo valutando” e guida alla tabella */
@@ -270,24 +323,49 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     var ph = el('div.fig-placeholder', { style: 'height:' + fig.offsetHeight + 'px' });
     var box = el('div.fig-modal-box', { role: 'dialog', 'aria-modal': 'true', 'aria-label': (fig.querySelector('h3') || {}).textContent || 'Grafico ingrandito' });
     var overlay = el('div.fig-modal', box);
+    var close = SA.ui.button('Chiudi grafico', { icon: 'close', cls: 'fig-modal-close', aria: 'Chiudi il grafico ingrandito', onclick: closeZoom });
+    box.appendChild(close);
     overlay.addEventListener('click', function (ev) { if (ev.target === overlay) closeZoom(); });
     fig.parentNode.replaceChild(ph, fig); box.appendChild(fig); fig.classList.add('fig-in-modal');
     document.body.appendChild(overlay); document.documentElement.classList.add('zoom-open');
     btn.textContent = '✕'; btn.setAttribute('aria-label', 'Chiudi l’ingrandimento'); btn.title = 'Chiudi (Esc)';
     zoom = { fig: fig, ph: ph, overlay: overlay, btn: btn };
     var cur = SA.currentLab && SA.labs[SA.currentLab]; if (cur && cur.redraw) cur.redraw();
-    btn.focus();
+    if (window.matchMedia && window.matchMedia('(max-width: 640px)').matches) close.focus(); else btn.focus();
   }
   function zoomable(page) {
-    page.querySelectorAll('.fig').forEach(function (f) {
+    page.querySelectorAll('.fig').forEach(function (f, i) {
       if (f.querySelector(':scope > .fig-zoom-btn')) return;
       var b = el('button.fig-zoom-btn', { type: 'button', title: 'Ingrandisci il grafico', 'aria-label': 'Ingrandisci il grafico' }, '⤢');
       b.addEventListener('click', function () { if (zoom && zoom.fig === f) closeZoom(); else openZoom(f, b); });
       f.insertBefore(b, f.firstChild);
+      if (i === 0) f.appendChild(el('p.fig-mobile-tip', 'Su smartphone: tocca ⤢ per ingrandire e scorrere il grafico.'));
     });
   }
   document.addEventListener('keydown', function (ev) { if (ev.key === 'Escape' && zoom) { ev.stopPropagation(); closeZoom(); } }, true);
   window.addEventListener('hashchange', closeZoom);
+  /* Navigazione rapida SOLO su smartphone. Scorre ai contenuti esistenti e non avvia
+   * né duplica le simulazioni; conserva un'unica sorgente di stato per i runner. */
+  function addMobileLabNav(page) {
+    var entries = [
+      ['Parametri', page.querySelector('.lab-grid .controls')],
+      ['Grafici', page.querySelector('.lab-grid .figure') || page.querySelector('.fig')],
+      ['Risultati', page.querySelector('.tbl-wrap')],
+      ['Inizio', page.querySelector('.lab-head')]
+    ].filter(function (pair) { return !!pair[1]; });
+    if (entries.length < 2) return;
+    var nav = el('nav.lab-mobile-nav', { 'aria-label': 'Vai alle sezioni del laboratorio' });
+    entries.forEach(function (pair) {
+      var b = el('button', { type: 'button', 'aria-label': 'Vai a ' + pair[0].toLowerCase(),
+        onclick: function () {
+          var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+          pair[1].scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+        } }, pair[0]);
+      nav.appendChild(b);
+    });
+    page.appendChild(nav);
+  }
+
   function enhanceLab(page, id) {
     zoomable(page); if (SA.math) SA.math.typeset(page);
     var c = SA.content && SA.content[id], head = page.querySelector('.lab-head');
@@ -308,16 +386,41 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
       steps[1].remove();
       page.querySelectorAll('section.step').forEach(function (s, i) { s.querySelector('.step-num').textContent = String(i + 1); });
     }
+    // Guida didattica condivisa: una sola componente, contenuto specifico per laboratorio.
+    // Sostituisce le guide locali precedenti senza toccare controlli o algoritmi.
+    var d = SA.pedagogy && SA.pedagogy[id];
+    if (d && d.guida && d.guida.length) {
+      var experiment = Array.prototype.find.call(page.querySelectorAll('section.step'), function (section) {
+        var lab = section.querySelector('.step-label');
+        return lab && /esperimento/i.test(lab.textContent);
+      });
+      if (experiment) {
+        experiment.querySelectorAll('.moran-guide').forEach(function (old) { old.remove(); });
+        var body = experiment.querySelector('.step-body');
+        var how = el('details.lab-howto', { open: !window.matchMedia || !window.matchMedia('(max-width: 760px)').matches, 'data-lab-guide': id },
+          el('summary', el('span.lab-howto-title', 'Come usare il laboratorio'), el('span.lab-howto-meta', d.guida.length + ' mosse · clic per chiudere')),
+          el('div.lab-howto-body',
+            el('p.lab-howto-intro', 'Esplora prima il campione e i grafici, quindi usa i controlli per verificare la tua previsione.'),
+            el('ol.lab-howto-list', d.guida.map(function (item) { return el('li', item); }))));
+        var title = body.querySelector(':scope > h2');
+        body.insertBefore(how, title ? title.nextSibling : body.children[1] || null);
+      }
+    }
     if (!c) return;
     var grid = page.querySelector('.lab-grid');
     if (grid) grid.parentNode.insertBefore(el('div.focus-box',
       el('div.focus-title', el('span.focus-icon', { 'aria-hidden': 'true' }, '◎'), 'Che cosa stiamo valutando'),
       el('dl.focus-grid', c.valutiamo.map(function (v) { return el('div', el('dt', v[0]), el('dd', v[1])); }))), grid);
     var tbl = page.querySelector('.tbl-wrap');
-    if (tbl) tbl.parentNode.insertBefore(el('div.table-guide', el('strong', 'Come leggere la tabella. '), c.tabella), tbl);
+    if (tbl) {
+      tbl.parentNode.insertBefore(el('div.table-guide', el('strong', 'Come leggere la tabella. '), c.tabella), tbl);
+      tbl.parentNode.insertBefore(el('p.table-scroll-hint', 'Scorri orizzontalmente la tabella per vedere tutte le colonne.'), tbl);
+    }
   }
 
   function route() {
+    closeMenu(false);
+    SA.ui.closeDrawer();
     var id = (location.hash.replace(/^#\/?/, '').split('/')[0]) || '';
     if (current && current.unmount) current.unmount();
     current = null;
@@ -330,10 +433,9 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     else if (SA.labs[id]) {
       var page = el('div.page'); main.appendChild(page);
       SA.currentLab = id;
-      current = SA.labs[id]; current.mount(page, info); enhanceLab(page, id); page.appendChild(footer());
+      current = SA.labs[id]; current.mount(page, info); enhanceLab(page, id); addMobileLabNav(page); page.appendChild(footer());
       document.title = info.lab.title + ' · StatAtlas';
     } else { main.appendChild(soon(info)); document.title = info.lab.title + ' · StatAtlas'; }
-    sidebar.classList.remove('open');
     window.scrollTo(0, 0);
     var h = main.querySelector('h1'); if (h) { h.setAttribute('tabindex', '-1'); h.focus({ preventScroll: true }); }
   }
@@ -344,8 +446,15 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     sidebar = document.getElementById('sidebar'); main = document.getElementById('main');
     buildSidebar();
     var tb = document.getElementById('topBrand'); if (tb) tb.insertAdjacentHTML('afterbegin', SA.art.logo(30));
-    document.getElementById('menuBtn').appendChild(SA.ui.icon('menu'));
-    document.getElementById('menuBtn').addEventListener('click', function () { sidebar.classList.toggle('open'); });
+    menuBtn = document.getElementById('menuBtn');
+    menuBtn.appendChild(SA.ui.icon('menu'));
+    menuBtn.setAttribute('aria-controls', 'sidebar');
+    menuBtn.addEventListener('click', toggleMenu);
+    menuBackdrop = el('div.nav-backdrop', { 'aria-hidden': 'true', onclick: function () { closeMenu(true); } });
+    menuBackdrop.hidden = true; document.body.appendChild(menuBackdrop);
+    window.addEventListener('resize', function () { if (!compactLayout()) sidebar.classList.remove('open'); updateMenuAccessibility(); });
+    document.addEventListener('keydown', mobileMenuKeydown);
+    updateMenuAccessibility();
     window.addEventListener('hashchange', route);
     route();
   };

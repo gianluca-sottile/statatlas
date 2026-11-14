@@ -190,7 +190,7 @@ SA.content = {
     tabella: 'L’errore di Bayes è esatto perché le leggi delle classi sono note. Le righe della replica corrente usano 500 punti di test nuovi con intervalli di Wilson al 95%; le righe Monte Carlo mediano su tutte le repliche. Con k = 1 e n → ∞ l’errore tende a E[2η(1 − η)] (calcolato per quadratura), che Cover e Hart limitano con 2R*(1 − R*).',
     esempio: '<p><strong>Esempio svolto.</strong> Nello scenario lineare con δ = 2 l’errore di Bayes è Φ(−1) = 0,159. Con k = 1 e n = 100 l’errore di training è 0 e quello sul test circa 0,235: già vicino al suo limite per n → ∞, E[2η(1 − η)], pari a 0,225 e mai oltre 2 · 0,159 · 0,841 = 0,267 (Cover e Hart). Con k tra 15 e 35 l’errore sul test scende a circa 0,175: ascoltare più vicini riduce la varianza.</p>',
     errori: ['Valutare il kNN sul training: con k = 1 l’errore è sempre 0', 'Calcolare distanze su variabili con unità di misura molto diverse', 'Standardizzare con medie e sd di tutti i dati, test compreso', 'Usare k pari con due classi senza una regola per le parità'],
-    avanzato: '<h3>Pesi e metriche</h3><p>I vicini possono votare con peso decrescente nella distanza; la metrica può essere adattata ai dati (Mahalanobis, metric learning). Con molte variabili irrilevanti il kNN peggiora rapidamente: selezione o riduzione delle dimensioni (lab 21) aiutano.</p><h3>Stima della probabilità</h3><p>La quota di voti p̂(x) è uno stimatore della probabilità condizionata: distorto quando k è grande rispetto alla curvatura di P(Y = 1 | x), variabile quando k è piccolo. Lo stesso compromesso del lisciamento nel lab 16.</p><h3>Classi sbilanciate</h3><p>Se una classe è rara, la maggioranza dei vicini tende a ignorarla: si spostano le soglie o si pesano le classi, e si guardano sensibilità e specificità oltre all’accuratezza.</p>',
+    avanzato: '<h3>Pesi e metriche</h3><p>I vicini possono votare con peso decrescente nella distanza; la metrica può essere adattata ai dati (Mahalanobis, metric learning). Con molte variabili irrilevanti il kNN peggiora rapidamente: selezione o riduzione delle dimensioni (lab 23) aiutano.</p><h3>Stima della probabilità</h3><p>La quota di voti p̂(x) è uno stimatore della probabilità condizionata: distorto quando k è grande rispetto alla curvatura di P(Y = 1 | x), variabile quando k è piccolo. Lo stesso compromesso del lisciamento nel lab 16.</p><h3>Classi sbilanciate</h3><p>Se una classe è rara, la maggioranza dei vicini tende a ignorarla: si spostano le soglie o si pesano le classi, e si guardano sensibilità e specificità oltre all’accuratezza.</p>',
     esercizi: [['Perché con k = n − 1 (leave-one-out) il kNN prevede quasi sempre la stessa classe?', 'Tutti gli altri punti votano: la previsione è la classe più frequente nel training, tranne l’effetto di aver escluso il punto stesso.'], ['Nello scenario lineare, perché la frontiera di Bayes è x₁ = 0 anche se x₂ è moltiplicata per 10?', 'x₂ ha la stessa legge nelle due classi: non contiene informazione, e cambiarne la scala non sposta la frontiera. Sposta però le distanze del kNN.'], ['Perché la stima leave-one-out per il kNN è “gratuita”?', 'Non c’è un modello da ristimare: basta escludere il punto dall’elenco dei suoi vicini.']],
     riferimenti: ['Cover T. M., Hart P. E. (1967). Nearest neighbor pattern classification. IEEE Transactions on Information Theory 13, 21–27.', 'Stone C. J. (1977). Consistent nonparametric regression. Annals of Statistics 5, 595–645.', 'Hastie T., Tibshirani R., Friedman J. (2009). The Elements of Statistical Learning, 2ª ed. Springer, capp. 2 e 13.', 'James G., Witten D., Hastie T., Tibshirani R. (2021). An Introduction to Statistical Learning, 2ª ed. Springer, cap. 4.']
   },
@@ -203,6 +203,16 @@ SA.content = {
     avanzato: '<h3>Potatura</h3><p>Un singolo albero si controlla con la potatura per costo-complessità: si cresce un albero grande e si tagliano i rami che riducono poco l’errore, scegliendo il parametro con la validazione incrociata (<code>rpart</code>, parametro cp).</p><h3>Boosting</h3><p>Invece di mediare alberi indipendenti, il boosting costruisce alberi piccoli in sequenza, ciascuno sui residui del precedente: riduce soprattutto la distorsione e richiede una scelta attenta del numero di passi.</p><h3>Probabilità e calibrazione</h3><p>La quota di alberi che votano 1 non è una probabilità calibrata: per stimare P(Y = 1 | x) si usano foreste di probabilità o una calibrazione successiva.</p>',
     esercizi: [['Perché la riduzione di Gini di una divisione accettata è sempre positiva?', 'Il Gini è concavo nella proporzione: il Gini pesato dei figli non supera quello del padre, e qui si accettano solo divisioni con riduzione strettamente positiva.'], ['Quale frazione di osservazioni resta fuori da un campione bootstrap?', '(1 − 1/n)ⁿ, che tende a e⁻¹ ≈ 0,368.'], ['Perché con mtry = 1 e molte variabili di rumore la foresta può peggiorare?', 'A molti nodi l’unica candidata è una variabile di rumore: la divisione non porta informazione e gli alberi diventano deboli, anche se poco correlati.']],
     riferimenti: ['Breiman L., Friedman J., Olshen R., Stone C. (1984). Classification and Regression Trees. Wadsworth.', 'Breiman L. (1996). Bagging predictors. Machine Learning 24, 123–140.', 'Breiman L. (2001). Random forests. Machine Learning 45, 5–32.', 'Hastie T., Tibshirani R., Friedman J. (2009). The Elements of Statistical Learning, 2ª ed. Springer, capp. 9, 15.']
+  },
+  boost: {
+    obiettivi: ['Descrivere il gradient boosting come discesa funzionale con modelli deboli', 'Distinguere alberi sequenziali da bagging e random forest', 'Derivare i pseudo-residui per perdita quadratica e logistica', 'Scegliere il numero di alberi con validazione indipendente', 'Comprendere gli effetti di learning rate, profondità e numero di iterazioni'],
+    valutiamo: [['Funzione stimata', 'la curva predittiva che evolve rispetto alla funzione generatrice'], ['Direzione del prossimo passo', 'il pseudo-residuo e il nuovo CART di regressione che lo approssima'], ['Percorsi di loss', 'training, validazione e test valutati sempre sugli stessi insiemi indipendenti'], ['Regolarizzazione', 'l’interazione tra learning rate, profondità degli alberi e arresto anticipato']],
+    tabella: 'F₀ minimizza la perdita empirica tra le funzioni costanti. Le perdite sono MSE per la regressione e negative log-likelihood media per la classificazione. La scelta del numero B* di alberi avviene esclusivamente dalla validazione; il test resta esterno. Le quantità indicate come procedurali sono identità del codice, non garanzie di generalizzazione.',
+    esempio: '<p><strong>Esempio svolto.</strong> Con perdita quadratica, risposta y = (1, 2, 4, 5) e F₀ = 3, i residui iniziali sono (−2, −1, 1, 2). Un albero a un solo split che separa le prime due dalle ultime due osservazioni produce valori di foglia (−1,5; 1,5). Con ν = 0,1, la previsione passa da 3 a (2,85; 3,15) sui rispettivi gruppi: un piccolo passo nella direzione che riduce la perdita. Con perdita logistica il residuo y − p agisce invece sulla scala del logit.</p>',
+    errori: ['Confondere gradient boosting con la media o il voto di alberi bootstrap', 'Interpretare la perdita in training come errore di generalizzazione', 'Usare il test per scegliere B e poi riportarlo come valutazione indipendente', 'Credere che boosting di primo ordine e XGBoost producano gli stessi aggiornamenti di foglia', 'Confrontare gli stessi numeri di alberi senza considerare learning rate e profondità'],
+    avanzato: '<h3>Geometria funzionale</h3><p>Si cerca F che minimizzi L(F) = n⁻¹Σ ℓ(yᵢ,F(xᵢ)); a ogni passo il vettore dei gradienti negativi viene proiettato sulla famiglia degli alberi di regressione. Questa è un’approssimazione della direzione di massima discesa nello spazio delle funzioni.</p><h3>Due funzioni di perdita</h3><p>Con ℓ=(y−F)²/2 si ottiene r=y−F; con ℓ=log(1+exp F)−yF si ottiene r=y−expit(F), usando F come logit. L’aggiornamento qui è Fₘ=Fₘ₋₁+νhₘ; nella letteratura sono comuni anche ricerche di passo e valori di foglia da un’approssimazione Newtoniana.</p><h3>Bias-varianza e percorso di regolarizzazione</h3><p>La profondità degli alberi determina la complessità di ogni incremento; lo shrinkage riduce il passo e richiede spesso più iterazioni. La selezione di B per minimizzazione della validazione può essere instabile quando le differenze di perdita sono piccole: un test indipendente o cross-validation esterna riduce l’ottimismo da tuning.</p><h3>Confronto con altri ensemble</h3><p>La media di alberi bootstrap del bagging agisce soprattutto sulla varianza. Le foreste randomizzano anche le variabili candidate per ridurre la correlazione tra alberi. Il boosting segue una perdita scelta e gli alberi sono dipendenti e sequenziali: la superiorità di una famiglia dipende da dati, target e protocollo di validazione.</p><h3>Regolarizzazione e limiti</h3><p>In classificazione con dati separabili e loss logistica l’ottimizzazione può continuare a spingere i logit pur senza cambiare le classi previste. Calibration, leakage, variazione del dominio e instabilità del processo di tuning restano questioni distinte dalla perdita di training. Interpretare l’importanza delle variabili richiede considerare bias da split e correlazioni.</p>',
+    esercizi: [['Perché per ℓ(y,F)=log(1+exp F)−yF il pseudo-residuo è y−expit(F)?', '∂ℓ/∂F = expit(F) − y; cambiando segno si ottiene y − expit(F).'], ['Con n=4 e F₀=3 nello scenario dell’esempio, cosa succede con ν=0,2?', 'Le due foglie danno le correzioni ±0,3; le nuove previsioni sono rispettivamente 2,7 e 3,3.'], ['Perché il numero di alberi scelto con il minimo di loss sul test produce una stima ottimista delle prestazioni?', 'Perché lo stesso insieme viene utilizzato sia per scegliere l’iperparametro sia per valutarlo: si seleziona anche rumore favorevole.'], ['Se si dimezza ν mantenendo fisso B, che cosa possiamo concludere?', 'Si riduce il peso dei singoli alberi ma la perdita finale può essere più alta per underfitting; non esiste una relazione monotona universale fuori dal training.']],
+    riferimenti: ['Friedman J. H. (2001). Greedy function approximation: a gradient boosting machine. Annals of Statistics 29, 1189–1232.', 'Friedman J. H. (2002). Stochastic gradient boosting. Computational Statistics & Data Analysis 38, 367–378.', 'Hastie T., Tibshirani R., Friedman J. (2009). The Elements of Statistical Learning, 2ª ed., cap. 10.', 'Bühlmann P., Hothorn T. (2007). Boosting algorithms: regularization, prediction and model fitting. Statistical Science 22, 477–505.']
   },
   pca: {
     obiettivi: ['Definire componenti principali, autovalori e score a partire dalla matrice di covarianza', 'Leggere scree plot, varianza spiegata e biplot', 'Collegare il numero di componenti all’errore di ricostruzione', 'Valutare stabilità degli assi, segni arbitrari, autovalori ripetuti e scelta della standardizzazione'],
@@ -230,7 +240,7 @@ SA.content = {
     tabella: 'Le classi vere sono note perché i dati sono simulati: gli anomali sono un gruppo a parte e il rumore di DBSCAN conta come un gruppo nel calcolo dell’ARI. La silhouette di DBSCAN esclude i punti di rumore. I controlli verificano le definizioni e che l’animazione coincida con la procedura di riferimento.',
     esempio: '<p><strong>Esempio svolto.</strong> Sulle due lune con 10 punti anomali, ε = 0,2 e minPts = 5, DBSCAN trova le due lune (ARI 0,99) e mette in rumore 8 dei 10 anomali; k-means e Ward con K = 2 tagliano le lune con una linea (ARI 0,16 e 0,33). Con n = 600 la densità raddoppia e lo stesso ε fonde le lune in un solo cluster: ε va riletto quando cambia n. Con i tre gruppi di densità diversa nessun ε va bene per tutti: il gruppo diffuso si spezza o i gruppi compatti si fondono con il rumore.</p>',
     errori: ['Scegliere ε senza guardare la scala delle variabili', 'Interpretare il rumore come “errore” da eliminare senza verificarlo', 'Usare la silhouette per giudicare cluster non convessi', 'Credere che i punti di bordo abbiano un’assegnazione univoca'],
-    avanzato: '<h3>HDBSCAN e OPTICS</h3><p>Invece di fissare ε, ordinano i punti per raggiungibilità e costruiscono una gerarchia di cluster al variare della densità; HDBSCAN estrae i cluster più stabili lungo la gerarchia ed è robusto a densità diverse.</p><h3>Complessità</h3><p>La parte costosa è trovare gli intorni: O(n²) con il calcolo diretto, circa O(n log n) con alberi k-d in poche dimensioni (pacchetto <code>dbscan</code>).</p><h3>Molte dimensioni</h3><p>In alta dimensione le distanze si concentrano e la nozione di densità perde contrasto: conviene ridurre prima la dimensione (lab 21) o scegliere metriche adatte ai dati.</p>',
+    avanzato: '<h3>HDBSCAN e OPTICS</h3><p>Invece di fissare ε, ordinano i punti per raggiungibilità e costruiscono una gerarchia di cluster al variare della densità; HDBSCAN estrae i cluster più stabili lungo la gerarchia ed è robusto a densità diverse.</p><h3>Complessità</h3><p>La parte costosa è trovare gli intorni: O(n²) con il calcolo diretto, circa O(n log n) con alberi k-d in poche dimensioni (pacchetto <code>dbscan</code>).</p><h3>Molte dimensioni</h3><p>In alta dimensione le distanze si concentrano e la nozione di densità perde contrasto: conviene ridurre prima la dimensione (lab 23) o scegliere metriche adatte ai dati.</p>',
     esercizi: [['Perché un punto core non può essere rumore?', 'Ha almeno minPts punti nel suo intorno: è il seme di un cluster, e l’algoritmo lo assegna quando lo visita.'], ['Con minPts = 1, che cosa diventa DBSCAN?', 'Ogni punto è core: i cluster sono le componenti connesse del grafo ε e non c’è rumore.'], ['Perché un punto di bordo può cambiare cluster riordinando i dati?', 'Se è nell’intorno di core di due cluster diversi, viene assegnato al primo cluster che lo raggiunge, e l’ordine di visita dipende dall’ordine dei dati.']],
     riferimenti: ['Ester M., Kriegel H.-P., Sander J., Xu X. (1996). A density-based algorithm for discovering clusters in large spatial databases with noise. KDD-96, 226–231.', 'Schubert E., Sander J., Ester M., Kriegel H.-P., Xu X. (2017). DBSCAN revisited, revisited. ACM Transactions on Database Systems 42, 19.', 'Campello R. J. G. B., Moulavi D., Sander J. (2013). Density-based clustering based on hierarchical density estimates. PAKDD 2013, 160–172.', 'Hahsler M., Piekenbrock M., Doran D. (2019). dbscan: fast density-based clustering with R. Journal of Statistical Software 91(1).']
   },
@@ -243,5 +253,241 @@ SA.content = {
     avanzato: '<h3>Ottimizzatori</h3><p>Il gradiente stocastico (mini-batch) aggiunge rumore che aiuta a uscire dalle zone piatte; il momento e Adam adattano direzione e lunghezza del passo. Cambiano il percorso e spesso la soluzione finale.</p><h3>Reti profonde</h3><p>Con più strati il gradiente può svanire o esplodere (soprattutto con sigmoide e tanh); ReLU, inizializzazioni scalate e normalizzazione dei lotti rendono addestrabili reti molto profonde.</p><h3>Doppia discesa</h3><p>Aumentando molto il numero di parametri, l’errore di test può risalire vicino al punto in cui la rete interpola i dati e poi scendere di nuovo: il compromesso distorsione–varianza classico non descrive sempre i modelli sovraparametrizzati.</p>',
     esercizi: [['Perché con tutti i pesi iniziali uguali a zero la rete non impara nulla di utile?', 'Tutti i neuroni nascosti calcolano la stessa funzione e ricevono lo stesso gradiente: restano identici a ogni passo (simmetria non rotta).'], ['Quanti parametri ha una rete 2 → H → 1?', '2H pesi in ingresso, H intercette nascoste, H pesi in uscita e un’intercetta: 4H + 1.'], ['Perché la BCE si calcola da z e non da p?', 'Per z grandi p si arrotonda a 0 o 1 e log p diventa −∞; la forma max(z, 0) − yz + log(1 + e^−|z|) resta finita e precisa.']],
     riferimenti: ['Rumelhart D. E., Hinton G. E., Williams R. J. (1986). Learning representations by back-propagating errors. Nature 323, 533–536.', 'Goodfellow I., Bengio Y., Courville A. (2016). Deep Learning. MIT Press, capp. 6–8.', 'Glorot X., Bengio Y. (2010). Understanding the difficulty of training deep feedforward neural networks. AISTATS 2010, 249–256.', 'Hastie T., Tibshirani R., Friedman J. (2009). The Elements of Statistical Learning, 2ª ed. Springer, cap. 11.']
+  },
+  kriging: {
+    obiettivi: [
+      'Distinguere il campo latente Z(s), le osservazioni rumorose Y(s) e le previsioni condizionate ai sensori',
+      'Comprendere la differenza tra simple kriging, ordinary kriging e interpolazione inverse-distance weighting',
+      'Progettare una rete di sensori modificando posizione e numerosità senza modificare il campo generatore',
+      'Interpretare la superficie delle predizioni, la varianza di kriging e la calibrazione mediante Monte Carlo',
+      'Valutare le conseguenze di un modello di covarianza mal specificato e di un nugget osservazionale'
+    ],
+    valutiamo: [
+      ['Campo e disegno', 'lo stesso processo latente osservato da sensori collocati in posizioni modificabili'],
+      ['Predizione', 'pesi dei sensori e stima del processo latente su una griglia 12 × 12'],
+      ['Incertezza', 'varianza di previsione condizionata al modello, distinta dall’errore effettivo'],
+      ['Calibrazione', 'RMSE² su campi Monte Carlo indipendenti contro media delle varianze modellistiche']
+    ],
+    tabella: 'I parametri veri e la superficie del campo sono conosciuti soltanto dal simulatore. La varianza di kriging è un valore derivato dal modello ASSUNTO e non va confusa con l’errore di una realizzazione. Con IDW la varianza di kriging non è definita. Le repliche Monte Carlo generano nuovi campi con il medesimo disegno: confrontare MSE (media di RMSE²), non media degli RMSE, con la varianza teorica.',
+    esempio: '<p><strong>Esempio svolto.</strong> Per una sola osservazione Y(s₁) con Var(Z)=σ²=1, nugget τ²=0,25 e Cov(Z(s₀),Y(s₁))=0,6, il simple kriging utilizza il peso w=0,6/(1+0,25)=0,48 e ha varianza di errore 1−0,6²/1,25=0,712. Se Y(s₁)=2, allora la previsione è 0,96. Il kriging ordinario con un unico sensore impone invece w=1, previsione 2 e varianza 1+1,25−2·0,6=1,05. I due modelli rispondono a ipotesi differenti sulla media. Aggiungi sensori e osserva come cambia la varianza in kriging ordinario.</p>',
+    errori: [
+      'Scambiare il campo vero rivelato con quello stimato dai sensori',
+      'Interpretare RMSE su una singola superficie come la varianza di kriging',
+      'Sommare il nugget alla covarianza fra un valore latente bersaglio e una misura rumorosa',
+      'Ritenere che aggiungere un sensore migliori sempre l’errore realizzato, anziché l’incertezza teorica',
+      'Confrontare varianza di kriging e una presunta varianza IDW senza definire un modello probabilistico',
+      'Usare lo stesso seed come garanzia di corrispondenza fra algoritmi con implementazioni differenti',
+      'Credere che la varianza del kriging includa automaticamente l’incertezza del variogramma stimato'
+    ],
+    avanzato: '<h3>BLUP e proiezioni lineari</h3><p>Con predittore wᵀY, C=Cov(Y), c=Cov(Y,Z₀) e Var(Z₀)=σ², il rischio quadratico è σ²−2wᵀc+wᵀCw. Per simple kriging a media nota zero, il minimo è w=C⁻¹c, con varianza σ²−cᵀC⁻¹c. Con un campo congiuntamente gaussiano coincide con la media condizionale.</p><h3>Kriging ordinario e moltiplicatore</h3><p>La condizione di non distorsione per media costante ignota è 1ᵀw=1. Introducendo ν secondo Cw+ν1=c si ottiene w=C⁻¹(c−ν1), ν=(1ᵀC⁻¹c−1)/(1ᵀC⁻¹1). La varianza diventa σ²−wᵀc−ν. Con questa convenzione il segno del moltiplicatore è essenziale.</p><h3>Predizione latente e nuova osservazione</h3><p>Con Y=Z+ε e Var(ε)=τ²I, i pesi sono calcolati da C<sub>Y</sub>=C<sub>Z</sub>+τ²I, ma c=Cov(Y,Z₀) usa C<sub>Z</sub> soltanto. La varianza di una futura misura Y₀, con errore indipendente, è superiore di τ² rispetto alla varianza della predizione di Z₀.</p><h3>Controllo del condizionamento</h3><p>La fattorizzazione Cholesky risolve i sistemi senza inversioni numeriche esplicite. Siti replicati con nugget nullo provocano singolarità. L’algoritmo verifica la positività delle varianze entro una tolleranza numerica e non sostituisce implicitamente un valore impossibile con un risultato plausibile.</p><h3>Disegno ottimale e MSE integrato</h3><p>La media della varianza sulla griglia approssima il criterio IMSE con peso uniforme sulle posizioni. La selezione del sensore che massimizza la riduzione dell’IMSE è un problema di disegno, distinto dalla scelta del punto di previsione massima. Nell’esperimento il campo non cambia al variare del disegno: si controlla la fonte della differenza.</p><h3>Specificazione errata e calibrazione</h3><p>Quando φ o il modello di covarianza assunto non coincidono con quelli generatori, la varianza calcolata può essere non calibrata. Per verificare il modello sugli stessi siti è informativo confrontare media Monte Carlo di RMSE² e media della varianza teorica; con parametri stimati servirebbe propagare un’ulteriore fonte di incertezza.</p><h3>IDW e confini di validità</h3><p>L’IDW con esponente 2 restituisce un interpolatore deterministico, non una varianza di predizione. Il laboratorio non affronta kriging universale, co-kriging, trend stimato o domini geografici irregolari; ogni inferenza dipende dalla validità del modello di covarianza scelto.</p>',
+    esercizi: [
+      ['Perché un osservazione con nugget positivo non deve essere interpolata esattamente dal kriging latente?', 'La misura Y è contaminata da errore ε: il miglior predittore di Z può discostarsi da Y anche nello stesso sito. La varianza residua latente resta generalmente positiva.'],
+      ['Qual è la condizione di non distorsione del kriging ordinario e perché?', 'La somma dei pesi deve essere uno, per riprodurre esattamente qualsiasi media costante ignota.'],
+      ['Un sensore aggiuntivo può peggiorare l’RMSE su una singola mappa?', 'Sì: il rischio teorico minimo non aumenta con informazione aggiuntiva a modello corretto, ma l’errore realizzato per un campo può crescere.'],
+      ['Perché non si mostra una varianza di previsione modellistica per IDW?', 'Le distanze determinano pesi, ma non definiscono una distribuzione congiunta delle osservazioni e del bersaglio; occorre un modello di incertezza aggiuntivo.'],
+      ['Perché si confronta E(RMSE²) con la media delle varianze, anziché E(RMSE)?', 'Per linearità della media sugli spazi e sulle repliche, E(RMSE²) = media spaziale degli MSE. La radice introduce una non linearità: E(RMSE) non è in generale la radice della media delle varianze.']
+    ],
+    riferimenti: [
+      'Cressie N. A. C. (1993). Statistics for Spatial Data. Revised edition, Wiley, capitoli 3 e 5.',
+      'Chilès J.-P., Delfiner P. (2012). Geostatistics: Modeling Spatial Uncertainty. 2nd edition, Wiley.',
+      'Diggle P. J., Ribeiro P. J. Jr. (2007). Model-based Geostatistics. Springer.',
+      'Wackernagel H. (2003). Multivariate Geostatistics. 3rd edition, Springer.',
+      'Pebesma E. J. (2004). Multivariable geostatistics in S: the gstat package. Computers & Geosciences 30, 683–691.'
+    ]
+  },
+  variogrammi: {
+    obiettivi: [
+      'Comprendere un campo aleatorio gaussiano e la distinzione tra processo latente, trend e nugget osservazionale',
+      'Costruire un variogramma empirico dalle differenze tra coppie di sensori e interpretare il numero di coppie per classe',
+      'Interpretare varianza parziale, sill totale, scala di correlazione e range pratico nei modelli esponenziale, gaussiano e sferico',
+      'Riconoscere anisotropia direzionale e non stazionarietà della media, senza confonderle con la struttura residua',
+      'Valutare la variabilità del variogramma stimato mediante Monte Carlo a siti fissi'
+    ],
+    valutiamo: [
+      ['Campo generatore', 'una realizzazione gaussiana comune, osservata con rumore nugget ai sensori'],
+      ['Coppie', 'distanze, differenze quadratiche, numerosità per classe e contributo della coppia selezionata'],
+      ['Dipendenza', 'variogrammi empirico e teorico e loro dipendenza da range, nugget e direzione'],
+      ['Variabilità', 'repliche Monte Carlo dello stimatore con siti fissi e bande puntuali']
+    ],
+    tabella: 'I parametri del modello e le coordinate dei sensori sono noti al simulatore; la semivarianza empirica è stimata. Le classi vuote non valgono zero: sono non stimabili. Le repliche Monte Carlo sono campi indipendenti simulati sulle stesse posizioni, non campioni di nuove localizzazioni. In presenza di anisotropia, la curva teorica dipende dalla direzione.',
+    esempio: '<p><strong>Esempio svolto.</strong> Un campo gaussiano stazionario isotropo ha σ²=1, φ=0,25 nel modello esponenziale e nugget τ²=0,12. Per due siti distinti a distanza h=0,25, γ(h)=0,12+1·(1−e<sup>−1</sup>) ≈ 0,7521. Non ci attendiamo che la media empirica delle differenze quadratiche di una sola realizzazione coincida con questo valore: lo scarto dipende da numero, geometria e dipendenza delle coppie. Imposta il modello esponenziale, seleziona una coppia vicina a distanza 0,25 e poi completa 99 repliche.</p>',
+    errori: [
+      'Confondere σ² con il sill totale delle osservazioni σ²+τ²',
+      'Interpretare il parametro φ come range pratico identico per esponenziale, gaussiano e sferico',
+      'Attribuire semivarianza zero alle classi senza coppie',
+      'Usare una singola curva isotropa teorica con anisotropia attivata',
+      'Ignorare che un trend nella media influenza il variogramma calcolato sui valori grezzi',
+      'Considerare coppie di osservazioni come statisticamente indipendenti perché appartengono a una stessa classe',
+      'Interpretare le bande puntuali Monte Carlo come intervalli di confidenza per i parametri della covarianza'
+    ],
+    avanzato: '<h3>Stazionarietà e ipotesi intrinseca</h3><p>La stazionarietà del secondo ordine richiede media costante e covarianza che dipende dallo scarto spaziale; implica γ(h)=C(0)−C(h). L’ipotesi intrinseca richiede soltanto incrementi di media nulla e varianza dipendente dallo scarto, e non implica sempre l’esistenza di una covarianza stazionaria.</p><h3>Modelli e definita positività</h3><p>Le matrici prodotte dai modelli di covarianza esponenziale, sferico e gaussiano sono positive semidefinite in due dimensioni. La simulazione condizionata alla parametrizzazione utilizza la Cholesky di matrici ben condizionate su siti distinti. La semivarianza, però, non può essere parametrizzata arbitrariamente: deve essere condizionalmente negativa definita.</p><h3>Anisotropia geometrica e direzionalità</h3><p>Rotazione e riscalamento degli scarti producono dₐ=√(u²+v²/ratio²). Se ratio≠1 la covarianza dipende dalla direzione. L’omnidirezionale aggrega coppie con angoli differenti e non coincide necessariamente con un modello teorico isotropo.</p><h3>Stimatore di Matheron</h3><p>La stima a classi della semivarianza media le differenze quadratiche. Il numero delle coppie cresce quadraticamente con il numero dei siti, ma il numero di contributi indipendenti non cresce nello stesso modo: le coppie condividono misure e la struttura di dipendenza influenza la varianza dell’estimatore.</p><h3>Il nugget come effetto osservazionale</h3><p>Con Y(s)=Z(s)+ε(s), Var(ε)=τ² e Z latente continuo in media quadratica, il variogramma per h>0 è γ<sub>Y</sub>(h)=τ²+σ²[1−ρ(h)]; in h=0 la differenza della stessa osservazione è nulla. L’estensione a osservazioni ripetute nello stesso sito richiede una distinzione tra rumore replicato e variabilità microspaziale.</p><h3>Inferenza non coperta dal laboratorio</h3><p>Le bande parametriche con modello e parametri noti sono bande puntuali della statistica simulata, non intervalli di confidenza per i parametri. Per stima dei parametri, massima verosimiglianza, variogrammi robusti, incertezza di modello e predizione spaziale occorrono strumenti ulteriori, introdotti nel successivo laboratorio di kriging.</p>',
+    esercizi: [
+      ['In un modello esponenziale con σ²=2, φ=0,2 e τ²=0,3, calcola γ(0,2) per due siti distinti.', 'γ(0,2)=0,3+2(1−e<sup>−1</sup>)≈1,5642. Il sill delle osservazioni è 2,3.'],
+      ['Perché il variogramma empirico può essere indefinito in una classe di distanza?', 'Se nessuna coppia ricade nell’intervallo, il denominatore N<sub>k</sub> è zero: la media non può essere calcolata.'],
+      ['Perché aumentando il nugget il campo latente simulato non diventa meno liscio?', 'Il nugget nel laboratorio è rumore di misura indipendente aggiunto alle osservazioni, non al processo latente comune visualizzato.'],
+      ['Una covarianza anisotropa implica una stessa curva teorica per tutte le direzioni?', 'No. Il valore dipende dalla direzione dello scarto; le curve orizzontale e verticale possono differire anche a uguale distanza euclidea.'],
+      ['Che cosa si perde facendo crescere il numero dei bin su soli 24 sensori?', 'Molte classi possono contenere poche coppie o nessuna; la stima empirica diventa meno regolare e più variabile.']
+    ],
+    riferimenti: [
+      'Cressie N. A. C. (1993). Statistics for Spatial Data. Revised edition, Wiley.',
+      'Chilès J.-P., Delfiner P. (2012). Geostatistics: Modeling Spatial Uncertainty. 2nd edition, Wiley.',
+      'Diggle P. J., Ribeiro P. J. Jr. (2007). Model-based Geostatistics. Springer.',
+      'Wackernagel H. (2003). Multivariate Geostatistics. 3rd edition, Springer.',
+      'Pebesma E. J. (2004). Multivariable geostatistics in S: the gstat package. Computers & Geosciences 30, 683–691.'
+    ]
+  },
+  'regressione-spaziale': {
+    obiettivi: [
+      'Distinguere il meccanismo SAR (ritardo spaziale della risposta) dal SEM (dipendenza negli errori)',
+      'Costruire e interpretare la matrice dei pesi rook con standardizzazione per riga',
+      'Comprendere la stima gaussiana ML tramite Jacobiano, profilo della varianza e ricerca su griglia',
+      'Calcolare effetti SAR diretti, indiretti e totali senza confonderli con effetti causali',
+      'Confrontare random CV e spatial block CV, tenendo conto dello scopo della previsione'
+    ],
+    valutiamo: [
+      ['Dipendenza','Mappa e residui, Moran delle innovazioni stimate nei tre modelli'],
+      ['Stima','Massimo della verosimiglianza SAR e SEM sulla stessa griglia di parametri'],
+      ['Impatti','Derivate medie SAR come funzioni della matrice (I−ρW)⁻¹'],
+      ['Generalizzazione','Stesso kNN spaziale valutato con fold casuali e blocchi contigui']
+    ],
+    tabella: 'Il parametro vero appartiene al generatore e non coincide necessariamente con lo stimato. La massimizzazione del profilo è su una griglia finita, con sigma² ML = RSS/n. Le log-verosimiglianze sono confrontabili solo per specificazioni della stessa risposta e convenzioni gaussiane identiche. La random CV e la spatial CV stimano rischi di trasferimento differenti.',
+    esempio: '<p><strong>Esempio svolto.</strong> Con W standardizzata per riga, β=1 e ρ=0,5 in un SAR, l’effetto totale medio è β/(1−ρ)=2. L’effetto diretto medio, invece, dipende da tr[(I−ρW)⁻¹]/n e quindi dalla geometria dei vicinati. L’effetto indiretto medio è la differenza fra i due. Nel SEM, β non genera lo stesso meccanismo di propagazione della risposta: la dipendenza è nell’errore.</p>',
+    errori: [
+      'Confondere la dipendenza spaziale della risposta con quella degli errori',
+      'Interpretare β in un SAR come effetto medio totale',
+      'Attribuire significato causale agli effetti SAR senza un disegno identificante',
+      'Trattare una stima su griglia come massimo continuo esatto',
+      'Considerare Moran residuo vicino a zero una prova che il modello sia corretto',
+      'Credere che la spatial block CV sia sempre preferibile indipendentemente dalla destinazione della previsione',
+      'Riutilizzare il target nei predittori kNN o calcolare il MSE sul training invece che sulle osservazioni escluse'
+    ],
+    avanzato: '<h3>Forma ridotta e restrizioni</h3><p>Il SAR si rappresenta come y=(I−ρW)⁻¹(Xβ+ε). Per una W row-standardizzata senza isolati, |ρ|&lt;1 garantisce l’invertibilità tramite serie di Neumann. Lo spazio parametrico ammissibile può essere più ampio e dipende dallo spettro di W.</p><h3>Verosimiglianza gaussiana SAR e SEM</h3><p>Il Jacobiano della trasformazione da y a ε è det(I−ρW). Il profilo include log|det(I−ρW)| e −(n/2)log(RSS(ρ)/n), con costanti gaussiane comuni. Nel SEM sia y sia X sono premoltiplicate da (I−λW), perché gli errori, e non la media condizionale, seguono il modello autoregressivo.</p><h3>Ottimizzazione e confronto dei modelli</h3><p>La ricerca su griglia con passo 0,05 rende verificabile la funzione obiettivo, ma introduce discretizzazione ed effetti di bordo. I risultati dei pacchetti con massimizzazione continua possono differire pur essendo metodologicamente compatibili. Non vengono calcolati intervalli di confidenza né test di rapporto di verosimiglianza non regolari.</p><h3>Interpretazione delle derivate</h3><p>Per la covariata k, la matrice delle derivate del SAR è βₖ(I−ρW)⁻¹. L’effetto diretto medio è βₖ tr(H)/n, il totale medio è βₖ 1ᵀH1/n, l’indiretto è totale meno diretto. Sono proprietà del modello: non implicano effetti causali.</p><h3>Autocorrelazione e diagnostica</h3><p>La presenza di autocorrelazione residua suggerisce misspecificazione, ma la sua assenza non garantisce distribuzioni, varianze, covariate o meccanismo causale corretti. In piccoli campioni, SAR e SEM possono risultare difficili da distinguere.</p><h3>Validazione spaziale</h3><p>Con dati spazialmente vicini, una validazione casuale può sfruttare dipendenza tra training e test. La validazione per blocchi separa aree contigue e valuta una previsione più lontana dall’insieme di training. Lo schema deve essere coerente con l’uso futuro; i fold e l’algoritmo predittivo devono essere identici nei confronti di metodo.</p><h3>Limiti del laboratorio</h3><p>Il dataset è gaussiano con 36 unità e una covariata; W è fissata rook e standardizzata per riga; il kNN CV usa solo coordinate. Il Monte Carlo riguarda il MSE del kNN, non l’incertezza degli stimatori SAR/SEM. Non sono modellati eteroschedasticità, endogeneità aggiuntiva, spatial Durbin o panel spaziale.</p>',
+    esercizi: [
+      ['Con W row-standardizzata e ρ=0,5, quanto vale il moltiplicatore totale per β=1,2?', '1,2/(1−0,5)=2,4; il diretto non coincide in generale con 2,4.'],
+      ['Perché nel SEM occorre trasformare anche X nel profilo?', 'Perché le innovazioni sono (I−λW)(y−Xβ), e la trasformazione agisce sull’intero residuo.'],
+      ['Che cosa implica ρ=0 in un SAR?', 'La matrice (I−ρW) è l’identità, i moltiplicatori spaziali scompaiono e il modello coincide con la forma lineare senza lag spaziale.'],
+      ['Una random CV può essere preferibile a una spatial CV?', 'Sì, per obiettivi di interpolazione locale con training e test vicini; per trasferimento in nuove aree i blocchi possono essere più coerenti.'],
+      ['Perché un modello SAR può avere impatti indiretti anche se X ha una sola colonna?', 'Perché la matrice H=(I−ρW)⁻¹ presenta, in generale, elementi fuori diagonale diversi da zero.']
+    ],
+    riferimenti: [
+      'Anselin L. (1988). Spatial Econometrics: Methods and Models. Kluwer.',
+      'LeSage J., Pace R. K. (2009). Introduction to Spatial Econometrics. CRC Press.',
+      'Bivand R., Pebesma E., Gómez-Rubio V. (2013). Applied Spatial Data Analysis with R. Springer.',
+      'Roberts D. R. et al. (2017). Cross-validation strategies for data with temporal, spatial, hierarchical, or phylogenetic structure. Ecography 40, 913–929.'
+    ]
+  },
+  'processi-puntuali': {
+    obiettivi: [
+      'Distinguere Poisson omogeneo, Poisson non omogeneo, processo aggregato di Thomas e modello repulsivo',
+      'Comprendere il numero casuale di eventi, l’intensità e il significato di CSR condizionata a N=n',
+      'Interpretare distanze al vicino più prossimo, conteggi in quadrati e K/L di Ripley',
+      'Comprendere la correzione dei bordi e distinguere envelope puntuali da test globale Monte Carlo',
+      'Riconoscere che un gradiente di intensità non implica attrazione tra eventi'
+    ],
+    valutiamo: [
+      ['Meccanismo', 'come Poisson, Thomas, inibizione e intensità variabile generano configurazioni differenti'],
+      ['Geometria', 'distanze tra punti, conteggi in quadrati e funzione K corretta per i bordi'],
+      ['Inferenza', 'envelope puntuali e test globale contro CSR condizionata al numero osservato n'],
+      ['Limiti', 'differenza tra inhomogeneità e interazione, effetto della finestra e del raggio']
+    ],
+    tabella: 'La K stimata e la distanza media al vicino più prossimo descrivono questa realizzazione. La curva L(r)−r sotto CSR ha riferimento teorico zero, ma la stima oscilla. L’envelope al 95% è puntuale, non un test simultaneo; il p-value globale Monte Carlo usa T = max_r |L(r)−r|, condizionando sul numero di eventi.',
+    esempio: '<p><strong>Esempio svolto.</strong> Consideriamo N = 100 eventi nel quadrato unitario. Per r = 0,125, sotto Poisson omogeneo K(r) = π·(0,125)² ≈ 0,0491; l’osservazione concreta genera però un valore K̂(r) casuale. Se la curva L̂(r)−r supera una banda puntuale a una distanza, ciò non basta per un test globale al 5%: abbiamo osservato simultaneamente più distanze. Il laboratorio calcola T come massimo assoluto della deviazione su 20 raggi e confronta T osservata con B repliche sotto CSR aventi lo stesso N. Infine, passando a un Poisson non omogeneo, si può rifiutare la CSR omogenea senza che vi sia alcuna interazione tra punti.</p>',
+    errori: [
+      'Scambiare un raggruppamento visivo con una prova di interazione o causalità',
+      'Interpretare una banda puntuale come una regione di confidenza simultanea',
+      'Confondere numero N di eventi con intensità λ: N è casuale nei modelli Poisson',
+      'Ignorare la correzione di bordo quando si stimano le funzioni K e L',
+      'Interpretare l’indice di dispersione dei conteggi come un test formale indipendente da scala e griglia',
+      'Confrontare una K omogenea con CSR senza considerare un’intensità spaziale variabile'
+    ],
+    avanzato: '<h3>Misure del secondo ordine</h3><p>Per un processo stazionario isotropo, K(r) = 2π∫₀ʳ t g(t)dt, dove g è la funzione di correlazione a coppie. Sotto Poisson omogeneo g ≡ 1. Non è una relazione generale per un processo arbitrario non stazionario.</p><h3>Correzione translation</h3><p>La stima della K nel quadrato usa pesi eᵢⱼ = (1−|xᵢ−xⱼ|)(1−|yᵢ−yⱼ|) e normalizzazione n(n−1): K̂(r)=Σᵢ≠ⱼ 1(dᵢⱼ≤r)/[n(n−1)eᵢⱼ]. La correzione gestisce l’area comune alle finestre traslate; la stabilità è migliore quando i raggi restano piccoli rispetto al dominio.</p><h3>Inferenza condizionale</h3><p>Sotto CSR, fissato N=n, i punti sono IID uniformi. L’envelope puntuale usa quantili empirici per ciascun r; il test globale utilizza T=max sui 20 raggi |L̂(r)−r|. Il p-value Monte Carlo con correzione +1 è esatto (salvo discrezione) sotto scambiabilità delle B+1 realizzazioni. La distribuzione R non segue necessariamente la stessa sequenza RNG del browser.</p><h3>Alternativa non omogenea</h3><p>Il thinning da λmax genera un Poisson con λ(x,y)=λ[1+a(2x−1)]. Il modello mantiene indipendenza degli eventi, ma non stazionarietà. Per testare interazione in presenza di questo trend serve una null inhomogeneous esplicita e uno stimatore appropriato, non la semplice K omogenea.</p><h3>Thomas e inibizione sequenziale</h3><p>Nel modello Thomas la dispersione dei figli è σ e il rapporto fra intensità marginale e parentale è μ=λ/κ. L’inibizione sequenziale accetta soltanto punti a distanza almeno ρ: non è uno schema Poisson né una simulazione esatta di un processo Gibbs a equilibrio.</p>',
+    esercizi: [
+      ['Con λ=100 nel quadrato unitario, quanto vale E[N] sotto Poisson omogeneo?', '100. Il numero di eventi è casuale, con varianza anch’essa pari a 100. Condizionatamente a N=n, i punti sono uniformi indipendenti.'],
+      ['Qual è il riferimento teorico di K(0,1) sotto CSR?', 'π·0,1² ≈ 0,031416. La stima campionaria può essere più alta o più bassa.'],
+      ['Una curva supera una banda puntuale al 95% in un r. Si può dichiarare un test globale al 5%?', 'No. Occorre una procedura globale, come la statistica massima T e il suo p-value Monte Carlo.'],
+      ['Un Poisson non omogeneo presenta più punti a destra. Sono eventi dipendenti?', 'Non necessariamente: una intensità crescente può produrre addensamenti senza interazione, grazie alla proprietà di indipendenza del processo Poisson.'],
+      ['Perché l’estimatore K corregge le coppie vicine al bordo?', 'Le coppie a una distanza fissata sono meno osservabili vicino al bordo; la correzione translation usa l’area di sovrapposizione fra finestre traslate.']
+    ],
+    riferimenti: [
+      'Ripley B. D. (1976). The second-order analysis of stationary point processes. Journal of Applied Probability 13(2), 255–266.',
+      'Baddeley A., Rubak E., Turner R. (2015). Spatial Point Patterns: Methodology and Applications with R. Chapman and Hall/CRC.',
+      'Illian J., Penttinen A., Stoyan H., Stoyan D. (2008). Statistical Analysis and Modelling of Spatial Point Patterns. Wiley.',
+      'Møller J., Waagepetersen R. P. (2004). Statistical Inference and Simulation for Spatial Point Processes. Chapman and Hall/CRC.'
+    ]
+  },
+  lisa: {
+    obiettivi: [
+      'Distinguere autocorrelazione globale da indicatori locali e leggere i quadranti HH, LL, HL e LH',
+      'Calcolare Moran locale, il lag spaziale e la speranza condizionale sotto permutazione',
+      'Interpretare p-value locali e l’effetto delle correzioni BH e BY',
+      'Distinguere pattern descrittivi da hotspot significativi e da meccanismi causali',
+      'Esplorare gli effetti di scala e di zonizzazione del MAUP sugli stessi dati simulati'
+    ],
+    valutiamo: [
+      ['Struttura locale', 'valore centrato e lag dei vicini per classificare le unità'],
+      ['Inferenza condizionale', 'permutare gli altri territori mantenendo fisso quello selezionato'],
+      ['Test multipli', 'confronto tra p-value grezzi, BH e BY'],
+      ['MAUP', 'variazione di scala, confini, W e statistiche sulle medie aggregate']
+    ],
+    tabella: 'Iᵢ, E[Iᵢ|xᵢ] e la classe HH/LL/HL/LH sono quantità descrittive definite dalla matrice W; il p-value è Monte Carlo ed è provvisorio prima delle B permutazioni. BH e BY correggono una famiglia di test locali; il confronto globale tra 64 celle e zone aggregate non è un test del MAUP.',
+    esempio: '<p><strong>Esempio svolto.</strong> In una griglia con valori +1 in alcune celle contigue e −1 nelle altre, una cella positiva circondata da celle positive ha zᵢ &gt; 0 e (Wz)ᵢ &gt; 0, quindi è HH. Una cella positiva fra valori negativi è HL. Nessuna delle due etichette, presa isolatamente, fornisce un p-value: per questo si confronta l’indicatore locale con una distribuzione di riferimento ottenuta condizionando sul valore della cella. Ripetendo i test in 64 posizioni aumenta il rischio di falsi positivi.</p>',
+    errori: [
+      'Chiamare hotspot ogni cella con valore elevato senza esaminare i vicini',
+      'Scambiare quadranti LISA e risultati di un test statisticamente significativo',
+      'Ignorare la dipendenza della statistica dalla standardizzazione di W',
+      'Ritenere che BH controlli il FDR con qualsiasi struttura di dipendenza senza ipotesi',
+      'Trattare la media di una macrozona come se fosse una delle osservazioni elementari'
+    ],
+    avanzato: '<h3>Somma degli indicatori locali</h3><p>Con m₂ = Σzᵢ²/n si ha ΣᵢIᵢ = S₀I globale. La relazione è una identità algebrica sulla stessa W, non una proprietà asintotica.</p><h3>Speranza condizionale</h3><p>Fissando zᵢ, la media degli altri n−1 valori è −zᵢ/(n−1). Perciò E[Iᵢ|zᵢ] = −zᵢ² Σⱼwᵢⱼ/[(n−1)m₂]. Il test bilaterale considera la distanza da questa aspettativa; convenzioni alternative conducono a p-value differenti.</p><h3>Controllo del FDR</h3><p>BH è valido sotto condizioni specifiche di dipendenza (ad esempio indipendenza o strutture positive adeguate); BY impiega il fattore armonico Hₘ e può essere applicato sotto dipendenza arbitraria con p-value validi, sacrificando potenza.</p><h3>MAUP</h3><p>La scala sostituisce le unità elementari con medie di zone più grandi; lo zoning modifica i confini conservando il numero di zone. Entrambi cambiano supporto della variabile, W, stima della variabilità e interpretazione. Il confronto diretto degli indici è descrittivo.</p><h3>Limiti della randomizzazione</h3><p>Il test richiede che la randomizzazione condizionale sia giustificata sotto la null. Trend, eteroschedasticità e campionamento informativo possono comprometterne l’interpretazione.</p>',
+    esercizi: [
+      ['Una zona ha zᵢ &gt; 0 e lag spaziale negativo: quale quadrante?', 'HL, outlier spaziale descrittivo; non necessariamente significativo.'],
+      ['Con B=199 permutazioni, qual è il minimo p-value Monte Carlo?', '1/(199+1) = 0,005. Con 64 test, il minimo p-value corretto BH può essere elevato.'],
+      ['Perché due schemi di 16 macrozone possono produrre Moran differente?', 'Cambiano confini, composizione delle medie, configurazione del vicinato e dipendenza dei valori aggregati.'],
+      ['Perché non si può interpretare una mappa HH come prova di causalità?', 'Le associazioni locali non identificano meccanismi causali e dipendono da W, null e potenziali confondenti.']
+    ],
+    riferimenti: [
+      'Anselin L. (1995). Local indicators of spatial association — LISA. Geographical Analysis 27(2), 93–115.',
+      'Bivand R. S., Wong D. W. S. (2018). Comparing implementations of global and local indicators of spatial association. TEST 27, 716–748.',
+      'Benjamini Y., Hochberg Y. (1995). Controlling the false discovery rate: a practical and powerful approach to multiple testing. JRSS B 57(1), 289–300.',
+      'Benjamini Y., Yekutieli D. (2001). The control of the false discovery rate in multiple testing under dependency. Annals of Statistics 29(4), 1165–1188.',
+      'Openshaw S. (1984). The Modifiable Areal Unit Problem. Geo Books.'
+    ]
+  },
+  moran: {
+    obiettivi: [
+      'Costruire matrici dei pesi rook, queen e per distanza e distinguere pesi binari da pesi standardizzati',
+      'Calcolare e interpretare Moran I e il Moran scatterplot',
+      'Formulare una null di scambiabilità e valutare un p-value con permutazioni',
+      'Distinguere autocorrelazione dei valori da dipendenza residua dopo un trend',
+      'Riconoscere gli effetti del modello di vicinato e di uno schema generativo SAR'
+    ],
+    valutiamo: [
+      ['Autocorrelazione', 'configurazioni aggregate, a scacchiera, casuali e autoregressive'],
+      ['Definizione di W', 'effetto di rook, queen, distanza e standardizzazione'],
+      ['Inferenza', 'distribuzione sotto scambiabilità e p-value corretto con +1'],
+      ['Interpretazione', 'trend, valori anomali e differenza tra I e parametro SAR']
+    ],
+    tabella: 'Moran I è una statistica osservata condizionata a una specifica matrice W. La media -1/(n-1) è esatta sotto permutazione uniforme dei valori con diagonale nulla; il p-value è una quantità Monte Carlo il cui errore diminuisce al crescere delle permutazioni. Non equivale a un parametro di correlazione del processo.',
+    esempio: '<p><strong>Esempio svolto.</strong> Consideriamo una griglia 4×4 in cui le prime due colonne hanno valore −1 e le altre +1. Con vicinato rook e pesi binari, i prodotti tra celle adiacenti con uguale valore contribuiscono positivamente, mentre quelli lungo il confine tra le due regioni contribuiscono negativamente. Una permutazione casuale degli stessi sedici valori produce spesso molti più confini discordanti. Non basta confrontare I con zero: sotto la permutazione la sua speranza è −1/15, e occorre quantificare la variabilità con permutazioni.</p>',
+    errori: [
+      'Interpretare I come un coefficiente di correlazione confinato sempre in [−1,1]',
+      'Confondere la correlazione osservata tra territori vicini con correlazione residua di un modello',
+      'Usare una matrice W senza dichiararne vicinato, standardizzazione e gestione dei territori isolati',
+      'Trattare E[I] = −1/(n−1) come una legge della dipendenza spaziale in generale',
+      'Confrontare p-value senza specificare alternativa, null e procedura di permutazione'
+    ],
+    avanzato: '<h3>Forma quadratica</h3><p>Scrivendo H = I − 11ᵀ/n e z = Hx, la statistica è I = (n/S₀) zᵀWz/(zᵀz). La parte antisimmetrica di W non contribuisce alla forma quadratica: zᵀWz = zᵀ(W+Wᵀ)z/2. Le possibili estensioni di I dipendono quindi anche dagli autovalori dell’operatore simmetrizzato sul sottospazio ortogonale a 1.</p><h3>Speranza condizionale</h3><p>Per una permutazione uniforme dei valori centrati, E[zπ(i)²] = Σ zᵢ²/n e, per i≠j, E[zπ(i)zπ(j)] = −Σ zᵢ²/[n(n−1)]. Sostituendo nel numeratore si ottiene esattamente E[I|x] = −1/(n−1), se wᵢᵢ=0, S₀&gt;0 e zᵀz&gt;0.</p><h3>Pendenza del Moran scatterplot</h3><p>Per la regressione di Wz su z senza intercetta, b = zᵀWz/(zᵀz). Ne segue I=(n/S₀)b; b=I soltanto quando S₀=n. Con W standardizzata per riga e nessuna unità isolata questo si verifica; con pesi binari e griglie con bordi generalmente no.</p><h3>Inferenza e modelli</h3><p>Un test per permutazione richiede una giustificazione della scambiabilità sotto la null. Per dati generati da z=(I−ρW)⁻¹ε, il parametro ρ non coincide con I. Un andamento spaziale sistematico della media e la selezione delle unità possono produrre valori elevati di I nei dati grezzi anche in assenza di correlazione negli errori. L’analisi di residui richiede specificare un modello e un protocollo inferenziale coerente.</p><h3>Estensioni</h3><p>Geary C, statistiche locali LISA, test per autovalori di W, statistiche per grafi e analisi dell’influenza dei pesi. La correzione per test multipli diventa centrale passando dall’autocorrelazione globale a quella locale.</p>',
+    esercizi: [
+      ['Perché nella formula dell’indice di Moran appare il fattore n/S₀?', 'Riporta la forma quadratica dei lag spaziali alla scala della varianza campionaria; quando S₀=n, la pendenza OLS nello scatterplot coincide con I.'],
+      ['Qual è la speranza dell’indice di Moran con n=16 sotto permutazione uniforme dei valori?', 'E[I | x] = −1/(16−1) = −1/15 ≈ −0,0667, indipendentemente dalla configurazione specifica purché W abbia diagonale nulla e varianza non nulla.'],
+      ['Un gradiente est-ovest con errori indipendenti può generare I positivo?', 'Sì, perché i territori vicini condividono valori medi simili. Per analizzare dipendenza residua bisogna prima modellare o rimuovere correttamente il trend.'],
+      ['Perché con B=199 permutazioni il più piccolo p-value Monte Carlo è 0,005?', 'Per la correzione +1, il numeratore minimo è 1 e il denominatore è B+1=200: p_min=1/200.']
+    ],
+    riferimenti: [
+      'Moran P. A. P. (1950). Notes on continuous stochastic phenomena. Biometrika 37(1/2), 17–23.',
+      'Cliff A. D., Ord J. K. (1981). Spatial Processes: Models & Applications. Pion.',
+      'Anselin L. (1995). Local indicators of spatial association — LISA. Geographical Analysis 27(2), 93–115.',
+      'Bivand R. S., Pebesma E., Gómez-Rubio V. (2013). Applied Spatial Data Analysis with R, 2ª ed. Springer.'
+    ]
   }
 };

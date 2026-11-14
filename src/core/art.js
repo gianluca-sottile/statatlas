@@ -193,8 +193,91 @@ SA.art = (function () {
     s += '<path d="M255,140 Q230,170 190,172" fill="none" stroke="var(--accent)" stroke-width="2.4" marker-end=""/><text x="196" y="166" font-size="13" fill="var(--accent)">δ</text>';
     return frame(s, 'Strati e pesi');
   };
+  L.boost = function () {
+    var s = '<line x1="18" y1="150" x2="302" y2="150" stroke="var(--ink)" stroke-opacity=".35"/>';
+    for (var k = 0; k < 6; k++) { var x = 26 + k*46, h = 16 + k*17; s += '<rect x="'+x+'" y="'+(150-h)+'" width="33" height="'+h+'" fill="var(--c1)" fill-opacity="'+(.11+.065*k)+'" stroke="var(--c1)"/>'; }
+    s += '<path d="M25 132 H70 V116 H110 V103 H150 V86 H197 V64 H238 V45 H300" fill="none" stroke="var(--accent)" stroke-width="3.2"/>';
+    s += '<path d="M25 137 C75 111 98 136 147 82 S231 41 299 28" fill="none" stroke="var(--c2)" stroke-width="2" stroke-dasharray="6 4"/>';
+    return frame(s, 'Boosting di alberi successivi');
+  };
+  L.moran = function () {
+    var s = '';
+    for (var r = 0; r < 7; r++) for (var c = 0; c < 11; c++) {
+      var v = c < 5 ? 'var(--c2)' : 'var(--c1)';
+      var op = .25 + .055 * (r % 3) + .045 * (c % 3);
+      s += '<rect x="' + (16 + 26*c) + '" y="' + (12+23*r) + '" width="23" height="20" rx="3" fill="' + v + '" fill-opacity="' + op + '" stroke="var(--card)" stroke-width=".8"/>';
+    }
+    s += '<path d="M24 135 Q83 110 131 90 T302 32" fill="none" stroke="var(--accent)" stroke-width="3" stroke-dasharray="7 5"/>';
+    return frame(s, 'Mappa di autocorrelazione spaziale');
+  };
+  L.lisa = function () {
+    var s = '', C = ['var(--c1)', 'var(--c2)', 'var(--c3)', 'var(--c4)'];
+    for (var r = 0; r < 7; r++) for (var c = 0; c < 11; c++) {
+      var a = (r < 3 && c < 5) ? 0 : (r > 3 && c > 5) ? 1 : ((r + c) % 6 === 0 ? 2 : 3);
+      s += '<rect x="' + (14 + c * 26) + '" y="' + (10 + r * 23) + '" width="23" height="20" rx="2" fill="' + C[a] + '" fill-opacity="' + (a < 2 ? .65 : .24) + '" stroke="var(--card)" stroke-width=".8"/>';
+    }
+    s += '<path d="M15 81h280M145 12v158" fill="none" stroke="var(--accent)" stroke-width="2.6" stroke-dasharray="5 4"/>';
+    s += '<circle cx="93" cy="54" r="18" fill="none" stroke="var(--ink)" stroke-width="2"/><circle cx="232" cy="125" r="18" fill="none" stroke="var(--ink)" stroke-width="2"/>';
+    return frame(s, 'Indicatori locali di associazione spaziale');
+  };
+  L['processi-puntuali'] = function () {
+    var r=rnd(127),s='';
+    s+='<rect x="15" y="12" width="145" height="154" rx="4" fill="var(--c1)" fill-opacity=".045" stroke="var(--rule)"/>';
+    s+='<rect x="170" y="12" width="137" height="154" rx="4" fill="var(--c2)" fill-opacity=".045" stroke="var(--rule)"/>';
+    for(var i=0;i<47;i++){
+      var x=24+126*r(),y=21+136*r();
+      s+='<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="2.8" fill="var(--c1)" fill-opacity=".79"/>';
+    }
+    [[203,47],[250,89],[212,125]].forEach(function(c){
+      s+='<circle cx="'+c[0]+'" cy="'+c[1]+'" r="19" fill="var(--accent)" fill-opacity=".12" stroke="var(--accent)" stroke-opacity=".55" stroke-dasharray="3 4"/>';
+      for(var j=0;j<17;j++){
+        var x=Math.max(176,Math.min(299,c[0]+9*gauss(r))),y=Math.max(18,Math.min(160,c[1]+11*gauss(r)));
+        s+='<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="2.6" fill="var(--c2)" fill-opacity=".82"/>';
+      }
+    });
+    s+='<path d="M15,178 H306" stroke="var(--ink)" stroke-opacity=".18" stroke-width="1.5"/>';
+    return frame(s, 'Casualità e aggregazione puntuale');
+  };
+  L.variogrammi = function () {
+    var r=rnd(193),s='';
+    for(var row=0;row<7;row++)for(var col=0;col<11;col++){
+      var v=Math.sin(col*.37+row*.18)*.55+Math.cos(row*.5-col*.1)*.45;
+      s+='<rect x="'+(12+col*26)+'" y="'+(10+row*24)+'" width="24" height="22" rx="2" fill="'+(v>0?'var(--c1)':'var(--c2)')+'" fill-opacity="'+(.13+.4*Math.abs(v)).toFixed(2)+'"/>';
+    }
+    for(var i=0;i<19;i++){
+      var x=21+270*r(), y=18+145*r();
+      s+='<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="3" stroke="var(--card)" stroke-width="1.4" fill="var(--ink)"/>';
+    }
+    s+='<path d="M18 164 Q65 88 116 72 T294 44" fill="none" stroke="var(--accent)" stroke-width="3.0"/>';
+    s+='<path d="M18 170 Q66 136 116 124 T294 112" fill="none" stroke="var(--c3)" stroke-width="2" stroke-dasharray="5 4"/>';
+    return frame(s,'Campo e variogramma spaziale');
+  };
+  L.kriging = function () {
+    var r=rnd(230),s='';
+    for(var row=0;row<7;row++)for(var col=0;col<12;col++){
+      var v=Math.sin(col*.33+row*.24)*.58+Math.cos(row*.53-col*.13)*.42;
+      s+='<rect x="'+(12+col*24)+'" y="'+(10+row*24)+'" width="22" height="22" rx="2" fill="'+(v>0?'var(--c1)':'var(--c2)')+'" fill-opacity="'+(.12+.38*Math.abs(v)).toFixed(2)+'"/>';
+    }
+    var sites=[[28,40],[65,135],[104,59],[143,146],[208,43],[259,113],[285,71],[189,119]];
+    sites.forEach(function(p,i){s+='<circle cx="'+p[0]+'" cy="'+p[1]+'" r="'+(i===3?7:4.8)+'" fill="var(--ink)" stroke="var(--card)" stroke-width="2"/>';});
+    s+='<circle cx="143" cy="146" r="15" fill="none" stroke="var(--accent)" stroke-width="1.8" stroke-dasharray="4 3"/>';
+    s+='<path d="M12 166 Q60 102 107 112 T294 45" fill="none" stroke="var(--c3)" stroke-width="2.3"/>';
+    return frame(s,'Kriging, sensori e incertezza');
+  };
+  L['regressione-spaziale'] = function () {
+    var s = '';
+    for (var row = 0; row < 6; row++) for (var col = 0; col < 9; col++) {
+      var xx = 14 + col * 33, yy = 13 + row * 26;
+      var a = Math.sin(col * .55 + row * .4), c = a > 0 ? 'var(--c1)' : 'var(--c2)';
+      s += '<rect x="'+xx+'" y="'+yy+'" width="31" height="24" rx="2" fill="'+c+'" fill-opacity="'+(.14+.27*Math.abs(a)).toFixed(2)+'"/>';
+    }
+    s += '<path d="M21,160 C61,130 74,123 112,115 S169,88 191,61 S251,31 295,20" stroke="var(--accent)" fill="none" stroke-width="3"/>';
+    s += '<path d="M21,125 C60,115 79,143 115,117 S171,137 190,106 S248,116 298,88" stroke="var(--ink)" fill="none" stroke-width="2" stroke-dasharray="5 4"/>';
+    for (var i = 0; i < 4; i++) s += '<circle cx="'+(34+i*70)+'" cy="'+(158-i*32)+'" r="5" fill="var(--card)" stroke="var(--accent)" stroke-width="2"/>';
+    return frame(s,'Regressione spaziale e blocchi di validazione');
+  };
   /* ---- parti ---- */
-  L.partI = L.distribuzioni; L.partII = L['lgn-tcl']; L.partIII = L.intervalli; L.partIV = L.regressione; L.partV = L.penalizzata; L.partVI = L.validazione; L.partVII = L.pca; L.partVIII = L['reti-neurali'];
+  L.partI = L.distribuzioni; L.partII = L['lgn-tcl']; L.partIII = L.intervalli; L.partIV = L.regressione; L.partV = L.penalizzata; L.partVI = L.validazione; L.partVII = L.pca; L.partVIII = L.moran;
   function get(id) { return L[id] ? L[id]() : ''; }
   return { get: get, logo: L.logo };
 })();

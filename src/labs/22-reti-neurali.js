@@ -1,4 +1,4 @@
-/* StatAtlas · Lab 24 — Reti neurali artificiali e backpropagation.
+/* StatAtlas · Lab 22 — Reti neurali artificiali e backpropagation.
  * Dati: U = runif(2n) e Z = rnorm(2n) letti per righe; etichetta calcolata dai punti puliti, poi x + σz.
  * Suddivisione training/validazione con sample(n, n_val). Rete 2 → H → 1 (SA.nn), inizializzata con un seed proprio,
  * discesa del gradiente a lotto intero: un passo del laboratorio = un'epoca. Nessun numero casuale durante l'addestramento. */
@@ -158,7 +158,7 @@
   }
   function codeR() {
     var d = S.data;
-    return ['# ───────────────────────────────────────────────────────────────', '# StatAtlas · Lab 24 — Rete neurale 2 → H → 1 e backpropagation',
+    return ['# ───────────────────────────────────────────────────────────────', '# StatAtlas · Lab 22 — Rete neurale 2 → H → 1 e backpropagation',
       '# R0: stessi dati, stessa suddivisione e stessi pesi iniziali di StatAtlas (R ≥ 3.6).',
       '# R2: stessa discesa del gradiente a lotto intero: stesse perdite a meno dell’arrotondamento.',
       '# R3: nnet o torch usano ottimizzatori e inizializzazioni diversi: confronto di metodo, non stessi pesi.',
@@ -247,15 +247,15 @@
         two(el('div.fig', el('div.fig-title', el('h3', 'Frontiera e probabilità stimata'), legA), figA), el('div.fig', el('div.fig-title', el('h3', 'La rete: pesi, passaggio in avanti e δ')), figB)),
         el('div.fig', el('div.fig-title', el('h3', 'Perdita durante l’addestramento'), legC), figC),
         el('div.fig', el('div.fig-title', el('h3', 'Stessa rete, inizializzazioni diverse'), el('div.legend', el('span.muted', '● training · ◆ validazione · ✕ divergenza'))), figD, el('p', { style: 'margin-top:8px' }, multiBtn)),
-        el('div.toolbar', SA.ui.button('Perdite CSV', { icon: 'download', cls: 'btn-ghost', onclick: function () { var rows = [['epoca', 'training', 'validazione', 'acc_training', 'acc_validazione']]; S.hist.tr.forEach(function (v, i) { rows.push([i, v, S.hist.va[i], S.hist.atr[i], S.hist.ava[i]]); }); SA.ui.download('statatlas_lab24_perdite.csv', SA.ui.csv(rows), 'text/csv'); } }),
-          SA.ui.button('Pesi CSV', { icon: 'download', cls: 'btn-ghost', onclick: function () { var n = S.net, rows = [['neurone', 'w1', 'w2', 'b1', 'w_out']]; for (var h = 0; h < n.H; h++) rows.push([h + 1, n.W1[h][0], n.W1[h][1], n.b1[h], n.W2[h]]); rows.push(['uscita', '', '', '', n.b2]); SA.ui.download('statatlas_lab24_pesi.csv', SA.ui.csv(rows), 'text/csv'); } }),
-          SA.ui.button('Figura PNG', { icon: 'download', cls: 'btn-ghost', onclick: function () { SA.ui.exportPNG([figA.querySelector('svg'), figC.querySelector('svg')], 'statatlas_lab24.png', ['Rete neurale', DATA[S.data] + ' · H = ' + S.H + ' · ' + S.act + ' · η = ' + S.eta + ' · seed ' + S.seed + '/' + S.iseed]); } })))));
+        el('div.toolbar', SA.ui.button('Perdite CSV', { icon: 'download', cls: 'btn-ghost', onclick: function () { var rows = [['epoca', 'training', 'validazione', 'acc_training', 'acc_validazione']]; S.hist.tr.forEach(function (v, i) { rows.push([i, v, S.hist.va[i], S.hist.atr[i], S.hist.ava[i]]); }); SA.ui.download('statatlas_lab22_perdite.csv', SA.ui.csv(rows), 'text/csv'); } }),
+          SA.ui.button('Pesi CSV', { icon: 'download', cls: 'btn-ghost', onclick: function () { var n = S.net, rows = [['neurone', 'w1', 'w2', 'b1', 'w_out']]; for (var h = 0; h < n.H; h++) rows.push([h + 1, n.W1[h][0], n.W1[h][1], n.b1[h], n.W2[h]]); rows.push(['uscita', '', '', '', n.b2]); SA.ui.download('statatlas_lab22_pesi.csv', SA.ui.csv(rows), 'text/csv'); } }),
+          SA.ui.button('Figura PNG', { icon: 'download', cls: 'btn-ghost', onclick: function () { SA.ui.exportPNG([figA.querySelector('svg'), figC.querySelector('svg')], 'statatlas_lab22.png', ['Rete neurale', DATA[S.data] + ' · H = ' + S.H + ' · ' + S.act + ' · η = ' + S.eta + ' · seed ' + S.seed + '/' + S.iseed]); } })))));
       var s4 = SA.ui.step('4', 'Teoria e simulazione a confronto'); tblBody = el('tbody'); kpiBox = el('div.kpis');
       s4.body.append(el('div.tbl-wrap', el('table.tv', el('thead', el('tr', el('th', 'Quantità'), el('th', 'Riferimento'), el('th', 'Risultato'), el('th', 'Natura'))), tblBody)),
         el('div.status-key', el('span', SA.ui.badge('exact'), ' verifica esatta'), el('span', SA.ui.badge('mc'), ' su più inizializzazioni'), el('span', SA.ui.badge('none'), ' valore corrente')), kpiBox);
       var s5 = SA.ui.step('5', 'Interpretazione'); interpBox = el('div.prose');
       s5.body.append(interpBox, el('p', el('button.btn.btn-ghost', { type: 'button', onclick: function () { openT('adv'); } }, SA.ui.icon('book'), ' Non convessità, approssimazione universale, regolarizzazione (livello avanzato)')));
-      var s6 = SA.ui.step('6', 'Riproduci in R', 'Stessi pesi, stessa discesa'); codeBox = SA.ui.codeBlock(codeR, 'statatlas_lab24_rete.R');
+      var s6 = SA.ui.step('6', 'Riproduci in R', 'Stessi pesi, stessa discesa'); codeBox = SA.ui.codeBlock(codeR, 'statatlas_lab22_rete.R');
       s6.body.append(el('p.prose', 'Riproducibilità: stessi dati e pesi iniziali (R0), stessa discesa del gradiente scritta in R (R2); nnet e torch sono un confronto di metodo (R3). Richiede R ≥ 3.6 e tidyverse.'), codeBox);
       page.append(s1, s2, s3, s4, s5, s6);
       buildControls(); buildPrediction(); legends(); interpretation(); bindClick(); render(true); run.refresh();

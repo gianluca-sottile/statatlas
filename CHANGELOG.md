@@ -1,3 +1,87 @@
+## Responsive mobile/tablet · ergonomia e accessibilità (2026-11-14)
+
+- Interfaccia adattata a smartphone e tablet: menu laterale a scomparsa anche su tablet, backdrop, Escape, gestione focus/inert e chiusura alla navigazione.
+- Barra fissa di accesso rapido a Parametri, Grafici, Risultati e Inizio su display compatti, senza duplicare alcun comando o stato della simulazione.
+- Avvia/Passo/Completa/Ricomincia posizionati prima dei parametri sui display compatti; pulsanti, selettori, slider e zoom con bersagli touch maggiorati.
+- Zoom mobile dei grafici con larghezza leggibile, pan orizzontale e chiusura sempre visibile. Tabelle, codice R, formule e schede teoriche adattati allo scorrimento e all'uso a una mano.
+- Homepage, testate, copertine e selettori adattati alle larghezze tablet/telefono, con rispetto di reduced motion e safe areas.
+- Nessuna modifica ai 31 file dei laboratori né agli algoritmi. Nuova suite Playwright `tests/test_mobile_tablet.py`, testata a 320/390/768/1024 px su tutti i laboratori; test numerici preesistenti invariati.
+- Restano da verificare manualmente touch e rotazione su Safari iOS/iPadOS fisico.
+
+## Audit trasversale · guida, accessibilità e approfondimenti (2026-11-14)
+
+- Guida «Come usare il laboratorio» implementata centralmente per tutti e 31 i moduli, con quattro azioni specifiche, pannello espandibile e stessa impaginazione responsive; rimosse in fase di rendering le guide locali duplicate.
+- Estesi i due livelli delle schede per ogni laboratorio con supplementi autonomi e 31 equazioni-cardine su interpretazione statistica, assunzioni, risultati matematici, identificazione e limiti di validità. Conservati esempi ed esercizi preesistenti.
+- Resettata la scheda «Approfondisci» al livello Essenziale quando aperta da un nuovo laboratorio; migliorata la struttura tipografica e la leggibilità su mobile.
+- Separati contenuti supplementari (`pedagogy.js`, `pedagogy-theory.js`) dagli algoritmi numerici, rimasti invariati; nuova suite di integrità editoriale automatizzata.
+- Riconciliato il README sul numero effettivo di laboratori (31); confermata dall’autore l’esecuzione dei riferimenti R dei lab 26–31.
+- Il browser Chromium del presente ambiente applica una policy di blocco degli URL locali: i collaudi visivi automatici non sono dichiarati riusciti. Sono inclusi test browser ripetibili su una macchina non soggetta al blocco.
+
+## Batch 7 — Laboratorio 31: Regressione spaziale e validazione geografica (2026-11-14)
+
+- Aggiunto laboratorio 31 (Parte VIII) con confronto OLS/SAR/SEM, profili di log-verosimiglianza gaussiani e impatti SAR.
+- Nuovo motore numerico indipendente dall'interfaccia: DGP SAR/SEM, matrice rook, stima ML su griglia e kNN con random CV / spatial block CV.
+- Copertina SVG originale, approfondimenti Essenziale e Avanzato, previsione, quattro grafici, tabella e codice R scaricabile.
+- Controlli Monte Carlo esclusivamente manuali, nessun autoplay all'apertura o dopo le modifiche.
+- Test numerici e confronto R predisposti per cinque scenari; esito R da certificare esternamente.
+
+## Batch 6 — Laboratorio 30: Kriging e disegno dei sensori (2026-11-14)
+
+- Kriging semplice e ordinario, IDW, varianza di predizione latente e corretta gestione del nugget osservazionale.
+- Interfaccia per aggiungere, spostare, rimuovere e selezionare sensori a campo generatore fisso; opzione per svelare il campo.
+- Superficie stimata, mappa delle varianze, errore osservato e verifica Monte Carlo della calibrazione.
+- Apertura e cambi di parametri senza autoplay. Teoria e controlli grafici nello standard StatAtlas.
+- Cinque scenari indipendenti R1 in R base predisposti per verifica esterna.
+
+## Batch 5 — LAB 29 e correzione autoplay LAB 26–28 (14/11/2026)
+- Disabilitato l'avvio automatico delle simulazioni all'apertura dei laboratori 26, 27 e 28, mantenendo immediate mappe, grafici e tabelle.
+- I controlli di simulazione restano esclusivamente manuali (Avvia, Passo, Completa, Ricomincia); rimosse le indicazioni obsolete di autoplay nelle guide.
+- LAB 29 — Variogrammi e campi aleatori: nucleo geostatistico, tre modelli di covarianza, anisotropia e nugget, selezione di coppie, repliche su siti fissi; teoria essenziale e avanzata, esportazioni e reference R.
+- Verifiche: 78 nuovi test JS, smoke Chromium su quattro laboratori, generatore/verifica R1 per quattro scenari (R da verificare esternamente).
+- Il laboratorio 29 non prevede ancora kriging: resta oggetto del LAB 30.
+
+## Correzione batch 4 · Lab 26–28, controllo Monte Carlo e verifica R (14/11/2026)
+- Riparato il confronto opzionale `spatstat.explore::Kest()` del LAB 28: `r=c(0,rr)` sia nello script R indipendente sia nel generatore JavaScript e nello script R esportato dal browser; la curva didattica continua a utilizzare gli stessi 20 raggi positivi.
+- Rimossa la chiamata `runner.set(true)` dai callback di riconfigurazione dei LAB 26–28: la simulazione parte automaticamente soltanto al primo ingresso e si avvia di nuovo solo su richiesta esplicita.
+- Le modifiche strutturali aggiornano grafici e statistiche ma lasciano fermo il Monte Carlo; gli aggiornamenti di inferenza/presentazione e di B preservano le repliche compatibili, anche in caso di riduzione e successivo aumento di B.
+- Aggiunto lo smoke test Chromium `tests/smoke/smoke_spatial_controls.py` per verificare avvio iniziale, assenza di riavvii impliciti e conservazione delle repliche.
+- Formule del motore statistico, generatori dei dati e stime K/Moran/LISA invariati.
+
+## In sviluppo — Batch 4 · LAB 28, processi puntuali (14/11/2026)
+- Nuova lezione con modelli Poisson omogeneo e non omogeneo, Thomas e inibizione sequenziale.
+- K/L di Ripley con correzione translation; envelope puntuale e test Monte Carlo globale condizionati su n.
+- Copertina SVG, obiettivi, previsione, guida, tabella, approfondimenti, CSV/PNG e codice R.
+- JS e Chromium testati; **verifica R reale da eseguire** prima del rilascio definitivo.
+
+## Batch 3 — LAB 27: LISA, hotspot e MAUP (14/11/2026)
+
+- Aggiunta lezione 27 con copertina SVG, obiettivi, previsione facoltativa con tre risposte, esperimento guidato, quattro grafici e otto righe di tabella.
+- Nuovo motore `spatial-local.js`: indicatori Moran locali, permutazione condizionale, p-value, BH/BY e aggregazione spaziale.
+- Esperimenti su hotspot, outlier locali, rumore indipendente, scacchiera, trend, SAR; MAUP su 64, 16 o 4 unità e zonizzazione alternativa.
+- Verifica R dedicata `verifica_lisa.R`, generatore di riferimenti JS e collegamento al master R; verifica **in R da eseguire**, nessun esito inventato.
+- Aggiunti test numerici e smoke test browser reale, mantenendo la compatibilità con i laboratori 01–26.
+
+## In sviluppo — Correzione UI Batch 2 · LAB 26 Moran (14/11/2026)
+- Corretto blocco JavaScript iniziale: `speed: 5` non era valido per il runner con quattro velocità (0–3). Il montaggio ora si conclude e ripristina grafici, tabella, copertina SVG, obiettivi e dettagli didattici.
+- Migliorata la previsione espandibile con tre scelte, aggiunte istruzioni operative, avvio automatico delle permutazioni, stato della cella selezionata e KPI di Moran e p-value.
+- Aggiunto test Chromium/Playwright che attraversa interazioni, drawer, tema e navigazione; il test mock-DOM ora intercetta velocità fuori dominio.
+- Formule e algoritmi spaziali, motore di simulazione e codice R **non sono stati modificati**.
+
+## In sviluppo — Batch 2 · Parte VIII, motore spaziale e LAB 26 (non rilasciato)
+- `core/spatial.js`: griglie, vicinati rook/queen/per distanza, pesi binari/row-standardized, lag spaziale e validazione delle strutture.
+- `core/spatial-areal.js`: Moran I, speranza permutazionale, permutazioni riproducibili e processi generatori (blocchi, alternanza, i.i.d., trend e SAR).
+- `labs/26-moran.js`: mappe con celle selezionabili, Moran scatterplot, test permutazionale animato, esportazioni e codice R del campione corrente; Essenziale e Avanzato, esempi ed esercizi.
+- Catalogo e navigazione: ottava parte e mappa con otto parti su due righe da quattro colonne, link pubblici esistenti mantenuti.
+- `tests/test_spatial_core.js`, `tests/test_spatial_areal.js`, `tests/test_moran_mount.js` e `tests/gen_moran_reference.js`; `verifica/verifica_moran.R` integrato in master e generatore.
+- Stato dei gate: JS verificato; R e QA browser reale da verificare prima del rilascio.
+
+## In sviluppo — Batch 1 · Parte VI e gradient boosting (non rilasciato)
+- Spostamento delle reti neurali nella Parte VI, subito dopo il nuovo gradient boosting, mantenendo gli ID pubblici per compatibilità degli URL.
+- Parte VI: laboratori 18–22; Parte VII: 23–25 (PCA, clustering, DBSCAN); la futura Parte VIII sarà dedicata alla statistica spaziale.
+- Nuovo LAB 21: boosting di primo ordine con alberi di regressione, loss quadratica e logistica, visualizzazione di pseudo-residui, training/validation/test indipendenti, early stopping e script R integrato.
+- Nuovo `core/boost.js` senza modificare il CART di classificazione esistente; test numerici `test_boost.js` e verifica R autonoma per tre scenari.
+- Da completare prima di un rilascio: esecuzione R reale e collaudo browser su dispositivi reali; implementazione dei sei laboratori spaziali e approfondimenti Essenziale/Avanzato estesi.
+
 # Changelog
 
 ## 1.14.0 — 13/11/2026 · formule tipografiche e nuovo formato delle schede

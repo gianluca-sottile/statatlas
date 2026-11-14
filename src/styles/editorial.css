@@ -149,6 +149,14 @@ table.tv tr.row-sel td { background: var(--accent-soft); font-weight: 600; }
 .kpi { border-radius: 10px; position: relative; overflow: hidden; }
 .kpi::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--accent); opacity: .7; }
 
+/* ---------- laboratorio spaziale: istruzioni e stato interattivo ---------- */
+.moran-guide { padding: 14px 18px; margin: 0 0 18px; background: var(--paper-2); border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0; color: var(--ink-2); font-size: var(--fs-1); }
+.moran-guide strong { color: var(--ink); }
+.moran-guide ol { margin: 5px 0 0; padding-left: 22px; }
+.moran-guide li { margin: 3px 0; }
+.moran-map-info { margin: 8px 0 3px; font-size: .82rem; line-height: 1.5; color: var(--ink-2); }
+.moran-perm-status { font: 500 .75rem/1.4 var(--sans); color: var(--ink-3); }
+
 /* ---------- drawer di approfondimento ---------- */
 .drawer { width: min(760px, 100vw); }
 .drawer-head { display: grid; gap: 12px; padding: 18px 26px 14px; }
@@ -282,3 +290,26 @@ a.eqref { color: var(--accent); text-decoration: none; font-variant-numeric: tab
 .m sub .m-bin, .m sup .m-bin, .m-ss .m-bin, .m-lim .m-bin { margin: 0 .06em; }
 .m sub .m-rel, .m sup .m-rel, .m-ss .m-rel, .m-lim .m-rel { margin: 0 .1em; }
 .m-ss { margin-right: .06em; }
+
+/* Guida all'uso unica per tutti i 31 laboratori. Nessun reset o calcolo avviato da questo componente. */
+.lab-howto { border: 1px solid var(--rule-2); border-radius: 12px; background: var(--card); margin: 14px 0 22px; overflow: clip; box-shadow: 0 3px 12px rgba(0,0,0,.025); }
+.lab-howto > summary { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px 14px; list-style: none; cursor: pointer; padding: 13px 18px; border-left: 3px solid var(--accent); background: var(--paper-2); }
+.lab-howto > summary::-webkit-details-marker { display: none; }
+.lab-howto > summary::after { content: '⌄'; color: var(--accent); font-weight: 700; font-size: 1.15rem; margin-left: auto; transform: rotate(-90deg); transition: transform .18s ease; }
+.lab-howto[open] > summary::after { transform: rotate(0); }
+.lab-howto-title { font: 600 1rem/1.3 var(--serif); color: var(--ink); }
+.lab-howto-meta { font: 500 .73rem/1.4 var(--sans); color: var(--ink-3); letter-spacing: .02em; }
+.lab-howto-body { padding: 14px 20px 17px; }
+.lab-howto-intro { color: var(--ink-2); font-size: .88rem; line-height: 1.55; margin: 0 0 10px; max-width: 95ch; }
+.lab-howto-list { counter-reset: how; list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px 20px; }
+.lab-howto-list li { position: relative; padding: 2px 4px 2px 33px; color: var(--ink-2); font-size: .89rem; line-height: 1.5; min-width: 0; }
+.lab-howto-list li::before { counter-increment: how; content: counter(how); position: absolute; left: 0; top: 2px; border: 1px solid var(--accent); color: var(--accent); width: 22px; height: 22px; border-radius: 50%; text-align: center; line-height: 20px; font-size: .74rem; font-weight: 700; }
+.pedagogy-extension { margin-top: 26px; border-top: 1px solid var(--rule); padding-top: 12px; }
+.pedagogy-extension-title { font-size: 1.2rem; line-height: 1.35; margin: 10px 0 14px; color: var(--ink); }
+.pedagogy-extension p { max-width: 95ch; line-height: 1.75; }
+@media(max-width:760px) { .lab-howto-list { grid-template-columns: 1fr; } .lab-howto > summary { padding: 12px 14px; } .lab-howto-body { padding: 14px; } }
+@media (prefers-reduced-motion: reduce) { .lab-howto > summary::after { transition: none; } }
+
+.pedagogy-equation { margin: 22px 0 12px; }
+.pedagogy-equation > .muted { font-size: .78rem; margin-bottom: 7px; }
+.pedagogy-equation .eq { max-width: 100%; }

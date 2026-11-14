@@ -151,21 +151,37 @@ SA.ui = (function () {
         button('', { icon: 'close', cls: 'btn-ghost btn-icon', aria: 'Chiudi', onclick: closeDrawer })), levels),
       drawerBody);
     backdrop = el('div.drawer-backdrop', { onclick: closeDrawer });
+    drawer.setAttribute('inert', '');
     document.body.append(drawer, backdrop);
-    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && drawer.classList.contains('open')) closeDrawer(); });
+    document.addEventListener('keydown', function (e) {
+      if (!drawer.classList.contains('open')) return;
+      if (e.key === 'Escape') { e.preventDefault(); closeDrawer(); return; }
+      if (e.key !== 'Tab') return;
+      var focusable = Array.prototype.filter.call(drawer.querySelectorAll('button, a[href], input, select, textarea, [tabindex]'), function (node) {
+        return !node.disabled && node.getAttribute('tabindex') !== '-1' && node.getClientRects().length > 0;
+      });
+      if (!focusable.length) return;
+      var first=focusable[0], last=focusable[focusable.length-1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    });
   }
   var content = null;
   /* Contenuti estesi da SA.content[lab corrente]: si aggiungono a quelli propri del laboratorio */
   function extended(level) {
-    var c = SA.content && SA.content[SA.currentLab], box = el('div');
+    var c = SA.content && SA.content[SA.currentLab], d = SA.pedagogy && SA.pedagogy[SA.currentLab], box = el('div');
     if (level === 'base') {
       if (c) box.appendChild(el('div.objectives', el('div.step-label', 'Obiettivi di apprendimento'), el('ul', c.obiettivi.map(function (o) { return el('li', o); }))));
       box.appendChild(content.base());
+      if (d && d.essenziale) box.appendChild(el('section.prose.pedagogy-extension', { html: '<h2 class="pedagogy-extension-title">Approfondimento essenziale · dal laboratorio al metodo</h2>' + d.essenziale }));
       if (c) box.append(el('div.prose', { html: '<h3>Un esempio svolto</h3><div class="box ex">' + c.esempio + '</div>' }),
         el('div.prose', el('h3', 'Errori frequenti'), el('ul.errlist', c.errori.map(function (e) { return el('li', { html: e }); }))));
     } else if (level === 'adv') {
       box.appendChild(content.adv());
       if (c) box.appendChild(el('div.prose', { html: '<h3 class="sep">Per andare oltre</h3>' + c.avanzato }));
+      if (d && d.formula) box.appendChild(el('div.prose.pedagogy-equation',
+        el('p.muted', 'Identità di riferimento · condizioni nel testo'), el('div.eq', { 'data-tex': d.formula })));
+      if (d && d.avanzato) box.appendChild(el('section.prose.pedagogy-extension', { html: '<h2 class="pedagogy-extension-title">Approfondimento avanzato · ipotesi, derivazioni e limiti</h2>' + d.avanzato }));
     } else if (level === 'ex') {
       if (!c) return el('p.muted', 'Esercizi in preparazione.');
       box.appendChild(el('p.muted', 'Prova a risolvere ciascun esercizio prima di aprire la soluzione. Molti si verificano direttamente nel laboratorio.'));
@@ -206,15 +222,17 @@ SA.ui = (function () {
   }
   function openDrawer(title, c, level) {
     if (!drawer) initDrawer();
-    content = c; currentLevel = level || currentLevel;
+    content = c; currentLevel = level || 'base';
     drawerTitle.textContent = title; renderLevel();
     lastFocus = document.activeElement;
+    drawer.removeAttribute('inert');
     drawer.classList.add('open'); drawer.setAttribute('aria-hidden', 'false'); backdrop.classList.add('show');
     drawer.querySelector('.drawer-head button[data-level="' + currentLevel + '"]').focus();
   }
   function closeDrawer() {
-    drawer.classList.remove('open'); drawer.setAttribute('aria-hidden', 'true'); backdrop.classList.remove('show');
-    if (lastFocus) lastFocus.focus();
+    if (!drawer || !drawer.classList.contains('open')) return;
+    drawer.classList.remove('open'); drawer.setAttribute('aria-hidden', 'true'); drawer.setAttribute('inert', ''); backdrop.classList.remove('show');
+    if (lastFocus && lastFocus.isConnected) lastFocus.focus();
   }
 
   function badge(status) {

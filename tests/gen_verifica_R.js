@@ -1,4 +1,4 @@
-// Genera verifica/verifica_statatlas.R: tutti gli script R dei 24 laboratori (parametri predefiniti) e i valori del browser
+// Genera verifica/verifica_statatlas.R: tutti gli script R dei laboratori estratti (parametri predefiniti) e i valori del browser
 // con cui confrontarli. Uso: node tests/gen_verifica_R.js <estrazione.json> <rng.json> > verifica/verifica_statatlas.R
 // (l'estrazione si ottiene con jsdom: codice R e tabella di ogni laboratorio dopo «Completa»).
 const fs = require('fs');
@@ -12,7 +12,7 @@ const L = s => out.push(s);
 L(`# ═══════════════════════════════════════════════════════════════════════════════
 # StatAtlas · verifica automatica degli script R (generato il ${new Date().toISOString().slice(0, 10)})
 #
-# Esegue gli script R dei 24 laboratori con i parametri predefiniti e confronta i risultati
+# Esegue gli script R dei laboratori estratti con i parametri predefiniti e confronta i risultati
 # con i valori calcolati dal browser (StatAtlas, stessi seed). Alla fine stampa un riepilogo.
 #
 # Uso:   Rscript verifica_statatlas.R        oppure   source("verifica_statatlas.R")
@@ -77,22 +77,60 @@ const CHECK = {
   confronta("20", "errore sul test di un solo albero", errore_albero, ${v('alberi', 'Un solo albero', 2, 0)}, 6e-4)
   confronta("20", "bagging: errore sul test e OOB", c(ultimo$test[ultimo$metodo == "bagging"], ultimo$oob[ultimo$metodo == "bagging"]), c(${v('alberi', 'Bagging', 2, 0)}, ${v('alberi', 'Bagging', 2, 3)}), 6e-4)
   confronta("20", "foresta: errore sul test e OOB", c(ultimo$test[ultimo$metodo == "foresta"], ultimo$oob[ultimo$metodo == "foresta"]), c(${v('alberi', 'Foresta casuale', 2, 0)}, ${v('alberi', 'Foresta casuale', 2, 3)}), 6e-4)`,
-  pca: () => `  confronta("21", "lambda1: media e sd nelle repliche", c(mean(repliche$lambda1), sd(repliche$lambda1)), c(${v('pca', 'λ̂₁', 2, 0)}, ${v('pca', 'λ̂₁', 2, 1)}), 6e-4)
-  confronta("21", "sin^2 medio dell'angolo di PC1", mean(sin(repliche$angolo * pi / 180)^2), ${v('pca', 'sin²', 2, 0)}, 6e-5)`,
-  clustering: () => `  confronta("22", "WCSS della soluzione migliore (kmeans Lloyd)", km$tot.withinss, ${v('clustering', 'WCSS finale', 2, 0)}, 6e-4)
-  confronta("22", "ARI: k-means, gerarchico, tra metodi", c(ari(km$cluster, gruppo), ari(gruppi_h, gruppo), ari(km$cluster, gruppi_h)), c(${v('clustering', 'Accordo con le popolazioni', 2, 0)}, ${v('clustering', 'Accordo con le popolazioni', 2, 1)}, ${v('clustering', 'Accordo tra', 2, 0)}), 6e-4)`,
+  boost: () => `  confronta("21", "loss iniziale: training, validazione, test", unname(as.numeric(hist[1, 2:4])), c(${num(row('boost', 'Perdita iniziale')[2]).join(', ')}), 6e-4)
+  confronta("21", "loss finale: training, validazione, test", unname(as.numeric(tail(hist[, 2:4], 1))), c(${num(row('boost', 'Ultimo passo')[2]).join(', ')}), 6e-4)
+  confronta("21", "selezione su validazione: passo e perdita", c(best, hist$validazione[best + 1L]), c(${num(row('boost', 'Minimo in validazione')[2]).join(', ')}), c(0, 6e-4))
+  confronta("21", "loss test dopo tuning", hist$test[best + 1L], ${v('boost', 'Test al minimo', 2, 0)}, 6e-4)`,
+  pca: () => `  confronta("23", "lambda1: media e sd nelle repliche", c(mean(repliche$lambda1), sd(repliche$lambda1)), c(${v('pca', 'λ̂₁', 2, 0)}, ${v('pca', 'λ̂₁', 2, 1)}), 6e-4)
+  confronta("23", "sin^2 medio dell'angolo di PC1", mean(sin(repliche$angolo * pi / 180)^2), ${v('pca', 'sin²', 2, 0)}, 6e-5)`,
+  clustering: () => `  confronta("24", "WCSS della soluzione migliore (kmeans Lloyd)", km$tot.withinss, ${v('clustering', 'WCSS finale', 2, 0)}, 6e-4)
+  confronta("24", "ARI: k-means, gerarchico, tra metodi", c(ari(km$cluster, gruppo), ari(gruppi_h, gruppo), ari(km$cluster, gruppi_h)), c(${v('clustering', 'Accordo con le popolazioni', 2, 0)}, ${v('clustering', 'Accordo con le popolazioni', 2, 1)}, ${v('clustering', 'Accordo tra', 2, 0)}), 6e-4)`,
   dbscan: () => `  tipo <- ifelse(db$core, "core", ifelse(db$cluster > 0, "bordo", "rumore"))
-  confronta("23", "cluster, core, bordo, rumore", c(max(db$cluster), sum(tipo == "core"), sum(tipo == "bordo"), sum(tipo == "rumore")), c(${num(row('dbscan', 'Cluster trovati')[2]).join(', ')}), 0)
-  confronta("23", "ARI: k-means, Ward, DBSCAN", c(ari(km$cluster, gruppo), ari(ward, gruppo), ari(db$cluster, gruppo)), c(${num(row('dbscan', 'Accordo con le popolazioni')[2]).join(', ')}), 6e-4)`,
-  'reti-neurali': () => `  confronta("24", "perdita finale: training e validazione", unname(fit$storia[E + 1, ]), c(${num(row('reti-neurali', 'Perdita')[2]).join(', ')}), 6e-5)
-  confronta("24", "accuratezza di validazione", mean((plogis(avanti(fit$par, Xva)$z) > 0.5) == yva), ${v('reti-neurali', 'Accuratezza', 2, 1)}, 6e-4)
-  registra("24", "controllo del gradiente (differenze finite)", max(abs(num - unlist(gradiente(par0, Xtr, ytr)))) / max(abs(num)) < 1e-6)
-  confronta("24", "20 inizializzazioni: perdita di training min e max", range(esiti$training), c(${num(row('reti-neurali', '20 inizializzazioni')[2]).slice(2, 4).join(', ')}), 6e-4)`
+  confronta("25", "cluster, core, bordo, rumore", c(max(db$cluster), sum(tipo == "core"), sum(tipo == "bordo"), sum(tipo == "rumore")), c(${num(row('dbscan', 'Cluster trovati')[2]).join(', ')}), 0)
+  confronta("25", "ARI: k-means, Ward, DBSCAN", c(ari(km$cluster, gruppo), ari(ward, gruppo), ari(db$cluster, gruppo)), c(${num(row('dbscan', 'Accordo con le popolazioni')[2]).join(', ')}), 6e-4)`,
+  'reti-neurali': () => `  confronta("22", "perdita finale: training e validazione", unname(fit$storia[E + 1, ]), c(${num(row('reti-neurali', 'Perdita')[2]).join(', ')}), 6e-5)
+  confronta("22", "accuratezza di validazione", mean((plogis(avanti(fit$par, Xva)$z) > 0.5) == yva), ${v('reti-neurali', 'Accuratezza', 2, 1)}, 6e-4)
+  registra("22", "controllo del gradiente (differenze finite)", max(abs(num - unlist(gradiente(par0, Xtr, ytr)))) / max(abs(num)) < 1e-6)
+  confronta("22", "20 inizializzazioni: perdita di training min e max", range(esiti$training), c(${num(row('reti-neurali', '20 inizializzazioni')[2]).slice(2, 4).join(', ')}), 6e-4)`
 };
 LABS.forEach(id => {
   L(`e <- esegui("${id}")`);
   if (CHECK[id]) L(`if (!is.null(e)) local({\n${CHECK[id]()}\n}, envir = e)`);
 });
+L(`# LAB 26 - Moran: verifica numerica dedicata (R base, spdep opzionale).
+if (is.null(SOLO) || "moran" %in% SOLO) {
+ fmoran <- if (file.exists("verifica/verifica_moran.R")) "verifica/verifica_moran.R" else "verifica_moran.R"
+ err_moran <- tryCatch({ source(fmoran, local = TRUE); NULL }, error = function(e) conditionMessage(e))
+ registra("26", "Moran globale: confronto JS-R su sei scenari", is.null(err_moran),
+          if (is.null(err_moran)) "sei scenari, pesi e lag verificati" else err_moran)
+}`);
+L(`
+# LAB 27 - LISA e MAUP: benchmark deterministici R1, correzioni multiple e test condizionali.
+if (is.null(SOLO) || "lisa" %in% SOLO) {
+  flisa <- if (file.exists("verifica/verifica_lisa.R")) "verifica/verifica_lisa.R" else "verifica_lisa.R"
+  err_lisa <- tryCatch({ source(flisa, local = TRUE); NULL }, error = function(e) conditionMessage(e))
+  registra("27", "LISA e MAUP: confronto JS-R su sette scenari", is.null(err_lisa),
+           if (is.null(err_lisa)) "I locali, E condizionale, MAUP, BH e BY" else err_lisa)
+}
+`);
+L(`
+# LAB 28 - Processi puntuali: test R1 per K translation, NN, quadrats e simulazione CSR.
+if (is.null(SOLO) || "processi-puntuali" %in% SOLO) {
+  fpp <- if (file.exists("verifica/verifica_processi_puntuali.R")) "verifica/verifica_processi_puntuali.R" else "verifica_processi_puntuali.R"
+  err_pp <- tryCatch({ source(fpp, local = TRUE); NULL }, error = function(e) conditionMessage(e))
+  registra("28", "Processi puntuali: quattro DGP, K, NN e CSR", is.null(err_pp),
+           if (is.null(err_pp)) "identita JS-R e benchmark CSR" else err_pp)
+}
+`);
+L(`
+# LAB 29 - Variogrammi: quattro benchmark deterministici R1 e modelli.
+if (is.null(SOLO) || "variogrammi" %in% SOLO) {
+  fgeo <- if (file.exists("verifica/verifica_variogrammi.R")) "verifica/verifica_variogrammi.R" else "verifica_variogrammi.R"
+  err_geo <- tryCatch({ source(fgeo, local = TRUE); NULL }, error = function(e) conditionMessage(e))
+  registra("29", "Variogrammi: quattro DGP, bin, direzioni, covarianza", is.null(err_geo),
+           if (is.null(err_geo)) "identita JS-R e modelli teorici" else err_geo)
+}
+`);
 L(`
 cat("\\n═══ Riepilogo ═══════════════════════════════════════════════\\n")
 print(table(.verifica$esito))

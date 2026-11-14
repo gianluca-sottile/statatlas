@@ -1,7 +1,7 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 # StatAtlas · verifica automatica degli script R (generato il 2026-11-13)
 #
-# Esegue gli script R dei 24 laboratori con i parametri predefiniti e confronta i risultati
+# Esegue i 24 script R storici e la verifica autonoma del nuovo laboratorio 21 con i parametri predefiniti e confronta i risultati
 # con i valori calcolati dal browser (StatAtlas, stessi seed). Alla fine stampa un riepilogo.
 #
 # Uso:   Rscript verifica_statatlas.R        oppure   source("verifica_statatlas.R")
@@ -1383,27 +1383,88 @@ if (!is.null(e)) local({
 }, envir = e)
 e <- esegui("pca")
 if (!is.null(e)) local({
-  confronta("21", "lambda1: media e sd nelle repliche", c(mean(repliche$lambda1), sd(repliche$lambda1)), c(4.055, 0.634), 6e-4)
-  confronta("21", "sin^2 medio dell'angolo di PC1", mean(sin(repliche$angolo * pi / 180)^2), 0.0055, 6e-5)
+  confronta("23", "lambda1: media e sd nelle repliche", c(mean(repliche$lambda1), sd(repliche$lambda1)), c(4.055, 0.634), 6e-4)
+  confronta("23", "sin^2 medio dell'angolo di PC1", mean(sin(repliche$angolo * pi / 180)^2), 0.0055, 6e-5)
 }, envir = e)
 e <- esegui("clustering")
 if (!is.null(e)) local({
-  confronta("22", "WCSS della soluzione migliore (kmeans Lloyd)", km$tot.withinss, 260.437, 6e-4)
-  confronta("22", "ARI: k-means, gerarchico, tra metodi", c(ari(km$cluster, gruppo), ari(gruppi_h, gruppo), ari(km$cluster, gruppi_h)), c(0.96, 0.98, 0.98), 6e-4)
+  confronta("24", "WCSS della soluzione migliore (kmeans Lloyd)", km$tot.withinss, 260.437, 6e-4)
+  confronta("24", "ARI: k-means, gerarchico, tra metodi", c(ari(km$cluster, gruppo), ari(gruppi_h, gruppo), ari(km$cluster, gruppi_h)), c(0.96, 0.98, 0.98), 6e-4)
 }, envir = e)
 e <- esegui("dbscan")
 if (!is.null(e)) local({
   tipo <- ifelse(db$core, "core", ifelse(db$cluster > 0, "bordo", "rumore"))
-  confronta("23", "cluster, core, bordo, rumore", c(max(db$cluster), sum(tipo == "core"), sum(tipo == "bordo"), sum(tipo == "rumore")), c(2, 297, 5, 8), 0)
-  confronta("23", "ARI: k-means, Ward, DBSCAN", c(ari(km$cluster, gruppo), ari(ward, gruppo), ari(db$cluster, gruppo)), c(0.158, 0.325, 0.987), 6e-4)
+  confronta("25", "cluster, core, bordo, rumore", c(max(db$cluster), sum(tipo == "core"), sum(tipo == "bordo"), sum(tipo == "rumore")), c(2, 297, 5, 8), 0)
+  confronta("25", "ARI: k-means, Ward, DBSCAN", c(ari(km$cluster, gruppo), ari(ward, gruppo), ari(db$cluster, gruppo)), c(0.158, 0.325, 0.987), 6e-4)
 }, envir = e)
 e <- esegui("reti-neurali")
 if (!is.null(e)) local({
-  confronta("24", "perdita finale: training e validazione", unname(fit$storia[E + 1, ]), c(0.1748, 0.2622), 6e-5)
-  confronta("24", "accuratezza di validazione", mean((plogis(avanti(fit$par, Xva)$z) > 0.5) == yva), 0.883, 6e-4)
-  registra("24", "controllo del gradiente (differenze finite)", max(abs(num - unlist(gradiente(par0, Xtr, ytr)))) / max(abs(num)) < 1e-6)
-  confronta("24", "20 inizializzazioni: perdita di training min e max", range(esiti$training), c(0.14, 0.195), 6e-4)
+  confronta("22", "perdita finale: training e validazione", unname(fit$storia[E + 1, ]), c(0.1748, 0.2622), 6e-5)
+  confronta("22", "accuratezza di validazione", mean((plogis(avanti(fit$par, Xva)$z) > 0.5) == yva), 0.883, 6e-4)
+  registra("22", "controllo del gradiente (differenze finite)", max(abs(num - unlist(gradiente(par0, Xtr, ytr)))) / max(abs(num)) < 1e-6)
+  confronta("22", "20 inizializzazioni: perdita di training min e max", range(esiti$training), c(0.14, 0.195), 6e-4)
 }, envir = e)
+
+# La verifica del nuovo laboratorio (gradient boosting) è autonoma e riproduce tre DGP.
+# Il master conserva il contenuto degli script storici ma i report usano la nuova numerazione dei laboratori.
+if (is.null(SOLO) || "boost" %in% SOLO) {
+  fboost <- if (file.exists("verifica/verifica_gradient_boosting.R"))
+    "verifica/verifica_gradient_boosting.R" else "verifica_gradient_boosting.R"
+  grDevices::pdf(NULL)
+  err_boost <- tryCatch({ source(fboost, local = TRUE); NULL }, error = function(e) conditionMessage(e))
+  grDevices::dev.off()
+  registra("21", "gradient boosting: confronto JS-R, 3 scenari", is.null(err_boost),
+           if (is.null(err_boost)) "tre scenari verificati" else err_boost)
+}
+
+# LAB 26 - Moran. Verifica R1 senza dipendenze; spdep opzionale.
+if (is.null(SOLO) || "moran" %in% SOLO) {
+  fmoran <- if (file.exists("verifica/verifica_moran.R")) "verifica/verifica_moran.R" else "verifica_moran.R"
+  err_moran <- tryCatch({ source(fmoran, local = TRUE); NULL }, error = function(e) conditionMessage(e))
+  registra("26", "Moran globale: confronto JS-R su sei scenari", is.null(err_moran),
+           if (is.null(err_moran)) "sei scenari, pesi e lag verificati" else err_moran)
+}
+
+
+# LAB 27 - LISA e MAUP: benchmark deterministici R1, correzioni multiple e test condizionali.
+if (is.null(SOLO) || "lisa" %in% SOLO) {
+  flisa <- if (file.exists("verifica/verifica_lisa.R")) "verifica/verifica_lisa.R" else "verifica_lisa.R"
+  err_lisa <- tryCatch({ source(flisa, local = TRUE); NULL }, error = function(e) conditionMessage(e))
+  registra("27", "LISA e MAUP: confronto JS-R su sette scenari", is.null(err_lisa),
+           if (is.null(err_lisa)) "I locali, E condizionale, MAUP, BH e BY" else err_lisa)
+}
+
+# LAB 28 - Processi puntuali: K translation R1, NN, quadrati e proprieta Monte Carlo.
+if (is.null(SOLO) || "processi-puntuali" %in% SOLO) {
+  fpp <- if (file.exists("verifica/verifica_processi_puntuali.R")) "verifica/verifica_processi_puntuali.R" else "verifica_processi_puntuali.R"
+  err_pp <- tryCatch({ source(fpp, local = TRUE); NULL }, error = function(e) conditionMessage(e))
+  registra("28", "Processi puntuali: 4 DGP, K translation, NN, CSR", is.null(err_pp),
+           if (is.null(err_pp)) "identita JS-R e verifica CSR" else err_pp)
+}
+
+# LAB 29 - Variogrammi: variogramma empirico R1, modelli e classi direzionali.
+if (is.null(SOLO) || "variogrammi" %in% SOLO) {
+  fgeo <- if (file.exists("verifica/verifica_variogrammi.R")) "verifica/verifica_variogrammi.R" else "verifica_variogrammi.R"
+  err_geo <- tryCatch({ source(fgeo, local = TRUE); NULL }, error = function(e) conditionMessage(e))
+  registra("29", "Variogrammi: quattro DGP, bin, direzioni, covarianza", is.null(err_geo),
+           if (is.null(err_geo)) "identita JS-R e modelli teorici" else err_geo)
+}
+
+# LAB 30 - Simple/ordinary kriging e IDW: riferimenti deterministici R1.
+if (is.null(SOLO) || "kriging" %in% SOLO) {
+  fk <- if (file.exists("verifica/verifica_kriging.R")) "verifica/verifica_kriging.R" else "verifica_kriging.R"
+  err_k <- tryCatch({ source(fk, local = TRUE); NULL }, error = function(e) conditionMessage(e))
+  registra("30", "Kriging: 5 scenari JS-R, previsioni e varianze", is.null(err_k),
+           if (is.null(err_k)) "simple, ordinary e IDW coerenti con R" else err_k)
+}
+
+# LAB 31 - Regressione spaziale e validazione geografica, 5 scenari R1 in R base.
+if (is.null(SOLO) || "regressione-spaziale" %in% SOLO) {
+  fsr <- if (file.exists("verifica/verifica_regressione_spaziale.R")) "verifica/verifica_regressione_spaziale.R" else "verifica_regressione_spaziale.R"
+  err_sr <- tryCatch({ source(fsr, local = TRUE); NULL }, error = function(e) conditionMessage(e))
+  registra("31", "Regressione spaziale: 5 DGP, ML, impatti e spatial CV", is.null(err_sr),
+           if (is.null(err_sr)) "identità JS-R confermate in cinque scenari" else err_sr)
+}
 
 cat("\n═══ Riepilogo ═══════════════════════════════════════════════\n")
 print(table(.verifica$esito))

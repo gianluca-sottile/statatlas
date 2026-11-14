@@ -1,4 +1,4 @@
-/* StatAtlas · Lab 22 — k-means e clustering gerarchico.
+/* StatAtlas · Lab 24 — k-means e clustering gerarchico.
  * Tre popolazioni normali in R² (centri su un cerchio di raggio d), n/3 punti ciascuna, più un eventuale valore anomalo.
  * k-means: Lloyd mostrato mezzo passo alla volta (assegnazione, aggiornamento); inizializzazioni da sample(n, K)
  * nello stesso ordine di stats::kmeans(nstart = R, algorithm = "Lloyd"). Gerarchico: SA.cluster.hclust. */
@@ -161,7 +161,7 @@
   }
   function codeR() {
     var sh = SHAPE[S.shape];
-    return ['# ───────────────────────────────────────────────────────────────', '# StatAtlas · Lab 22 — k-means e clustering gerarchico',
+    return ['# ───────────────────────────────────────────────────────────────', '# StatAtlas · Lab 24 — k-means e clustering gerarchico',
       '# R0: stessi dati di StatAtlas (stesso seed). R2: stats::kmeans con algorithm = "Lloyd" estrae i centri iniziali',
       '#     con sample.int(n, K) per ogni avvio, nello stesso ordine: stessa soluzione migliore (salvo gruppi vuoti,',
       '#     che in R fermano l’algoritmo con un errore). Il gerarchico usa hclust con lo stesso legame (a parità di',
@@ -241,14 +241,14 @@
         el('div.fig', el('div.fig-title', el('h3', 'k-means: assegnazioni, centri e loro percorso'), legA), figA),
         el('div.fig', el('div.fig-title', el('h3', 'WCSS a ogni mezzo passo'), el('div.legend', el('span.muted', 'arancio: avvio corrente · verde: migliore · grigio: altri avvii'))), figB),
         two(el('div.fig', el('div.fig-title', el('h3', 'Dendrogramma')), figC), el('div.fig', el('div.fig-title', el('h3', 'Gruppi del gerarchico al taglio')), figD)),
-        el('div.toolbar', SA.ui.button('Dati CSV', { icon: 'download', cls: 'btn-ghost', onclick: function () { var b = best(), rows = [['x1', 'x2', 'popolazione', 'kmeans', 'gerarchico']]; S.X.forEach(function (x, i) { rows.push([x[0], x[1], S.truth[i], b ? b.lab[i] + 1 : '', S.hlab[i]]); }); SA.ui.download('statatlas_lab22_dati.csv', SA.ui.csv(rows), 'text/csv'); } }),
-          SA.ui.button('Figura PNG', { icon: 'download', cls: 'btn-ghost', onclick: function () { SA.ui.exportPNG([figA.querySelector('svg'), figC.querySelector('svg')], 'statatlas_lab22.png', ['k-means e clustering gerarchico', SHAPE[S.shape].label + ' · d = ' + S.d + ' · K = ' + S.K + ' · seed ' + S.seed]); } })))));
+        el('div.toolbar', SA.ui.button('Dati CSV', { icon: 'download', cls: 'btn-ghost', onclick: function () { var b = best(), rows = [['x1', 'x2', 'popolazione', 'kmeans', 'gerarchico']]; S.X.forEach(function (x, i) { rows.push([x[0], x[1], S.truth[i], b ? b.lab[i] + 1 : '', S.hlab[i]]); }); SA.ui.download('statatlas_lab24_dati.csv', SA.ui.csv(rows), 'text/csv'); } }),
+          SA.ui.button('Figura PNG', { icon: 'download', cls: 'btn-ghost', onclick: function () { SA.ui.exportPNG([figA.querySelector('svg'), figC.querySelector('svg')], 'statatlas_lab24.png', ['k-means e clustering gerarchico', SHAPE[S.shape].label + ' · d = ' + S.d + ' · K = ' + S.K + ' · seed ' + S.seed]); } })))));
       var s4 = SA.ui.step('4', 'Teoria e simulazione a confronto'); tblBody = el('tbody'); kpiBox = el('div.kpis');
       s4.body.append(el('div.tbl-wrap', el('table.tv', el('thead', el('tr', el('th', 'Quantità'), el('th', 'Riferimento'), el('th', 'Risultato'), el('th', 'Natura'))), tblBody)),
         el('div.status-key', el('span', SA.ui.badge('exact'), ' proprietà garantita'), el('span', SA.ui.badge('mc'), ' sugli avvii'), el('span', SA.ui.badge('none'), ' valore del campione')), kpiBox);
       var s5 = SA.ui.step('5', 'Interpretazione'); interpBox = el('div.prose');
       s5.body.append(interpBox, el('p', el('button.btn.btn-ghost', { type: 'button', onclick: function () { openT('adv'); } }, SA.ui.icon('book'), ' Ward e WCSS, scelta di K, k-means++ (livello avanzato)')));
-      var s6 = SA.ui.step('6', 'Riproduci in R', 'kmeans (Lloyd) e hclust'); codeBox = SA.ui.codeBlock(codeR, 'statatlas_lab22_clustering.R');
+      var s6 = SA.ui.step('6', 'Riproduci in R', 'kmeans (Lloyd) e hclust'); codeBox = SA.ui.codeBlock(codeR, 'statatlas_lab24_clustering.R');
       s6.body.append(el('p.prose', 'Riproducibilità: stessi dati (R0) e stesso algoritmo di Lloyd con gli stessi centri iniziali (R2); hclust con lo stesso legame. Richiede R ≥ 3.6 e tidyverse.'), codeBox);
       page.append(s1, s2, s3, s4, s5, s6);
       buildControls(); buildPrediction(); legends(); interpretation(); bindDrag(); render(true); run.refresh();
