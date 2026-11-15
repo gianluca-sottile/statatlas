@@ -41,6 +41,17 @@ for (const id of ids) {
     }
     assert.equal(C.evaluate(id,q.id,s,b,q.correct).ok,true,'valid evidence '+q.id);checks++;
     assert.equal(C.evaluate(id,q.id,s,b,(q.correct+1)%3).ok,false,'wrong answer '+q.id);checks++;
+    if(i===2){
+      const clean=q.rule(s,b);
+      assert(clean.ready && clean.quality && clean.quality.includes('controllato'),
+        'controlled comparison must be recognized '+q.id);checks++;
+      const mixed={...s,samples:s.samples.map(sample=>({
+        ...sample,values:{...sample.values,altro_parametro:sample.values[key]==='old'?'uno':'due'}
+      }))};
+      const warned=q.rule(mixed,b);
+      assert(warned.ready && warned.quality && warned.quality.includes('esplorativo'),
+        'a confounded comparison needs methodological warning '+q.id);checks++;
+    }
   });
 }
 console.log('OK: '+ids.length+' labs, '+ids.length*3+' challenges, '+checks+' scientific-gate assertions.');

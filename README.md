@@ -42,7 +42,7 @@ Molti concetti della statistica — la legge dei grandi numeri, il teorema centr
 La modalità **«Mettiti alla prova»** è disponibile in **tutti i 31 laboratori**, con tre attività progressive per ciascuno: **Comprensione**, **Applicazione** e **Avanzato**. Ogni attività comprende un obiettivo operativo specifico, una domanda interpretativa a tre alternative e feedback metodologico. Le sfide non si completano semplicemente selezionando una risposta: richiedono esperimenti **eseguiti dopo l’apertura**; nelle 84 sfide estese il livello Applicazione richiede una modifica di un parametro pertinente e due passi sotto la nuova configurazione, mentre l’Avanzato richiede l’esecuzione di due configurazioni distinte. Il progresso è mostrato in tempo reale e un pulsante porta direttamente ai controlli. Le nove sfide pilota mantengono verifiche di stato specifiche.
 
 - Nei laboratori **08, 18 e 30** rimangono i prerequisiti specialistici già testati (metodi, configurazioni, repliche e sensori).
-- Negli altri **28** la prima versione delle regole verifica passi sperimentali e modifiche ai controlli **dopo l'apertura della sfida**, ma non certifica automaticamente che lo studente abbia scelto il parametro scientificamente più informativo. L'interpretazione è controllata mediante una risposta motivata.
+- Negli altri **28** i livelli Applicazione e Avanzato verificano un controllo pertinente e passi eseguiti sotto configurazioni effettive. Per l'Avanzato viene ora segnalato se il confronto è **controllato** (altri parametri registrati costanti) oppure **esplorativo**, senza scambiare il semplice tracciamento per una prova di comprensione statistica. L'interpretazione resta valutata con una risposta a scelta motivata.
 - Il punteggio è **formativo e temporaneo**, non viene salvato o inviato online. Non sono presenti certificazione dell'apprendimento, telemetria o valutazione psicometrica.
 - Gli algoritmi già verificati in R non sono stati modificati. È stato aggiunto un tracciamento degli eventi del runner; il laboratorio 06 espone esclusivamente il conteggio delle repliche per le sfide.
 
@@ -212,3 +212,16 @@ Diversi laboratori traggono ispirazione dalle idee didattiche di **Simul2000** d
 - **Contenuti didattici** (testi, esercizi, illustrazioni): [Creative Commons Attribuzione 4.0 Internazionale (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/deed.it).
 
 Puoi usare, modificare e ridistribuire StatAtlas, anche nei tuoi corsi, citando l’autore.
+
+### Audit scientifico indipendente — fase 2 (sviluppo 2.1)
+
+I 31 laboratori sono accompagnati da una **batteria indipendente di 31 controlli matematici**, uno per argomento, nel file `tests/test_science_independent_31.py`. La suite verifica identità e condizioni definite; non costituisce una certificazione di tutti i teoremi o riferimenti. La sua esecuzione richiede **NumPy e SciPy soltanto in fase di test**, senza cambiare le dipendenze del file HTML offline.
+
+```bash
+python3 tests/test_science_independent_31.py
+node tests/test_challenges_full.js
+```
+
+Nelle Challenges avanzate, un confronto che cambia solo il parametro-obiettivo viene distinto da un confronto *esplorativo*, dove variano anche altri controlli. L'avvertimento didattico non blocca la risposta. Dettagli, matrice dei 31 controlli, assunzioni ed esclusioni: [`docs/AUDIT_SCIENTIFICO_FASE_2_31.md`](docs/AUDIT_SCIENTIFICO_FASE_2_31.md).
+
+La suite può essere lanciata con `sh tests/run_qa_2_1.sh`; il workflow `.github/workflows/scientific-qa.yml` ripete gli stessi controlli numerici e scientifici sui push e sulle pull request. I collaudi browser e R restano separati e richiedono i rispettivi ambienti.

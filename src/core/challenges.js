@@ -267,7 +267,7 @@
           initial = getState();
           activity.textContent = 'Nuovo punto di partenza: 0 passi, 0 modifiche.';
           message.hidden = false; message.classList.remove('success');
-          message.textContent = 'Nuova configurazione iniziale registrata. Ora modifica i sensori.';
+          message.textContent = id === 'kriging' ? 'Nuova configurazione registrata. Ora modifica i sensori.' : 'Nuovo punto di partenza registrato. Esegui i passi richiesti dalla sfida.';
         } });
         body.insertBefore(info, choices); body.querySelector('.challenge-actions').appendChild(reset);
       }
@@ -284,7 +284,8 @@
         var edits = Math.max(0, now.changes - initial.changes);
         var result = q.rule(now, initial);
         activity.textContent = 'Dopo l’apertura: ' + steps + ' passi · ' + edits +
-          ' modifiche. ' + (result.ready ? 'Esperimento pronto: scegli la risposta.' : result.message);
+          ' modifiche. ' + (result.ready ? 'Esperimento pronto: scegli la risposta.' : result.message) +
+          (result.ready && result.quality ? ' ' + result.quality : '');
       }
       // Baseline captured on the initiating interaction (mouse/touch/keyboard).
       summary.addEventListener('click', function () { if (!card.open) startChallenge(); });

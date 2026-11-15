@@ -1,0 +1,36 @@
+name: StatAtlas Scientific QA
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  numerical-and-scientific:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install scientific test dependencies
+        run: python -m pip install 'numpy>=1.24' 'scipy>=1.11'
+      - name: Build offline HTML
+        run: python build.py
+      - name: JavaScript numerical and pedagogical suites
+        run: |
+          set -eu
+          for file in tests/test_*.js; do
+            node "$file"
+          done
+      - name: Independent scientific checks (31 labs)
+        run: python tests/test_science_independent_31.py
+      - name: Additional independent methodological checks
+        run: python tests/test_scientific_claims.py

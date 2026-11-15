@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased — 2.1: audit scientifico indipendente e comparabilità delle Challenges (15/11/2026)
+
+- Nuova suite `tests/test_science_independent_31.py`: 31 verifiche matematiche indipendenti dai motori JavaScript, una per ciascun laboratorio, con ipotesi e perimetro esplicitati.
+- Le Challenges avanzate ora distinguono **confronti controllati** (cambia solo il parametro-obiettivo fra i controlli registrati) da confronti **esplorativi** (cambiano anche altri fattori). L'avviso è metodologico, non blocca il completamento.
+- Istruzioni didattiche aggiornate per incoraggiare il mantenimento degli altri parametri e del seed; corretto il messaggio del pulsante «Aggiorna punto di partenza» al di fuori del kriging.
+- Formula tipografica della check loss quantilica aggiornata: indicatrice esplicita al posto di `1(u<0)`.
+- Nuovi test di regressione per la comparabilità delle sfide (28 casi controllati e 28 confusi), formula quantilica e ciclo completo in Chromium sul gradient boosting.
+- Documentazione tracciabile in `docs/AUDIT_SCIENTIFICO_FASE_2_31.md` e workflow GitHub Actions per build, test JS e verifiche scientifiche indipendenti. **Non** sono stati modificati generatori, algoritmi o sorgenti dei 31 laboratori; test NumPy/SciPy opzionali solo per sviluppo.
+
 ## Unreleased — 2.1: correzioni Challenges e condizioni sperimentali verificabili (15/11/2026)
 
 - Corretto il tracciamento dei cambiamenti dei parametri: gestione degli eventi in **capture phase**, prima che le lezioni possano ricostruire il pannello controlli. Il bug era riproducibile in Gradient Boosting.

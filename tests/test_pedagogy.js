@@ -31,6 +31,12 @@ for(let i=0;i<ids.length;i++){
 const ui=fs.readFileSync(path.join(root,'src/core/ui.js'),'utf8');
 const css=fs.readFileSync(path.join(root,'src/styles/editorial.css'),'utf8');
 assert(app.includes('details.lab-howto'),'guida non connessa all app');checks++;
+// Independent typographical check for quantile regression check loss.
+const mathCtx={SA:{}};
+vm.runInNewContext(fs.readFileSync(path.join(root,'src/core/math.js'),'utf8'),mathCtx,{filename:'src/core/math.js'});
+assert(pedagogy.quantilica.formula.includes('\\mathbf{1}'), 'indicatrice della check loss ambigua');checks++;
+assert(mathCtx.SA.math.tex(pedagogy.quantilica.formula).includes('m-bf'),
+  'indicatrice della check loss non composta correttamente');checks++;
 assert(ui.includes('d && d.essenziale')&&ui.includes('d && d.avanzato'),'livelli teorici non connessi');checks++;
 assert(css.includes('.lab-howto-list')&&css.includes('@media(max-width:760px)'),'layout non responsive');checks++;
 console.log('PASS: 31 laboratori, 31 guide, 62 approfondimenti, 31 formule, '+checks+' controlli editoriali');

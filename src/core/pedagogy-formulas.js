@@ -17,7 +17,7 @@
   "regressione-lp": "\\hat\\beta_p=\\argmin_\\beta \\sum_{i=1}^{n}|y_i-x_i^\\top\\beta|^p",
   "glm": "g(\\mu_i)=x_i^\\top\\beta",
   "arma": "\\gamma(h)=\\frac{\\sigma^2\\phi^{|h|}}{1-\\phi^2}",
-  "quantilica": "\\rho_\\tau(u)=u(\\tau-1(u<0))",
+  "quantilica": "\\rho_\\tau(u)=u(\\tau-\\mathbf{1}_{u<0})",
   "penalizzata": "\\hat\\beta=\\argmin_\\beta \\{RSS(\\beta)+\\lambda ||\\beta||_1\\}",
   "spline": "\\hat f=\\argmin_f \\{\\sum_{i=1}^n(y_i-f(x_i))^2+\\lambda J(f)\\}",
   "segmentata": "\\mathrm{E}(Y_i\\mid x_i)=\\beta_0+\\beta_1 x_i+\\delta(x_i-\\psi)_+",

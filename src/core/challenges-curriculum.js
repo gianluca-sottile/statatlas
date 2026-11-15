@@ -805,7 +805,25 @@
    var values=Object.keys(valueCount).filter(function(k){return valueCount[k]>0;});
    if(values.length<2) return {ready:false,
      message:'Confronta due valori distinti di «'+focus+'»: genera almeno un passo per ciascuno ('+values.length+'/2 configurazioni osservate).'};
-   return {ready:samples.length>=needed,
+   /* Distinguish two values of the focus control from a controlled comparison.
+    * This is feedback, NOT an additional pass/fail prerequisite: changing
+    * a data-generating mechanism may legitimately change which controls exist.
+    * We report a controlled comparison only if at least two actual simulation
+    * steps use distinct focus values with the same other recorded controls.
+    */
+   var controlled=false;
+   for(var a=0;a<samples.length&&!controlled;a++)for(var b=a+1;b<samples.length;b++){
+     var va=samples[a].values||{},vb=samples[b].values||{};
+     if(va[key]==null||vb[key]==null||va[key]===vb[key])continue;
+     var other=Object.keys(va).concat(Object.keys(vb)).filter(function(k,i,all){
+       return k!==key&&k!=='velocita'&&all.indexOf(k)===i;
+     });
+     if(other.every(function(k){return va[k]===vb[k];})){controlled=true;break;}
+   }
+   var quality=controlled?
+     'Confronto controllato: almeno due passi differiscono solo per «'+focus+'» fra i parametri registrati.':
+     'Attenzione: tra le configurazioni sono cambiati anche altri controlli. Il confronto resta esplorativo; per attribuire una differenza a «'+focus+'», ripeti mantenendo fissi gli altri parametri e il seed.';
+   return {ready:samples.length>=needed,quality:quality,
      message:'Hai esplorato '+values.length+' configurazioni di «'+focus+'». Completa almeno '+needed+
        ' passi totali ('+samples.length+'/'+needed+').'};
  }
@@ -820,7 +838,7 @@
      var precondition=id==='penalizzata'?'Seleziona prima la vista «Percorsi» per attivare le simulazioni. ':'';
      var practicalGuide=i===0?'Esegui almeno un passo e osserva ciò che cambia.':
        i===1?'Modifica «'+focus+'», quindi genera almeno due passi con il nuovo valore.':
-       'Confronta due valori di «'+focus+'»: osserva almeno un passo in ciascuna configurazione e almeno cinque complessivamente.';
+       'Confronta due valori di «'+focus+'»: osserva almeno un passo in ciascuna configurazione e almeno cinque complessivamente. Se possibile, mantieni fissi gli altri parametri e il seed.';
      return {
        id:'full-'+id+'-'+(i+1),level:levels[i],title:data[0],
        task:'Apri questa sfida prima di intervenire. '+(SA.pedagogy[id]&&SA.pedagogy[id].guida?SA.pedagogy[id].guida[Math.min(i,3)]:'Esplora il laboratorio.')+
