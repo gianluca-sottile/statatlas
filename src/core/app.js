@@ -433,7 +433,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     else if (SA.labs[id]) {
       var page = el('div.page'); main.appendChild(page);
       SA.currentLab = id;
-      current = SA.labs[id]; current.mount(page, info); enhanceLab(page, id); addMobileLabNav(page); page.appendChild(footer());
+      current = SA.labs[id]; current.mount(page, info); enhanceLab(page, id); if (SA.challenges) SA.challenges.mount(page, id); addMobileLabNav(page); page.appendChild(footer());
       document.title = info.lab.title + ' · StatAtlas';
     } else { main.appendChild(soon(info)); document.title = info.lab.title + ' · StatAtlas'; }
     window.scrollTo(0, 0);

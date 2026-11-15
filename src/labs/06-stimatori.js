@@ -88,6 +88,7 @@
     }
     S.last = { x: x, vals: vals };
     S.k++;
+    if (SA.challenges && SA.challenges.traces.stimatori) SA.challenges.traces.stimatori.steps++;
     return true;
   }
 
@@ -517,9 +518,11 @@
   }
 
   SA.registerLab('stimatori', {
+    challengeState: function () { return {k: S ? S.k : 0}; },
     mount: function (page, info) {
       el = SA.ui.el;
       S = newState(S);
+      if (SA.challenges) SA.challenges.traces.stimatori = {steps:0};
       var theoryBtn = SA.ui.button('Approfondisci', { icon: 'book', onclick: function () { SA.ui.openDrawer('Stimatori di posizione', THEORY); } });
       page.appendChild(el('header.lab-head',
         el('div', el('div.kicker', info.part.part + ' · ' + info.part.title + ' · Laboratorio ' + info.lab.num),

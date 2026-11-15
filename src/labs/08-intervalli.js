@@ -239,6 +239,10 @@
   }
 
   SA.registerLab('intervalli', {
+    challengeState: function () {
+      return S && { method: S.method, n: S.n, level: S.level, p: S.p,
+        k: S.k, B: S.B, cover: S.k ? S.cov / S.k : null };
+    },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
       run = SA.ui.runner({ speed: 1, step: step, render: render, done: function () { return S.k >= S.B; }, progress: function () { return S.k / S.B; }, reset: function () { S = newState(S); } });

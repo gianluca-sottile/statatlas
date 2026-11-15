@@ -1,5 +1,22 @@
 # Changelog
 
+## Unreleased — 2.1 (sviluppo): Challenges e revisione dei 31 laboratori
+
+- Estesa «Mettiti alla prova» a **31/31 laboratori**, per **93 sfide**: tre livelli, quesiti e feedback specifici per ogni metodo; prerequisiti basati su esperimento realmente eseguito.
+- Conservate le nove regole specialistiche dei LAB 08, 18 e 30; nelle nuove 84 sfide sono verificati il tracciamento di passi e modifiche ai controlli effettuati dopo l'apertura.
+- Revisione editoriale e metodologica dei pannelli **Essenziale e Avanzato** su tutti i 31 moduli: ipotesi esplicite, derivazioni, casi limite ed esperimenti mirati, senza sostituire le schede precedenti.
+- Nessuna modifica a RNG, formule, algoritmi di stima e simulazione. Tracciamento delle azioni nell'interfaccia e contatore aggiuntivo delle repliche nel LAB 06.
+- Nuovi test unitari delle 93 sfide e test browser per tutti i laboratori; audit e matrice scientifica aggiornati.
+- Questa è una **versione di lavoro**, non una nuova pubblicazione ufficiale o una certificazione formale della teoria.
+
+## Unreleased — Challenges pilota e prima tranche di audit scientifico
+
+- Modalità **Mettiti alla prova** nei laboratori 08, 18 e 30: nove sfide con prerequisiti verificati sullo stato reale dell'esperimento, feedback e progresso locale non persistente.
+- Prima matrice di audit dei 31 laboratori, con priorità della successiva revisione dimostrativa; approfondimento metodologico mirato ai laboratori 08, 18 e 30.
+- Correzione della formula-cardine sulla copertura degli intervalli; note sulle ipotesi o sulla specificità di altre 13 identità.
+- Algoritmi di simulazione, RNG e calcolo invariati; aggiunte soltanto tre interfacce di lettura dello stato delle lezioni pilota.
+- Questa è una **versione di sviluppo** e non cambia il numero ufficiale di versione 2.0.0 né i metadati di citazione.
+
 ## 2.0.0 — 14/11/2026 · StatAtlas: 31 laboratori e nuova esperienza didattica
 
 **Release maggiore:** estensione dell'atlante a 31 laboratori in otto parti, con contenuti metodologici più approfonditi e interfaccia ottimizzata per desktop, smartphone e tablet.

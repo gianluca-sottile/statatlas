@@ -180,7 +180,8 @@ SA.ui = (function () {
       box.appendChild(content.adv());
       if (c) box.appendChild(el('div.prose', { html: '<h3 class="sep">Per andare oltre</h3>' + c.avanzato }));
       if (d && d.formula) box.appendChild(el('div.prose.pedagogy-equation',
-        el('p.muted', 'Identità di riferimento · condizioni nel testo'), el('div.eq', { 'data-tex': d.formula })));
+        el('p.muted', 'Identità di riferimento · condizioni esplicitate sotto'), el('div.eq', { 'data-tex': d.formula }),
+        d.formulaNote ? el('p.formula-note', d.formulaNote) : null));
       if (d && d.avanzato) box.appendChild(el('section.prose.pedagogy-extension', { html: '<h2 class="pedagogy-extension-title">Approfondimento avanzato · ipotesi, derivazioni e limiti</h2>' + d.avanzato }));
     } else if (level === 'ex') {
       if (!c) return el('p.muted', 'Esercizi in preparazione.');

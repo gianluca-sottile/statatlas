@@ -235,6 +235,10 @@
   }
 
   SA.registerLab('validazione', {
+    challengeState: function () {
+      return S && { fun: S.fun, n: S.n, dShow: S.dShow, D: S.D,
+        k: S.k, dCV: S.cur ? S.cur.dCV : null };
+    },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
       run = SA.ui.runner({ speed: 1, coop: true, step: step, render: render, done: function () { return S.k >= S.B; }, progress: function () { return S.k / S.B; }, reset: function () { S = newState(S); step(); } });

@@ -37,6 +37,27 @@ Molti concetti della statistica — la legge dei grandi numeri, il teorema centr
 - **Due livelli di lettura.** Un pannello *Approfondisci* con teoria essenziale, derivazioni avanzate, esercizi con soluzione e bibliografia; formule composte tipograficamente e numerate, senza librerie esterne.
 - **Nessuna installazione.** Un unico file `index.html`, che funziona anche offline. Nessun server, nessuna libreria esterna.
 
+## StatAtlas Challenges — 31 laboratori, 93 sfide (versione di sviluppo 2.1)
+
+La modalità **«Mettiti alla prova»** è disponibile in **tutti i 31 laboratori**, con tre attività progressive per ciascuno: **Comprensione**, **Applicazione** e **Avanzato**. Ogni attività comprende un obiettivo operativo specifico, una domanda interpretativa a tre alternative e feedback metodologico. Le sfide non si completano semplicemente selezionando una risposta: richiedono l'esecuzione di un esperimento nel laboratorio e, ai livelli superiori, la modifica dei controlli.
+
+- Nei laboratori **08, 18 e 30** rimangono i prerequisiti specialistici già testati (metodi, configurazioni, repliche e sensori).
+- Negli altri **28** la prima versione delle regole verifica passi sperimentali e modifiche ai controlli **dopo l'apertura della sfida**, ma non certifica automaticamente che lo studente abbia scelto il parametro scientificamente più informativo. L'interpretazione è controllata mediante una risposta motivata.
+- Il punteggio è **formativo e temporaneo**, non viene salvato o inviato online. Non sono presenti certificazione dell'apprendimento, telemetria o valutazione psicometrica.
+- Gli algoritmi già verificati in R non sono stati modificati. È stato aggiunto un tracciamento degli eventi del runner; il laboratorio 06 espone esclusivamente il conteggio delle repliche per le sfide.
+
+La revisione delle schede **Essenziale e Avanzato** copre ora i **31 laboratori**, con trattazioni aggiuntive di ipotesi, derivazioni e casi limite specifici, integrate negli approfondimenti senza rimuovere il materiale preesistente. L'audit è documentato in [`docs/AUDIT_REVISIONE_31.md`](docs/AUDIT_REVISIONE_31.md). **La presenza di una derivazione non equivale a una verifica formale indipendente di ogni teorema o riferimento bibliografico**: i risultati non dimostrati integralmente rimangono soggetti a revisione specialistica.
+
+Test rapidi della versione completa (i test scientifici indipendenti richiedono NumPy/SciPy, quelli browser Playwright/Chromium):
+
+```bash
+python3 build.py
+node tests/audit_science.js
+node tests/test_challenges_full.js
+for f in tests/test_*.js; do node "$f"; done
+python3 tests/test_challenges_browser_full.py
+```
+
 ## Esperienza mobile e tablet
 
 L'interfaccia è adattata ai dispositivi touch senza modificare i motori numerici: sui tablet fino a 1180 px il menu dei laboratori è a scomparsa, mentre sui telefoni è disponibile una barra di navigazione rapida per tornare a **Parametri**, **Grafici**, **Risultati** e **Inizio**. I pulsanti **Avvia**, **Passo**, **Completa** e **Ricomincia** rimangono gli stessi degli esperimenti desktop e, sui dispositivi compatti, compaiono prima della lista dei parametri.

@@ -11,7 +11,7 @@
   "adattamento": "X^2=\\sum_{j=1}^{k}\\frac{(O_j-E_j)^2}{E_j}",
   "stimatori": "\\mathrm{MSE}(T)=\\mathrm{Var}(T)+(\\mathrm{E}[T]-\\theta)^2",
   "fisher": "I(\\theta)=\\mathrm{E}[U(\\theta)^2]=-\\mathrm{E}[\\ell\\prime\\prime(\\theta)]",
-  "intervalli": "\\mathrm{P}_\\theta(\\theta\\in C(X))\\ge 1-\\alpha",
+  "intervalli": "\\mathrm{Cov}_\\theta(C)=\\mathrm{P}_\\theta(\\theta\\in C(X))",
   "test": "\\pi(\\theta)=P_\\theta(T\\in R)",
   "regressione": "\\hat{\\beta}=(X^\\top X)^{-1}X^\\top y",
   "regressione-lp": "\\hat\\beta_p=\\argmin_\\beta \\sum_{i=1}^{n}|y_i-x_i^\\top\\beta|^p",
@@ -37,4 +37,22 @@
   "regressione-spaziale": "(I-\\rho W)y=X\\beta+\\epsilon"
 };
  Object.keys(formulas).forEach(function(id) { if (SA.pedagogy[id]) SA.pedagogy[id].formula=formulas[id]; });
+
+ var qualifications={
+   "bivariata":"La varianza condizionata 1−ρ² vale per una normale bivariata standardizzata con varianze marginali unitarie, non per una distribuzione bivariata arbitraria.",
+   "lgn-tcl":"La normalizzazione classica del TCL richiede varianza finita, campioni iid e σ positiva; il laboratorio presenta casi di fallimento.",
+   "fisher":"L'identità tra varianza dello score e curvatura media richiede ipotesi di regolarità e giustificazione dello scambio derivata-integrale.",
+   "intervalli":"L'identità definisce la copertura reale. L'uguaglianza o disuguaglianza rispetto a 1−α deve essere verificata per ciascun metodo: Wald e Wilson possono sottocoprire.",
+   "regressione":"L'espressione mediante inversa ordinaria di XᵀX richiede rango colonnare pieno; con collinearità perfetta servono altre convenzioni o una soluzione generalizzata.",
+   "arma":"La formula della covarianza indicata riguarda esclusivamente un AR(1) stazionario con |φ| < 1, non un ARMA generico.",
+   "penalizzata":"La formula mostra la penalizzazione lasso. Ridge usa una penalità quadratica; elastic net combina termini L1 e L2, con convenzioni di scala da esplicitare.",
+   "validazione":"La media semplice degli errori dei fold coincide con la media per osservazione se i fold hanno uguale numerosità; con fold diseguali può servire pesare per dimensione.",
+   "moran":"Il valore di I dipende dalla matrice W, da S0 e dalla normalizzazione; la speranza sotto permutazione non è in generale zero.",
+   "lisa":"La definizione di m2 e le normalizzazioni di W devono essere mantenute identiche nel confronto tra implementazioni.",
+   "processi-puntuali":"K(r)=πr² è il riferimento teorico del processo di Poisson omogeneo sul piano; non vale per un processo puntuale generico.",
+   "variogrammi":"La relazione γ(h)=C(0)−C(h) vale per un processo stazionario del secondo ordine; l'ipotesi intrinseca da sola non implica l'esistenza di C(h).",
+   "kriging":"I pesi C⁻¹c sono quelli del simple kriging con media nota. L'ordinary kriging richiede il vincolo che i pesi sommino a uno.",
+   "regressione-spaziale":"La formula rappresenta il modello spatial lag SAR, non il modello spatial error SEM; la stima e gli impatti richiedono convenzioni esplicite su W."
+ };
+ Object.keys(qualifications).forEach(function(id){if(SA.pedagogy[id])SA.pedagogy[id].formulaNote=qualifications[id];});
 })();
