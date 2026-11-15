@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased — 2.1: correzioni Challenges e condizioni sperimentali verificabili (15/11/2026)
+
+- Corretto il tracciamento dei cambiamenti dei parametri: gestione degli eventi in **capture phase**, prima che le lezioni possano ricostruire il pannello controlli. Il bug era riproducibile in Gradient Boosting.
+- Aggiunto lo stato di avanzamento **in tempo reale** per ogni sfida: passi dopo l'apertura, modifiche riconosciute e prerequisiti ancora da soddisfare.
+- Le **84 Challenges non pilota** sono ora collegate a controlli specifici del rispettivo laboratorio: a livello Applicazione si richiede una modifica del parametro pertinente seguita da almeno due passi; a livello Avanzato il confronto fra due configurazioni realmente eseguite e almeno cinque passi complessivi.
+- Regola speciale per regressione penalizzata: le repliche si eseguono nella vista **Percorsi**, non nella vista geometrica.
+- La vista delle sfide comprende un collegamento rapido **Vai ai controlli**, utilizzabile anche su mobile.
+- Aggiunti test delle regole specifiche e collaudi Chromium sulle 84 sfide. Nessuna modifica a RNG, stimatori o algoritmi statistici; soltanto una chiamata al nuovo registratore di attività nel LAB 06.
+- I nove esercizi pilota di Intervalli, Validazione e Kriging mantengono le regole specifiche originarie.
+
 ## Unreleased — 2.1 (sviluppo): Challenges e revisione dei 31 laboratori
 
 - Estesa «Mettiti alla prova» a **31/31 laboratori**, per **93 sfide**: tre livelli, quesiti e feedback specifici per ogni metodo; prerequisiti basati su esperimento realmente eseguito.

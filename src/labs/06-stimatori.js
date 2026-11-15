@@ -88,7 +88,7 @@
     }
     S.last = { x: x, vals: vals };
     S.k++;
-    if (SA.challenges && SA.challenges.traces.stimatori) SA.challenges.traces.stimatori.steps++;
+    if (SA.challenges && SA.challenges.traces.stimatori) SA.challenges.noteStep('stimatori');
     return true;
   }
 

@@ -736,25 +736,100 @@
     ]
   ]
 };
+ /* Discipline-specific experimental controls for every non-pilot laboratory.
+  * The named control must have actually changed and the student must run the
+  * simulation UNDER that configuration, not just click a random widget.
+  * Stage 3 requires evidence from two configurations of a relevant control.
+  */
+ var practical = {
+   'distribuzioni': ['Estremo a', 'Legge'],
+   'bivariata': ['Punto di condizionamento', 'Modello'],
+   'simulazione': ['Legge da generare', 'Legge da generare'],
+   'lgn-tcl': ['Osservazioni per traiettoria', 'Popolazione'],
+   'adattamento': ['Legge che genera i dati', 'Legge che genera i dati'],
+   'stimatori': ['Numerosità campionaria', 'Modello'],
+   'fisher': ['n', 'Modello'],
+   'test': ['Effetto vero', 'Livello α'],
+   'regressione': ['Rumore σ', 'Errori'],
+   'regressione-lp': ['Esponente p', 'Errori'],
+   'glm': ['Famiglia e legame', 'Famiglia e legame'],
+   'arma': ['φ₁', 'Modello di partenza'],
+   'quantilica': ['Quantile τ', 'Errori'],
+   'penalizzata': ['Correlazione ρ', 'Penalizzazione'],
+   'spline': ['Metodo', 'Metodo'],
+   'segmentata': ['Posizione vera ψ', 'Cambio di pendenza δ'],
+   'knn': ['k mostrato', 'Scala di x₂'],
+   'alberi': ['Profondità massima', 'mtry'],
+   'boost': ['Learning rate ν', 'Profondità'],
+   'reti-neurali': ['Neuroni nascosti', 'Learning rate η'],
+   'pca': ['Componenti mantenute', 'Unità di x₂'],
+   'clustering': ['Numero di gruppi K', 'Legame (gerarchico)'],
+   'dbscan': ['Raggio ε', 'Dati'],
+   'moran': ['Vicinato', 'Meccanismo generatore'],
+   'lisa': ['Unità di analisi', 'Correzione multipla'],
+   'processi-puntuali': ['Meccanismo generatore', 'Meccanismo generatore'],
+   'variogrammi': ['Scala di correlazione φ', 'Trend lungo x'],
+   'regressione-spaziale': ['Modello da ispezionare', 'Colora i fold']
+ };
+ function normalize(name) {return SA.challenges.keyOf(name);}
+ function matchingKey(controls, focus) {
+   var wanted=normalize(focus);
+   return Object.keys(controls||{}).filter(function (k) {
+     return k===wanted || k.indexOf(wanted)>=0;
+   })[0] || null;
+ }
+ function gate(snapshot, initial, focus, level) {
+   if(!initial) return {ready:false,message:'Apri la sfida per registrare il punto di partenza.'};
+   var samples=(snapshot.samples||[]).filter(function(e){return e.seq>initial.actions;});
+   var needed=level===0?1:level===1?2:5;
+   if(level===0) return {ready:samples.length>=needed,
+     message:'Premi Passo o Avvia per generare almeno un nuovo risultato ('+samples.length+'/'+needed+').'};
+   var key=matchingKey(snapshot.controls,focus);
+   if(!key) return {ready:false,message:'Il controllo «'+focus+'» non è disponibile in questa configurazione. Apri il laboratorio dalla sua pagina iniziale.'};
+   var edits=(snapshot.edits||[]).slice((initial.edits||[]).length)
+     .filter(function(e){return e.key===key;});
+   if(!edits.length) return {ready:false,message:'Modifica «'+focus+'» nel pannello Parametri. Modifiche pertinenti: 0.'};
+   var defaultValue=(initial.controls||{})[key];
+   var valueCount={};
+   samples.forEach(function(e){
+     var value=e.values[key];
+     if(value!=null) valueCount[value]=(valueCount[value]||0)+1;
+   });
+   if(level===1){
+     var actual=Object.keys(valueCount).filter(function(v){return v!==defaultValue;})
+       .reduce(function(n,v){return n+valueCount[v];},0);
+     return {ready:actual>=needed,
+       message:'Dopo aver modificato «'+focus+'», genera almeno '+needed+
+       ' nuovi passi con il valore modificato ('+actual+'/'+needed+').'};
+   }
+   var values=Object.keys(valueCount).filter(function(k){return valueCount[k]>0;});
+   if(values.length<2) return {ready:false,
+     message:'Confronta due valori distinti di «'+focus+'»: genera almeno un passo per ciascuno ('+values.length+'/2 configurazioni osservate).'};
+   return {ready:samples.length>=needed,
+     message:'Hai esplorato '+values.length+' configurazioni di «'+focus+'». Completa almeno '+needed+
+       ' passi totali ('+samples.length+'/'+needed+').'};
+ }
  var levels=['Comprensione','Applicazione','Avanzato'];
  Object.keys(specs).forEach(function(id){
+   if(!practical[id]) throw Error('Manca il controllo didattico per il laboratorio '+id);
    SA.challenges.bank[id]=specs[id].map(function(data,i){
      var answer=(i+1)%3, wrongs=[data[3],data[4]];
      var choices=[null,null,null]; choices[answer]=data[2];
      var j=0; for(var t=0;t<3;t++)if(t!==answer)choices[t]=wrongs[j++];
+     var focus=i===1?practical[id][0]:i===2?practical[id][1]:'';
+     var precondition=id==='penalizzata'?'Seleziona prima la vista «Percorsi» per attivare le simulazioni. ':'';
+     var practicalGuide=i===0?'Esegui almeno un passo e osserva ciò che cambia.':
+       i===1?'Modifica «'+focus+'», quindi genera almeno due passi con il nuovo valore.':
+       'Confronta due valori di «'+focus+'»: osserva almeno un passo in ciascuna configurazione e almeno cinque complessivamente.';
      return {
        id:'full-'+id+'-'+(i+1),level:levels[i],title:data[0],
-       task:'Apri questa sfida per registrare il punto di partenza. '+(SA.pedagogy[id]&&SA.pedagogy[id].guida?SA.pedagogy[id].guida[Math.min(i,3)]:'Esplora il laboratorio.')+
-         ' Quindi '+(i===0?'esegui almeno un passo della simulazione.':i===1?'cambia almeno un parametro e produci due nuovi passi sperimentali.':'modifica due volte i controlli e produci almeno cinque nuovi passi sperimentali.')+
-         ' Infine interpreta i risultati e rispondi.',
+       task:'Apri questa sfida prima di intervenire. '+(SA.pedagogy[id]&&SA.pedagogy[id].guida?SA.pedagogy[id].guida[Math.min(i,3)]:'Esplora il laboratorio.')+
+         ' '+precondition+practicalGuide+' Infine interpreta i risultati e rispondi.',
        question:data[1],options:choices,correct:answer,explanation:data[5],baseline:true,
+       focus:focus,stage:i,
        rule:function(s,b){
-         if(!b)return {ready:false,message:'Apri la sfida prima di iniziare.'};
-         var steps=Math.max(0,(s.actions||0)-(b.actions||0));
-         var edits=Math.max(0,(s.changes||0)-(b.changes||0));
-         var required=i===0?1:i===1?2:5;
-         if(i>0&&edits<i)return {ready:false,message:'Modifica '+(i===1?'almeno un parametro':'almeno due volte i controlli')+' DOPO aver aperto la sfida (azioni registrate: '+edits+').'};
-         return {ready:steps>=required,message:'Esegui almeno '+required+' nuovi passi dopo l’apertura (registrati: '+steps+').'};
+         if(id==='penalizzata'&&s.controls&&s.controls['vista']!=='Percorsi')return {ready:false,message:'Seleziona «Percorsi» nella vista del laboratorio per attivare le repliche.'};
+         return gate(s,b,focus,i);
        }
      };
    });
@@ -762,10 +837,10 @@
  // Tracciamento delle repliche senza modificare i calcoli dei laboratori.
  var originalRunner=SA.ui.runner;
  SA.ui.runner=function(config){
-   var trace={steps:0}, originalStep=config.step;
+   var trace={steps:0, edits:[], samples:[], current:{}}, originalStep=config.step;
    var wrapped=Object.assign({},config,{step:function(){
      var before=config.progress(),result=originalStep(),after=config.progress();
-     if(result!==false||after!==before)trace.steps++;
+     if(result!==false||after!==before)SA.challenges.noteStep(SA.currentLab);
      return result;
    }});
    var runner=originalRunner(wrapped);

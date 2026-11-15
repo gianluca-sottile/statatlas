@@ -1,29 +1,46 @@
-/* Challenges full coverage · 31 labs x 3: independent rules and feedback. */
+/* Scientificly targeted challenge gating, independent of the browser. */
 'use strict';
-const assert = require('assert');
-const fs=require('fs'), vm=require('vm'), path=require('path');
+const assert=require('assert');
+const fs=require('fs'),vm=require('vm'),path=require('path');
 const dir=path.resolve(__dirname,'../src/core');
 const ctx={window:{},document:{}};vm.createContext(ctx);
 for(const name of ['pedagogy.js','challenges.js'])vm.runInContext(fs.readFileSync(path.join(dir,name),'utf8'),ctx,{filename:name});
-ctx.window.SA.ui={runner: o=>({o})};
+ctx.window.SA.ui={runner:o=>({o})};
 vm.runInContext(fs.readFileSync(path.join(dir,'challenges-curriculum.js'),'utf8'),ctx,{filename:'challenges-curriculum.js'});
-const bank=ctx.window.SA.challenges.bank, C=ctx.window.SA.challenges;
-const all=Object.keys(bank); assert.equal(all.length,31,'Every lesson needs three questions');
-const pilots=new Set(['intervalli','validazione','kriging']);
+const C=ctx.window.SA.challenges, bank=C.bank;
+const ids=Object.keys(bank), pilots=new Set(['intervalli','validazione','kriging']);
+assert.equal(ids.length,31);
 let checks=0;
-for(const id of all){
- const Q=bank[id];assert.equal(Q.length,3,id);checks++;
- assert.deepEqual([...Q.map(t=>t.level)],['Comprensione','Applicazione','Avanzato']);checks++;
- for(const q of Q){
-  assert.equal(q.options.length,3);assert(new Set(q.options).size===3);checks+=2;
-  assert(q.task.length>80 && q.explanation.length>65,q.id);checks++;
-  assert(Number.isInteger(q.correct) && q.correct>=0 && q.correct<3,q.id);checks++;
-  assert(typeof q.rule==='function',q.id);checks++;
-  if(pilots.has(id))continue;
-  let b={actions:0,changes:0}, s={actions:10,changes:3};
-  assert.equal(C.evaluate(id,q.id,s,b,q.correct).ok,true,'Accept appropriate actions '+q.id);checks++;
-  assert.equal(C.evaluate(id,q.id,s,b,(q.correct+1)%3).ok,false,'Reject wrong reply '+q.id);checks++;
-  assert.equal(C.evaluate(id,q.id,{actions:0,changes:0},b,q.correct).ready,false,'Reject unperformed experiment '+q.id);checks++;
- }
+for (const id of ids) {
+  const cards=bank[id];assert.equal(cards.length,3);checks++;
+  assert.deepEqual(Array.from(cards,t=>t.level),['Comprensione','Applicazione','Avanzato']);checks++;
+  cards.forEach((q,i)=>{
+    assert.equal(q.options.length,3);checks++;
+    assert.equal(new Set(q.options).size,3);checks++;
+    assert(q.task.length>75 && q.explanation.length>60,q.id);checks++;
+    assert(Number.isInteger(q.correct) && q.correct>=0 && q.correct<3);checks++;
+    if(pilots.has(id))return;
+    assert.equal(q.stage,i);checks++;
+    if(i>0)assert(q.focus && q.focus.length>=1);checks++;
+    const key=C.keyOf(q.focus||'test'), controls={[key]:'old', ...(id==='penalizzata'?{vista:'Percorsi'}:{})};
+    const b={actions:0,changes:0,edits:[],samples:[],controls};
+    const mkSamples=(values)=>values.map((v,j)=>({seq:j+1,values:{[key]:v}}));
+    let s={actions:0,changes:0,edits:[],samples:[],controls};
+    assert.equal(C.evaluate(id,q.id,s,b,q.correct).ready,false);checks++;
+    if(i===0){
+      s={...s,actions:1,samples:mkSamples(['old'])};
+    }else if(i===1){
+      s={actions:2,changes:1,edits:[{key,from:'old',to:'new'}],controls:{...controls,[key]:'new'},samples:mkSamples(['new','new'])};
+      const falseEdit={...s,edits:[{key:'unrelated',from:'old',to:'new'}]};
+      assert.equal(C.evaluate(id,q.id,falseEdit,b,q.correct).ready,false,'wrong parameter '+q.id);checks++;
+      const noSim={...s,samples:mkSamples(['old','old'])};
+      assert.equal(C.evaluate(id,q.id,noSim,b,q.correct).ready,false,'wrong configuration '+q.id);checks++;
+    }else {
+      s={actions:5,changes:1,edits:[{key,from:'old',to:'new'}],controls:{...controls,[key]:'new'},samples:mkSamples(['old','old','new','new','new'])};
+      assert.equal(C.evaluate(id,q.id,{...s,samples:mkSamples(['new','new','new','new','new'])},b,q.correct).ready,false,'two configurations '+q.id);checks++;
+    }
+    assert.equal(C.evaluate(id,q.id,s,b,q.correct).ok,true,'valid evidence '+q.id);checks++;
+    assert.equal(C.evaluate(id,q.id,s,b,(q.correct+1)%3).ok,false,'wrong answer '+q.id);checks++;
+  });
 }
-console.log('OK: '+all.length+' labs, '+all.length*3+' tasks; '+checks+' assertions.');
+console.log('OK: '+ids.length+' labs, '+ids.length*3+' challenges, '+checks+' scientific-gate assertions.');

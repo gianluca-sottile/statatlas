@@ -33,3 +33,6 @@
 }
 
 .formula-note { font-size: .88rem; line-height: 1.6; color: var(--ink-2); padding-left: 12px; border-left: 2px solid var(--accent); margin: 12px 0 4px; }
+
+/* Feedback sull’attività sperimentale, visibile mentre il runner avanza. */
+.challenge-activity { margin: 10px 0; padding: 11px 13px; border-radius: 8px; border-left: 3px solid var(--accent); background: var(--paper-2); font-size: .85rem; line-height: 1.55; color: var(--ink-2); }

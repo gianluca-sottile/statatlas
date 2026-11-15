@@ -151,21 +151,80 @@
     return { ok: ok, ready: true, message: ok ? 'Sfida completata.' : 'Risposta da rivedere.', explanation: q.explanation };
   }
 
+  /* Activity recorder: capture BEFORE lab onchange handlers rebuild .controls.
+   * Step history is independent of a runner reset (new model = new experiment),
+   * and records which control configuration was used for each sample.
+   */
+  function nameOf(target) {
+    if (!target) return '';
+    var name = target.getAttribute('aria-label');
+    if (!name) {
+      var label = target.closest && target.closest('label');
+      if (label) {
+        var first = label.querySelector(':scope > .field-row > span, :scope > span, :scope > .field-row > div > span');
+        name = first ? first.textContent : '';
+      }
+    }
+    return (name || '').trim().replace(/\s+/g, ' ');
+  }
+  function keyOf(name) {
+    return String(name || '').toLocaleLowerCase('it').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, ' ').trim();
+  }
+  function controlValue(target) {
+    return target.type === 'checkbox' ? String(target.checked) : String(target.value);
+  }
+  function ensureTrace(id) {
+    return SA.challenges.traces[id] || (SA.challenges.traces[id] = { steps: 0, edits: [], samples: [], current: {} });
+  }
+  function noteStep(id) {
+    var trace = ensureTrace(id);
+    trace.steps++;
+    trace.samples.push({ seq: trace.steps, values: Object.assign({}, trace.current) });
+    if (typeof trace.onUpdate === 'function') trace.onUpdate();
+  }
   function mount(page, id) {
     var tasks = bank[id], lab = SA.labs[id];
     if (!tasks || !lab) return;
-    var observations = {changes: 0};
-    page.addEventListener('change', function(ev){
-      var target=ev.target, area=target.closest && target.closest('.controls');
-      if (!area || target.getAttribute('aria-label') === 'Velocità') return;
-      if (!/^(INPUT|SELECT|TEXTAREA)$/.test(target.tagName)) return;
-      observations.changes++;
+    var trace = ensureTrace(id);
+    trace.edits = []; trace.samples = []; trace.steps = 0; trace.current = {}; trace.listeners = []; trace.onUpdate = null;
+    page.querySelectorAll('.controls input, .controls select, .controls textarea').forEach(function (input) {
+      var key = keyOf(nameOf(input));
+      if (key && key !== 'velocita') trace.current[key] = controlValue(input);
     });
+    page.querySelectorAll('.controls .seg[aria-label]').forEach(function(group) {
+      var pressed = group.querySelector('button[aria-pressed="true"]');
+      if (pressed) trace.current[keyOf(group.getAttribute('aria-label'))] = pressed.textContent.trim();
+    });
+    function recordEdit(key, value) {
+      if (!key || key === 'velocita') return;
+      var old = trace.current[key];
+      if (old === value) return;
+      trace.current[key] = value;
+      trace.edits.push({ key: key, from: old, to: value, seq: trace.steps });
+      if (typeof trace.onUpdate === 'function') trace.onUpdate();
+    }
+    // Capture phase is essential: onchange handlers can replace controls
+    // synchronously, which prevents a bubbling page listener from seeing them.
+    page.addEventListener('change', function (ev) {
+      var t = ev.target;
+      if (!t.closest || !t.closest('.controls') ||
+          !/^(INPUT|SELECT|TEXTAREA)$/.test(t.tagName)) return;
+      recordEdit(keyOf(nameOf(t)), controlValue(t));
+    }, true);
+    page.addEventListener('click', function (ev) {
+      var btn = ev.target.closest && ev.target.closest('.controls .seg button');
+      if (!btn) return;
+      var group = btn.closest('.seg');
+      recordEdit(keyOf(group.getAttribute('aria-label') || 'Modello dei dati'), btn.textContent.trim());
+    }, true);
     function getState() {
-      var raw=typeof lab.challengeState==='function' ? lab.challengeState() : {};
-      var trace=SA.challenges.traces[id];
-      var steps=trace ? trace.steps : (raw && raw.k)||0;
-      return Object.assign({},raw||{}, {actions:steps,changes:observations.changes});
+      var raw = typeof lab.challengeState === 'function' ? lab.challengeState() : {};
+      var n = Math.max(trace.steps, raw && raw.k && id === 'stimatori' ? raw.k : 0);
+      return Object.assign({}, raw || {}, {
+        actions: n, changes: trace.edits.length,
+        edits: trace.edits.slice(), samples: trace.samples.slice(),
+        controls: Object.assign({}, trace.current)
+      });
     }
     var el = SA.ui.el, solved = {}, progress = el('p.challenge-progress', { role: 'status', 'aria-live': 'polite' });
     var step = SA.ui.step('', 'Mettiti alla prova', 'StatAtlas Challenges');
@@ -187,6 +246,7 @@
           onchange: function () { selected = j; message.textContent = ''; message.hidden = true; } });
         choices.appendChild(el('label.challenge-answer', input, el('span', option)));
       });
+      var activity = el('p.challenge-activity', { role: 'status', 'aria-live': 'polite' }, 'Apri la sfida per registrare il punto di partenza.');
       var message = el('div.challenge-feedback', { role: 'status', 'aria-live': 'polite', hidden: true });
       var verify = SA.ui.button('Verifica la sfida', { cls: 'btn-primary', onclick: function () {
         if (q.baseline && !initial) initial = getState();
@@ -195,12 +255,17 @@
         message.textContent = result.message + (result.ready && result.explanation ? ' ' + result.explanation : '');
         if (result.ok) { solved[q.id] = true; card.classList.add('challenge-solved'); syncProgress(); }
       } });
+      var jump = SA.ui.button('Vai ai controlli', { cls: 'btn-ghost', onclick: function () {
+        var controls = page.querySelector('.controls');
+        if (controls) controls.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } });
       var body = el('div.challenge-body', el('p', q.task), choices,
-        el('div.challenge-actions', verify), message);
+        activity, el('div.challenge-actions', jump, verify), message);
       if (q.baseline) {
         var info = el('p.challenge-reference', id === 'kriging' ? 'Apri questa sfida prima di modificare i sensori: registreremo la configurazione corrente.' : 'Le azioni sono conteggiate da quando apri la sfida. Prima esegui i passaggi richiesti, poi verifica la risposta.');
         var reset = SA.ui.button('Aggiorna punto di partenza', { cls: 'btn-ghost', onclick: function () {
           initial = getState();
+          activity.textContent = 'Nuovo punto di partenza: 0 passi, 0 modifiche.';
           message.hidden = false; message.classList.remove('success');
           message.textContent = 'Nuova configurazione iniziale registrata. Ora modifica i sensori.';
         } });
@@ -208,18 +273,38 @@
       }
       // Capture on the initiating interaction, not only on the asynchronous
       // <details> toggle event: a quick touch must not move the baseline.
-      summary.addEventListener('click', function () {
-        if (q.baseline && !initial && !card.open) initial = getState();
-      });
+      function startChallenge() {
+        if (!initial) initial = getState();
+        updateActivity();
+      }
+      function updateActivity() {
+        if (!card.open || !initial) return;
+        var now = getState();
+        var steps = Math.max(0, now.actions - initial.actions);
+        var edits = Math.max(0, now.changes - initial.changes);
+        var result = q.rule(now, initial);
+        activity.textContent = 'Dopo l’apertura: ' + steps + ' passi · ' + edits +
+          ' modifiche. ' + (result.ready ? 'Esperimento pronto: scegli la risposta.' : result.message);
+      }
+      // Baseline captured on the initiating interaction (mouse/touch/keyboard).
+      summary.addEventListener('click', function () { if (!card.open) startChallenge(); });
       summary.addEventListener('keydown', function (ev) {
-        if (q.baseline && !initial && !card.open && (ev.key === 'Enter' || ev.key === ' '))
-          initial = getState();
+        if (!card.open && (ev.key === 'Enter' || ev.key === ' ')) startChallenge();
       });
       card.addEventListener('toggle', function () {
-        if (card.open && q.baseline && !initial) initial = getState();
+        if (card.open) startChallenge();
       });
       card.append(summary, body); step.body.appendChild(card);
+      (trace.listeners || (trace.listeners=[])).push(updateActivity);
     });
+    trace.onUpdate = function () {
+      if (trace.updateQueued) return;
+      trace.updateQueued = true;
+      requestAnimationFrame(function () {
+        trace.updateQueued = false;
+        (trace.listeners || []).forEach(function (listener) { listener(); });
+      });
+    };
     syncProgress();
     var beforeR = Array.prototype.find.call(page.querySelectorAll('section.step'), function (s) {
       var label = s.querySelector('.step-label'); return label && /riproduci in r/i.test(label.textContent);
@@ -229,5 +314,5 @@
       var number = sec.querySelector('.step-num'); if (number) number.textContent = String(i + 1);
     });
   }
-  SA.challenges = { bank: bank, evaluate: evaluate, mount: mount, traces: {} };
+  SA.challenges = { bank: bank, evaluate: evaluate, mount: mount, traces: {}, noteStep: noteStep, keyOf: keyOf };
 })();
