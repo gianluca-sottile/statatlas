@@ -1,3 +1,11 @@
+## StatAtlas 2.1 — navigazione delle Challenges e allineamento dei prerequisiti (sviluppo, 15 novembre 2026)
+
+- Collegamento **Mettiti alla prova** accanto ad **Approfondisci** nella testata di ciascuno dei 31 laboratori; indicatore locale `0/3` aggiornato dopo il completamento.
+- Collegamento contestuale **Torna alla sfida** nel pannello dei controlli, visibile dopo l’uso di **Vai ai controlli**, con gestione del focus e preferenze di movimento ridotto.
+- Migliorato l’allineamento di nove coppie di prerequisiti sperimentali alle rispettive domande (dimensione del campione, alberi, standardizzazione, differenza tra zonizzazioni, anisotropia, ecc.). Le nove sfide pilota mantengono le condizioni specialistiche.
+- Corrette tre formulazioni teoriche nei LAB 05, 07 e 08: bootstrap parametrico non esatto in generale, condizioni di regolarità per Fisher/Cramér–Rao/Wilks, e distinzione fra copertura garantita e nominale dei metodi approssimati.
+- Nessuna modifica a generatori, stimatori, funzioni numeriche o script R; i soli sorgenti LAB modificati contengono modifiche testuali. Il controllo browser è distinto dalla validazione scientifica.
+
 # Changelog
 
 ## Unreleased — 2.1: audit scientifico indipendente e comparabilità delle Challenges (15/11/2026)

@@ -653,6 +653,25 @@ a.eqref { color: var(--accent); text-decoration: none; font-variant-numeric: tab
 /* Feedback sull’attività sperimentale, visibile mentre il runner avanza. */
 .challenge-activity { margin: 10px 0; padding: 11px 13px; border-radius: 8px; border-left: 3px solid var(--accent); background: var(--paper-2); font-size: .85rem; line-height: 1.55; color: var(--ink-2); }
 
+/* Navigation contestuale delle Challenges: una sola sezione, nessun runner duplicato. */
+.head-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.challenge-shortcut { border: 1px solid var(--accent); color: var(--accent); font-weight: 650; }
+.challenge-shortcut:hover, .challenge-shortcut:focus-visible { background: var(--accent-soft); }
+.challenge-return { width: 100%; margin: 5px 0 8px; border: 1px solid var(--rule-2); }
+.challenge-return[hidden] { display: none !important; }
+.challenge-section:focus, .challenge-summary:focus { outline-offset: 4px; }
+.challenge-summary:focus-visible, .challenge-shortcut:focus-visible, .challenge-return:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+@media (max-width: 640px) {
+  .head-actions { align-items: stretch; }
+  .head-actions > .btn { min-height: 44px; }
+  .challenge-shortcut { flex: 1 1 100%; justify-content: center; }
+}
+@media print { .challenge-shortcut, .challenge-return { display: none !important; } }
+
+@media (max-width: 1180px) {
+  .panel.controls > .challenge-return:not([hidden]) { order: -2; grid-column: 1 / -1; min-height: 44px; }
+}
+
 /* styles/mobile.css */
 /* StatAtlas · ottimizzazione mobile/tablet.
  * Override responsive isolati; invariati motori numerici e componenti di simulazione.
@@ -4690,13 +4709,27 @@ SA.ui = (function () {
       });
     }
     var el = SA.ui.el, solved = {}, progress = el('p.challenge-progress', { role: 'status', 'aria-live': 'polite' });
+    var shortcut = null, activeCard = null, returnButton = null;
+    function navigateTo(target) {
+      if (!target) return;
+      var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      target.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' });
+      if (!target.hasAttribute('tabindex')) target.setAttribute('tabindex', '-1');
+      try { target.focus({ preventScroll: true }); } catch (e) { target.focus(); }
+    }
     var step = SA.ui.step('', 'Mettiti alla prova', 'StatAtlas Challenges');
     step.classList.add('challenge-section');
+    step.setAttribute('id', 'sfide-' + id);
+    step.setAttribute('aria-label', 'Mettiti alla prova: tre sfide');
     step.body.append(el('p.prose', 'Usa i controlli e le simulazioni di questo laboratorio prima di rispondere. Ogni sfida verifica sia l’esperimento svolto sia la sua interpretazione; nessun dato viene inviato a un server.'), progress);
 
     function syncProgress() {
       var k = Object.keys(solved).filter(function (key) { return solved[key]; }).length;
       progress.textContent = k + ' di ' + tasks.length + ' sfide completate · risultato formativo locale, non un voto.';
+      if (shortcut) {
+        shortcut.textContent = 'Mettiti alla prova · ' + k + '/' + tasks.length;
+        shortcut.setAttribute('aria-label', 'Mettiti alla prova: ' + k + ' di ' + tasks.length + ' sfide completate. Vai alle sfide.');
+      }
     }
     tasks.forEach(function (q, i) {
       var initial = null, selected = null;
@@ -4719,8 +4752,9 @@ SA.ui = (function () {
         if (result.ok) { solved[q.id] = true; card.classList.add('challenge-solved'); syncProgress(); }
       } });
       var jump = SA.ui.button('Vai ai controlli', { cls: 'btn-ghost', onclick: function () {
-        var controls = page.querySelector('.controls');
-        if (controls) controls.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        activeCard = card;
+        if (returnButton) returnButton.hidden = false;
+        navigateTo(page.querySelector('.controls'));
       } });
       var body = el('div.challenge-body', el('p', q.task), choices,
         activity, el('div.challenge-actions', jump, verify), message);
@@ -4769,6 +4803,30 @@ SA.ui = (function () {
         (trace.listeners || []).forEach(function (listener) { listener(); });
       });
     };
+    var head = page.querySelector('.lab-head');
+    if (head) {
+      var actions = head.querySelector('.head-actions');
+      if (!actions) {
+        actions = el('div.head-actions');
+        if (head.firstElementChild) head.firstElementChild.appendChild(actions);
+      }
+      shortcut = SA.ui.button('', { cls: 'btn-ghost challenge-shortcut',
+        aria: 'Mettiti alla prova: vai alle sfide del laboratorio',
+        onclick: function () { navigateTo(step); } });
+      actions.appendChild(shortcut);
+    }
+    var controlsPanel = page.querySelector('.controls');
+    if (controlsPanel) {
+      returnButton = SA.ui.button('Torna alla sfida', { cls: 'btn-ghost challenge-return',
+        aria: 'Torna alla sfida che stai svolgendo', onclick: function () {
+          if (activeCard) { navigateTo(activeCard.querySelector('summary')); }
+          else navigateTo(step);
+        } });
+      returnButton.hidden = true;
+      var transport = controlsPanel.querySelector('.transport');
+      if (transport) transport.insertAdjacentElement('afterend', returnButton);
+      else controlsPanel.insertBefore(returnButton, controlsPanel.firstChild);
+    }
     syncProgress();
     var beforeR = Array.prototype.find.call(page.querySelectorAll('section.step'), function (s) {
       var label = s.querySelector('.step-label'); return label && /riproduci in r/i.test(label.textContent);
@@ -5526,15 +5584,15 @@ SA.ui = (function () {
   * Stage 3 requires evidence from two configurations of a relevant control.
   */
  var practical = {
-   'distribuzioni': ['Estremo a', 'Legge'],
+   'distribuzioni': ['Numero di osservazioni', 'Legge'],
    'bivariata': ['Punto di condizionamento', 'Modello'],
-   'simulazione': ['Legge da generare', 'Legge da generare'],
+   'simulazione': ['Estrazioni N', 'Legge da generare'],
    'lgn-tcl': ['Osservazioni per traiettoria', 'Popolazione'],
    'adattamento': ['Legge che genera i dati', 'Legge che genera i dati'],
    'stimatori': ['Numerosità campionaria', 'Modello'],
    'fisher': ['n', 'Modello'],
    'test': ['Effetto vero', 'Livello α'],
-   'regressione': ['Rumore σ', 'Errori'],
+   'regressione': ['Punto x₀', 'Errori'],
    'regressione-lp': ['Esponente p', 'Errori'],
    'glm': ['Famiglia e legame', 'Famiglia e legame'],
    'arma': ['φ₁', 'Modello di partenza'],
@@ -5542,17 +5600,17 @@ SA.ui = (function () {
    'penalizzata': ['Correlazione ρ', 'Penalizzazione'],
    'spline': ['Metodo', 'Metodo'],
    'segmentata': ['Posizione vera ψ', 'Cambio di pendenza δ'],
-   'knn': ['k mostrato', 'Scala di x₂'],
-   'alberi': ['Profondità massima', 'mtry'],
+   'knn': ['Scala di x₂', 'k mostrato'],
+   'alberi': ['Alberi B', 'mtry'],
    'boost': ['Learning rate ν', 'Profondità'],
    'reti-neurali': ['Neuroni nascosti', 'Learning rate η'],
-   'pca': ['Componenti mantenute', 'Unità di x₂'],
-   'clustering': ['Numero di gruppi K', 'Legame (gerarchico)'],
+   'pca': ['Standardizza', 'Varianza del primo asse'],
+   'clustering': ['Legame (gerarchico)', 'Popolazioni'],
    'dbscan': ['Raggio ε', 'Dati'],
    'moran': ['Vicinato', 'Meccanismo generatore'],
-   'lisa': ['Unità di analisi', 'Correzione multipla'],
+   'lisa': ['Correzione multipla', 'Unità di analisi'],
    'processi-puntuali': ['Meccanismo generatore', 'Meccanismo generatore'],
-   'variogrammi': ['Scala di correlazione φ', 'Trend lungo x'],
+   'variogrammi': ['Rapporto anisotropia', 'Trend lungo x'],
    'regressione-spaziale': ['Modello da ispezionare', 'Colora i fold']
  };
  function normalize(name) {return SA.challenges.keyOf(name);}
@@ -8087,7 +8145,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     },
     adv: function () {
       return el('div.prose', { html: '<h3>Gradi di libertà e stima dei parametri</h3><p>Il risultato χ²<sub>k−1−p</sub> vale se i parametri sono stimati per massima verosimiglianza <em>dai dati raggruppati</em>. Con stime dai dati originali (come qui), Chernoff e Lehmann (1954) mostrano che il limite sta tra χ²<sub>k−1−p</sub> e χ²<sub>k−1</sub>: il p-value asintotico è leggermente anticonservativo.</p>' +
-        '<h3>Bootstrap parametrico</h3><p>Si generano B campioni dal modello stimato F(·; θ̂), si ripete su ciascuno <em>stima e test</em>, e p = (1 + #{X²ᵦ ≥ X²}) / (B + 1). Così si tiene conto esattamente della stima, e non serve l’approssimazione asintotica (Stute, Gonzáles Manteiga e Presedo Quindimil, 1993).</p>' +
+        '<h3>Bootstrap parametrico</h3><p>Si generano B campioni dal modello stimato F(·; θ̂), si ripete su ciascuno <em>stima e test</em>, e p = (1 + #{X²ᵦ ≥ X²}) / (B + 1). Il riadattamento in ciascuna replica tiene conto dell’effetto della stima sulla distribuzione nulla della statistica, senza assumere come riferimento necessario una legge χ² asintotica. La calibrazione bootstrap resta generalmente approssimata, non esatta in campioni finiti; classi rare, parametri al bordo o un modello mal specificato possono comprometterla (Stute, González Manteiga e Presedo Quindimil, 1993).</p>' +
         '<h3>Banda del QQ plot</h3><p>Se X ~ F continua, F(X₍ᵢ₎) ~ Beta(i, n − i + 1): la banda [F⁻¹(b<sub>0,025</sub>), F⁻¹(b<sub>0,975</sub>)] è esatta punto per punto per F nota, approssimata con parametri stimati. Non è una banda simultanea.</p>' +
         '<h3>Kolmogorov–Smirnov e Lilliefors</h3><p>D = sup|F̂ − F₀|. Con parametri stimati la distribuzione di D cambia (Lilliefors, 1967): le tabelle classiche danno p-value troppo grandi. Anche qui il bootstrap parametrico è la soluzione generale.</p>' });
     }
@@ -9004,7 +9062,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
       return el('div.prose', { html: '<h3>Verosimiglianza</h3><p>Osservato il campione x, la verosimiglianza L(θ) = ∏ f(xᵢ; θ) dice quanto ciascun valore del parametro rende plausibili i dati. Si lavora con ℓ(θ) = log L(θ). La stima di massima verosimiglianza θ̂ è il valore che la massimizza.</p>' +
         '<h3>Score e informazione</h3><p>Lo <strong>score</strong> è la pendenza U(θ) = ℓ′(θ); l’<strong>informazione osservata</strong> è la curvatura J(θ) = −ℓ″(θ). L’<strong>informazione di Fisher</strong> è la curvatura attesa per osservazione:</p>' +
         '<div class="eq" data-tex="I(\\theta) = \\E\\left[-\\frac{\\partial^2 \\log f(X; \\theta)}{\\partial\\theta^2}\\right] = \\Var\\left[\\frac{\\partial \\log f(X; \\theta)}{\\partial\\theta}\\right]"></div>' +
-        '<h3>Che cosa garantisce</h3><ul><li><strong>Cramér–Rao</strong>: ogni stimatore non distorto ha varianza ≥ 1/(n I(θ)).</li><li><strong>Normalità asintotica</strong>: θ̂ ≈ N(θ, 1/(n I(θ))) per n grande.</li><li><strong>Intervalli</strong>: Wald θ̂ ± 1,96/√J(θ̂) o, meglio, {θ : ℓ(θ̂) − ℓ(θ) ≤ 1,92}.</li></ul>' +
+        '<h3>Risultati sotto regolarità</h3><ul><li><strong>Cramér–Rao</strong>: se valgono le condizioni di derivazione e I(θ) è positiva, uno stimatore non distorto regolare ha varianza ≥ 1/(n I(θ)).</li><li><strong>Normalità asintotica</strong>: per la stima ML consistente, interna allo spazio parametrico e sotto le altre condizioni standard, θ̂ ≈ N(θ, 1/(n I(θ))) per n grande.</li><li><strong>Intervalli</strong>: Wald θ̂ ± 1,96/√J(θ̂) oppure intervallo per inversione del rapporto di verosimiglianza {θ : ℓ(θ̂) − ℓ(θ) ≤ 1,92}; non esiste superiorità uniforme di un metodo senza ipotesi aggiuntive.</li></ul>' +
         '<div class="callout warn">Queste proprietà richiedono condizioni di regolarità. Il modello uniforme (0, θ) le viola: il supporto dipende da θ.</div>' });
     },
     adv: function () {
@@ -9272,7 +9330,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
 
   var THEORY = {
     base: function () {
-      return el('div.prose', { html: '<h3>Che cosa garantisce un intervallo</h3><p>Un intervallo di confidenza al livello 1 − α è una regola C(X) tale che P<sub>θ</sub>(θ ∈ C(X)) ≥ 1 − α per ogni valore del parametro. La probabilità riguarda il campione X, cioè la procedura, non θ.</p>' +
+      return el('div.prose', { html: '<h3>Che cosa garantisce un intervallo</h3><p>La copertura della procedura C(X) al parametro θ è P<sub>θ</sub>{θ ∈ C(X)}, valutata prima del campionamento. Una procedura con garanzia almeno nominale soddisfa P<sub>θ</sub>{θ ∈ C(X)} ≥ 1 − α per ogni θ; metodi approssimati come Wald e Wilson possono invece sottocoprirla per alcune combinazioni di θ e n. La probabilità riguarda il campione X, non un parametro fissato dopo aver osservato i dati.</p>' +
         '<h3>Tre famiglie di metodi</h3><ul><li><strong>Pivotali</strong>: una funzione di dati e parametro ha legge nota (Z, t, χ² per l’Esponenziale). Copertura esatta.</li>' +
         '<li><strong>Asintotici</strong>: si usa la normalità approssimata di uno stimatore (Wald, Wilson). Copertura giusta solo per n grande, e talvolta lentamente.</li>' +
         '<li><strong>Esatti per dati discreti</strong>: si invertono test esatti (Garwood, Clopper–Pearson). Copertura almeno nominale, quindi conservativa.</li></ul>' +

@@ -227,13 +227,27 @@
       });
     }
     var el = SA.ui.el, solved = {}, progress = el('p.challenge-progress', { role: 'status', 'aria-live': 'polite' });
+    var shortcut = null, activeCard = null, returnButton = null;
+    function navigateTo(target) {
+      if (!target) return;
+      var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      target.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' });
+      if (!target.hasAttribute('tabindex')) target.setAttribute('tabindex', '-1');
+      try { target.focus({ preventScroll: true }); } catch (e) { target.focus(); }
+    }
     var step = SA.ui.step('', 'Mettiti alla prova', 'StatAtlas Challenges');
     step.classList.add('challenge-section');
+    step.setAttribute('id', 'sfide-' + id);
+    step.setAttribute('aria-label', 'Mettiti alla prova: tre sfide');
     step.body.append(el('p.prose', 'Usa i controlli e le simulazioni di questo laboratorio prima di rispondere. Ogni sfida verifica sia l’esperimento svolto sia la sua interpretazione; nessun dato viene inviato a un server.'), progress);
 
     function syncProgress() {
       var k = Object.keys(solved).filter(function (key) { return solved[key]; }).length;
       progress.textContent = k + ' di ' + tasks.length + ' sfide completate · risultato formativo locale, non un voto.';
+      if (shortcut) {
+        shortcut.textContent = 'Mettiti alla prova · ' + k + '/' + tasks.length;
+        shortcut.setAttribute('aria-label', 'Mettiti alla prova: ' + k + ' di ' + tasks.length + ' sfide completate. Vai alle sfide.');
+      }
     }
     tasks.forEach(function (q, i) {
       var initial = null, selected = null;
@@ -256,8 +270,9 @@
         if (result.ok) { solved[q.id] = true; card.classList.add('challenge-solved'); syncProgress(); }
       } });
       var jump = SA.ui.button('Vai ai controlli', { cls: 'btn-ghost', onclick: function () {
-        var controls = page.querySelector('.controls');
-        if (controls) controls.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        activeCard = card;
+        if (returnButton) returnButton.hidden = false;
+        navigateTo(page.querySelector('.controls'));
       } });
       var body = el('div.challenge-body', el('p', q.task), choices,
         activity, el('div.challenge-actions', jump, verify), message);
@@ -306,6 +321,30 @@
         (trace.listeners || []).forEach(function (listener) { listener(); });
       });
     };
+    var head = page.querySelector('.lab-head');
+    if (head) {
+      var actions = head.querySelector('.head-actions');
+      if (!actions) {
+        actions = el('div.head-actions');
+        if (head.firstElementChild) head.firstElementChild.appendChild(actions);
+      }
+      shortcut = SA.ui.button('', { cls: 'btn-ghost challenge-shortcut',
+        aria: 'Mettiti alla prova: vai alle sfide del laboratorio',
+        onclick: function () { navigateTo(step); } });
+      actions.appendChild(shortcut);
+    }
+    var controlsPanel = page.querySelector('.controls');
+    if (controlsPanel) {
+      returnButton = SA.ui.button('Torna alla sfida', { cls: 'btn-ghost challenge-return',
+        aria: 'Torna alla sfida che stai svolgendo', onclick: function () {
+          if (activeCard) { navigateTo(activeCard.querySelector('summary')); }
+          else navigateTo(step);
+        } });
+      returnButton.hidden = true;
+      var transport = controlsPanel.querySelector('.transport');
+      if (transport) transport.insertAdjacentElement('afterend', returnButton);
+      else controlsPanel.insertBefore(returnButton, controlsPanel.firstChild);
+    }
     syncProgress();
     var beforeR = Array.prototype.find.call(page.querySelectorAll('section.step'), function (s) {
       var label = s.querySelector('.step-label'); return label && /riproduci in r/i.test(label.textContent);

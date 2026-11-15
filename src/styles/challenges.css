@@ -36,3 +36,22 @@
 
 /* Feedback sull’attività sperimentale, visibile mentre il runner avanza. */
 .challenge-activity { margin: 10px 0; padding: 11px 13px; border-radius: 8px; border-left: 3px solid var(--accent); background: var(--paper-2); font-size: .85rem; line-height: 1.55; color: var(--ink-2); }
+
+/* Navigation contestuale delle Challenges: una sola sezione, nessun runner duplicato. */
+.head-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.challenge-shortcut { border: 1px solid var(--accent); color: var(--accent); font-weight: 650; }
+.challenge-shortcut:hover, .challenge-shortcut:focus-visible { background: var(--accent-soft); }
+.challenge-return { width: 100%; margin: 5px 0 8px; border: 1px solid var(--rule-2); }
+.challenge-return[hidden] { display: none !important; }
+.challenge-section:focus, .challenge-summary:focus { outline-offset: 4px; }
+.challenge-summary:focus-visible, .challenge-shortcut:focus-visible, .challenge-return:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+@media (max-width: 640px) {
+  .head-actions { align-items: stretch; }
+  .head-actions > .btn { min-height: 44px; }
+  .challenge-shortcut { flex: 1 1 100%; justify-content: center; }
+}
+@media print { .challenge-shortcut, .challenge-return { display: none !important; } }
+
+@media (max-width: 1180px) {
+  .panel.controls > .challenge-return:not([hidden]) { order: -2; grid-column: 1 / -1; min-height: 44px; }
+}

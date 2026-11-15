@@ -742,15 +742,15 @@
   * Stage 3 requires evidence from two configurations of a relevant control.
   */
  var practical = {
-   'distribuzioni': ['Estremo a', 'Legge'],
+   'distribuzioni': ['Numero di osservazioni', 'Legge'],
    'bivariata': ['Punto di condizionamento', 'Modello'],
-   'simulazione': ['Legge da generare', 'Legge da generare'],
+   'simulazione': ['Estrazioni N', 'Legge da generare'],
    'lgn-tcl': ['Osservazioni per traiettoria', 'Popolazione'],
    'adattamento': ['Legge che genera i dati', 'Legge che genera i dati'],
    'stimatori': ['Numerosità campionaria', 'Modello'],
    'fisher': ['n', 'Modello'],
    'test': ['Effetto vero', 'Livello α'],
-   'regressione': ['Rumore σ', 'Errori'],
+   'regressione': ['Punto x₀', 'Errori'],
    'regressione-lp': ['Esponente p', 'Errori'],
    'glm': ['Famiglia e legame', 'Famiglia e legame'],
    'arma': ['φ₁', 'Modello di partenza'],
@@ -758,17 +758,17 @@
    'penalizzata': ['Correlazione ρ', 'Penalizzazione'],
    'spline': ['Metodo', 'Metodo'],
    'segmentata': ['Posizione vera ψ', 'Cambio di pendenza δ'],
-   'knn': ['k mostrato', 'Scala di x₂'],
-   'alberi': ['Profondità massima', 'mtry'],
+   'knn': ['Scala di x₂', 'k mostrato'],
+   'alberi': ['Alberi B', 'mtry'],
    'boost': ['Learning rate ν', 'Profondità'],
    'reti-neurali': ['Neuroni nascosti', 'Learning rate η'],
-   'pca': ['Componenti mantenute', 'Unità di x₂'],
-   'clustering': ['Numero di gruppi K', 'Legame (gerarchico)'],
+   'pca': ['Standardizza', 'Varianza del primo asse'],
+   'clustering': ['Legame (gerarchico)', 'Popolazioni'],
    'dbscan': ['Raggio ε', 'Dati'],
    'moran': ['Vicinato', 'Meccanismo generatore'],
-   'lisa': ['Unità di analisi', 'Correzione multipla'],
+   'lisa': ['Correzione multipla', 'Unità di analisi'],
    'processi-puntuali': ['Meccanismo generatore', 'Meccanismo generatore'],
-   'variogrammi': ['Scala di correlazione φ', 'Trend lungo x'],
+   'variogrammi': ['Rapporto anisotropia', 'Trend lungo x'],
    'regressione-spaziale': ['Modello da ispezionare', 'Colora i fold']
  };
  function normalize(name) {return SA.challenges.keyOf(name);}

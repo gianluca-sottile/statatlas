@@ -199,7 +199,7 @@
 
   var THEORY = {
     base: function () {
-      return el('div.prose', { html: '<h3>Che cosa garantisce un intervallo</h3><p>Un intervallo di confidenza al livello 1 − α è una regola C(X) tale che P<sub>θ</sub>(θ ∈ C(X)) ≥ 1 − α per ogni valore del parametro. La probabilità riguarda il campione X, cioè la procedura, non θ.</p>' +
+      return el('div.prose', { html: '<h3>Che cosa garantisce un intervallo</h3><p>La copertura della procedura C(X) al parametro θ è P<sub>θ</sub>{θ ∈ C(X)}, valutata prima del campionamento. Una procedura con garanzia almeno nominale soddisfa P<sub>θ</sub>{θ ∈ C(X)} ≥ 1 − α per ogni θ; metodi approssimati come Wald e Wilson possono invece sottocoprirla per alcune combinazioni di θ e n. La probabilità riguarda il campione X, non un parametro fissato dopo aver osservato i dati.</p>' +
         '<h3>Tre famiglie di metodi</h3><ul><li><strong>Pivotali</strong>: una funzione di dati e parametro ha legge nota (Z, t, χ² per l’Esponenziale). Copertura esatta.</li>' +
         '<li><strong>Asintotici</strong>: si usa la normalità approssimata di uno stimatore (Wald, Wilson). Copertura giusta solo per n grande, e talvolta lentamente.</li>' +
         '<li><strong>Esatti per dati discreti</strong>: si invertono test esatti (Garwood, Clopper–Pearson). Copertura almeno nominale, quindi conservativa.</li></ul>' +
