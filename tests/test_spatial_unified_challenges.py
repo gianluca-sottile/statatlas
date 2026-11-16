@@ -4,7 +4,7 @@ Experimental comparisons are two *descriptive snapshots of the same points*, not
 Monte Carlo replicates.  Only an explicit record action creates a comparison sample.
 """
 from pathlib import Path
-from playwright.sync_api import sync_playwright
+from playwright.sync_api import sync_playwright, expect
 
 ROOT=Path(__file__).resolve().parents[1]
 HTML=(ROOT/'index.html').read_text()
@@ -16,6 +16,18 @@ FOCUS={
  'kriging':'Range assunto',
  'regressione-spaziale':'Previsione cartografica',
 }
+def wait_ready(card, lid):
+  """React to browser animation frames instead of sampling transient DOM text.
+
+  Challenges paint their activity label in requestAnimationFrame. In CI the
+  preceding click may have recorded the evidence while that paint is pending.
+  Playwright's auto-retrying expectation checks the actual final state without
+  skipping any experimental requirement.
+  """
+  activity=card.locator('.challenge-activity')
+  expect(activity).to_contain_text('Esperimento pronto', timeout=10000)
+  return activity.inner_text()
+
 with sync_playwright() as p:
   browser=p.chromium.launch(headless=True, args=['--no-sandbox','--disable-dev-shm-usage'],
       **({'executable_path':'/usr/bin/chromium'} if Path('/usr/bin/chromium').exists() else {}))
@@ -40,11 +52,16 @@ with sync_playwright() as p:
       replacement=next(v for v in choices if v!=current)
       if lid!='kriging':
         page.get_by_role('button',name='Registra questa configurazione').click()
+        # The initial configuration is *one* observation, not a ready A/B comparison.
+        page.wait_for_function('(lab)=>SA.challenges.traces[lab].samples.length===1', arg=lid)
       chosen.select_option(replacement)
       if lid!='kriging':
+        # Changing the setting without recording B must still be insufficient.
+        expect(advanced.locator('.challenge-activity')).to_contain_text('Registra il risultato A', timeout=10000)
         page.get_by_role('button',name='Registra questa configurazione').click()
-      activity=advanced.locator('.challenge-activity').inner_text()
-      assert 'Esperimento pronto' in activity, (lid,activity)
+        # Verify that two independently triggered recording actions were counted.
+        page.wait_for_function('(lab)=>SA.challenges.traces[lab].samples.length===2', arg=lid)
+      activity=wait_ready(advanced, lid)
       conceptual=page.evaluate('(id)=>SA.challenges.bank[id][2].correct',lid)
       advanced.locator('.challenge-answers input').nth(conceptual).check()
       if lid!='kriging':
@@ -73,8 +90,7 @@ with sync_playwright() as p:
       before=int(studio.get_attribute('data-points'))
       bg.click(position={'x':bounds['width']*.85,'y':bounds['height']*.12})
       assert int(studio.get_attribute('data-points'))>before,(lid,'dataset unchanged')
-      activity=first.locator('.challenge-activity').inner_text()
-      assert 'Esperimento pronto' in activity,(lid,activity)
+      activity=wait_ready(first, lid)
       conceptual=page.evaluate('(id)=>SA.challenges.bank[id][0].correct',lid)
       first.locator('.challenge-answers input').nth(conceptual).check()
       first.get_by_role('button',name='Verifica la sfida').click()
@@ -96,8 +112,7 @@ with sync_playwright() as p:
         replacement=next(v for v in choices if v!=current)
         chosen.select_option(replacement)
         page.get_by_role('button',name='Registra questa configurazione').click()
-      activity=middle.locator('.challenge-activity').inner_text()
-      assert 'Esperimento pronto' in activity,(lid,activity)
+      activity=wait_ready(middle, lid)
       conceptual=page.evaluate('(id)=>SA.challenges.bank[id][1].correct',lid)
       middle.locator('.challenge-answers input').nth(conceptual).check()
       middle.get_by_role('button',name='Verifica la sfida').click()
