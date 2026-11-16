@@ -1,5 +1,23 @@
 # Changelog
 
+## Unreleased — 16/11/2026 · Macrofase A: audit formale e validatore unico R
+- Audit documentato delle 31 formule-cardine e delle sezioni di derivazione, con ipotesi, dimostrazioni schematiche, limiti e controesempi in `docs/AUDIT_FORMALE_TEORICO_31.md`.
+- Corrette precisazioni su varianza condizionata normale bivariata, TCL, AR(1), normalizzazione elastic net e media pesata dei fold nella cross-validation; affinate le condizioni del ridge/lasso e dei modelli Lp.
+- Nuovo `verifica/valida_tutti_31.R`: un solo comando GNU R ricompila la pagina, cattura le 31 esportazioni vere da Chromium, ne verifica integrita/sintassi, esegue tutti gli script in processi R isolati e produce report CSV e log. Le esportazioni correnti sono riproducibili in `verifica/export_r_31/` con manifest SHA/MD5.
+- Verifica di regressione delle formule corrette e supporto tipografico per la freccia di convergenza in distribuzione.
+- Il comando di pubblicazione richiede il report 31/31 PASS riferito alla build corrente; lo stato attuale rimane una release candidate in attesa dell'esecuzione R sul Mac. La validazione didattica con studenti e rinviata alla versione repository completa.
+
+## Unreleased — 16/11/2026 · Macrofase A: hardening responsive, scientifico e QA
+
+- Riparato `tests/test_mobile_tablet.py` e introdotta navigazione rapida mobile per i sei studi spaziali unificati (Parametri, Mappa, Risultati, Inizio).
+- Corretto un bug reale di ripristino delle mappe: copia indipendente dei punti iniziali; regressione add/reset ora coperta su sei laboratori e tre viewport.
+- Allineate le classi del variogramma R alla regola di assegnazione JS, compresi i confini di classe.
+- Nuovo test di parità indipendente per 12 snapshot spaziali reali (sei iniziali + sei modificati), confronti JS–NumPy e confronto GNU R automatico se disponibile; GNU R obbligatorio in CI.
+- Riallineati test Challenges e teoria e archiviati i sette smoke spaziali della precedente interfaccia, con nuove verifiche per la mappa unica. Aggiornata CI scientifica.
+- Report e matrice di controllo in `docs/MACROFASE_A_RELAZIONE_2026_11_16.md` e `docs/MACROFASE_A_MATRICE_VERIFICHE.csv`; comando di collaudo unico `tests/run_macrofase_A.sh --require-r`.
+- **Limite dichiarato:** il runtime R non era disponibile nell'ambiente locale; l'esecuzione completa 01–25 e la revisione formale esaustiva non sono certificate. Nessuna pubblicazione/tag.
+
+
 ## Unreleased — 16/11/2026 · Parte VIII unificata, sostituzione delle vecchie interfacce
 
 - **Sostituiti completamente** i sei laboratori visivi 26–31: una mappa interattiva, un solo campione, un unico pannello di controllo. Nessun vecchio runner, canvas o pannello areale/Monte Carlo è montato sotto la mappa.

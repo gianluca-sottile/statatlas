@@ -18,7 +18,7 @@
 </p>
 
 <p align="center">
-  <img alt="Versione" src="https://img.shields.io/badge/versione-2.0.0-9A3412">
+  <img alt="Versione" src="https://img.shields.io/badge/versione-2.1.0--rc-9A3412">
   <img alt="Lingua" src="https://img.shields.io/badge/lingua-italiano-1C1B19">
   <img alt="Offline" src="https://img.shields.io/badge/funziona-offline-1F6F43">
   <img alt="Dipendenze" src="https://img.shields.io/badge/dipendenze-nessuna-1E4E8C">
@@ -33,13 +33,13 @@ Molti concetti della statistica — la legge dei grandi numeri, il teorema centr
 
 - **Didattica attiva.** Ogni laboratorio parte da una domanda; chi vuole può fare una previsione *prima* di vedere i dati.
 - **Rigore dichiarato.** Ogni risultato teorico è etichettato come *esatto*, *asintotico*, *approssimato* o *Monte Carlo*: non si confonde mai ciò che vale per ogni n con ciò che vale al limite.
-- **Stessi numeri in R.** Il generatore di numeri casuali di R è reimplementato nel browser: lo script fornito, con lo stesso seed, riproduce gli stessi campioni. Ogni script dichiara fin dove arriva la corrispondenza (livelli R0–R3) e richiede la verifica eseguibile in R per ogni nuova versione. Le verifiche R riguardavano i motori dei laboratori precedenti: gli script dinamici nuovi della Parte VIII vanno verificati autonomamente nella Macrofase A.
+- **Stessi numeri in R.** Il generatore di numeri casuali di R è reimplementato nel browser: lo script fornito, con lo stesso seed, riproduce gli stessi campioni. Ogni script dichiara fin dove arriva la corrispondenza (livelli R0–R3) e richiede la verifica eseguibile in R per ogni nuova versione. La riproducibilita a livelli R0-R3 dipende dal singolo laboratorio: il verificatore 31/31 controlla parsing ed esecuzione, mentre la parita numerica richiede confronti aggiuntivi per ogni algoritmo.
 - **Due livelli di lettura.** Un pannello *Approfondisci* con teoria essenziale, derivazioni avanzate, esercizi con soluzione e bibliografia; formule composte tipograficamente e numerate, senza librerie esterne.
 - **Nessuna installazione.** Un unico file `index.html`, che funziona anche offline. Nessun server, nessuna libreria esterna.
 
 ## Parte VIII — Sei laboratori unificati su mappe continue (sviluppo 2.1)
 
-**I laboratori 26–31 hanno sostituito le vecchie interfacce.** Ciascuno mostra **una sola mappa, un solo pannello di parametri e un unico campione modificabile**. I vecchi esperimenti grafici, le loro duplicazioni e i controlli separati **non vengono più montati**. Gli algoritmi numerici condivisi restano nel progetto come sorgenti testabili, non come secondi laboratori. Gli script R della Parte VIII sono ora generati dai **punti effettivamente visualizzati**; le corrispondenze numeriche complete vanno ancora verificate in R nella Macrofase A.
+**I laboratori 26–31 hanno sostituito le vecchie interfacce.** Ciascuno mostra **una sola mappa, un solo pannello di parametri e un unico campione modificabile**. I vecchi esperimenti grafici, le loro duplicazioni e i controlli separati **non vengono più montati**. Gli algoritmi numerici condivisi restano nel progetto come sorgenti testabili, non come secondi laboratori. Gli script R della Parte VIII sono ora generati dai **punti effettivamente visualizzati**; dodici snapshot delle sei mappe (prima e dopo modifica) sono stati verificati nel collaudo su GNU R, JavaScript e Python.
 
 - **26 — Moran:** modifica valori e posizioni, crea gruppi o alternanze e osserva l'indice globale calcolato sui punti con pesi kNN normalizzati. La heatmap non è il campione utilizzato per il calcolo.
 - **27 — LISA:** aggiungi osservazioni alte/basse, individua HH, LL, HL e LH e osserva come cambiano al variare del vicinato. I quadranti sono **descrittivi**: questa interfaccia non stima p-value locali.
@@ -50,7 +50,7 @@ Molti concetti della statistica — la legge dei grandi numeri, il teorema centr
 
 Le coordinate delle mappe sono **normalizzate sul quadrato unitario**, non longitudini e latitudini reali in gradi. Il confronto A/B usa due snapshot dello stesso dataset e non li presenta come repliche Monte Carlo indipendenti. Le 18 Challenges della Parte VIII sono state riscritte per i nuovi controlli; il progresso dei 31 laboratori resta di 93 sfide complessive.
 
-Consulta [architettura, limiti scientifici, verifica dei dati e test](docs/PARTE_VIII_UNIFICATA.md). Il piano di audit scientifico 31/31 e le verifiche complete in R restano parte della successiva **Macrofase A**.
+Consulta [architettura, limiti scientifici, verifica dei dati e test](docs/PARTE_VIII_UNIFICATA.md). Il report di audit delle formule ed ipotesi e disponibile in [`docs/AUDIT_FORMALE_TEORICO_31.md`](docs/AUDIT_FORMALE_TEORICO_31.md).
 
 ## StatAtlas Challenges — 31 laboratori, 93 sfide (versione di sviluppo 2.1)
 
@@ -170,7 +170,7 @@ Gli script richiedono R ≥ 4.1 e il pacchetto `tidyverse`; alcuni laboratori us
 
 ## Sviluppo
 
-StatAtlas 2.0.0 usa **HTML, CSS e JavaScript nativi**, senza dipendenze obbligatorie a runtime. Il codice modulare in `src/` è assemblato da `build.py` nell'unico file distribuibile `index.html`. La struttura comprende 31 file in `src/labs/`, il motore numerico in `src/core/`, i componenti didattici condivisi, le verifiche JS in `tests/` e i riferimenti R in `verifica/`.
+StatAtlas (sviluppo 2.1) usa **HTML, CSS e JavaScript nativi**, senza dipendenze obbligatorie a runtime. Il codice modulare in `src/` è assemblato da `build.py` nell'unico file distribuibile `index.html`. La struttura comprende 31 file in `src/labs/`, il motore numerico in `src/core/`, i componenti didattici condivisi, le verifiche JS in `tests/` e i riferimenti R in `verifica/`.
 
 ```bash
 python3 build.py                         # rigenera il file offline index.html
@@ -192,7 +192,16 @@ python3 tests/test_mobile_tablet.py
 
 ### Verifiche indipendenti in R
 
-Gli script R sono raccolti nella directory `verifica/`. Il master comprende i confronti storici e richiama le verifiche autonome dei moduli aggiunti. Le verifiche indipendenti dei nuovi metodi si possono anche eseguire singolarmente:
+Gli script R sono raccolti nella directory `verifica/`. **Per validare in un solo comando i 31 script esportati dalla pagina attuale**, lancia dalla radice del progetto (GNU R e dipendenze R installati, Python Playwright+Chromium disponibili):
+
+```bash
+Rscript verifica/valida_tutti_31.R --timeout=900 > MACROFASE_A_R31.log 2>&1
+echo "Codice di uscita: $?"
+```
+
+Il verificatore ricompila `index.html`, estrae dal browser i 31 script R correnti, controlla SHA-256/MD5, verifica il parsing, esegue separatamente ognuno dei 31 script in GNU R e salva report e log per ogni laboratorio. Non sono ammessi SKIP tra i PASS. Richiede i pacchetti R `tidyverse`, `quantreg`, `segmented` e `cluster`; in caso di pacchetti mancanti, il report indica come installarli. I file di output sono `verifica/REPORT_VALIDAZIONE_R_31.csv` e `verifica/runs/`. **La sola esecuzione non dimostra la parita numerica R/JS dei laboratori 01-25.** Il report matematico descrive il perimetro dell'audit, le correzioni e le limitazioni.
+
+Il master storico comprende i confronti precedenti e richiama le verifiche autonome dei moduli aggiunti. Le verifiche indipendenti dei nuovi metodi si possono anche eseguire singolarmente:
 
 ```bash
 Rscript verifica/verifica_statatlas.R
@@ -215,7 +224,7 @@ Per la storia delle modifiche, consultare [CHANGELOG.md](CHANGELOG.md). Per gli 
 
 ## Come citare
 
-> Sottile G. (2026). *StatAtlas: un atlante interattivo di probabilità, inferenza, machine learning e statistica spaziale* (versione 2.0.0). https://github.com/gianluca-sottile/statatlas
+> Sottile G. (2026). *StatAtlas: un atlante interattivo di probabilità, inferenza, machine learning e statistica spaziale* (versione 2.0.0, ultima release pubblicata; per la versione 2.1 usare la citazione del relativo tag quando disponibile). https://github.com/gianluca-sottile/statatlas
 
 ## Crediti
 
@@ -246,3 +255,21 @@ La suite può essere lanciata con `sh tests/run_qa_2_1.sh`; il workflow `.github
 ## Codice R: esportazione e console
 
 Gli script prodotti da **Riproduci in R** sono formattati su righe brevi, compatibili con la console R. Il codice mostrato, copiato e scaricato coincide. Per script lunghi preferire **Scarica .R** e l'esecuzione tramite Source in RStudio. I controlli automatici della lunghezza delle righe coprono i 31 laboratori; la CI verifica anche il parsing con GNU R. Dettagli in `docs/R_EXPORT_CONSOLE_AUDIT.md`.
+
+## Macrofase A — consolidamento 2.1 (candidato di collaudo)
+
+Le verifiche scientifiche e responsive 2.1, comprese le correzioni di navigazione
+mobile e del ripristino delle mappe, sono documentate in
+[`docs/MACROFASE_A_RELAZIONE_2026_11_16.md`](docs/MACROFASE_A_RELAZIONE_2026_11_16.md).
+
+Il collaudo riproducibile si avvia con `sh tests/run_macrofase_A.sh --require-r`
+(dopo avere installato Node.js, Python/NumPy/SciPy/Playwright/Chromium e GNU R).
+La presenza di 31 esportazioni R brevi e sintatticamente valide **non** equivale
+alla certificazione di esecuzione e concordanza numerica R dei 31 laboratori.
+Non interpretare la versione di sviluppo 2.1 come release finale certificata.
+
+### Audit formale e pubblicazione 2.1
+
+- [`docs/AUDIT_FORMALE_TEORICO_31.md`](docs/AUDIT_FORMALE_TEORICO_31.md): assunzioni, dimostrazioni/derivazioni, controesempi e rettifiche di tutte le 31 schede.
+- [`docs/RELEASE_CANDIDATE_A_2_1.md`](docs/RELEASE_CANDIDATE_A_2_1.md): protocollo di accettazione, evidenze ancora richieste e stato delle fasi B e C.
+- `sh scripts/pubblica_github.sh --no-push` verifica la pronta pubblicazione senza toccare il repository remoto; `sh scripts/pubblica_github.sh` pubblica **solo dopo** che il report R 31/31 passa ed e stato validato dall'autore. Non eseguire push se la validazione non e completa.

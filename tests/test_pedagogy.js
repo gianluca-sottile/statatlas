@@ -36,6 +36,8 @@ assert(app.includes('details.lab-howto'),'guida non connessa all app');checks++;
 const mathCtx={SA:{}};
 vm.runInNewContext(fs.readFileSync(path.join(root,'src/core/math.js'),'utf8'),mathCtx,{filename:'src/core/math.js'});
 assert(pedagogy.quantilica.formula.includes('\\mathbf{1}'), 'indicatrice della check loss ambigua');checks++;
+assert(mathCtx.SA.math.tex(pedagogy['lgn-tcl'].formula).includes('m-xarrow'),
+  'la convergenza in distribuzione del TCL non e composta correttamente');checks++;
 assert(mathCtx.SA.math.tex(pedagogy.quantilica.formula).includes('m-bf'),
   'indicatrice della check loss non composta correttamente');checks++;
 assert(ui.includes('d && d.essenziale')&&ui.includes('d && d.avanzato'),'livelli teorici non connessi');checks++;

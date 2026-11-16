@@ -6,7 +6,7 @@ SA.pedagogy = {
   "distribuzioni": {
     "guida": [
       "Scegli una legge e imposta i parametri; osserva come cambiano densità (o massa), ripartizione e momenti.",
-      "Fissa un intervallo [a,b] e confronta area teorica e frequenza relativa nel campione.",
+      "Fissa un intervallo (a,b] e confronta la probabilità teorica e la frequenza relativa nel campione, facendo attenzione ai bordi per le leggi discrete.",
       "Usa Passo o Avvia per generare osservazioni: segui istogramma, ripartizione empirica e tabella.",
       "Ripeti cambiando numerosità o distribuzione; verifica anche i casi con momenti non esistenti."
     ]

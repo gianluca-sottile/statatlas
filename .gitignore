@@ -6,3 +6,11 @@ package-lock.json
 Thumbs.db
 # note di lavoro interne
 HANDOFF.md
+
+# ambienti e artefatti dei collaudi locali (.R snapshot in verifica/export_r_31/ resta tracciato)
+.venv/
+__pycache__/
+*.pyc
+*.log
+verifica/runs/
+verifica/REPORT_VALIDAZIONE_R_31.csv

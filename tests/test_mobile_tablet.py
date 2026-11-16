@@ -36,13 +36,24 @@ def main():
                         width: innerWidth, scroll: document.documentElement.scrollWidth,
                         figures: document.querySelectorAll('.fig').length,
                         guides: document.querySelectorAll('.lab-howto').length,
+                        studios: document.querySelectorAll('.spatial-studio').length,
+                        maps: document.querySelectorAll('.spatial-studio-map svg').length,
+                        stats: document.querySelectorAll('.spatial-studio-stat').length,
                         quick: document.querySelectorAll('.lab-mobile-nav button').length,
                         running: !!document.querySelector('.transport .btn-primary[aria-pressed="true"]')
                     })''')
                     assert state['scroll'] <= width + 1, (width, lab, 'horizontal overflow', state)
-                    assert state['figures'] > 0 and state['guides'] == 1, (width, lab, 'missing content')
+                    assert state['guides'] == 1, (width, lab, 'missing guide')
+                    if lab in SPATIAL:
+                        assert state['figures'] == 0, (width, lab, 'legacy figure reintroduced')
+                        assert state['studios'] == 1 and state['maps'] == 1 and state['stats'] >= 3, (width, lab, 'missing spatial studio', state)
+                    else:
+                        assert state['figures'] > 0 and state['studios'] == 0, (width, lab, 'missing classic figures', state)
                     if width <= 860:
-                        assert state['quick'] >= 2, (width, lab, 'quick-navigation missing')
+                        assert state['quick'] >= 3, (width, lab, 'quick-navigation missing')
+                        labels = page.locator('.lab-mobile-nav button').all_text_contents()
+                        expected = ['Parametri', 'Mappa', 'Risultati', 'Inizio'] if lab in SPATIAL else ['Parametri', 'Grafici', 'Inizio']
+                        assert all(label in labels for label in expected), (width, lab, 'wrong navigation targets', labels)
                     if lab in SPATIAL:
                         assert not state['running'], (width, lab, 'unexpected autoplay')
                     assert not failures, (width, lab, failures)
@@ -60,19 +71,20 @@ def main():
             page.keyboard.press('Escape')
             assert menu.get_attribute('aria-expanded') == 'false'
             assert page.locator('#sidebar').evaluate('(el) => el.inert')
+            # On the unified spatial studio the navigation targets the single
+            # controls panel and the map, not a legacy chart/transport widget.
             page.locator('.lab-mobile-nav button').filter(has_text='Parametri').click()
             page.wait_for_timeout(420)
-            assert page.locator('.controls').evaluate('(el) => el.getBoundingClientRect().top < innerHeight')
-            assert page.locator('.controls .transport .btn-primary').is_visible()
-            page.locator('.lab-mobile-nav button').filter(has_text='Grafici').click()
+            assert page.locator('.spatial-studio-panel').evaluate('(el) => el.getBoundingClientRect().top < innerHeight')
+            assert page.locator('.spatial-studio-panel .spatial-studio-btn').first.is_visible()
+            page.locator('.lab-mobile-nav button').filter(has_text='Mappa').click()
             page.wait_for_timeout(420)
-            assert page.locator('.fig').first.evaluate('(el) => el.getBoundingClientRect().top < innerHeight')
-            page.locator('.fig-zoom-btn').first.click()
-            assert page.locator('.fig.fig-in-modal').evaluate('(el) => el.getBoundingClientRect().width >= 610')
-            page.locator('.fig-modal-close').click()
-            assert page.locator('.fig-modal').count() == 0
+            assert page.locator('.spatial-studio-map').evaluate('(el) => el.getBoundingClientRect().top < innerHeight')
+            page.locator('.lab-mobile-nav button').filter(has_text='Risultati').click()
+            page.wait_for_timeout(420)
+            assert page.locator('.spatial-studio-stats').evaluate('(el) => el.getBoundingClientRect().top < innerHeight')
             page.locator('.lab-mobile-nav button').filter(has_text='Inizio').click()
-            page.wait_for_timeout(350)
+            page.wait_for_timeout(420)
             page.locator('.head-actions button').first.click()
             assert page.locator('.drawer.open').count() == 1
             tabs = page.locator('.seg-tabs button')
@@ -82,7 +94,23 @@ def main():
             tabs.nth(1).click()
             assert tabs.nth(1).get_attribute('aria-pressed') == 'true'
             page.locator('.drawer-head button').last.click()
-            print('PASS touch: menu, jump links, transport, zoom and theory tabs')
+            print('PASS touch: spatial menu, map/results jump links and theory tabs')
+            page.close()
+
+            # Regression guard for legacy labs: chart zoom is supported there,
+            # and must not be falsely demanded of the unified spatial map.
+            page = browser.new_page(viewport={'width': 390, 'height': 844},
+                                    has_touch=True, is_mobile=True)
+            page.set_content(HTML, wait_until='load')
+            page.evaluate("location.hash='#/regressione'")
+            page.locator('.lab-mobile-nav button').filter(has_text='Grafici').click()
+            page.wait_for_timeout(420)
+            assert page.locator('.fig').first.evaluate('(el) => el.getBoundingClientRect().top < innerHeight')
+            page.locator('.fig-zoom-btn').first.click()
+            assert page.locator('.fig.fig-in-modal').evaluate('(el) => el.getBoundingClientRect().width >= 610')
+            page.locator('.fig-modal-close').click()
+            assert page.locator('.fig-modal').count() == 0
+            print('PASS touch: classic lab charts, navigation and chart zoom')
             page.close()
         finally:
             browser.close()

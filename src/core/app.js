@@ -347,12 +347,22 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   /* Navigazione rapida SOLO su smartphone. Scorre ai contenuti esistenti e non avvia
    * né duplica le simulazioni; conserva un'unica sorgente di stato per i runner. */
   function addMobileLabNav(page) {
-    var entries = [
+    // Lab 01-25: historical chart/transport layout. Lab 26-31: one
+    // continuous spatial studio with its own map, controls and statistics.
+    // Links are derived from existing elements: no duplicate map or runner.
+    var spatial = page.querySelector('.spatial-studio');
+    var entries = spatial ? [
+      ['Parametri', spatial.querySelector('.spatial-studio-panel')],
+      ['Mappa', spatial.querySelector('.spatial-studio-map')],
+      ['Risultati', spatial.querySelector('.spatial-studio-stats')],
+      ['Inizio', page.querySelector('.lab-head')]
+    ] : [
       ['Parametri', page.querySelector('.lab-grid .controls')],
       ['Grafici', page.querySelector('.lab-grid .figure') || page.querySelector('.fig')],
       ['Risultati', page.querySelector('.tbl-wrap')],
       ['Inizio', page.querySelector('.lab-head')]
-    ].filter(function (pair) { return !!pair[1]; });
+    ];
+    entries = entries.filter(function (pair) { return !!pair[1]; });
     if (entries.length < 2) return;
     var nav = el('nav.lab-mobile-nav', { 'aria-label': 'Vai alle sezioni del laboratorio' });
     entries.forEach(function (pair) {

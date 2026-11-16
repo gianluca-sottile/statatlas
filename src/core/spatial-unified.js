@@ -60,8 +60,9 @@ function rScript(id,studio){
  if(id==='variogrammi')head.push('p <- '+studio.state.bins+'L',
    'distPairs <- as.vector(dist(as.matrix(d[,c("x","y")])))',
    'sqDiff <- as.vector(dist(d$z))^2/2',
-   'brks <- seq(0,1,length.out=p+1)',
-   'bin <- cut(distPairs,breaks=brks,include.lowest=TRUE)',
+   '# Classi di distanza: [a,b), ultima chiusa in r=1 (coerenti con JS).',
+   'binIndex <- ifelse(distPairs <= 1, pmin(p, floor(distPairs*p)+1L), NA_integer_)',
+   'bin <- factor(binIndex, levels=seq_len(p))',
    'print(data.frame(classe=levels(bin),semivarianza=as.numeric(tapply(sqDiff,bin,mean)),coppie=as.numeric(table(bin))))',
    '# La mappa dell’app usa IDW: non va confusa con il variogramma.');
  if(id==='kriging')head.push('phi <- '+toR(studio.state.other.covOptions.phi),

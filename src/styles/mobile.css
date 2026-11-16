@@ -77,7 +77,7 @@
     font: 600 .82rem/1.25 var(--sans); cursor: pointer;
   }
   .lab-mobile-nav button:active { background: var(--accent-soft); color: var(--ink); }
-  .controls, .figure, .tbl-wrap, .lab-head { scroll-margin-top: 80px; }
+  .controls, .figure, .tbl-wrap, .lab-head, .spatial-studio-map, .spatial-studio-panel, .spatial-studio-stats { scroll-margin-top: 80px; }
   body.mobile-menu-open .lab-mobile-nav, html.zoom-open .lab-mobile-nav,
   body:has(.drawer.open) .lab-mobile-nav,
   body:has(.modal) .lab-mobile-nav { visibility: hidden; pointer-events: none; }

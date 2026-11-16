@@ -129,7 +129,12 @@ SA.spatialStudio = (function () {
     if(!conf[type])throw new Error('Studio spaziale inesistente: '+type);
     opts=opts||{};
     var state={type:type,tool:type==='points'||type==='kriging'?'add':'high',knn:4,band:type==='variogram'?2:.085,show:type==='kriging'?'uncertainty':'value',model:'coords',shown:'regression',bins:8,counter:0,measureCount:0,source:opts.source,feedback:'',active:null};
-    var initial=sampleInit(type,opts.source);state.points=initial.points;state.other=Object.assign({},initial.other,{covOptions:initial.other.covOptions?Object.assign({},initial.other.covOptions):undefined});
+    var initial=sampleInit(type,opts.source);
+    // Keep an immutable-by-convention copy of the initial observation set.
+    // A direct reference would be mutated by addPoint()/splice(), causing
+    // "Ripristina mappa iniziale" to retain subsequently added points.
+    state.points=initial.points.map(clone);
+    state.other=Object.assign({},initial.other,{covOptions:initial.other.covOptions?Object.assign({},initial.other.covOptions):undefined});
     if(type==='kriging' && initial.other && initial.other.grid)state.grid=initial.other.grid;
     var root=element('section',null,'spatial-studio');root.setAttribute('aria-label','Mappa interattiva: '+conf[type].title);
     var heading=element('div',null,'spatial-studio-heading');heading.append(element('span','ESPLORA SULLA MAPPA · PARTE VIII','spatial-studio-overline'),element('h2',conf[type].title),element('p',conf[type].question));root.append(heading);

@@ -1,0 +1,200 @@
+{
+  "moran": {
+    "initial": {
+      "python_reference": {
+        "n": 38,
+        "moran": 0.533655824193123
+      },
+      "javascript": {
+        "moran": 0.5336558241931233
+      },
+      "comparison_JS_Python": "PASS",
+      "comparison_R_Python": "NOT RUN (Rscript unavailable)"
+    },
+    "edited": {
+      "python_reference": {
+        "n": 39,
+        "moran": 0.2347813639449582
+      },
+      "javascript": {
+        "moran": 0.23478136394495813
+      },
+      "comparison_JS_Python": "PASS",
+      "comparison_R_Python": "NOT RUN (Rscript unavailable)"
+    }
+  },
+  "lisa": {
+    "initial": {
+      "python_reference": {
+        "n": 38,
+        "moran": 0.533655824193123,
+        "HH": 10,
+        "LL": 22,
+        "HL": 3,
+        "LH": 3
+      },
+      "javascript": {
+        "moran": 0.5336558241931233,
+        "HH": 10,
+        "LL": 22,
+        "outliers": 6
+      },
+      "comparison_JS_Python": "PASS",
+      "comparison_R_Python": "NOT RUN (Rscript unavailable)"
+    },
+    "edited": {
+      "python_reference": {
+        "n": 39,
+        "moran": 0.2347813639449582,
+        "HH": 7,
+        "LL": 20,
+        "HL": 2,
+        "LH": 10
+      },
+      "javascript": {
+        "moran": 0.23478136394495813,
+        "HH": 7,
+        "LL": 20,
+        "outliers": 12
+      },
+      "comparison_JS_Python": "PASS",
+      "comparison_R_Python": "NOT RUN (Rscript unavailable)"
+    }
+  },
+  "processi-puntuali": {
+    "initial": {
+      "python_reference": {
+        "n": 55,
+        "kde_center": 62.98026123345682
+      },
+      "javascript": {
+        "kde": 62.98026123345681
+      },
+      "comparison_JS_Python": "PASS",
+      "comparison_R_Python": "NOT RUN (Rscript unavailable)"
+    },
+    "edited": {
+      "python_reference": {
+        "n": 56,
+        "kde_center": 85.0086270593247
+      },
+      "javascript": {
+        "kde": 85.00862705932467
+      },
+      "comparison_JS_Python": "PASS",
+      "comparison_R_Python": "NOT RUN (Rscript unavailable)"
+    }
+  },
+  "variogrammi": {
+    "initial": {
+      "python_reference": {
+        "n": 38,
+        "count": 701,
+        "gamma": [
+          0.0345064440814849,
+          0.08123044084072488,
+          0.1392143806830108,
+          0.14276964789383711,
+          0.19146663503210737,
+          0.27023338279370135,
+          0.32629905990187436,
+          0.31942061339235395
+        ],
+        "mean_gamma": 0.18814257557738684
+      },
+      "javascript": {
+        "count": 701,
+        "mean_gamma": 0.18814257557738684
+      },
+      "comparison_JS_Python": "PASS",
+      "comparison_R_Python": "NOT RUN (Rscript unavailable)"
+    },
+    "edited": {
+      "python_reference": {
+        "n": 39,
+        "count": 739,
+        "gamma": [
+          0.4370888790077377,
+          0.30953981615889187,
+          0.3117637331801014,
+          0.4263747904209866,
+          0.2722258122752637,
+          0.27023338279370135,
+          0.32629905990187436,
+          0.31942061339235395
+        ],
+        "mean_gamma": 0.33411826089136387
+      },
+      "javascript": {
+        "count": 739,
+        "mean_gamma": 0.3341182608913638
+      },
+      "comparison_JS_Python": "PASS",
+      "comparison_R_Python": "NOT RUN (Rscript unavailable)"
+    }
+  },
+  "kriging": {
+    "initial": {
+      "python_reference": {
+        "n": 12,
+        "prediction_center": -0.679691495316532,
+        "variance_center": 0.5160926322028753
+      },
+      "javascript": {
+        "prediction_center": -0.679691495316532,
+        "variance_center": 0.5160926322028753
+      },
+      "comparison_JS_Python": "PASS",
+      "comparison_R_Python": "NOT RUN (Rscript unavailable)"
+    },
+    "edited": {
+      "python_reference": {
+        "n": 13,
+        "prediction_center": -0.9753125747697415,
+        "variance_center": 0.3827846056880545
+      },
+      "javascript": {
+        "prediction_center": -0.9753125747697419,
+        "variance_center": 0.38278460568805434
+      },
+      "comparison_JS_Python": "PASS",
+      "comparison_R_Python": "NOT RUN (Rscript unavailable)"
+    }
+  },
+  "regressione-spaziale": {
+    "initial": {
+      "python_reference": {
+        "n": 45,
+        "r2_x": 0.9896201528023684,
+        "moran_x": 0.43426284161350026,
+        "r2_coords": 0.999585709516448,
+        "moran_coords": 0.30638853646774133
+      },
+      "javascript": {
+        "r2_x": 0.9896201528023684,
+        "moran_x": 0.43426284161350165,
+        "r2_coords": 0.999585709516448,
+        "moran_coords": 0.3063885364677419
+      },
+      "comparison_JS_Python": "PASS",
+      "comparison_R_Python": "NOT RUN (Rscript unavailable)"
+    },
+    "edited": {
+      "python_reference": {
+        "n": 46,
+        "r2_x": 0.9521322318972356,
+        "moran_x": -0.0186848908362807,
+        "r2_coords": 0.9591679152784613,
+        "moran_coords": -0.04235050211894135
+      },
+      "javascript": {
+        "r2_x": 0.9521322318972356,
+        "moran_x": -0.018684890836279854,
+        "r2_coords": 0.9591679152784613,
+        "moran_coords": -0.04235050211894063
+      },
+      "comparison_JS_Python": "PASS",
+      "comparison_R_Python": "NOT RUN (Rscript unavailable)"
+    }
+  }
+}

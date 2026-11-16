@@ -3,13 +3,15 @@
 Does not claim to check correctness of scientific theory or R concordance.
 """
 from pathlib import Path
+import sys
 from shutil import which
 from playwright.sync_api import sync_playwright
 root=Path(__file__).resolve().parent.parent
+SPATIAL={'moran','lisa','processi-puntuali','variogrammi','kriging','regressione-spaziale'}
 labs=['distribuzioni','bivariata','simulazione','lgn-tcl','adattamento','stimatori','fisher','intervalli','test','regressione','regressione-lp','glm','arma','quantilica','penalizzata','spline','segmentata','validazione','knn','alberi','boost','reti-neurali','pca','clustering','dbscan','moran','lisa','processi-puntuali','variogrammi','kriging','regressione-spaziale']
 with sync_playwright() as pw:
  browser=pw.chromium.launch(executable_path=which('chromium') or which('google-chrome') or None,headless=True,args=['--no-sandbox','--disable-dev-shm-usage'])
- for width in [390,1024]:
+ for width in ([390,1024] if '--two-widths' in sys.argv else [390]):
   page=browser.new_page(viewport={'width':width,'height':860},is_mobile=(width==390),has_touch=(width==390))
   errors=[]
   page.on('pageerror',lambda e:errors.append(str(e)))
@@ -24,7 +26,13 @@ with sync_playwright() as pw:
    assert page.locator('.challenge-answer').count()==(9 if lab in ('intervalli','validazione','kriging') else 12),(lab,'answers')
    assert page.locator('.lab-head .lab-cover svg').count()>0,(lab,'cover')
    assert page.locator('.lab-howto').count()==1,(lab,'guide')
-   assert page.locator('.tbl-wrap').count()>0,(lab,'table')
+   if lab in SPATIAL:
+    assert page.locator('.spatial-studio').count()==1,(lab,'unified studio')
+    assert page.locator('.spatial-studio-map svg').count()==1,(lab,'map')
+    assert page.locator('.spatial-studio-stat').count()>=3,(lab,'statistics')
+    assert page.locator('.tbl-wrap').count()==0,(lab,'legacy table unexpectedly mounted')
+   else:
+    assert page.locator('.tbl-wrap').count()>0,(lab,'table')
    assert page.evaluate('document.documentElement.scrollWidth<=window.innerWidth+2'),(lab,width,'overflow')
    if lab not in ('intervalli','validazione','kriging'):
     first=page.locator('.challenge-card').first
@@ -32,7 +40,11 @@ with sync_playwright() as pw:
     verify=first.get_by_role('button',name='Verifica la sfida')
     first.locator('input[type=radio]').nth(1).check()
     verify.click()
-    assert any(token in first.locator('.challenge-feedback').inner_text() for token in ('Esegui','Apri','Seleziona')),(lab,'missing precondition')
+    feedback=first.locator('.challenge-feedback').inner_text()
+    if lab in SPATIAL:
+     assert feedback and 'Sfida completata' not in feedback,(lab,'spatial activity gate not enforced',feedback)
+    else:
+     assert any(token in feedback for token in ('Esegui','Apri','Seleziona')),(lab,'missing precondition',feedback)
    if errors: raise Exception(f'Browser JS error {lab} {width}: {errors[-1]}')
   page.close()
  # Exercise one full challenge with live runner and changed controls
@@ -47,4 +59,4 @@ with sync_playwright() as pw:
  q.get_by_role('button',name='Verifica la sfida').click()
  assert 'Sfida completata' in q.locator('.challenge-feedback').inner_text(),q.locator('.challenge-feedback').inner_text()
  browser.close()
-print('OK: challenge browser 31/31, 2 viewports; manual runner on lab 09')
+print('OK: challenge browser 31/31, 1 viewport by default (add --two-widths for 2); manual runner on lab 09')

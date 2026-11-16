@@ -54,6 +54,7 @@ SA.math = (function () {
         if (name === 'quad') return { h: '<span class="m-sp3"></span>', k: 'open' };
         if (name === 'qquad') return { h: '<span class="m-sp4"></span>', k: 'open' };
         if (name === '\\') return { h: '<br>', k: 'open' };
+        if (name === 'xrightarrow') return { h: '<span class="m-xarrow m-rel"><span class="m-xarrow-top">' + arg() + '</span><span>⟶</span></span>', k: 'bin' };
         if (name === 'frac' || name === 'tfrac' || name === 'dfrac') { var a = arg(), b = arg(); return { h: '<span class="m-frac"><span class="m-num">' + a + '</span><span class="m-den">' + b + '</span></span>' }; }
         if (name === 'binom') { var p = arg(), q = arg(); return { h: '<span class="m-delim m-tall">(</span><span class="m-frac m-nobar"><span class="m-num">' + p + '</span><span class="m-den">' + q + '</span></span><span class="m-delim m-tall">)</span>' }; }
         if (name === 'sqrt') return { h: '<span class="m-sqrt"><svg class="m-surd" viewBox="0 0 10 30" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M0.6 17.5 L3 15.6 L6.2 29.2 L10 0.5" fill="none" stroke="currentColor" stroke-width="1" vector-effect="non-scaling-stroke" stroke-linejoin="round"/></svg><span class="m-rad">' + arg() + '</span></span>' };

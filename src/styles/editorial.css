@@ -239,6 +239,8 @@ html.zoom-open, html.zoom-open body { overflow: hidden; }
 .m i { font-style: italic; }
 .m sub, .m sup { font-size: .72em; line-height: 0; }
 .m-rel { margin: 0 .3em; } .m-bin { margin: 0 .22em; }
+.m-xarrow { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; vertical-align: middle; line-height: 1; white-space: nowrap; }
+.m-xarrow-top { font-size: .68em; min-height: .9em; line-height: 1.2; }
 .m-sp1 { display: inline-block; width: .17em; } .m-sp2 { display: inline-block; width: .3em; } .m-sp3 { display: inline-block; width: 1em; } .m-sp4 { display: inline-block; width: 2em; }
 .m-text, .m-fn { font-style: normal; } .m-fn { margin-right: .1em; }
 .m-frac { display: inline-flex; flex-direction: column; align-items: stretch; vertical-align: middle; margin: 0 .14em; text-align: center; }

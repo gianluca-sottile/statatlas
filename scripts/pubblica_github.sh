@@ -8,13 +8,32 @@ SOURCE=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 URL=${STATATLAS_REPO_URL:-https://github.com/gianluca-sottile/statatlas.git}
 WORK=$(mktemp -d "${TMPDIR:-/tmp}/statatlas-v21-XXXXXX")
 trap 'rm -rf "$WORK"' EXIT HUP INT TERM
-printf '1/5 Clono il repository in uno spazio temporaneo...\n'
+# Gate obbligatorio: non pubblicare un report storico o una build diversa.
+if [ ! -f "$SOURCE/verifica/REPORT_VALIDAZIONE_R_31.csv" ]; then
+  echo 'ERRORE: manca verifica/REPORT_VALIDAZIONE_R_31.csv: esegui prima Rscript verifica/valida_tutti_31.R' >&2
+  exit 1
+fi
+python3 - "$SOURCE" <<'PY_VERIFY'
+import csv, hashlib, pathlib, sys
+root = pathlib.Path(sys.argv[1])
+manifest = list(csv.DictReader((root/'verifica/export_r_31/manifest.csv').open(encoding='utf-8')))
+results = list(csv.DictReader((root/'verifica/REPORT_VALIDAZIONE_R_31.csv').open(encoding='utf-8')))
+assert len(manifest) == len(results) == 31, 'Collegamento manifest-esiti R incompleto'
+sha = hashlib.sha256((root/'index.html').read_bytes()).hexdigest()
+assert all(r['build_sha256'] == sha for r in manifest), 'Gli snapshot R sono obsoleti: ripetere la validazione R'
+assert all(r['build_sha256'] == sha and r['runtime'] == 'PASS' and r['parse'] == 'PASS' for r in results), 'R fallito oppure esiti obsoleti'
+assert [r['laboratorio'] for r in results] == [m['lab'] for m in manifest], 'Ordine laboratori non coerente'
+print('Gate GNU R: 31 esecuzioni con esito PASS, stessa build corrente')
+PY_VERIFY
+printf '1/5 Clono il repository in uno spazio temporaneo...\n' 
 git clone --quiet "$URL" "$WORK/repo"
 cd "$WORK/repo"
 BRANCH=$(git branch --show-current)
 if [ "$BRANCH" != main ]; then echo "ERRORE: il ramo corrente e' $BRANCH, atteso main." >&2; exit 1; fi
 printf '2/5 Copio la versione conclusiva senza modificare la cronologia Git...\n'
-rsync -a --delete --exclude='.git/' "$SOURCE/" "$WORK/repo/"
+rsync -a --delete --exclude='.git/' --exclude='.venv/' --exclude='__pycache__/' \
+  --exclude='*.pyc' --exclude='*.log' --exclude='verifica/runs/' \
+  --exclude='verifica/REPORT_VALIDAZIONE_R_31.csv' "$SOURCE/" "$WORK/repo/"
 printf '3/5 Ricostruisco la versione offline...\n'
 python3 build.py
 if command -v node >/dev/null 2>&1; then
@@ -42,6 +61,6 @@ if [ -z "$(git status --porcelain)" ]; then
 fi
 printf '5/5 Creo un unico commit e pubblico su main...\n'
 git add -A
-git commit -m 'StatAtlas 2.1: correzione generale export R e parsing automatico in CI'
+git commit -m 'StatAtlas 2.1: audit formale, verifica R 31 laboratori, QA responsivo'
 git push origin main
 printf 'PUBBLICAZIONE COMPLETATA. Ora verifica GitHub Actions e la checklist conclusiva.\n'

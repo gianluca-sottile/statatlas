@@ -215,7 +215,7 @@
   function updateFeedback() {
     if (!S.pred) { fbBox.hidden = true; return; }
     fbBox.hidden = false;
-    fbBox.textContent = (S.pred === 'lasso' ? '✓ ' : '✗ ') + 'La regione del lasso ha spigoli sugli assi: la curva di livello la tocca spesso proprio lì, dove un coefficiente vale 0. Il cerchio del ridge non ha spigoli: le stime si riducono ma restano diverse da zero. L’elastic net ha spigoli (selezione) ma lati curvi (stabilità con predittori correlati).';
+    fbBox.textContent = (S.pred === 'lasso' ? '✓ ' : '✗ ') + 'La regione del lasso ha spigoli sugli assi: la curva di livello la tocca spesso proprio lì, dove un coefficiente vale 0. Il cerchio del ridge non ha spigoli: normalmente riduce le stime senza produrre selezione esatta (un coefficiente può comunque essere zero in casi particolari). L’elastic net ha spigoli (selezione) ma lati curvi (stabilità con predittori correlati).';
   }
   function interpretation() {
     interpBox.innerHTML = S.view === 'geo'
@@ -270,10 +270,10 @@
         '<div class="callout warn">I predittori vanno standardizzati: la penalizzazione tratta tutti i coefficienti allo stesso modo, quindi dipende dalle unità di misura. <code>glmnet</code> lo fa per impostazione predefinita.</div>' });
     },
     adv: function () {
-      return el('div.prose', { html: '<h3>Soluzioni in forma chiusa</h3><p>Ridge: β̂ = (XᵀX + nλI)⁻¹Xᵀy, che esiste anche quando p &gt; n. Con predittori ortonormali: ridge β̂ⱼ<sup>OLS</sup>/(1 + λ), lasso S(β̂ⱼ<sup>OLS</sup>, λ) con S(z, γ) = sign(z)(|z| − γ)₊ (soglia morbida).</p>' +
+      return el('div.prose', { html: '<h3>Soluzioni in forma chiusa</h3><p>Ridge: β̂ = (XᵀX + nλI)⁻¹Xᵀy, che è unica per λ &gt; 0 anche quando p &gt; n (senza penalizzare l’intercetta). Con predittori ortonormali: ridge β̂ⱼ<sup>OLS</sup>/(1 + λ), lasso S(β̂ⱼ<sup>OLS</sup>, λ) con S(z, γ) = sign(z)(|z| − γ)₊ (soglia morbida).</p>' +
         '<h3>Discesa coordinata</h3><p>Si aggiorna un coefficiente alla volta: βⱼ ← S(zⱼ, λα)/(1 + λ(1 − α)), con zⱼ il prodotto tra il predittore j e il residuo parziale. Con partenze a caldo lungo una griglia decrescente di λ si ottiene l’intero percorso in poche iterazioni (Friedman, Hastie e Tibshirani, 2010).</p>' +
-        '<h3>Gradi di libertà e scelta di λ</h3><p>Per il lasso il numero di coefficienti non nulli è uno stimatore non distorto dei gradi di libertà (Zou, Hastie e Tibshirani, 2007). λ si sceglie per validazione incrociata; la regola “un errore standard” preferisce il modello più semplice entro un errore standard dal minimo.</p>' +
-        '<h3>Effetto di raggruppamento</h3><p>Con predittori molto correlati il lasso tende a sceglierne uno solo, in modo instabile; l’elastic net li seleziona insieme con coefficienti simili (Zou e Hastie, 2005). Il lasso seleziona al più n variabili quando p &gt; n.</p>' +
+        '<h3>Gradi di libertà e scelta di λ</h3><p>Sotto ipotesi quali errori gaussiani, disegno fissato e condizioni adeguate di unicità/general position, il numero di coefficienti non nulli del lasso è uno stimatore dei gradi di libertà (Zou, Hastie e Tibshirani, 2007); non è una proprietà universale. λ si sceglie per validazione incrociata; la regola “un errore standard” preferisce il modello più semplice entro un errore standard dal minimo.</p>' +
+        '<h3>Effetto di raggruppamento</h3><p>Con predittori molto correlati il lasso tende a sceglierne uno solo, in modo instabile; l’elastic net li seleziona insieme con coefficienti simili (Zou e Hastie, 2005). Se p &gt; n, esiste una soluzione lasso con al più n coefficienti non nulli; senza unicità altre soluzioni possono avere supporti diversi.</p>' +
         '<h3>Inferenza dopo la selezione</h3><p>Gli errori standard usuali non valgono dopo aver scelto le variabili con i dati: servono metodi di inferenza selettiva o il campionamento separato (sample splitting).</p>' });
     }
   };

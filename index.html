@@ -538,6 +538,8 @@ html.zoom-open, html.zoom-open body { overflow: hidden; }
 .m i { font-style: italic; }
 .m sub, .m sup { font-size: .72em; line-height: 0; }
 .m-rel { margin: 0 .3em; } .m-bin { margin: 0 .22em; }
+.m-xarrow { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; vertical-align: middle; line-height: 1; white-space: nowrap; }
+.m-xarrow-top { font-size: .68em; min-height: .9em; line-height: 1.2; }
 .m-sp1 { display: inline-block; width: .17em; } .m-sp2 { display: inline-block; width: .3em; } .m-sp3 { display: inline-block; width: 1em; } .m-sp4 { display: inline-block; width: 2em; }
 .m-text, .m-fn { font-style: normal; } .m-fn { margin-right: .1em; }
 .m-frac { display: inline-flex; flex-direction: column; align-items: stretch; vertical-align: middle; margin: 0 .14em; text-align: center; }
@@ -769,7 +771,7 @@ a.eqref { color: var(--accent); text-decoration: none; font-variant-numeric: tab
     font: 600 .82rem/1.25 var(--sans); cursor: pointer;
   }
   .lab-mobile-nav button:active { background: var(--accent-soft); color: var(--ink); }
-  .controls, .figure, .tbl-wrap, .lab-head { scroll-margin-top: 80px; }
+  .controls, .figure, .tbl-wrap, .lab-head, .spatial-studio-map, .spatial-studio-panel, .spatial-studio-stats { scroll-margin-top: 80px; }
   body.mobile-menu-open .lab-mobile-nav, html.zoom-open .lab-mobile-nav,
   body:has(.drawer.open) .lab-mobile-nav,
   body:has(.modal) .lab-mobile-nav { visibility: hidden; pointer-events: none; }
@@ -1449,6 +1451,7 @@ SA.math = (function () {
         if (name === 'quad') return { h: '<span class="m-sp3"></span>', k: 'open' };
         if (name === 'qquad') return { h: '<span class="m-sp4"></span>', k: 'open' };
         if (name === '\\') return { h: '<br>', k: 'open' };
+        if (name === 'xrightarrow') return { h: '<span class="m-xarrow m-rel"><span class="m-xarrow-top">' + arg() + '</span><span>⟶</span></span>', k: 'bin' };
         if (name === 'frac' || name === 'tfrac' || name === 'dfrac') { var a = arg(), b = arg(); return { h: '<span class="m-frac"><span class="m-num">' + a + '</span><span class="m-den">' + b + '</span></span>' }; }
         if (name === 'binom') { var p = arg(), q = arg(); return { h: '<span class="m-delim m-tall">(</span><span class="m-frac m-nobar"><span class="m-num">' + p + '</span><span class="m-den">' + q + '</span></span><span class="m-delim m-tall">)</span>' }; }
         if (name === 'sqrt') return { h: '<span class="m-sqrt"><svg class="m-surd" viewBox="0 0 10 30" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M0.6 17.5 L3 15.6 L6.2 29.2 L10 0.5" fill="none" stroke="currentColor" stroke-width="1" vector-effect="non-scaling-stroke" stroke-linejoin="round"/></svg><span class="m-rad">' + arg() + '</span></span>' };
@@ -2547,7 +2550,12 @@ SA.spatialStudio = (function () {
     if(!conf[type])throw new Error('Studio spaziale inesistente: '+type);
     opts=opts||{};
     var state={type:type,tool:type==='points'||type==='kriging'?'add':'high',knn:4,band:type==='variogram'?2:.085,show:type==='kriging'?'uncertainty':'value',model:'coords',shown:'regression',bins:8,counter:0,measureCount:0,source:opts.source,feedback:'',active:null};
-    var initial=sampleInit(type,opts.source);state.points=initial.points;state.other=Object.assign({},initial.other,{covOptions:initial.other.covOptions?Object.assign({},initial.other.covOptions):undefined});
+    var initial=sampleInit(type,opts.source);
+    // Keep an immutable-by-convention copy of the initial observation set.
+    // A direct reference would be mutated by addPoint()/splice(), causing
+    // "Ripristina mappa iniziale" to retain subsequently added points.
+    state.points=initial.points.map(clone);
+    state.other=Object.assign({},initial.other,{covOptions:initial.other.covOptions?Object.assign({},initial.other.covOptions):undefined});
     if(type==='kriging' && initial.other && initial.other.grid)state.grid=initial.other.grid;
     var root=element('section',null,'spatial-studio');root.setAttribute('aria-label','Mappa interattiva: '+conf[type].title);
     var heading=element('div',null,'spatial-studio-heading');heading.append(element('span','ESPLORA SULLA MAPPA · PARTE VIII','spatial-studio-overline'),element('h2',conf[type].title),element('p',conf[type].question));root.append(heading);
@@ -2880,8 +2888,9 @@ function rScript(id,studio){
  if(id==='variogrammi')head.push('p <- '+studio.state.bins+'L',
    'distPairs <- as.vector(dist(as.matrix(d[,c("x","y")])))',
    'sqDiff <- as.vector(dist(d$z))^2/2',
-   'brks <- seq(0,1,length.out=p+1)',
-   'bin <- cut(distPairs,breaks=brks,include.lowest=TRUE)',
+   '# Classi di distanza: [a,b), ultima chiusa in r=1 (coerenti con JS).',
+   'binIndex <- ifelse(distPairs <= 1, pmin(p, floor(distPairs*p)+1L), NA_integer_)',
+   'bin <- factor(binIndex, levels=seq_len(p))',
    'print(data.frame(classe=levels(bin),semivarianza=as.numeric(tapply(sqDiff,bin,mean)),coppie=as.numeric(table(bin))))',
    '# La mappa dell’app usa IDW: non va confusa con il variogramma.');
  if(id==='kriging')head.push('phi <- '+toR(studio.state.other.covOptions.phi),
@@ -4323,7 +4332,7 @@ SA.pedagogy = {
   "distribuzioni": {
     "guida": [
       "Scegli una legge e imposta i parametri; osserva come cambiano densità (o massa), ripartizione e momenti.",
-      "Fissa un intervallo [a,b] e confronta area teorica e frequenza relativa nel campione.",
+      "Fissa un intervallo (a,b] e confronta la probabilità teorica e la frequenza relativa nel campione, facendo attenzione ai bordi per le leggi discrete.",
       "Usa Passo o Avvia per generare osservazioni: segui istogramma, ripartizione empirica e tabella.",
       "Ripeti cambiando numerosità o distribuzione; verifica anche i casi con momenti non esistenti."
     ]
@@ -4718,9 +4727,9 @@ SA.pedagogy = {
  var SA=window.SA||(window.SA={});
  var formulas={
   "distribuzioni": "P(a<X\\le b)=F(b)-F(a)",
-  "bivariata": "\\mathrm{Var}(Y\\mid X=x)=1-\\rho^2",
+  "bivariata": "\\mathrm{Var}(Y\\mid X=x)=\\sigma_Y^2(1-\\rho^2)",
   "simulazione": "\\mathrm{Var}(Z)=\\mathrm{E}[\\mathrm{Var}(Z\\mid U)]+\\mathrm{Var}(\\mathrm{E}[Z\\mid U])",
-  "lgn-tcl": "\\frac{\\sqrt{n}(\\bar{X}_n-\\mu)}{\\sigma}\\to N(0,1)",
+  "lgn-tcl": "\\frac{\\sqrt{n}(\\bar{X}_n-\\mu)}{\\sigma}\\xrightarrow{d} N(0,1)",
   "adattamento": "X^2=\\sum_{j=1}^{k}\\frac{(O_j-E_j)^2}{E_j}",
   "stimatori": "\\mathrm{MSE}(T)=\\mathrm{Var}(T)+(\\mathrm{E}[T]-\\theta)^2",
   "fisher": "I(\\theta)=\\mathrm{E}[U(\\theta)^2]=-\\mathrm{E}[\\ell\\prime\\prime(\\theta)]",
@@ -4729,12 +4738,12 @@ SA.pedagogy = {
   "regressione": "\\hat{\\beta}=(X^\\top X)^{-1}X^\\top y",
   "regressione-lp": "\\hat\\beta_p=\\argmin_\\beta \\sum_{i=1}^{n}|y_i-x_i^\\top\\beta|^p",
   "glm": "g(\\mu_i)=x_i^\\top\\beta",
-  "arma": "\\gamma(h)=\\frac{\\sigma^2\\phi^{|h|}}{1-\\phi^2}",
+  "arma": "\\gamma_{AR(1)}(h)=\\frac{\\sigma_\\varepsilon^2\\phi^{|h|}}{1-\\phi^2}",
   "quantilica": "\\rho_\\tau(u)=u(\\tau-\\mathbf{1}_{u<0})",
-  "penalizzata": "\\hat\\beta=\\argmin_\\beta \\{RSS(\\beta)+\\lambda ||\\beta||_1\\}",
+  "penalizzata": "\\hat\\beta=\\argmin_\\beta \\{\\tfrac{1}{2n}\\|y-X\\beta\\|_2^2+\\lambda[\\alpha\\|\\beta\\|_1+\\tfrac{1-\\alpha}{2}\\|\\beta\\|_2^2]\\}",
   "spline": "\\hat f=\\argmin_f \\{\\sum_{i=1}^n(y_i-f(x_i))^2+\\lambda J(f)\\}",
   "segmentata": "\\mathrm{E}(Y_i\\mid x_i)=\\beta_0+\\beta_1 x_i+\\delta(x_i-\\psi)_+",
-  "validazione": "\\hat R(\\lambda)=\\frac{1}{K}\\sum_{k=1}^K R_k(\\lambda)",
+  "validazione": "\\widehat R_{CV}(\\lambda)=\\frac{1}{n}\\sum_{k=1}^K n_k R_k(\\lambda)",
   "knn": "\\hat P(Y=c\\mid x)=\\frac{1}{k}\\sum_{i\\in N_k(x)}1(y_i=c)",
   "alberi": "\\mathrm{Var}(\\bar T_B)=v\\left(\\rho+\\frac{1-\\rho}{B}\\right)",
   "boost": "F_m=F_{m-1}+\\nu h_m",
@@ -4752,14 +4761,14 @@ SA.pedagogy = {
  Object.keys(formulas).forEach(function(id) { if (SA.pedagogy[id]) SA.pedagogy[id].formula=formulas[id]; });
 
  var qualifications={
-   "bivariata":"La varianza condizionata 1−ρ² vale per una normale bivariata standardizzata con varianze marginali unitarie, non per una distribuzione bivariata arbitraria.",
+   "bivariata":"La varianza condizionata σ_Y²(1−ρ²) vale per una normale bivariata con σ_X,σ_Y positive e |ρ|<1; nel caso standardizzato σ_Y²=1. Non vale per una congiunta arbitraria.",
    "lgn-tcl":"La normalizzazione classica del TCL richiede varianza finita, campioni iid e σ positiva; il laboratorio presenta casi di fallimento.",
    "fisher":"L'identità tra varianza dello score e curvatura media richiede ipotesi di regolarità e giustificazione dello scambio derivata-integrale.",
    "intervalli":"L'identità definisce la copertura reale. L'uguaglianza o disuguaglianza rispetto a 1−α deve essere verificata per ciascun metodo: Wald e Wilson possono sottocoprire.",
    "regressione":"L'espressione mediante inversa ordinaria di XᵀX richiede rango colonnare pieno; con collinearità perfetta servono altre convenzioni o una soluzione generalizzata.",
    "arma":"La formula della covarianza indicata riguarda esclusivamente un AR(1) stazionario con |φ| < 1, non un ARMA generico.",
-   "penalizzata":"La formula mostra la penalizzazione lasso. Ridge usa una penalità quadratica; elastic net combina termini L1 e L2, con convenzioni di scala da esplicitare.",
-   "validazione":"La media semplice degli errori dei fold coincide con la media per osservazione se i fold hanno uguale numerosità; con fold diseguali può servire pesare per dimensione.",
+   "penalizzata":"Obiettivo di elastic net coerente con la normalizzazione (1/2n)RSS del laboratorio: α=0 ridge, α=1 lasso, 0<α<1 elastic net; λ≥0; intercetta non penalizzata e predittori opportunamente centrati/standardizzati.",
+   "validazione":"L’errore out-of-fold per osservazione pesa i rischi dei fold per n_k/n. La media semplice K⁻¹∑R_k coincide soltanto quando le numerosità dei fold sono uguali; le differenze influiscono sul valore della CV e sulla scelta degli iperparametri.",
    "moran":"Il valore di I dipende dalla matrice W, da S0 e dalla normalizzazione; la speranza sotto permutazione non è in generale zero.",
    "lisa":"La definizione di m2 e le normalizzazioni di W devono essere mantenute identiche nel confronto tra implementazioni.",
    "processi-puntuali":"K(r)=πr² è il riferimento teorico del processo di Poisson omogeneo sul piano; non vale per un processo puntuale generico.",
@@ -4820,7 +4829,7 @@ SA.pedagogy = {
  ],
  "regressione-lp": [
   "<h3>Domanda statistica e ipotesi</h3><p>I criteri Lp con p≥1 sono convessi nei residui e, attraverso un predittore lineare, in β. L’unicità richiede ulteriori condizioni (per esempio rango e proprietà stretta del criterio). Robustezza ed efficienza dipendono dalla legge degli errori.</p><h3>Lettura dell’esperimento</h3><p>Confronta L1 e L2 sotto normale, Laplace e contaminazione usando bias, quantili e dispersione campionaria.</p>",
-  "<h3>Enunciato e derivazione</h3><p>Per loss ρ_p(r)=|r|^p, lo score è ψ_p(r)=p sign(r)|r|^(p−1), definito con subgradiente in r=0 per p=1. In un modello regolare di posizione, la varianza asintotica di uno stimatore M è E[ψ(ε)²]/{n(E[ψʹ(ε)])²}; la formula presuppone esistenza dei momenti e regolarità della derivata. La funzione quadratica è efficiente per errori normali, la loss assoluta per Laplace.</p><h3>Quando il risultato non vale</h3><p>Con p&lt;1 la funzione obiettivo perde convessità; con errori Cauchy l’MSE per L2 non è definito. Il metodo numerico IRLS può richiedere regolarizzazioni vicino a residuo zero.</p><h3>Verifica empirica mirata</h3><p>Confronta L1 e L2 sotto normale, Laplace e contaminazione usando bias, quantili e dispersione campionaria.</p>"
+  "<h3>Enunciato e derivazione</h3><p>Per loss ρ_p(r)=|r|^p, lo score è ψ_p(r)=p sign(r)|r|^(p−1), definito con subgradiente in r=0 per p=1. Per uno stimatore M di posizione regolare con score differenziabile e momenti adeguati, la varianza asintotica è E[ψ(ε)²]/{n(E[ψʹ(ε)])²}. Questa espressione non si applica direttamente allo score discontinuo della loss L1: la varianza della mediana usa la densità f(θ)>0, con limite 1/{4n f(θ)²}. In regressione la formula diventa matriciale e dipende dal disegno. La funzione quadratica è efficiente per errori normali, la loss assoluta per Laplace.</p><h3>Quando il risultato non vale</h3><p>Con p&lt;1 la funzione obiettivo perde convessità; con errori Cauchy l’MSE per L2 non è definito. Il metodo numerico IRLS può richiedere regolarizzazioni vicino a residuo zero.</p><h3>Verifica empirica mirata</h3><p>Confronta L1 e L2 sotto normale, Laplace e contaminazione usando bias, quantili e dispersione campionaria.</p>"
  ],
  "glm": [
   "<h3>Domanda statistica e ipotesi</h3><p>Un GLM richiede famiglia esponenziale (o struttura quasi-verosimile separatamente dichiarata), link e varianza condizionata appropriati. I coefficienti vivono sulla scala del link, non necessariamente su quella della risposta.</p><h3>Lettura dell’esperimento</h3><p>Aumenta la separazione nel generatore binario, osserva la convergenza IRLS e confronta l’intervallo Wald con una verifica su più campioni.</p>",
@@ -4840,7 +4849,7 @@ SA.pedagogy = {
  ],
  "spline": [
   "<h3>Domanda statistica e ipotesi</h3><p>Spline penalizzate e kernel sono famiglie differenti di stimatori flessibili; la quantità di regolarizzazione deve essere collegata al rischio fuori campione, non soltanto alla bontà di adattamento.</p><h3>Lettura dell’esperimento</h3><p>Confronta la curva stimata e la funzione generatrice sotto diversi parametri di levigatura, usando errore fuori campione.</p>",
-  "<h3>Enunciato e derivazione</h3><p>Per una spline di smoothing si minimizza ∑(y_i−f(x_i))²+λ∫{fʺ(t)}²dt nello spazio funzionale adeguato; il teorema di rappresentazione conduce a una spline cubica naturale con nodi nei dati. Per smoothers lineari si scrive f̂=S_λy e df_eff=tr(S_λ), da non confondere con il numero dei nodi. Nel kernel di Nadaraya–Watson si usano pesi normalizzati K((x−x_i)/h), e la bandwidth h controlla il vicinato.</p><h3>Quando il risultato non vale</h3><p>Una scelta molto piccola di bandwidth può amplificare il rumore; una spline troppo liscia può cancellare un cambiamento brusco. L’estrapolazione oltre i dati può essere instabile.</p><h3>Verifica empirica mirata</h3><p>Confronta la curva stimata e la funzione generatrice sotto diversi parametri di levigatura, usando errore fuori campione.</p>"
+  "<h3>Enunciato e derivazione</h3><p>Per una spline di smoothing (con valori x interni e condizioni al bordo appropriate) si minimizza ∑(y_i−f(x_i))²+λ∫{fʺ(t)}²dt nello spazio funzionale adeguato; il teorema di rappresentazione conduce a una spline cubica naturale con nodi nei dati. Per smoothers lineari si scrive f̂=S_λy e df_eff=tr(S_λ), da non confondere con il numero dei nodi. Nel kernel di Nadaraya–Watson si usano pesi normalizzati K((x−x_i)/h), e la bandwidth h controlla il vicinato.</p><h3>Quando il risultato non vale</h3><p>Una scelta molto piccola di bandwidth può amplificare il rumore; una spline troppo liscia può cancellare un cambiamento brusco. L’estrapolazione oltre i dati può essere instabile.</p><h3>Verifica empirica mirata</h3><p>Confronta la curva stimata e la funzione generatrice sotto diversi parametri di levigatura, usando errore fuori campione.</p>"
  ],
  "segmentata": [
   "<h3>Domanda statistica e ipotesi</h3><p>La regressione segmentata continua modifica la pendenza in un breakpoint ψ non noto; se δ=0 il breakpoint sparisce dal modello e l’inferenza regolare su ψ non è giustificata.</p><h3>Lettura dell’esperimento</h3><p>Avvicina il breakpoint al bordo e riduci δ fino a zero, confrontando profilo RSS e stime in più repliche.</p>",
@@ -6996,12 +7005,22 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   /* Navigazione rapida SOLO su smartphone. Scorre ai contenuti esistenti e non avvia
    * né duplica le simulazioni; conserva un'unica sorgente di stato per i runner. */
   function addMobileLabNav(page) {
-    var entries = [
+    // Lab 01-25: historical chart/transport layout. Lab 26-31: one
+    // continuous spatial studio with its own map, controls and statistics.
+    // Links are derived from existing elements: no duplicate map or runner.
+    var spatial = page.querySelector('.spatial-studio');
+    var entries = spatial ? [
+      ['Parametri', spatial.querySelector('.spatial-studio-panel')],
+      ['Mappa', spatial.querySelector('.spatial-studio-map')],
+      ['Risultati', spatial.querySelector('.spatial-studio-stats')],
+      ['Inizio', page.querySelector('.lab-head')]
+    ] : [
       ['Parametri', page.querySelector('.lab-grid .controls')],
       ['Grafici', page.querySelector('.lab-grid .figure') || page.querySelector('.fig')],
       ['Risultati', page.querySelector('.tbl-wrap')],
       ['Inizio', page.querySelector('.lab-head')]
-    ].filter(function (pair) { return !!pair[1]; });
+    ];
+    entries = entries.filter(function (pair) { return !!pair[1]; });
     if (entries.length < 2) return;
     var nav = el('nav.lab-mobile-nav', { 'aria-label': 'Vai alle sezioni del laboratorio' });
     entries.forEach(function (pair) {
@@ -12045,7 +12064,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   function updateFeedback() {
     if (!S.pred) { fbBox.hidden = true; return; }
     fbBox.hidden = false;
-    fbBox.textContent = (S.pred === 'lasso' ? '✓ ' : '✗ ') + 'La regione del lasso ha spigoli sugli assi: la curva di livello la tocca spesso proprio lì, dove un coefficiente vale 0. Il cerchio del ridge non ha spigoli: le stime si riducono ma restano diverse da zero. L’elastic net ha spigoli (selezione) ma lati curvi (stabilità con predittori correlati).';
+    fbBox.textContent = (S.pred === 'lasso' ? '✓ ' : '✗ ') + 'La regione del lasso ha spigoli sugli assi: la curva di livello la tocca spesso proprio lì, dove un coefficiente vale 0. Il cerchio del ridge non ha spigoli: normalmente riduce le stime senza produrre selezione esatta (un coefficiente può comunque essere zero in casi particolari). L’elastic net ha spigoli (selezione) ma lati curvi (stabilità con predittori correlati).';
   }
   function interpretation() {
     interpBox.innerHTML = S.view === 'geo'
@@ -12100,10 +12119,10 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
         '<div class="callout warn">I predittori vanno standardizzati: la penalizzazione tratta tutti i coefficienti allo stesso modo, quindi dipende dalle unità di misura. <code>glmnet</code> lo fa per impostazione predefinita.</div>' });
     },
     adv: function () {
-      return el('div.prose', { html: '<h3>Soluzioni in forma chiusa</h3><p>Ridge: β̂ = (XᵀX + nλI)⁻¹Xᵀy, che esiste anche quando p &gt; n. Con predittori ortonormali: ridge β̂ⱼ<sup>OLS</sup>/(1 + λ), lasso S(β̂ⱼ<sup>OLS</sup>, λ) con S(z, γ) = sign(z)(|z| − γ)₊ (soglia morbida).</p>' +
+      return el('div.prose', { html: '<h3>Soluzioni in forma chiusa</h3><p>Ridge: β̂ = (XᵀX + nλI)⁻¹Xᵀy, che è unica per λ &gt; 0 anche quando p &gt; n (senza penalizzare l’intercetta). Con predittori ortonormali: ridge β̂ⱼ<sup>OLS</sup>/(1 + λ), lasso S(β̂ⱼ<sup>OLS</sup>, λ) con S(z, γ) = sign(z)(|z| − γ)₊ (soglia morbida).</p>' +
         '<h3>Discesa coordinata</h3><p>Si aggiorna un coefficiente alla volta: βⱼ ← S(zⱼ, λα)/(1 + λ(1 − α)), con zⱼ il prodotto tra il predittore j e il residuo parziale. Con partenze a caldo lungo una griglia decrescente di λ si ottiene l’intero percorso in poche iterazioni (Friedman, Hastie e Tibshirani, 2010).</p>' +
-        '<h3>Gradi di libertà e scelta di λ</h3><p>Per il lasso il numero di coefficienti non nulli è uno stimatore non distorto dei gradi di libertà (Zou, Hastie e Tibshirani, 2007). λ si sceglie per validazione incrociata; la regola “un errore standard” preferisce il modello più semplice entro un errore standard dal minimo.</p>' +
-        '<h3>Effetto di raggruppamento</h3><p>Con predittori molto correlati il lasso tende a sceglierne uno solo, in modo instabile; l’elastic net li seleziona insieme con coefficienti simili (Zou e Hastie, 2005). Il lasso seleziona al più n variabili quando p &gt; n.</p>' +
+        '<h3>Gradi di libertà e scelta di λ</h3><p>Sotto ipotesi quali errori gaussiani, disegno fissato e condizioni adeguate di unicità/general position, il numero di coefficienti non nulli del lasso è uno stimatore dei gradi di libertà (Zou, Hastie e Tibshirani, 2007); non è una proprietà universale. λ si sceglie per validazione incrociata; la regola “un errore standard” preferisce il modello più semplice entro un errore standard dal minimo.</p>' +
+        '<h3>Effetto di raggruppamento</h3><p>Con predittori molto correlati il lasso tende a sceglierne uno solo, in modo instabile; l’elastic net li seleziona insieme con coefficienti simili (Zou e Hastie, 2005). Se p &gt; n, esiste una soluzione lasso con al più n coefficienti non nulli; senza unicità altre soluzioni possono avere supporti diversi.</p>' +
         '<h3>Inferenza dopo la selezione</h3><p>Gli errori standard usuali non valgono dopo aver scelto le variabili con i dati: servono metodi di inferenza selettiva o il campionamento separato (sample splitting).</p>' });
     }
   };

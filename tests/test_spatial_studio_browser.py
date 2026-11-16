@@ -37,8 +37,16 @@ with sync_playwright() as p:
                 studio.locator('[data-tool="remove"]').click()
                 studio.locator('[data-point="0"]').click()
                 assert int(studio.get_attribute('data-points'))==int(before),(width,lab,'remove')
+                # Real reset regression: a net new point must disappear.
+                studio.locator('[data-tool="add"]' if studio.locator('[data-tool="add"]').count() else '[data-tool="high"]').click()
+                bg=studio.locator('[data-action="map"]')
+                # Key activation is deterministic and avoids clicking an
+                # existing point that intercepts the pointer in dense maps.
+                bg.focus()
+                bg.press('Enter')
+                assert int(studio.get_attribute('data-points'))==int(before)+1,(width,lab,'pre-reset add')
                 studio.locator('.spatial-studio-reset').first.click()
-                assert int(studio.get_attribute('data-points'))==int(before),(width,lab,'reset')
+                assert int(studio.get_attribute('data-points'))==int(before),(width,lab,'reset after net addition')
                 assert not failures,(width,lab,failures)
                 if width==390 and lab in ('moran','kriging','regressione-spaziale'):
                     screenshot=ROOT/'docs'/('SPATIAL_STUDIO_'+lab.replace('-','_')+'_mobile.png')
