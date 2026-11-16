@@ -52,3 +52,4 @@ jobs:
         run: |
           python tests/test_spatial_studio_browser.py
           python tests/test_spatial_studio_interactions.py
+          python tests/test_spatial_unified_challenges.py

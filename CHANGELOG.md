@@ -1,12 +1,14 @@
 # Changelog
 
-## Unreleased — 16/11/2026 · Parte VIII ridisegnata per mappe continue
+## Unreleased — 16/11/2026 · Parte VIII unificata, sostituzione delle vecchie interfacce
 
-- Nuova mappa esplorativa SVG nei sei laboratori 26–31, prima dell’esperimento originale; punti aggiungibili, spostabili, rimovibili anche su touch, scenari predefiniti e indicatori aggiornati immediatamente.
-- Studio di Moran e LISA su punti con W kNN standardizzata, separato dai test areali; KDE e L(r)−r per processi puntuali, semivarianza per variogrammi, superfici e varianza del kriging, confronto regressivo X vs X+coordinate.
-- Sincronizzazione bidirezionale delle modifiche ai dati con i laboratori 28 e 30: invalidazione degli envelope/repliche e nessun avvio automatico. Gli altri studi restano deliberatamente indipendenti dal motore inferenziale originale.
-- Nuove verifiche automatiche matematiche e browser; protetti tutti i 31 motori e gli script R esistenti.
-- Versione di **sviluppo 2.1**, nessun nuovo tag ufficiale. Dettagli e limiti in `docs/PARTE_VIII_MAPPE_CONTINUE.md`.
+- **Sostituiti completamente** i sei laboratori visivi 26–31: una mappa interattiva, un solo campione, un unico pannello di controllo. Nessun vecchio runner, canvas o pannello areale/Monte Carlo è montato sotto la mappa.
+- Nuovo componente `src/core/spatial-unified.js`; sei file `src/labs/26–31` ridotti a registrazioni del nuovo laboratorio condiviso. I motori numerici `src/core/spatial-*.js` rimangono per calcolo e test, senza duplicare l'interfaccia.
+- **Moran/LISA:** campione puntuale e vicinato kNN; **eventi:** KDE e L(r)−r; **variogrammi:** curva delle semivarianze e IDW illustrativo; **kriging:** campo fisso, ordinary kriging e incertezza condizionale; **regressione:** OLS X contro X+coordinate e Moran dei residui.
+- Riscritti testi didattici, esempi, teoria e tutte le **18 Challenges spaziali**; confronti A/B su due snapshot dello stesso dataset, senza pretendere repliche Monte Carlo indipendenti. Il cambio di un menu da solo non costituisce un campione: l'evidenza numerica nasce da un'azione sulla mappa o da «Registra questa configurazione».
+- Script R generati dai punti correnti della nuova mappa; esportazione CSV. La validazione numerica R **della nuova UI** rimane da completare, insieme all'audit formale dell'intera teoria.
+- Ricostruzione HTML, suite JavaScript e 31 test scientifici indipendenti, test browser per sei mappe × 3 larghezze, interazioni e Challenges; workflow GitHub Actions aggiornato.
+- Sviluppo 2.1 senza nuovo tag ufficiale. Dettagli in `docs/PARTE_VIII_UNIFICATA.md`.
 
 ## 2.1 — 15/11/2026 · Fase diagnostica conclusiva (sviluppo, senza tag)
 

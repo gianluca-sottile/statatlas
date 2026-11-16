@@ -21,6 +21,8 @@ with sync_playwright() as p:
                 before = studio.get_attribute('data-points')
                 assert int(before)>2,(width,lab,before)
                 assert studio.locator('.spatial-studio-map svg').count()==1,(width,lab)
+                assert page.locator('.spatial-studio').count()==1 and page.locator('.lab-grid').count()==0,(width,lab,'legacy ancora montata')
+                assert page.locator('.challenge-card').count()==3,(width,lab,'Challenges assenti')
                 assert studio.locator('.spatial-studio-stat').count()>=3,(width,lab)
                 assert studio.locator('.spatial-studio-map svg rect').count()>700,(width,lab)
                 assert not failures,(width,lab,failures)

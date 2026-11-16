@@ -1,49 +1,35 @@
-# Pubblicare StatAtlas · Parte VIII a mappe continue
+# Pubblicare StatAtlas 2.1 · Parte VIII unificata
 
-**Versione di sviluppo 2.1, 16 novembre 2026.** Un solo commit su `main`, nessun tag di rilascio ufficiale.
+**Snapshot 16 novembre 2026, sviluppo 2.1.** Un solo commit su `main`, senza tag di release. Perimetro: sei vecchie interfacce **rimosse**, sei mappe unificate al loro posto.
 
-## Dal Mac (metodo consigliato per repository e sito coerenti)
+## Dal Mac: pubblicazione del repository completo
 
-1. Scarica `StatAtlas_2_1_Parte_VIII_Mappe_Continue.zip` nella cartella Download.
-2. Apri Terminale e incolla (il percorso usa il nome esatto del file consegnato):
+Scaricare `StatAtlas_2_1_Parte_VIII_Unificata.zip` in `~/Downloads` ed eseguire:
 
 ```sh
 cd ~/Downloads
-mkdir -p StatAtlas_Parte_VIII
-unzip -oq StatAtlas_2_1_Parte_VIII_Mappe_Continue.zip -d StatAtlas_Parte_VIII
-sh StatAtlas_Parte_VIII/statatlas-main/scripts/pubblica_github.sh
+mkdir -p StatAtlas_Parte_VIII_Unificata
+unzip -oq StatAtlas_2_1_Parte_VIII_Unificata.zip -d StatAtlas_Parte_VIII_Unificata
+sh StatAtlas_Parte_VIII_Unificata/statatlas-main/scripts/pubblica_github.sh
 ```
 
-Lo script clona `gianluca-sottile/statatlas`, copia l'intero progetto preservando `.git`, ricostruisce il file offline, esegue le suite JavaScript (e i controlli scientifici Python quando disponibili), visualizza il riepilogo modifiche e pubblica un commit. Per **non effettuare il push** usare `sh .../pubblica_github.sh --no-push`.
+Lo script clona il repository in una directory temporanea, preserva `.git`, copia il nuovo progetto (compresi i file rimossi), ricostruisce `index.html`, esegue i test locali disponibili e crea un singolo commit. **Non** caricare semplicemente il file ZIP nella pagina GitHub.
 
-## Da iPhone senza Bash (repository completo)
+## Da iPhone: upload dell'intero repository senza terminale
 
-1. Scarica `StatAtlas_2_1_Parte_VIII_iPhone.zip` nella cartella File. È l'intero **contenuto radice** del repository, senza un livello `statatlas-main`.
-2. Usa un client Git per iOS che supporti importazione/estrazione dentro un repository esistente (per esempio Working Copy, verificando i requisiti del suo piano).
-3. Clona `https://github.com/gianluca-sottile/statatlas`, ramo `main`, ed estrai i file nello stesso livello di `index.html`, preservando `.git`.
-4. Controlla che esistano `src/core/spatial-studio.js`, `src/styles/spatial-studio.css`, `tests/test_spatial_studio.js` e `.github/workflows/scientific-qa.yml` (non in una nuova sottocartella).
-5. Crea commit con messaggio `StatAtlas 2.1: Parte VIII a mappe continue e QA interattiva`, quindi esegui push a `main`.
+Lo ZIP `StatAtlas_2_1_Parte_VIII_Unificata_iPhone.zip` contiene i file **alla radice**, senza sottocartella `statatlas-main/`. Salvalo nell'app File; apri un client Git iOS che consenta l'importazione di uno ZIP dentro un repository esistente, clona `gianluca-sottile/statatlas` su `main`, estrai il contenuto nella radice del clone preservando `.git`, crea commit e push.
 
-**Non caricare lo ZIP come singolo file nella pagina GitHub**: i file dentro non vengono distribuiti automaticamente. Caricare solo `index.html` aggiorna il sito ma non aggiorna sorgenti, test e riproducibilità, quindi non è la pubblicazione raccomandata.
+**Attenzione alle eliminazioni:** una semplice estrazione dello ZIP sovrascrive i file omonimi ma **non cancella automaticamente i file eliminati dal progetto**. Per ottenere l'esatta struttura della nuova versione, usa un client capace di sincronizzare il repository con il pacchetto o verifica la lista delle differenze prima del commit. I sei `src/labs/26–31` sono sostituiti e devono risultare modificati; il nuovo `src/core/spatial-unified.js` deve essere presente. Se il client non offre sincronizzazione affidabile, è preferibile la procedura Mac.
 
-## Accettazione su GitHub
+## Checklist unica dopo la pubblicazione
 
-Apri:
-- Repository: https://github.com/gianluca-sottile/statatlas
-- GitHub Actions: https://github.com/gianluca-sottile/statatlas/actions
-- GitHub Pages: https://gianluca-sottile.github.io/statatlas/
+- [ ] GitHub Actions: job `numerical-and-scientific` e `spatial-ui-browser` verdi. Confermare il commit corrente su `main` e il deploy Pages.
+- [ ] LAB 26 Moran: **una sola mappa**; aggiungere gruppo di valori simili, vedere il conteggio e l'indice I cambiare; alternare i vicini kNN.
+- [ ] LAB 27 LISA: una sola mappa; riconoscere HH/LL e HL/LH; vedere le classi variare quando si interviene sui punti. Nessuna falsa etichetta di significatività.
+- [ ] LAB 28 Processi puntuali: aggiungere un gruppo di eventi, vedere KDE e L(r)−r aggiornarsi; nessuna vecchia mappa/envelope duplicata.
+- [ ] LAB 29 Variogrammi: aggiungere/spostare un sensore e vedere la curva delle semivarianze cambiare; l'IDW è correttamente etichettato come illustrativo.
+- [ ] LAB 30 Kriging: aggiungere sensore senza rigenerare campo, verificare la varianza media non crescente e passare a superficie prevista; una sola mappa.
+- [ ] LAB 31 Regressione: aggiungere osservazioni e confrontare `Y~X` contro `Y~X+x+y`, R² e Moran residui; **nessuna pretesa di stimare SAR/SEM** nell'interfaccia.
+- [ ] Smartphone: trascina/elimina un punto, visualizza `Mettiti alla prova` (tre sfide per laboratorio), `Approfondisci`, CSV e script R. Nessun vecchio pannello sotto la mappa.
 
-La workflow **StatAtlas Scientific QA** deve avere i job **numerical-and-scientific** e **spatial-ui-browser** entrambi verdi. Il test browser usa Chromium, non sostituisce una verifica manuale Safari su iOS. Se GitHub Pages mostra una versione vecchia, effettua il refresh della cache o apri una finestra privata prima di diagnosticare un problema di deploy.
-
-## Unica checklist di collaudo funzionale
-
-- [ ] LAB 26 · Aggiungi «+ Gruppo simile»: crescono i punti e cambia I; passa ad «Alternanza» e osserva il nuovo I.
-- [ ] LAB 27 · Verifica sulla mappa i quadranti HH/LL e distinguili dalla significatività locale nella sezione originale.
-- [ ] LAB 28 · Aggiungi «+ Gruppo di eventi»: crescono i punti anche nella figura originale; cambiano KDE e L(r)−r.
-- [ ] LAB 29 · Aggiungi/sposta un sensore: cambiano superficie e variogramma empirico.
-- [ ] LAB 30 · Aggiungi un sensore in una zona scoperta: la varianza media non aumenta; cambia la mappa originale; il campo vero non viene rigenerato.
-- [ ] LAB 31 · Passa da «Solo X» a «X + coordinate» e osserva β(X), R² e Moran residui; aggiungi un punto; verifica SAR/SEM nella sezione originale.
-- [ ] Smartphone · Premi un punto, trascinalo, rimuovilo e ripristina; apri «Mettiti alla prova», una scheda teorica e lo script R.
-- [ ] GitHub · Entrambi i job QA verdi e sito pubblico con le sei nuove mappe.
-
-Solo dopo questi punti la **macrofase UX spaziale** può essere accettata; successivamente si riprende la Macrofase A (audit matematico completo, R end-to-end e revisione delle Challenges), già concordata.
+**Nota:** la successiva Macrofase A comprenderà audit completo delle 31 teorie e verifiche in R dei **nuovi** script. Questo pacchetto non è la validazione R finale.

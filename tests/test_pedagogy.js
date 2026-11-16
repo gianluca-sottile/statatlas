@@ -26,7 +26,8 @@ for(let i=0;i<ids.length;i++){
   assert(typeof p.formula==='string' && p.formula.length>6,`formula mancante ${id}`);checks++;
   const source=fs.readFileSync(path.join(root,'src/labs',String(i+1).padStart(2,'0')+'-'+(
     fs.readdirSync(path.join(root,'src/labs')).find(x=>x.startsWith(String(i+1).padStart(2,'0')+'-'))||'').slice(3)),'utf8');
-  assert(/Esperimento/.test(source),`nessuna sezione Esperimento ${id}`);checks++;
+  if (i>=25) { assert(/spatialUnified\.register/.test(source),`interfaccia spaziale unificata mancante ${id}`); }
+  else assert(/Esperimento/.test(source),`nessuna sezione Esperimento ${id}`);checks++;
 }
 const ui=fs.readFileSync(path.join(root,'src/core/ui.js'),'utf8');
 const css=fs.readFileSync(path.join(root,'src/styles/editorial.css'),'utf8');

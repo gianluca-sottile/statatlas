@@ -1,5 +1,5 @@
 /* StatAtlas · Parte VIII · Mappe esplorative continue.
- * Strato didattico autonomo: non sostituisce e non altera i motori 26–31.
+ * Esperimento principale unico per la Parte VIII. I motori numerici sono condivisi.
  * Distanze euclidee su coordinate normalizzate; risultati descrittivi salvo
  * stime kriging condizionate a una covarianza esplicitamente specificata.
  */
@@ -128,24 +128,26 @@ SA.spatialStudio = (function () {
   function create(type, opts) {
     if(!conf[type])throw new Error('Studio spaziale inesistente: '+type);
     opts=opts||{};
-    var state={type:type,tool:type==='points'||type==='kriging'?'add':'high',knn:4,band:type==='variogram'?2:.085,show:type==='kriging'?'uncertainty':'value',model:'coords',shown:'regression',counter:0,source:opts.source,feedback:'',active:null};
-    var initial=sampleInit(type,opts.source);state.points=initial.points;state.other=initial.other;
+    var state={type:type,tool:type==='points'||type==='kriging'?'add':'high',knn:4,band:type==='variogram'?2:.085,show:type==='kriging'?'uncertainty':'value',model:'coords',shown:'regression',bins:8,counter:0,measureCount:0,source:opts.source,feedback:'',active:null};
+    var initial=sampleInit(type,opts.source);state.points=initial.points;state.other=Object.assign({},initial.other,{covOptions:initial.other.covOptions?Object.assign({},initial.other.covOptions):undefined});
     if(type==='kriging' && initial.other && initial.other.grid)state.grid=initial.other.grid;
     var root=element('section',null,'spatial-studio');root.setAttribute('aria-label','Mappa interattiva: '+conf[type].title);
     var heading=element('div',null,'spatial-studio-heading');heading.append(element('span','ESPLORA SULLA MAPPA · PARTE VIII','spatial-studio-overline'),element('h2',conf[type].title),element('p',conf[type].question));root.append(heading);
     var body=element('div',null,'spatial-studio-layout');root.append(body);
-    var main=element('div',null,'spatial-studio-main'), panel=element('div',null,'spatial-studio-panel');body.append(main,panel);
+    var main=element('div',null,'spatial-studio-main'), panel=element('div',null,'spatial-studio-panel controls');body.append(main,panel);
     var actions=element('div',null,'spatial-studio-tools');panel.append(element('h3','1 · Intervieni sui dati'),actions);
     var tools=type==='points'?[['add','+ Evento'],['cluster','+ Gruppo di eventi'],['move','Sposta'],['remove','Rimuovi']]:type==='kriging'?[['add','+ Sensore'],['move','Sposta'],['remove','Rimuovi']]:[['high','+ Valore alto'],['low','+ Valore basso'],['cluster','+ Gruppo simile'],['move','Sposta'],['remove','Rimuovi']];
     var toolBtns={};tools.forEach(function(pair){var b=button(pair[1],function(){state.tool=pair[0];state.feedback='Modalità: '+pair[1]+'. Usa la mappa.';render();});b.setAttribute('data-tool',pair[0]);toolBtns[pair[0]]=b;actions.append(b);});
     var optsBox=element('div',null,'spatial-studio-extra');panel.append(optsBox);
     function select(label,choices,onChange) {
       var wrap=element('label',null,'spatial-studio-field'),sp=element('span',label),sel=element('select');wrap.append(sp,sel);
-      choices.forEach(function(a){var op=element('option',a[1]);op.value=a[0];sel.append(op);});sel.addEventListener('change',function(){onChange(sel.value);render();});optsBox.append(wrap);return sel;
+      choices.forEach(function(a){var op=element('option',a[1]);op.value=a[0];sel.append(op);});sel.addEventListener('change',function(){onChange(sel.value);state.counter++;render();});optsBox.append(wrap);return sel;
     }
-    if(type==='moran'||type==='lisa'||type==='regression')select('Vicini per le statistiche kNN',[['3','3'],['4','4'],['6','6'],['8','8']],function(v){state.knn=+v;}).value=String(state.knn);
+    if(type==='moran'||type==='lisa'||type==='regression')select('Vicini kNN',[['3','3'],['4','4'],['6','6'],['8','8']],function(v){state.knn=+v;}).value=String(state.knn);
     if(type==='points')select('Larghezza del kernel KDE',[['0.045','Stretta · 0,045'],['0.085','Media · 0,085'],['0.15','Ampia · 0,150']],function(v){state.band=+v;}).value=String(state.band);
-    if(type==='variogram')select('Esponente per la sola mappa IDW',[['1','1'],['2','2'],['3','3']],function(v){state.band=+v;}).value=String(state.band);
+    if(type==='variogram')select('Esponente IDW',[['1','1'],['2','2'],['3','3']],function(v){state.band=+v;}).value=String(state.band);
+    if(type==='variogram')select('Classi del variogramma',[['5','5'],['8','8'],['12','12']],function(v){state.bins=+v;}).value=String(state.bins);
+    if(type==='kriging')select('Range assunto φ',[['0.15','Corto · 0,15'],['0.25','Medio · 0,25'],['0.4','Lungo · 0,40']],function(v){state.other.covOptions.phi=+v;}).value=String(state.other.covOptions.phi);
     if(type==='kriging')select('Superficie da vedere',[['uncertainty','Incertezza del kriging'],['value','Valore previsto']],function(v){state.show=v;}).value=state.show;
     if(type==='regression')select('Previsione cartografica',[['coords','X + coordinate'],['x','Solo X']],function(v){state.model=v;}).value=state.model;
     var scenarioBox=element('div',null,'spatial-studio-scenarios');panel.append(element('h3','2 · Prova uno scenario'),scenarioBox);
@@ -157,20 +159,21 @@ SA.spatialStudio = (function () {
         if(pair[0]==='cluster'){var base=g.map(function(p,i){return {i:i,d:Math.hypot(p.x-.28,p.y-.72)};}).sort(function(a,b){return a.d-b.d;});state.points=base.slice(0,size).map(function(o){return {x:g[o.i].x,y:g[o.i].y,value:state.other.values[o.i],id:o.i};});}
         else {var ids=[0,11,132,143,6,66,77,35,108,114,57,85].filter(function(i){return i<g.length;});state.points=ids.map(function(i){return {x:g[i].x,y:g[i].y,value:state.other.values[i],id:i};});}
       } else state.points=preset(state.points,type,pair[0],2026);
-      state.feedback='Scenario «'+pair[1]+'» applicato. Le statistiche si riferiscono ai nuovi dati.';state.counter++;notify();render();
+      state.dataVersion=(state.dataVersion||0)+1;state.feedback='Scenario «'+pair[1]+'» applicato. Le statistiche si riferiscono ai nuovi dati.';state.counter++;notify();render();
     }));});
-    var resetBtn=button('Ripristina mappa iniziale',function(){if(type==='kriging'&&typeof opts.source==='function'){var now=sampleInit(type,opts.source);if(initial.other.seed!==now.other.seed)initial={points:now.points.map(clone),other:now.other};}state.points=initial.points.map(clone);state.other=initial.other;if(type==='kriging')state.grid=initial.other.grid;state.counter++;state.feedback='Configurazione iniziale ripristinata.';notify();state.baseline=calculate();render();});resetBtn.className+=' spatial-studio-reset';panel.append(resetBtn);
-    var syncBtn=button('Sincronizza con la lezione sotto',function(){var ini=sampleInit(type,opts.source);state.points=ini.points;state.other=ini.other;if(type==='kriging')state.grid=ini.other.grid;initial={points:ini.points.map(clone),other:ini.other};state.counter++;state.baseline=calculate();state.feedback='Mappa aggiornata dai dati del laboratorio sottostante.';render();});syncBtn.className+=' spatial-studio-reset';panel.append(syncBtn);
+    var resetBtn=button('Ripristina mappa iniziale',function(){if(type==='kriging'&&typeof opts.source==='function'){var now=sampleInit(type,opts.source);if(initial.other.seed!==now.other.seed)initial={points:now.points.map(clone),other:now.other};}state.points=initial.points.map(clone);state.other=Object.assign({},initial.other,{covOptions:initial.other.covOptions?Object.assign({},initial.other.covOptions):undefined});if(type==='kriging')state.grid=initial.other.grid;state.dataVersion=(state.dataVersion||0)+1;state.counter++;state.feedback='Configurazione iniziale ripristinata.';notify();state.baseline=calculate();render();});resetBtn.className+=' spatial-studio-reset';panel.append(resetBtn);
+    if(opts.standalone){var measureBtn=button('Registra questa configurazione',function(){state.measureCount++;state.counter++;state.feedback='Risultato registrato per le Challenges, senza modificare punti o modello.';render();});measureBtn.className+=' spatial-studio-measure';panel.append(measureBtn);}
     var exportBtn=button('Esporta i punti della mappa (CSV)',function(){var rows=[['id','x_normalizzata','y_normalizzata','valore','covariata_X','id_sensore']];state.points.forEach(function(p,i){rows.push([i+1,p.x,p.y,finite(p.value)?p.value:'',finite(p.cov)?p.cov:'',p.id==null?'':p.id]);});SA.ui.download('statatlas_parte_viii_mappa_'+type+'.csv',SA.ui.csv(rows),'text/csv');});exportBtn.className+=' spatial-studio-reset';panel.append(exportBtn);
     var stats=element('div',null,'spatial-studio-stats');panel.append(element('h3','3 · Leggi il cambiamento'),stats);
     var mini=element('div',null,'spatial-studio-minichart');panel.append(mini);
     var reading=element('p',null,'spatial-studio-reading');panel.append(reading);
     var svgWrap=element('div',null,'spatial-studio-map');main.append(svgWrap);
     var legend=element('div',null,'spatial-studio-legend');main.append(legend);
-    var scope=(type==='points'||type==='kriging')?' Le modifiche in questa mappa aggiornano anche il laboratorio sottostante.':' Questa esplorazione è uno scenario puntuale autonomo: il modello e i test della lezione sottostante non cambiano finché non li modifichi con i loro controlli.';scope+=' Se modifichi il generatore o il modello nei controlli sottostanti, premi «Sincronizza con la lezione sotto».';var explanation=element('p',conf[type].subtitle+scope,'spatial-studio-caption');root.append(explanation);
+    var scope=' Questa è la mappa principale del laboratorio: tutti gli indicatori si riferiscono agli stessi punti. Le coordinate sono normalizzate (0–1), non longitudine e latitudine geografiche reali.';var explanation=element('p',conf[type].subtitle+scope,'spatial-studio-caption');root.append(explanation);
     var live=element('p','', 'spatial-studio-status');live.setAttribute('role','status');live.setAttribute('aria-live','polite');root.append(live);
     function notify(){if(typeof opts.onEdit==='function')opts.onEdit(state.points.map(clone));}
     function syncIfExternal(){
+      if(opts.standalone)return;
       if((type!=='kriging'&&type!=='points')||typeof opts.source!=='function')return;
       var fresh=sampleInit(type,opts.source),different=state.points.length!==fresh.points.length;
       if(!different) for(var z=0;z<fresh.points.length;z++){
@@ -186,7 +189,7 @@ SA.spatialStudio = (function () {
       if(type==='kriging'){
         var nearest=nearestAvailable(newXY,index);if(nearest<0)return;state.points[index]={x:state.grid[nearest].x,y:state.grid[nearest].y,value:state.other.values[nearest],id:nearest};
       }else {state.points[index].x=clamp(newXY.x,.006,.994);state.points[index].y=clamp(newXY.y,.006,.994);}
-      state.counter++;state.feedback='Punto spostato. Superficie e statistiche aggiornate.';notify();render();
+      state.dataVersion=(state.dataVersion||0)+1;state.counter++;state.feedback='Punto spostato. Superficie e statistiche aggiornate.';notify();render();
     }
     function nearestAvailable(p,except) {
       var g=state.grid||[],best=-1,dist=Infinity;
@@ -202,7 +205,7 @@ SA.spatialStudio = (function () {
           var q={x:clamp(p.x+rad*Math.cos(ang),.01,.99),y:clamp(p.y+rad*Math.sin(ang),.01,.99)};
           state.points.push({x:q.x,y:q.y,value:type==='points'?0:2.5,cov:Math.sin(7*q.x)+.2*Math.cos(5*q.y)});
         }
-        state.counter++;state.feedback='Gruppo di punti vicini aggiunto. Osserva la variazione delle statistiche.';notify();render();return;
+        state.dataVersion=(state.dataVersion||0)+1;state.counter++;state.feedback='Gruppo di punti vicini aggiunto. Osserva la variazione delle statistiche.';notify();render();return;
       }
       if(state.points.length >= (type==='kriging'?40:175)){state.feedback='Limite didattico di osservazioni raggiunto.';render();return;}
       if(type==='kriging'){
@@ -216,16 +219,16 @@ SA.spatialStudio = (function () {
         if(type==='regression')value=.4+1.15*cov+2.1*(p.x-.5)-1.2*(p.y-.5)+(state.tool==='high'?1.3:-1.3);
         state.points.push({x:p.x,y:p.y,value:value,cov:cov});
       }
-      state.counter++;state.feedback='Osservazione aggiunta in ('+fmt(p.x,2)+'; '+fmt(p.y,2)+').';notify();render();
+      state.dataVersion=(state.dataVersion||0)+1;state.counter++;state.feedback='Osservazione aggiunta in ('+fmt(p.x,2)+'; '+fmt(p.y,2)+').';notify();render();
     }
     function pointAction(i) {
       syncIfExternal();
       if(state.tool==='remove'){
         if(state.points.length <= (type==='kriging'?3:5)){state.feedback='Conserva almeno '+(type==='kriging'?3:5)+' osservazioni.';render();return;}
-        state.points.splice(i,1);state.counter++;state.feedback='Osservazione rimossa.';notify();render();return;
+        state.points.splice(i,1);state.dataVersion=(state.dataVersion||0)+1;state.counter++;state.feedback='Osservazione rimossa.';notify();render();return;
       }
       if(state.tool==='high'||state.tool==='low'){
-        state.points[i].value=state.tool==='high'?2.5:-2.5;state.counter++;state.feedback='Valore osservato modificato sul punto '+(i+1)+'.';notify();render();return;
+        state.points[i].value=state.tool==='high'?2.5:-2.5;state.dataVersion=(state.dataVersion||0)+1;state.counter++;state.feedback='Valore osservato modificato sul punto '+(i+1)+'.';notify();render();return;
       }
       state.active=i;state.feedback='Punto '+(i+1)+' selezionato. Usa le frecce per spostarlo, o trascinalo.';render();
     }
@@ -248,7 +251,7 @@ SA.spatialStudio = (function () {
       if(type==='points'){
         if(p.length>=3){out.curve=SA.spatialPoints.curve(p);out.nearest=SA.spatialPoints.nearest(p);}
       }
-      if(type==='variogram' && p.length>=3)out.variogram=SA.geostat.empirical(p,p.map(function(q){return q.value;}),{bins:8,maxDist:1.0});
+      if(type==='variogram' && p.length>=3)out.variogram=SA.geostat.empirical(p,p.map(function(q){return q.value;}),{bins:state.bins,maxDist:1.0});
       if(type==='kriging' && p.length>=3) {
         var o=state.other, n=28, targets=[];
         for(var row=0;row<n;row++)for(var col=0;col<n;col++)targets.push({x:(col+.5)/n,y:1-(row+.5)/n});
@@ -273,14 +276,14 @@ SA.spatialStudio = (function () {
       } else if(type==='lisa'){
         var lc=d.moran.local,counts={HH:0,LL:0,HL:0,LH:0};if(lc&&lc.valid)lc.quadrant.forEach(function(q){if(counts[q]!==undefined)counts[q]++;});
         lines.push(['Moran I globale',fmt(d.moran.I)],['Alto–alto (HH)',counts.HH],['Basso–basso (LL)',counts.LL],['Outlier HL + LH',counts.HL+counts.LH]);
-        reading.textContent='Cerchi: HH blu, LL arancio, outlier viola. Le classi locali non sono automaticamente hotspot statisticamente significativi: usa le permutazioni della lezione sotto.';
+        reading.textContent='Cerchi: HH blu, LL arancio, outlier viola. I quadranti locali non costituiscono un test di significatività: le permutazioni e la correzione multipla sono un passaggio distinto.';
       } else if(type==='points'){
         var nn=d.nearest,cur=d.curve;var avg=nn&&nn.distances&&nn.distances.length?mean(nn.distances.filter(finite)):NaN;
         lines.push(['Distanza media al vicino',fmt(avg)],['Riferimento CSR approssimato',fmt(1/(2*Math.sqrt(state.points.length)))],['KDE: banda h',fmt(state.band,3)]);
-        reading.textContent='Blu intenso = intensità kernel più elevata. KDE non corretta al bordo; il riferimento CSR della distanza media è soltanto euristico. Per un test usa la curva K/L con envelope Monte Carlo nella lezione.';
+        reading.textContent='Blu intenso = intensità kernel più elevata. KDE non corretta al bordo; la distanza media e L(r)−r sono descrittive. Un test CSR richiederebbe un envelope Monte Carlo con nullo definito.';
       } else if(type==='variogram'){
         var v=d.variogram,valid=v?v.gamma.filter(finite):[];lines.push(['Coppie in r ≤ 1',v?v.counts.reduce(function(a,b){return a+b;},0):0],['Semivarianza media per classe',valid.length?fmt(mean(valid)):'n.d.'],['Classi con coppie',valid.length]);
-        reading.textContent='La media tra classi non è una stima globale del sill. Per verificare l’effetto delle distanze osserva anche la curva del variogramma nella sezione Esperimento.';
+        reading.textContent='La media tra classi non stima direttamente il sill. Sposta un sensore e osserva la curva delle semivarianze ricavata dalle stesse coppie di osservazioni.';
       } else if(type==='kriging'){
         var vs=d.maps&&d.maps.var;lines.push(['Varianza media condizionale',vs?fmt(mean(vs)):'n.d.'],['Δ varianza rispetto all’inizio',vs&&state.baseline&&state.baseline.maps?fmt(mean(vs)-mean(state.baseline.maps.var)):'n.d.'],['Varianza massima',vs?fmt(Math.max.apply(null,vs)):'n.d.'],['Modello', 'Kriging ordinario']);
         reading.textContent=vs?'Aggiungi sensori nelle zone scoperte: la varianza condizionale dipende da posizioni e covarianza, non dai valori osservati. Il campo vero resta fisso.':'Sistema di kriging non definito: '+(d.error||'controlla le posizioni');
@@ -378,6 +381,7 @@ SA.spatialStudio = (function () {
       legend.textContent=type==='points'?'Blu intenso: concentrazione kernel elevata.':type==='kriging'&&state.show==='uncertainty'?'Blu intenso: incertezza predittiva più elevata.':type==='lisa'?'Blu: valori alti; arancio: bassi. Contorni locali HH / LL / outlier.':type==='regression'?'Superficie prevista a X fissata sulla media campionaria.':'Blu: valori sopra zero; arancio: sotto zero. La scala è relativa allo scenario.';
       live.textContent=state.feedback||'Modifica un punto oppure seleziona uno scenario e osserva subito la mappa e le statistiche.';
       root.dataset.points=String(p.length);root.dataset.updates=String(state.counter);
+      if(state.counter>0 && state.counter!==state.notifiedCounter){state.notifiedCounter=state.counter;if(typeof opts.onActivity==='function')opts.onActivity(state,d);}
       if(d.moran)root.dataset.moran=String(d.moran.I);
       if(d.modelCoords)root.dataset.r2coords=String(d.modelCoords.r2);
       if(d.maps)root.dataset.meanVariance=String(mean(d.maps.var));

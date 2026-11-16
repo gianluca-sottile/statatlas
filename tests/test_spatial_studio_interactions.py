@@ -20,7 +20,7 @@ with sync_playwright() as p:
   assert abs(before-alternate)>.15,(before,alternate)
   s.locator('[data-tool="cluster"]').click()
   bg=s.locator('[data-action="map"]');bbox=bg.bounding_box();count=int(s.get_attribute('data-points'))
-  bg.click(position={'x':bbox['width']*.25,'y':bbox['height']*.18})
+  bg.click(position={'x':bbox['width']*.85,'y':bbox['height']*.12})
   assert int(s.get_attribute('data-points'))==count+7
   print('PASS Moran: scenario alternato + gruppo di punti correlati e cambio di I')
 
@@ -34,17 +34,18 @@ with sync_playwright() as p:
   before=int(s.get_attribute('data-points'))
   s.locator('[data-tool="cluster"]').click()
   bg=s.locator('[data-action="map"]');bbox=bg.bounding_box()
-  bg.click(position={'x':bbox['width']*.68,'y':bbox['height']*.61})
+  bg.click(position={'x':bbox['width']*.85,'y':bbox['height']*.12})
   assert int(s.get_attribute('data-points'))==before+9
-  # The full original point-process lab should reflect the same count.
-  assert (str(before+9)+' eventi') in page.locator('.fig').first.inner_text(),page.locator('.fig').first.inner_text()[:150]
+  # The unified lab has no duplicate pattern map or legacy figure.
+  assert page.locator('.spatial-studio').count()==1
+  assert page.locator('.fig').count()==0
   s.locator('[data-tool="move"]').click()
   circle=s.locator('[data-point="0"]');circle.scroll_into_view_if_needed();bbox=circle.bounding_box()
   cx=bbox['x']+bbox['width']/2;cy=bbox['y']+bbox['height']/2
   old=circle.get_attribute('cx')
   page.mouse.move(cx,cy);page.mouse.down();page.mouse.move(cx+22,cy-15,steps=5);page.mouse.up()
   assert s.locator('[data-point="0"]').get_attribute('cx')!=old
-  print('PASS Processi puntuali: KDE + L(r)-r, gruppo sincronizzato, spostamento col mouse')
+  print('PASS Processi puntuali: KDE + L(r)-r, gruppo unico, spostamento col mouse')
 
   s=openlab('variogrammi')
   assert s.locator('.spatial-studio-minichart svg').count()==1
@@ -61,10 +62,11 @@ with sync_playwright() as p:
   bg.click(position={'x':bbox['width']*.9,'y':bbox['height']*.9})
   new=float(s.get_attribute('data-mean-variance'))
   assert new<=old+1e-7,(old,new)
-  assert '13 sensori' in page.locator('.fig').first.inner_text()
+  assert s.get_attribute('data-points')=='13'
+  assert page.locator('.fig').count()==0
   s.get_by_label('Superficie da vedere').select_option('value')
   assert s.locator('.spatial-studio-map svg').count()==1
-  print('PASS Kriging: varianza ridotta, tredicesimo sensore sincronizzato, mappa predizione')
+  print('PASS Kriging: varianza ridotta, tredicesimo sensore, mappa predizione unica')
 
   s=openlab('regressione-spaziale')
   old=float(s.get_attribute('data-r2coords'))
