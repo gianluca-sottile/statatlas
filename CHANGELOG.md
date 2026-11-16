@@ -1,4 +1,13 @@
 # Changelog
+
+## Unreleased — 16/11/2026 · Parte VIII ridisegnata per mappe continue
+
+- Nuova mappa esplorativa SVG nei sei laboratori 26–31, prima dell’esperimento originale; punti aggiungibili, spostabili, rimovibili anche su touch, scenari predefiniti e indicatori aggiornati immediatamente.
+- Studio di Moran e LISA su punti con W kNN standardizzata, separato dai test areali; KDE e L(r)−r per processi puntuali, semivarianza per variogrammi, superfici e varianza del kriging, confronto regressivo X vs X+coordinate.
+- Sincronizzazione bidirezionale delle modifiche ai dati con i laboratori 28 e 30: invalidazione degli envelope/repliche e nessun avvio automatico. Gli altri studi restano deliberatamente indipendenti dal motore inferenziale originale.
+- Nuove verifiche automatiche matematiche e browser; protetti tutti i 31 motori e gli script R esistenti.
+- Versione di **sviluppo 2.1**, nessun nuovo tag ufficiale. Dettagli e limiti in `docs/PARTE_VIII_MAPPE_CONTINUE.md`.
+
 ## 2.1 — 15/11/2026 · Fase diagnostica conclusiva (sviluppo, senza tag)
 
 - 31 laboratori e 93 Challenges confermati; nove esercizi specialistici preservati.

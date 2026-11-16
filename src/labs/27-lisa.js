@@ -234,6 +234,7 @@
       var s6=SA.ui.step('6','Riproduci in R','Stessi dati, stessa W e stessa statistica locale');code=SA.ui.codeBlock(rCode,'statatlas_lab27_lisa.R');
       s6.body.append(el('p.prose','R0: stessi valori e aggregazioni già applicate. R1: Moran locale e speranza condizionale identici. Le simulazioni R usano permutazioni diverse; i p-value possono oscillare intorno agli stessi valori teorici.'),code);
       page.append(s1,s2,s3,s4,s5,s6);
+     if (SA.spatialStudio) SA.spatialStudio.attach(page,'lisa',function(){return {points:S.base.map(function(v,i){return {x:((i%8)+.5)/8,y:1-(Math.floor(i/8)+.5)/8,value:v};})};});
       buildControls();buildPrediction();render();code.refresh();run.refresh();document.addEventListener('keydown',run.key);
     },
     unmount:function(){if(run){run.stop();document.removeEventListener('keydown',run.key);}},

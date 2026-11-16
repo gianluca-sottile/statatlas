@@ -37,6 +37,21 @@ Molti concetti della statistica — la legge dei grandi numeri, il teorema centr
 - **Due livelli di lettura.** Un pannello *Approfondisci* con teoria essenziale, derivazioni avanzate, esercizi con soluzione e bibliografia; formule composte tipograficamente e numerate, senza librerie esterne.
 - **Nessuna installazione.** Un unico file `index.html`, che funziona anche offline. Nessun server, nessuna libreria esterna.
 
+## Parte VIII — Mappe continue esplorative (sviluppo 2.1)
+
+I laboratori **26–31** aprono ora con una **mappa continua interattiva**: aggiungi, sposta o rimuovi osservazioni; attiva scenari; osserva subito come cambiano la superficie e statistiche coerenti con ciascun metodo. L'esperimento rigoroso originario, gli script R e le 93 Challenges restano disponibili sotto la mappa.
+
+- **26 Moran:** valori puntuali, vicinato kNN, indice globale e variazione rispetto all'inizio. La superficie è una *rappresentazione continua*; I è calcolato sui valori osservati, non sui pixel.
+- **27 LISA:** hotspot e outlier descrittivi HH/LL/HL/LH, distinti dalle significatività locali che si valutano con permutazioni e correzioni multiple nella lezione originale.
+- **28 Processi puntuali:** intensità kernel, vicino più prossimo e curva L(r)−r; le modifiche ai punti alimentano anche il motore e gli envelope originali (che vanno rieseguiti esplicitamente).
+- **29 Variogrammi:** sensori mobili, superficie IDW illustrativa e curva empirica della semivarianza; l'IDW **non è** un kriging né una stima del variogramma.
+- **30 Kriging:** aggiunta/spostamento/rimozione di sensori sullo **stesso campo fissato**, superficie di predizione e varianza condizionale derivate dal motore. Le modifiche si riflettono nel laboratorio originale.
+- **31 Regressione spaziale:** confronto didattico OLS con Y~X e Y~X+coordinate, aggiornabile aggiungendo o spostando osservazioni; il modello SAR/SEM originale rimane distinto. Le coordinate dello studio sono normalizzate, non lat/lon reali in gradi.
+
+**Ambito metodologico:** i quattro studi puntuali 26, 27, 29 e 31 sono spazi di esplorazione autonomi; aggiornano i propri grafici e statistiche, **non** il campione areale o la matrice W dei motori originali. Gli studi 28 e 30 sono sincronizzati con i rispettivi esperimenti. Non vengono prodotti p-value a partire dalle mappe continue; i test inferenziali restano nel laboratorio originale. Per dati geografici reali si richiedono proiezioni e distanze metriche appropriate. I motori numerici e gli script R preesistenti non sono stati alterati.
+
+Consulta [metodi, architettura, limiti e piano di collaudo](docs/PARTE_VIII_MAPPE_CONTINUE.md). Il lavoro fa parte della fase UX preliminare: il **piano di consolidamento scientifico completo 31/31 e della verifica R** rimane invariato e sarà ripreso dopo la validazione di questa versione.
+
 ## StatAtlas Challenges — 31 laboratori, 93 sfide (versione di sviluppo 2.1)
 
 La modalità **«Mettiti alla prova»** è disponibile in **tutti i 31 laboratori**, con tre attività progressive per ciascuno: **Comprensione**, **Applicazione** e **Avanzato**. Ogni attività comprende un obiettivo operativo specifico, una domanda interpretativa a tre alternative e feedback metodologico. Le sfide non si completano semplicemente selezionando una risposta: richiedono esperimenti **eseguiti dopo l’apertura**; nelle 84 sfide estese il livello Applicazione richiede una modifica di un parametro pertinente e due passi sotto la nuova configurazione, mentre l’Avanzato richiede due configurazioni distinte, con almeno tre misure valide per configurazione e gli altri controlli mantenuti costanti. Il progresso è mostrato in tempo reale e un pulsante porta direttamente ai controlli. Le nove sfide pilota mantengono verifiche di stato specifiche.

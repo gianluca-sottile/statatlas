@@ -222,7 +222,8 @@
      var th=SA.ui.step('4','Teoria e simulazione a confronto');tbody=el('tbody');kpis=el('div.kpis');th.body.append(el('div.tbl-wrap',el('table.tv',el('thead',el('tr',el('th','Quantità'),el('th','Riferimento'),el('th','Risultato'),el('th','Natura'))),tbody)),kpis);
      var it=SA.ui.step('5','Interpretazione');interp=el('div.prose');it.body.append(interp,el('p',SA.ui.button('Teoria avanzata e limiti',{icon:'book',cls:'btn-ghost',onclick:function(){theory('adv');}})));
      var rep=SA.ui.step('6','Riproduci in R','Stessi sensori, stessi valori, stesso variogramma');code=SA.ui.codeBlock(codeR,'statatlas_lab29_variogrammi.R');rep.body.append(el('p.prose','R0: coordinate e misure esplicite. R1: stesse classi e stessa formula di Matheron. R3: il confronto facoltativo con gstat può utilizzare convenzioni differenti sui confini e sulla direzione.'),code);
-     page.append(q,p,ex,th,it,rep);buildControls();buildPrediction();render();code.refresh();run.refresh();document.addEventListener('keydown',run.key);
+     page.append(q,p,ex,th,it,rep);
+     if (SA.spatialStudio) SA.spatialStudio.attach(page,'variogram',function(){return {points:S.data.sites.map(function(p,i){return {x:p.x,y:p.y,value:S.data.y[i]};})};});buildControls();buildPrediction();render();code.refresh();run.refresh();document.addEventListener('keydown',run.key);
    },
    unmount:function(){if(run){run.stop();document.removeEventListener('keydown',run.key);}},
    redraw:function(){if(S)render();}

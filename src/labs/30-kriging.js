@@ -242,7 +242,8 @@ mount:function(page,info){
  var th=SA.ui.step('4','Teoria e simulazione a confronto');tbody=el('tbody');kpis=el('div.kpis');th.body.append(el('div.tbl-wrap',el('table.tv',el('thead',el('tr',el('th','Quantità'),el('th','Riferimento'),el('th','Risultato'),el('th','Natura'))),tbody)),kpis);
  var it=SA.ui.step('5','Interpretazione');interp=el('div.prose');it.body.append(interp,el('p',SA.ui.button('Teoria avanzata e limiti',{icon:'book',cls:'btn-ghost',onclick:function(){theory('adv');}})));
  var rr=SA.ui.step('6','Riproduci in R','Stessi sensori, stesse previsioni e varianze');code=SA.ui.codeBlock(codeR,'statatlas_lab30_kriging.R');rr.body.append(el('p.prose','R0: coordinate, misure e campo vero espliciti. R1: stesso modello assunto e formule di predizione e varianza in R base. Confronto gstat facoltativo da verificare sul proprio sistema.'),code);
- page.append(q,ch,ex,th,it,rr);buildControls();choices();render();code.refresh();run.refresh();document.addEventListener('keydown',run.key);
+ page.append(q,ch,ex,th,it,rr);
+     if (SA.spatialStudio) SA.spatialStudio.attach(page,'kriging',function(){return {points:S.ids.map(function(i){return {x:S.field.grid[i].x,y:S.field.grid[i].y,value:S.allObserved[i],id:i};}),grid:S.field.grid,values:S.allObserved,covOptions:fitted(),seed:S.seed};},function(points){S.ids=points.map(function(p){return p.id;});S.selected=S.ids[0];S.moving=null;S.message='Rete aggiornata dalla mappa esplorativa; campo vero invariato.';stopRefit();});buildControls();choices();render();code.refresh();run.refresh();document.addEventListener('keydown',run.key);
 },
 unmount:function(){if(run){run.stop();document.removeEventListener('keydown',run.key);}},
 redraw:function(){if(S)render();}

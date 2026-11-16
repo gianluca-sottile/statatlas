@@ -269,6 +269,7 @@
       var s6 = SA.ui.step('6','Riproduci in R','Stessi valori, stessa W, stessa statistica'); codeBox = SA.ui.codeBlock(rCode,'statatlas_lab26_moran.R');
       s6.body.append(el('p.prose','R0: dati visualizzati come valori espliciti; R1: matrice dei pesi e indice identici. Le permutazioni R non seguono la stessa sequenza Fisher–Yates del browser e non sono un confronto R0.'),codeBox);
       page.append(s1,s2,s3,s4,s5,s6);
+     if (SA.spatialStudio) SA.spatialStudio.attach(page,'moran',function(){return {points:S.x.map(function(v,i){return {x:((i%8)+.5)/8,y:1-(Math.floor(i/8)+.5)/8,value:v};})};});
       renderControls(); buildPrediction(); render(); codeBox.refresh(); run.refresh(); document.addEventListener('keydown',run.key);
       // Campione subito visibile, e permutazioni avviate senza richiedere un clic iniziale.
       // Il motore si ferma automaticamente a B, o manualmente con Pausa.

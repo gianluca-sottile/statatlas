@@ -234,7 +234,8 @@
       var th=SA.ui.step('4','Teoria e simulazione a confronto');tableBody=el('tbody');kpis=el('div.kpis');th.body.append(el('div.tbl-wrap',el('table.tv',el('thead',el('tr',el('th','Quantità'),el('th','Riferimento'),el('th','Risultato'),el('th','Natura'))),tableBody)),kpis);
       var it=SA.ui.step('5','Interpretazione');interp=el('div.prose');it.body.append(interp,el('p',SA.ui.button('Teoria avanzata e limiti',{icon:'book',cls:'btn-ghost',onclick:function(){theory('adv');}})));
       var rep=SA.ui.step('6','Riproduci in R','Stessi eventi, stessa stima K corretta per il bordo');code=SA.ui.codeBlock(codeR,'statatlas_lab28_processi.R');rep.body.append(el('p.prose','R0: coordinate esplicite identiche. R1: stessa formula K, curva L e statistica T. R3: le repliche Monte Carlo R e i processi generati da spatstat non utilizzano la stessa sequenza casuale.'),code);
-      page.append(q,pred,ex,th,it,rep);buildControls();buildPrediction();render();code.refresh();runner.refresh();document.addEventListener('keydown',runner.key);
+      page.append(q,pred,ex,th,it,rep);
+     if (SA.spatialStudio) SA.spatialStudio.attach(page,'points',function(){return {points:S.pts.map(function(pt){return {x:pt.x,y:pt.y,value:0};})};},function(points){S.pts=points.map(function(p){return {x:p.x,y:p.y};});S.edited=true;rebuild(false);});buildControls();buildPrediction();render();code.refresh();runner.refresh();document.addEventListener('keydown',runner.key);
     },
     unmount:function(){if(runner){runner.stop();document.removeEventListener('keydown',runner.key);}},
     redraw:function(){if(S)render();}
