@@ -92,14 +92,19 @@ SA.ui = (function () {
     return out + esc(src.slice(last));
   }
   function codeBlock(getCode, filename) {
+    function safeCode() {
+      var code = getCode();
+      // Un solo punto di normalizzazione per visualizzazione, copia e download.
+      return SA.rCode ? SA.rCode.wrap(code) : code;
+    }
     var pre = el('pre', { tabindex: '0', 'aria-label': 'Codice R' });
     var box = el('div.code',
       el('div.code-bar', el('span', 'R · tidyverse'),
         el('div.toolbar',
-          button('Copia', { icon: 'copy', cls: 'btn-ghost', onclick: function () { copy(getCode()); } }),
-          button('Scarica .R', { icon: 'download', cls: 'btn-ghost', onclick: function () { download(filename, getCode()); } }))),
+          button('Copia', { icon: 'copy', cls: 'btn-ghost', onclick: function () { copy(safeCode()); } }),
+          button('Scarica .R', { icon: 'download', cls: 'btn-ghost', onclick: function () { download(filename, safeCode()); } }))),
       pre);
-    box.refresh = function () { pre.innerHTML = highlightR(getCode()); };
+    box.refresh = function () { pre.innerHTML = highlightR(safeCode()); };
     box.refresh();
     return box;
   }

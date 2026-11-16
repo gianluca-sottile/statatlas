@@ -24,10 +24,16 @@ var theory={
 function el(tag,text,cls){var e=document.createElement(tag);if(text!==undefined&&text!==null)e.textContent=text;if(cls)e.className=cls;return e;}
 function theoryNode(id,kind){var d=el('div',null,'prose');(theory[id][kind]||[]).forEach(function(row){d.append(el('h3',row[0]),el('p',row[1]));});return d;}
 function toR(v){return typeof v==='number'&&isFinite(v)?v.toPrecision(16):'NA_real_';}
-function numbers(p,key){return 'c('+p.map(function(x){return toR(x[key]);}).join(', ')+')';}
+function numbers(p,key){
+ var chunks=[];
+ for(var i=0;i<p.length;i+=6){
+   chunks.push(p.slice(i,i+6).map(function(x){return toR(x[key]);}).join(', '));
+ }
+ return p.length?'c(\n    '+chunks.join(',\n    ')+'\n  )':'numeric(0)';
+}
 function rScript(id,studio){
  var p=studio.state.points,head=['# StatAtlas · Parte VIII unificata · '+id,'# Snapshot dei punti modificati sulla mappa. Coordinate normalizzate, non geografiche.',
- 'd <- data.frame(x='+numbers(p,'x')+', y='+numbers(p,'y')+', z='+numbers(p,'value')+', X='+numbers(p,'cov')+')',
+ 'd <- data.frame(\n  x = '+numbers(p,'x')+',\n  y = '+numbers(p,'y')+',\n  z = '+numbers(p,'value')+',\n  X = '+numbers(p,'cov')+'\n)',
  'plot(d$x,d$y,asp=1,pch=19,cex=.7,col="steelblue",xlab="x",ylab="y")'];
  if(id==='moran'||id==='lisa'||id==='regressione-spaziale'){
    head.push('# k vicini più prossimi, normalizzati per riga; ordine di vicinanza non simmetrico.',

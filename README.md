@@ -242,3 +242,7 @@ node tests/test_challenges_full.js
 Nelle Challenges avanzate, un confronto che cambia solo il parametro-obiettivo viene distinto da un confronto *esplorativo*, dove variano anche altri controlli. L'avvertimento didattico non blocca la risposta. Dettagli, matrice dei 31 controlli, assunzioni ed esclusioni: [`docs/AUDIT_SCIENTIFICO_FASE_2_31.md`](docs/AUDIT_SCIENTIFICO_FASE_2_31.md).
 
 La suite può essere lanciata con `sh tests/run_qa_2_1.sh`; il workflow `.github/workflows/scientific-qa.yml` ripete gli stessi controlli numerici e scientifici sui push e sulle pull request. I collaudi browser e R restano separati e richiedono i rispettivi ambienti.
+
+## Codice R: esportazione e console
+
+Gli script prodotti da **Riproduci in R** sono formattati su righe brevi, compatibili con la console R. Il codice mostrato, copiato e scaricato coincide. Per script lunghi preferire **Scarica .R** e l'esecuzione tramite Source in RStudio. I controlli automatici della lunghezza delle righe coprono i 31 laboratori; la CI verifica anche il parsing con GNU R. Dettagli in `docs/R_EXPORT_CONSOLE_AUDIT.md`.
