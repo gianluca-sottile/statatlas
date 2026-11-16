@@ -230,7 +230,7 @@
     },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
-      run = SA.ui.runner({ speed: 1, step: step, render: render, done: function () { return S.done; }, progress: function () { var d = S.runs.filter(function (r) { return r.done; }).length; return d / nStarts(); }, reset: function () { S = newState(S); } });
+      run = SA.ui.runner({ step: step, render: render, done: function () { return S.done; }, progress: function () { var d = S.runs.filter(function (r) { return r.done; }).length; return d / nStarts(); }, reset: function () { S = newState(S); } });
       var openT = function (l) { SA.ui.openDrawer('k-means e clustering gerarchico', THEORY, l); };
       page.appendChild(el('header.lab-head', el('div', el('div.kicker', info.part.part + ' · ' + info.part.title + ' · Laboratorio ' + info.lab.num),
         el('h1', info.lab.title), el('p.lede', 'Raggruppare osservazioni simili senza conoscere i gruppi: due algoritmi classici, i loro passi, le loro trappole.')),

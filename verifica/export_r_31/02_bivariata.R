@@ -5,7 +5,7 @@
 library(tidyverse)
 
 set.seed(2026)
-N <- 2000; rho <- 0.6; x0 <- 1; h <- 0.25
+N <- 1000; rho <- 0.6; x0 <- 1; h <- 0.25
 
 # Due normali standard per coppia, nell’ordine z1, z2 (riempimento per righe)
 z <- matrix(rnorm(2 * N), ncol = 2, byrow = TRUE)

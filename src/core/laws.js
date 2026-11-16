@@ -20,6 +20,8 @@ SA.sf = (function () {
     var lf = -x + a * Math.log(x) - lgamma(a), i;
     if (x < a + 1) {
       var ap = a, sum = 1 / a, del = sum;
+      // Il ramo serie e' destinato a shape moderati. Per chi-quadrato
+      // a df elevati, l'inversione usa l'approssimazione calibrata sotto.
       for (i = 0; i < 1000; i++) { ap++; del *= x / ap; sum += del; if (Math.abs(del) < Math.abs(sum) * 1e-16) break; }
       var p = sum * Math.exp(lf); return [p, 1 - p];
     }
@@ -196,6 +198,21 @@ SA.laws = (function () {
       rargs: function (p) { return 'df = ' + p.df; },
       pdf: function (x, p) { var k = p.df / 2; return x <= 0 ? 0 : Math.exp(-k * Math.log(2) + (k - 1) * Math.log(x) - x / 2 - sf.lgamma(k)); },
       cdf: function (x, p) { return x <= 0 ? 0 : sf.gammaPQ(p.df / 2, x / 2)[0]; },
+      // Per df >= 10000 evitiamo la ripetuta inversione della gamma incompleta:
+      // la trasformazione di Wilson-Hilferty ha errore assoluto sul quantile
+      // trascurabile sulla scala degli intervalli (divisione per 2n).
+      // Controlli indipendenti con SciPy per n fino a 100000 nel LAB 08.
+      q: function (u, p) {
+        if (u <= 0) return 0;
+        if (u >= 1) return Infinity;
+        if (p.df >= 10000) {
+          var t = 2 / (9 * p.df), v = 1 - t + SA.qnorm(u) * Math.sqrt(t);
+          return p.df * Math.pow(Math.max(0, v), 3);
+        }
+        return sf.invert(function (x) { return x <= 0 ? 0 : sf.gammaPQ(p.df / 2, x / 2)[0]; },
+          function (x) { var k = p.df / 2; return x <= 0 ? 0 : Math.exp(-k * Math.log(2) + (k - 1) * Math.log(x) - x / 2 - sf.lgamma(k)); },
+          u, 0, p.df + 5.5 * Math.sqrt(2 * p.df) + 2);
+      },
       range: function (p) { return [0, p.df + 5.5 * Math.sqrt(2 * p.df) + 2]; },
       mean: function (p) { return p.df; }, var: function (p) { return 2 * p.df; },
       formula: 'X = Z₁² + … + Z<sub>ν</sub>², &nbsp;Zᵢ ~ N(0, 1) indipendenti',

@@ -329,7 +329,7 @@
     },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
-      run = SA.ui.runner({ speed: 1, step: step, render: render, done: function () { return S.view !== 'path' || S.k >= S.M; }, progress: function () { return S.view === 'path' ? S.k / S.M : 0; }, reset: function () { S = newState(S); if (S.view === 'path') initPath(); } });
+      run = SA.ui.runner({ step: step, render: render, done: function () { return S.view !== 'path' || S.k >= S.M; }, progress: function () { return S.view === 'path' ? S.k / S.M : 0; }, reset: function () { S = newState(S); if (S.view === 'path') initPath(); } });
       var openT = function (l) { SA.ui.openDrawer('Regressione penalizzata', THEORY, l); };
       page.appendChild(el('header.lab-head', el('div', el('div.kicker', info.part.part + ' · ' + info.part.title + ' · Laboratorio ' + info.lab.num),
         el('h1', info.lab.title), el('p.lede', 'Ridge, lasso ed elastic net: la stessa idea, regioni di vincolo diverse. La geometria spiega perché il lasso seleziona le variabili e il ridge no.')),

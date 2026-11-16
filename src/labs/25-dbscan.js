@@ -246,7 +246,7 @@
     },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
-      run = SA.ui.runner({ speed: 2, step: step, render: render, done: function () { return S.finished; }, progress: function () { var d = 0; for (var i = 0; i < S.N; i++) if (S.cl[i] !== -1) d++; return S.finished ? 1 : d / S.N; }, reset: function () { S = newState(S); } });
+      run = SA.ui.runner({ step: step, render: render, done: function () { return S.finished; }, progress: function () { var d = 0; for (var i = 0; i < S.N; i++) if (S.cl[i] !== -1) d++; return S.finished ? 1 : d / S.N; }, reset: function () { S = newState(S); } });
       var openT = function (l) { SA.ui.openDrawer('DBSCAN', THEORY, l); };
       page.appendChild(el('header.lab-head', el('div', el('div.kicker', info.part.part + ' · ' + info.part.title + ' · Laboratorio ' + info.lab.num),
         el('h1', info.lab.title), el('p.lede', 'Gruppi come regioni dense separate da zone vuote: forme qualunque, nessun K da scegliere, e un’etichetta onesta per i punti che non appartengono a nessuno.')),

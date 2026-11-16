@@ -238,7 +238,7 @@
     },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
-      run = SA.ui.runner({ speed: 3, coop: true, step: step, render: render, done: function () { return S.e >= S.E || S.diverged; }, progress: function () { return S.diverged ? 1 : S.e / S.E; }, reset: function () { S = newState(S); } });
+      run = SA.ui.runner({ coop: true, step: step, render: render, done: function () { return S.e >= S.E || S.diverged; }, progress: function () { return S.diverged ? 1 : S.e / S.E; }, reset: function () { S = newState(S); } });
       var openT = function (l) { SA.ui.openDrawer('Reti neurali', THEORY, l); };
       page.appendChild(el('header.lab-head', el('div', el('div.kicker', info.part.part + ' · ' + info.part.title + ' · Laboratorio ' + info.lab.num),
         el('h1', info.lab.title), el('p.lede', 'Una rete piccola, abbastanza da guardarla per intero: pesi, passaggio in avanti, errore propagato all’indietro, e una frontiera che si piega epoca dopo epoca.')),

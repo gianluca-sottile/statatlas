@@ -5,7 +5,7 @@
 library(tidyverse)
 
 set.seed(2026)
-N <- 200
+N <- 100
 x <- qnorm(runif(N), mean = 0, sd = 1)
 
 # Stima ML del modello ipotizzato

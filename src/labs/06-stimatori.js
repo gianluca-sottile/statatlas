@@ -3,11 +3,7 @@
  * Implementazione e testi originali. */
 (function () {
   var THETA = 0, BINS = 48, SQ2PI = Math.sqrt(2 * Math.PI);
-  var N_VALUES = [5, 10, 15, 20, 30, 50, 100, 200];
-  var SPEEDS = [ // [repliche per passo, frame tra passi]
-    { label: 'Lenta', per: 1, every: 20 }, { label: 'Media', per: 1, every: 4 },
-    { label: 'Veloce', per: 3, every: 1 }, { label: 'Turbo', per: 25, every: 1 }];
-
+  var N_VALUES = [10, 100, 1000, 10000, 100000];
   var EST = {
     mean:   { r: 'media',   label: 'Media',   long: 'Media campionaria',   col: 'c1', dash: null,    shape: 'tri' },
     median: { r: 'mediana', label: 'Mediana', long: 'Mediana campionaria', col: 'c2', dash: '7 4',   shape: 'diamond' },
@@ -59,11 +55,11 @@
   var el, S; // stato
 
   function newState(prev) {
-    var s = { model: 'normal', nIdx: 3, M: 1000, seed: 2026, speed: 1, prediction: null };
+    var s = { model: 'normal', nIdx: 1, M: 1000, seed: 2026, speed: 25, prediction: null };
     if (prev) ['model', 'nIdx', 'M', 'seed', 'speed', 'prediction'].forEach(function (k) { s[k] = prev[k]; });
     s.n = N_VALUES[s.nIdx];
     s.rng = new SA.RRNG(s.seed);
-    s.k = 0; s.running = false; s.frame = 0; s.last = null;
+    s.k = 0; s.running = false; s.frame = 0; s.last = null; s.lastTick = null; s.speedCredit = 0;
     s.est = {}; s.bins = {}; s.out = {};
     var th = MODELS[s.model].theory(s.n), maxVar = 0;
     MODELS[s.model].est.forEach(function (e) {
@@ -112,7 +108,9 @@
       return;
     }
     var x = S.last.x, left = 0, right = 0;
-    for (var j = 0; j < x.length; j++) {
+    // Grafico: massimo 400 punti visualizzati, senza campionare le stime.
+    var stride = Math.max(1, Math.ceil(x.length / 400));
+    for (var j = 0; j < x.length; j += stride) {
       if (x[j] < X0) { left++; continue; } if (x[j] > X1) { right++; continue; }
       var jit = ((j * 0.6180339887) % 1);
       P.svg('circle', { cx: f.x(x[j]), cy: bandTop + 18 + jit * (bandBot - bandTop - 26), r: 3.6, fill: t.ink, 'fill-opacity': 0.55, stroke: t.card, 'stroke-width': 0.8 }, g);
@@ -414,31 +412,46 @@
   }
   function setRunning(on) {
     if (on && S.k >= S.M) { reset(); } // simulazione finita: «Riavvia» ricomincia
+    var wasRunning = S.running;
     S.running = on && S.k < S.M;
+    if (S.running && !wasRunning) { S.lastTick = null; S.speedCredit = 0; }
+    if (!S.running && raf) { cancelAnimationFrame(raf); raf = null; }
     playBtn.innerHTML = ''; playBtn.appendChild(SA.ui.icon(S.running ? 'pause' : 'play'));
     playBtn.appendChild(document.createTextNode(S.running ? ' Pausa' : S.k >= S.M ? ' Riavvia' : S.k ? ' Riprendi' : ' Avvia'));
     playBtn.setAttribute('aria-pressed', String(S.running));
     if (S.running && !raf) raf = requestAnimationFrame(loop);
     if (!S.running) render(true);
   }
-  function loop() {
+  function loop(now) {
     raf = null;
     if (!S.running) return;
-    var sp = SPEEDS[S.speed]; S.frame++;
-    if (S.frame % sp.every === 0) {
-      for (var i = 0; i < sp.per; i++) if (!replicate()) break;
+    var batch = SA.ui.speedBatch(S, now); S.frame++;
+    if (batch > 0) {
+      for (var i = 0; i < batch; i++) if (!replicate()) break;
       render(false);
     }
     if (S.k >= S.M) { setRunning(false); return; }
     raf = requestAnimationFrame(loop);
   }
   function reset(changes) {
+    cancelFinish();
     var keep = S; if (changes) for (var k in changes) keep[k] = changes[k];
     S = newState(keep);
     buildLegend(); interpretation(); codeBox.refresh();
     setRunning(false);
   }
-  function runAll() { while (replicate()); setRunning(false); }
+  var finishTask = null;
+  function cancelFinish() {
+    if (finishTask) { finishTask.cancel(); finishTask = null; }
+    if (playBtn) { playBtn.removeAttribute('data-busy'); playBtn.disabled = false; }
+  }
+  function runAll() {
+    cancelFinish(); setRunning(false);
+    playBtn.setAttribute('data-busy', '1'); playBtn.disabled = true;
+    finishTask = SA.ui.chunked(S.M - S.k, function () { replicate(); },
+      function () { progress.style.width = (100 * S.k / S.M) + '%'; },
+      function () { finishTask = null; playBtn.removeAttribute('data-busy'); playBtn.disabled = false; setRunning(false); });
+  }
 
   function controls() {
     var modelSeg = el('div.seg', { role: 'group', 'aria-label': 'Modello' });
@@ -454,11 +467,9 @@
     var mSel = el('select', { 'aria-label': 'Numero di repliche M', onchange: function () { reset({ M: +this.value }); } },
       [200, 500, 1000, 2000, 5000].map(function (v) { return el('option', { value: v, selected: v === S.M }, String(v)); }));
     var seedIn = el('input', { type: 'number', value: S.seed, min: 1, max: 99999, step: 1, 'aria-label': 'Seed', onchange: function () { reset({ seed: Math.max(1, Math.floor(+this.value || 1)) }); } });
-    var spOut = el('output', SPEEDS[S.speed].label);
-    var spIn = el('input', { type: 'range', min: 0, max: SPEEDS.length - 1, step: 1, value: S.speed, 'aria-label': 'Velocità',
-      oninput: function () { S.speed = +this.value; spOut.textContent = SPEEDS[S.speed].label; } });
-    playBtn = SA.ui.button(' Avvia', { icon: 'play', cls: 'btn-primary', onclick: function () { setRunning(!S.running); } });
-    var stepBtn = SA.ui.button('', { icon: 'step', cls: 'btn-icon', aria: 'Un campione alla volta', title: 'Un campione (→)', onclick: function () { setRunning(false); replicate(); render(true); } });
+    var speedControl = SA.ui.speedSlider(S.speed, function (v) { S.speed = v; });
+    playBtn = SA.ui.button(' Avvia', { icon: 'play', cls: 'btn-primary', onclick: function () { cancelFinish(); setRunning(!S.running); } });
+    var stepBtn = SA.ui.button('', { icon: 'step', cls: 'btn-icon', aria: 'Un campione alla volta', title: 'Un campione (→)', onclick: function () { cancelFinish(); setRunning(false); replicate(); render(true); } });
     var allBtn = SA.ui.button('', { icon: 'fast', cls: 'btn-icon', aria: 'Completa tutte le repliche', title: 'Completa tutte le repliche', onclick: runAll });
     var resetBtn = SA.ui.button('', { icon: 'reset', cls: 'btn-icon', aria: 'Ricomincia', title: 'Ricomincia con lo stesso seed', onclick: function () { reset(); } });
     progress = el('i');
@@ -467,7 +478,7 @@
       el('label.field', el('div.field-row', el('span', 'Numerosità n'), nOut), nIn),
       el('div', { style: 'display:grid;grid-template-columns:1fr 1fr;gap:10px' },
         el('label.field', el('span', 'Repliche M'), mSel), el('label.field', el('span', 'Seed'), seedIn)),
-      el('label.field', el('div.field-row', el('span', 'Velocità'), spOut), spIn),
+      speedControl,
       el('div.transport', playBtn, stepBtn, allBtn, resetBtn),
       el('div.progress', { 'aria-hidden': 'true' }, progress),
       el('p.muted', { style: 'margin:0;font-size:.78rem' }, 'Tastiera: spazio avvia/pausa, → un campione.'));
@@ -525,6 +536,7 @@
     mount: function (page, info) {
       el = SA.ui.el;
       S = newState(S);
+      S.speed = 25; // ogni nuova apertura comincia con la stessa velocita' degli altri laboratori
       if (SA.challenges) SA.challenges.traces.stimatori = {steps:0};
       var theoryBtn = SA.ui.button('Approfondisci', { icon: 'book', onclick: function () { SA.ui.openDrawer('Stimatori di posizione', THEORY); } });
       page.appendChild(el('header.lab-head',
@@ -574,6 +586,7 @@
       document.addEventListener('keydown', onKey);
     },
     unmount: function () {
+      cancelFinish();
       if (S) S.running = false;
       if (raf) cancelAnimationFrame(raf); raf = null;
       document.removeEventListener('keydown', onKey);

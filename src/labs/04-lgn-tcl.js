@@ -372,10 +372,10 @@
       Object.keys(POPS).map(function (k) { return el('option', { value: k, selected: k === S.pop }, POPS[k].label + (k === 'cauchy' ? ' — controesempio' : '')); }));
     var sizes = S.mode === 'lln'
       ? el('label.field', el('span', 'Osservazioni per traiettoria'), el('select', { onchange: function () { S.N = +this.value; buildPrediction(); restart(); } },
-          [100, 500, 1000, 5000].map(function (v) { return el('option', { value: v, selected: v === S.N }, String(v)); })))
+          [10, 100, 1000, 10000, 100000].map(function (v) { return el('option', { value: v, selected: v === S.N }, String(v)); })))
       : el('div', { style: 'display:grid;grid-template-columns:1fr 1fr;gap:10px' },
           el('label.field', el('span', 'n per campione'), el('select', { onchange: function () { S.n = +this.value; buildPrediction(); restart(); } },
-            [1, 2, 5, 10, 30, 100, 500].map(function (v) { return el('option', { value: v, selected: v === S.n }, String(v)); }))),
+            [10, 100, 1000, 10000, 100000].map(function (v) { return el('option', { value: v, selected: v === S.n }, String(v)); }))),
           el('label.field', el('span', 'Campioni B'), el('select', { onchange: function () { S.B = +this.value; restart(); } },
             [500, 1000, 5000].map(function (v) { return el('option', { value: v, selected: v === S.B }, String(v)); }))));
     var seedIn = el('input', { type: 'number', value: S.seed, min: 1, max: 99999, 'aria-label': 'Seed', onchange: function () { S.seed = Math.max(1, Math.floor(+this.value || 1)); restart(); } });
@@ -402,7 +402,7 @@
     },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
-      run = SA.ui.runner({ speed: 1, step: step, render: render, done: function () { return S.k >= total(); },
+      run = SA.ui.runner({ coop: true, step: step, render: render, done: function () { return S.k >= total(); },
         progress: function () { return S.k / total(); }, reset: function () { S = newState(S); } });
       var openT = function (l) { SA.ui.openDrawer('Grandi numeri e limite centrale', THEORY, l); };
       page.appendChild(el('header.lab-head',

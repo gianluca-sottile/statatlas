@@ -75,15 +75,16 @@
         mle: 'mle_cauchy(x)', extra: 'mle_cauchy <- function(x, tol = 1e-10, maxit = 100) {   # MM/IRLS dalla mediana\n  t <- median(x)\n  for (i in seq_len(maxit)) {\n    w <- 1 / (1 + (x - t)^2); t_new <- sum(w * x) / sum(w)\n    if (abs(t_new - t) < tol) break\n    t <- t_new\n  }\n  t_new\n}' } },
     unif: { label: 'Uniforme (0, θ): estremo θ — non regolare', par: 'θ', min: 0.5, max: 5, step: 0.1, def: 2, pos: true, irregular: true,
       gen: function (g, n) { return g.runif(n, 0, S.theta); }, rgen: 'runif(n, min = 0, max = theta)',
-      ll: function (t, x) { var m = Math.max.apply(null, x); return t < m ? -Infinity : -x.length * Math.log(t); },
-      mle: function (x) { return Math.max.apply(null, x); }, I: function () { return NaN; },
+      ll: function (t, x) { var m = sampleMax(x); return t < m ? -Infinity : -x.length * Math.log(t); },
+      mle: function (x) { return sampleMax(x); }, I: function () { return NaN; },
       exact: function (t, n) { return { m: n * t / (n + 1), v: n * t * t / ((n + 1) * (n + 1) * (n + 2)), d: function (y) { return y <= 0 || y > t ? 0 : n * Math.pow(y / t, n - 1) / t; } }; },
       r: { ll: 'ifelse(t < max(x), -Inf, -length(x) * log(t))', mle: 'max(x)' } }
   };
 
+  function sampleMax(x) { var mx = -Infinity; for (var i = 0; i < x.length; i++) if (x[i] > mx) mx = x[i]; return mx; }
   function M() { return MODELS[S.model]; }
   function newState(prev) {
-    var s = { model: 'normMean', n: 20, B: 1000, seed: 2026, pred: null, theta: null };
+    var s = { model: 'normMean', n: 100, B: 1000, seed: 2026, pred: null, theta: null };
     if (prev) for (var k in s) if (prev[k] !== undefined && prev[k] !== null) s[k] = prev[k];
     if (s.theta == null) s.theta = MODELS[s.model].def;
     s.rng = new SA.RRNG(s.seed); s.k = 0; s.last = null;
@@ -139,7 +140,7 @@
     P.svg('line', { x1: f.x(f.x.domain[0]), x2: f.x(f.x.domain[1]), y1: f.y(-CUT), y2: f.y(-CUT), stroke: t.c3, 'stroke-dasharray': '4 3' }, g);
     P.text(g, f.W - f.m.r - 4, f.y(-CUT) - 5, '−1,92: soglia dell’intervallo di verosimiglianza 95%', { 'text-anchor': 'end', fill: t.c3, 'font-size': 11 });
     if (!m.irregular) { var Jh = m.J(th, x); if (isFinite(Jh) && Jh > 0) P.curve(f, function (v) { return -0.5 * Jh * (v - th) * (v - th); }, f.x.domain[0], f.x.domain[1], { stroke: t.c2, 'stroke-dasharray': '7 4', 'stroke-width': 1.8 }); }
-    P.curve(f, function (v) { var l = m.ll(v, x) - l0; return isFinite(l) ? Math.max(l, -6) : NaN; }, f.x.domain[0], f.x.domain[1], { stroke: t.c1, 'stroke-width': 2.4 }, 400);
+    P.curve(f, function (v) { var l = m.ll(v, x) - l0; return isFinite(l) ? Math.max(l, -6) : NaN; }, f.x.domain[0], f.x.domain[1], { stroke: t.c1, 'stroke-width': 2.4 }, S.n >= 10000 ? 80 : 400);
     if (m.irregular) P.svg('line', { x1: f.x(th), x2: f.x(th), y1: f.y(0), y2: f.y(-6), stroke: t.c1, 'stroke-width': 2 }, g);
     P.svg('line', { x1: f.x(S.theta), x2: f.x(S.theta), y1: f.m.t, y2: f.y(-6), stroke: t.ink, 'stroke-dasharray': '3 3' }, g);
     P.text(g, f.x(S.theta) + 4, f.m.t + 12, m.par + ' vero', { fill: t.ink_2, 'font-size': 11.5 });
@@ -298,7 +299,7 @@
       el('label.field', el('span', 'Modello'), el('select', { onchange: function () { S.model = this.value; S.theta = MODELS[S.model].def; S.pred = null; buildControls(); buildPrediction(); restart(); } },
         Object.keys(MODELS).map(function (k) { return el('option', { value: k, selected: k === S.model }, MODELS[k].label); }))),
       SA.ui.slider(m.par + ' vero', { min: m.min, max: m.max, step: m.step, value: S.theta, format: function (v) { return SA.fmt(v, 2); }, onchange: function (v) { S.theta = v; restart(); } }),
-      el('div', { style: 'display:grid;grid-template-columns:1fr 1fr;gap:10px' }, sel('n', 'n', [5, 10, 20, 50, 100, 200]), sel('Campioni B', 'B', [200, 1000, 5000]),
+      el('div', { style: 'display:grid;grid-template-columns:1fr 1fr;gap:10px' }, sel('n', 'n', [10, 100, 1000, 10000, 100000]), sel('Campioni B', 'B', [200, 1000, 5000]),
         el('label.field', el('span', 'Seed'), el('input', { type: 'number', value: S.seed, min: 1, onchange: function () { S.seed = Math.max(1, Math.floor(+this.value || 1)); restart(); } }))));
     run.controls('Un campione').forEach(function (n) { ctrlBox.appendChild(n); });
   }
@@ -309,7 +310,7 @@
     },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
-      run = SA.ui.runner({ speed: 1, step: step, render: render, done: function () { return S.k >= S.B; }, progress: function () { return S.k / S.B; }, reset: function () { S = newState(S); } });
+      run = SA.ui.runner({ coop: true, step: step, render: render, done: function () { return S.k >= S.B; }, progress: function () { return S.k / S.B; }, reset: function () { S = newState(S); } });
       var openT = function (l) { SA.ui.openDrawer('Verosimiglianza e informazione', THEORY, l); };
       page.appendChild(el('header.lab-head', el('div', el('div.kicker', info.part.part + ' · ' + info.part.title + ' · Laboratorio ' + info.lab.num),
         el('h1', info.lab.title), el('p.lede', 'La forma della verosimiglianza di un campione racconta quanto è precisa la stima. Ripetendo l’esperimento, la curvatura diventa l’informazione di Fisher.')),

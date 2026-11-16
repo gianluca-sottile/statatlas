@@ -1,6 +1,6 @@
 # ───────────────────────────────────────────────────────────────
 # StatAtlas · Lab 06 — Media, mediana e massima verosimiglianza
-# Modello: N(θ = 0, 1) · n = 20 · M = 1000 · seed = 2026
+# Modello: N(θ = 0, 1) · n = 100 · M = 1000 · seed = 2026
 # Con R ≥ 4.1 e il generatore predefinito (Mersenne-Twister,
 # normal.kind = "Inversion") i campioni coincidono con quelli di StatAtlas.
 # ───────────────────────────────────────────────────────────────
@@ -8,7 +8,7 @@ library(tidyverse)
 
 # Parametri -------------------------------------------------------
 theta <- 0        # vero parametro di posizione
-n     <- 20       # numerosità di ogni campione
+n     <- 100      # numerosità di ogni campione
 M     <- 1000     # numero di campioni (repliche)
 set.seed(2026)
 
@@ -39,10 +39,10 @@ stime_lunghe |>
     iqr     = IQR(stima),
     mse     = mean((stima - theta)^2)
   )
-# Dev. std teoriche: media 0.2236, mediana 0.2802
+# Dev. std teoriche: media 0.1, mediana 0.1253
 
 # 3. Grafico: distribuzioni campionarie ---------------------------
-lim <- 1.2611   # finestra [θ − lim, θ + lim]
+lim <- 0.564   # finestra [θ − lim, θ + lim]
 bw  <- 2 * lim / 48
 colori <- c(media = "#0072B2", mediana = "#D55E00")
 

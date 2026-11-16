@@ -249,7 +249,7 @@
     },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
-      run = SA.ui.runner({ speed: 1, coop: true, step: step, render: render, done: function () { return S.k >= S.B; }, progress: function () { return S.k / S.B; }, reset: function () { S = newState(S); step(); } });
+      run = SA.ui.runner({ coop: true, step: step, render: render, done: function () { return S.k >= S.B; }, progress: function () { return S.k / S.B; }, reset: function () { S = newState(S); step(); } });
       var openT = function (l) { SA.ui.openDrawer('Alberi ed ensemble', THEORY, l); };
       page.appendChild(el('header.lab-head', el('div', el('div.kicker', info.part.part + ' · ' + info.part.title + ' · Laboratorio ' + info.lab.num),
         el('h1', info.lab.title), el('p.lede', 'Un albero di decisione è facile da leggere e difficile da fidarsi: basta poco per cambiarlo. Farne votare molti, resi diversi apposta, è una delle idee più efficaci della statistica moderna.')),

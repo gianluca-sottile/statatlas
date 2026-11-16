@@ -212,7 +212,7 @@
     },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S); setRange();
-      run = SA.ui.runner({ speed: 1, step: step, render: render, done: function () { return S.k >= S.M; }, progress: function () { return S.k / S.M; }, reset: function () { S = newState(S); setRange(); step(); } });
+      run = SA.ui.runner({ step: step, render: render, done: function () { return S.k >= S.M; }, progress: function () { return S.k / S.M; }, reset: function () { S = newState(S); setRange(); step(); } });
       var openT = function (l) { SA.ui.openDrawer('Regressione quantilica', THEORY, l); };
       page.appendChild(el('header.lab-head', el('div', el('div.kicker', info.part.part + ' · ' + info.part.title + ' · Laboratorio ' + info.lab.num),
         el('h1', info.lab.title), el('p.lede', 'Non solo la media: ogni quantile della risposta ha la sua retta. Insieme descrivono come x cambia l’intera distribuzione di y.')),

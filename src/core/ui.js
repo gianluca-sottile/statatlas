@@ -254,13 +254,43 @@ SA.ui = (function () {
     sec.body = body; return sec;
   }
 
-  /* Motore di animazione condiviso: avvia/pausa, passo, completa, ricomincia, velocità.
+  /* Velocita uniforme 0..100: default 25 in tutti gli esperimenti animati.
+   * Il numero e' una posizione di controllo (non un moltiplicatore del tempo):
+   * 0 = 2 passi/s, 25 = 30 passi/s, 100 = 1200 passi/s nominali.
+   * Interpolazione esponenziale continua, con un budget per frame per non
+   * bloccare il thread UI. Dati, seed e ordine delle repliche non cambiano. */
+  var SPEED_DEFAULT = 25;
+  function speedRate(value) {
+    var v = Math.max(0, Math.min(100, isFinite(+value) ? +value : SPEED_DEFAULT));
+    return v <= 25 ? 2 * Math.pow(15, v / 25) : 30 * Math.pow(40, (v - 25) / 75);
+  }
+  function speedBatch(state, now) {
+    var t = typeof now === 'number' && isFinite(now) ? now : Date.now();
+    if (state.lastTick == null) {
+      state.lastTick = t;
+      state.speedCredit = 0;
+      return 1; // risposta immediata all'avvio
+    }
+    var dt = Math.max(0, Math.min(100, t - state.lastTick));
+    state.lastTick = t;
+    state.speedCredit = (state.speedCredit || 0) + speedRate(state.speed) * dt / 1000;
+    // Al massimo 24 passi per frame, scartando l'arretrato se il tab era sospeso.
+    var n = Math.min(24, Math.floor(state.speedCredit));
+    state.speedCredit = Math.min(1, Math.max(0, state.speedCredit - n));
+    return n;
+  }
+  function speedSlider(value, setSpeed) {
+    var out = el('output', String(value) + '/100');
+    var inp = el('input', { type: 'range', min: 0, max: 100, step: 1, value: value, 'aria-label': 'Velocità',
+      oninput: function () { var v = +this.value; out.textContent = v + '/100'; setSpeed(v); } });
+    return el('label.field', el('div.field-row', el('span', 'Velocità'), out), inp);
+  }
+
+  /* Motore di animazione condiviso: avvia/pausa, passo, completa, ricomincia.
    * o.step() → false a esperimento concluso; o.render(full); o.reset(); o.done(); o.progress() ∈ [0,1] */
-  var SPEEDS = [{ label: 'Lenta', per: 1, every: 8 }, { label: 'Media', per: 1, every: 2 },
-    { label: 'Veloce', per: 4, every: 1 }, { label: 'Turbo', per: 30, every: 1 }]; // aggiornamenti frequenti e regolari: animazione fluida
   function runner(o) {
-    var r = { running: false, frame: 0, speed: o.speed == null ? 1 : o.speed, raf: null };
-    var speeds = o.speeds || SPEEDS, bar = el('i');
+    var r = { running: false, frame: 0, speed: SPEED_DEFAULT, raf: null, lastTick: null, speedCredit: 0 };
+    var bar = el('i');
     r.playBtn = button(' Avvia', { icon: 'play', cls: 'btn-primary', onclick: function () { r.set(!r.running); } });
     function label() {
       r.playBtn.innerHTML = ''; r.playBtn.appendChild(icon(r.running ? 'pause' : 'play'));
@@ -268,11 +298,11 @@ SA.ui = (function () {
       r.playBtn.setAttribute('aria-pressed', String(r.running));
       bar.style.width = (100 * o.progress()) + '%';
     }
-    function loop() {
+    function loop(now) {
       r.raf = null; if (!r.running) return;
-      var sp = speeds[r.speed]; r.frame++;
-      if (r.frame % sp.every === 0) {
-        for (var i = 0; i < sp.per; i++) if (o.step() === false) break;
+      var n = speedBatch(r, now); r.frame++;
+      if (n > 0) {
+        for (var i = 0; i < n; i++) if (o.step() === false) break;
         o.render(false); bar.style.width = (100 * o.progress()) + '%';
       }
       if (o.done()) { r.set(false); return; }
@@ -281,17 +311,24 @@ SA.ui = (function () {
     r.set = function (on) {
       if (r.task) return;
       if (on && o.done()) { o.reset(); o.render(true); } // simulazione finita: «Riavvia» ricomincia con lo stesso seed
+      var wasRunning = r.running;
       r.running = !!on && !o.done();
+      if (r.running && !wasRunning) { r.lastTick = null; r.speedCredit = 0; }
       if (r.running && !r.raf) r.raf = requestAnimationFrame(loop);
-      if (!r.running) o.render(true);
+      if (!r.running) {
+        if (r.raf) cancelAnimationFrame(r.raf);
+        r.raf = null; r.lastTick = null; r.speedCredit = 0;
+        o.render(true);
+      }
       label();
     };
-    r.stepOnce = function () { if (r.task) return; r.running = false; o.step(); o.render(true); label(); };
+    r.stepOnce = function () { if (r.task) return; r.stop(); o.step(); o.render(true); label(); };
     /* Completa: sincrono per i lab leggeri; con o.coop a fette di ~30 ms (UI-01), annullabile, con avanzamento.
      * Durante il lavoro playBtn ha data-busy = "1" (usato anche dagli smoke test). */
     function endBusy() { r.task = null; r.playBtn.removeAttribute('data-busy'); r.playBtn.disabled = false; }
     r.finish = function () {
-      r.running = false;
+      if (r.task) return;
+      r.stop();
       if (!o.coop) { var guard = 0; while (!o.done() && o.step() !== false && guard++ < 1e6); o.render(true); label(); return; }
       if (r.task) return;
       var tk = r.task = { alive: true }; r.playBtn.setAttribute('data-busy', '1'); r.playBtn.disabled = true;
@@ -304,7 +341,7 @@ SA.ui = (function () {
       })();
     };
     r.restart = function () { r.stop(); o.reset(); o.render(true); label(); };
-    r.stop = function () { r.running = false; if (r.raf) cancelAnimationFrame(r.raf); r.raf = null; if (r.task) { r.task.alive = false; endBusy(); } };
+    r.stop = function () { r.running = false; if (r.raf) cancelAnimationFrame(r.raf); r.raf = null; r.lastTick = null; r.speedCredit = 0; if (r.task) { r.task.alive = false; endBusy(); } };
     r.refresh = label;
     r.key = function (e) {
       if (/INPUT|SELECT|TEXTAREA|BUTTON/.test(e.target.tagName) || e.metaKey || e.ctrlKey || e.altKey) return;
@@ -312,11 +349,8 @@ SA.ui = (function () {
       else if (e.key === 'ArrowRight') { e.preventDefault(); r.stepOnce(); }
     };
     r.controls = function (stepTitle) {
-      var spOut = el('output', speeds[r.speed].label);
-      var spIn = el('input', { type: 'range', min: 0, max: speeds.length - 1, step: 1, value: r.speed, 'aria-label': 'Velocità',
-        oninput: function () { r.speed = +this.value; spOut.textContent = speeds[r.speed].label; } });
       return [
-        el('label.field', el('div.field-row', el('span', 'Velocità'), spOut), spIn),
+        speedSlider(r.speed, function (v) { r.speed = v; }),
         el('div.transport', r.playBtn,
           button('', { icon: 'step', cls: 'btn-icon', aria: stepTitle || 'Un passo', title: (stepTitle || 'Un passo') + ' (→)', onclick: r.stepOnce }),
           button('', { icon: 'fast', cls: 'btn-icon', aria: 'Completa l’esperimento', title: 'Completa l’esperimento', onclick: r.finish }),
@@ -352,6 +386,6 @@ SA.ui = (function () {
     f.input = inp; f.output = out; return f;
   }
 
-  return { el: el, icon: icon, runner: runner, slider: slider, chunked: chunked, button: button, toast: toast, download: download, copy: copy, codeBlock: codeBlock,
+  return { el: el, icon: icon, runner: runner, speedRate: speedRate, speedBatch: speedBatch, speedSlider: speedSlider, slider: slider, chunked: chunked, button: button, toast: toast, download: download, copy: copy, codeBlock: codeBlock,
     exportPNG: exportPNG, csv: csv, openDrawer: openDrawer, closeDrawer: closeDrawer, badge: badge, step: step, highlightR: highlightR };
 })();

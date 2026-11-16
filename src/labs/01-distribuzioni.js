@@ -2,10 +2,7 @@
  * Osservazioni generate per inversione X = F⁻¹(U): stessi numeri di R con q*(runif(N)). */
 (function () {
   var el, S, LAWS = SA.laws, BINS = 40;
-  var N_VALUES = [100, 500, 1000, 5000, 10000];
-  var SPEEDS = [{ label: 'Lenta', per: 1, every: 12 }, { label: 'Media', per: 1, every: 2 },
-    { label: 'Veloce', per: 10, every: 1 }, { label: 'Turbo', per: 120, every: 1 }];
-
+  var N_VALUES = [10, 100, 1000, 10000, 100000];
   /* ---------- stato ---------- */
   var memo = {}; // parametri ricordati per legge
   function defaults(law) { var p = {}; law.params.forEach(function (q) { p[q.key] = q.value; }); return p; }
@@ -648,7 +645,7 @@
     mount: function (page, info) {
       el = SA.ui.el;
       S = newState(S);
-      run = SA.ui.runner({ speeds: SPEEDS, speed: 1, step: draw1, render: render,
+      run = SA.ui.runner({ coop: true, step: draw1, render: render,
         done: function () { return S.k >= S.N; }, progress: function () { return S.k / S.N; },
         reset: function () { S = newState({ law: S.law, N: S.N, seed: S.seed, guess: S.guess, a: S.a, b: S.b }); } });
       var openT = function (lvl) { SA.ui.openDrawer('Distribuzioni di probabilità', THEORY, lvl); };

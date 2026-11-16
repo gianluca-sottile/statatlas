@@ -5,7 +5,7 @@
 library(tidyverse)
 
 set.seed(2026)
-n <- 20; B <- 1000; livello <- 0.95; a <- 1 - livello
+n <- 100; B <- 1000; livello <- 0.95; a <- 1 - livello
 vero <- 10   # parametro vero, fisso
 sigma <- 2
 

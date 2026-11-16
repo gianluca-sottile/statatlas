@@ -1,3 +1,24 @@
+# Changelog
+
+## 2.1 — Patch post-Macrofase B: grandi campioni e CI essenziale (candidate, da pubblicare)
+
+- Laboratori 01–09: scale di numerosità `10 / 100 / 1000 / 10000 / 100000` per osservazioni o numerosità per campione, mantenendo distinti i conteggi B/M delle repliche.
+- Ottimizzazione grafica per LAB 05 (QQ plot massimo circa 400 punti) e LAB 06 (massimo circa 400 punti visualizzati): statistiche calcolate su tutte le osservazioni. Recupero reattività dei comandi «Completa» con esecuzione cooperativa.
+- LAB 08: copertura esatta delle procedure binomiali e Poisson calcolata per inversione monotona degli intervalli e CDF della statistica sufficiente, evitando enumerazioni fino a 100000 o oltre; per i quantili chi-quadrato con almeno 10000 gradi di libertà la trasformazione di Wilson–Hilferty è verificata numericamente con SciPy fino a n=100000. LAB 09: per n >= 10000 campionamento esatto della Z normale e script R coerente.
+- LAB 05: bootstrap parametrico opzionale limitato a N <= 10000 nell'interfaccia; controllo asintotico e grafici disponibili anche per N maggiori. LAB 07: massimo campionario calcolato senza spread di array lunghi.
+- CI su GitHub: build + suite JS automatica, audit scientifico completo e Chromium/R su attivazione manuale. Un unico collaudo locale conserva i gate scientifici, browser e R prima della pubblicazione.
+- Nuova verifica browser per le cinque taglie campionarie e per i test inferenziali a n=100000, più 15 confronti indipendenti delle coperture binomiali e Poisson con SciPy.
+- LAB 08: coda di Poisson calcolata mediante ricorrenza numericamente stabile a grandi medie; esportazione R della copertura esatta accelerata via ricerca binaria e CDF, evitando enumerazioni massicce di campioni. La release candidate richiede un report GNU R 31/31 riferito alla nuova build prima del push.
+
+
+## 2.1 — Aggiornamento controlli di simulazione e README (successivo alla Macrofase B, da pubblicare)
+
+- Scala della velocità delle animazioni 0–100, passo 1, default 25 nei 25 laboratori animati; motore per frame basato sul tempo trascorso e limite di 24 passi/fotogramma per non bloccare l'interfaccia.
+- Rimossi i precedenti quattro scatti «Lenta/Media/Veloce/Turbo»; uniformati runner condiviso e implementazione speciale del LAB 06. La vista geometrica del LAB 15 e le mappe statiche 26–31 non mostrano cursori privi di funzione.
+- Test numerico dell'interpolazione e browser mobile/desktop dei controlli su 25 laboratori, più confronto reale tra velocità minima e massima.
+- README aggiornato allo stato effettivo delle Macrofasi A+B, integrazione curricolare, audit, verifiche R, limiti della parità numerica e roadmap C.
+- Non sono state modificate funzioni statistiche, seed, stimatori, distribuzioni o formati degli script R. Prima del push è necessario rigenerare il report R 31/31 per la nuova build.
+
 ## Macrofase B — Candidate di integrazione curricolare (16 novembre 2026)
 
 - Ponte didattico da tutti i 31 laboratori a lezioni selezionate del corso *From Data to Models with R*; rimandi diretti vs propedeutici, con segnalazione dei contenuti non coperti dal corso.
@@ -5,7 +26,6 @@
 - QA browser e test di mappatura specifici, senza modifiche al motore statistico.
 - Nuova build richiede aggiornamento obbligatorio del report GNU R 31/31 prima di un futuro push.
 
-# Changelog
 
 ## Unreleased — 16/11/2026 · Macrofase A: audit formale e validatore unico R
 - Audit documentato delle 31 formule-cardine e delle sezioni di derivazione, con ipotesi, dimostrazioni schematiche, limiti e controesempi in `docs/AUDIT_FORMALE_TEORICO_31.md`.

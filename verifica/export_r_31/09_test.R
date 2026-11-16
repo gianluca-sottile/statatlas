@@ -5,14 +5,19 @@
 library(tidyverse)
 
 set.seed(2026)
-n <- 20; B <- 1000; alpha <- 0.05; delta <- 0.5   # effetto in unità di σ (σ = 1, μ₀ = 0)
+n <- 100; B <- 1000; alpha <- 0.05; delta <- 0.5   # effetto in unità di σ (σ = 1, μ₀ = 0)
 z_crit <- qnorm(1 - alpha / 2)
 rifiuta <- function(z) abs(z) > z_crit
 
-# Per ogni replica: un campione sotto H0, poi uno sotto H1 (stesso ordine di StatAtlas)
+# Per n >= 10000 la statistica Z normale e simulata esattamente da N(0,1)
+# e N(delta * sqrt(n), 1), senza generare il campione completo.
 sim <- tibble(replica = seq_len(B)) |>
-  mutate(z = map(replica, \(r) c(z0 = sqrt(n) * mean(rnorm(n, 0, 1)),
-                                 z1 = sqrt(n) * mean(rnorm(n, delta, 1))))) |>
+  mutate(z = map(replica, \(r) if (n >= 10000) {
+    c(z0 = rnorm(1), z1 = rnorm(1) + delta * sqrt(n))
+  } else {
+    c(z0 = sqrt(n) * mean(rnorm(n, 0, 1)),
+      z1 = sqrt(n) * mean(rnorm(n, delta, 1)))
+  })) |>
   unnest_wider(z)
 
 potenza_teorica <- function(d, n) pnorm(-z_crit + d * sqrt(n)) + pnorm(-z_crit - d * sqrt(n))

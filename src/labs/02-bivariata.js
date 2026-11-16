@@ -18,7 +18,7 @@
   };
   function M() { return MODELS[S.model]; }
   function newState(prev) {
-    var s = { model: 'norm', N: 2000, seed: 2026, x0: 1, h: 0.25, pred: null, view: '2d', a: null };
+    var s = { model: 'norm', N: 1000, seed: 2026, x0: 1, h: 0.25, pred: null, view: '2d', a: null };
     if (prev) for (var k in s) if (prev[k] !== undefined && prev[k] !== null) s[k] = prev[k];
     if (s.a == null) s.a = MODELS[s.model].def;
     s.rng = new SA.RRNG(s.seed); s.k = 0; s.x = new Float64Array(s.N); s.y = new Float64Array(s.N);
@@ -208,7 +208,7 @@
       SA.ui.slider('Punto di condizionamento x₀', { min: -2.5, max: 2.5, step: 0.05, value: S.x0, format: function (v) { return SA.fmt(v, 2); }, oninput: function (v) { S.x0 = v; render(true); }, onchange: function () { codeBox.refresh(); } }),
       SA.ui.slider('Semiampiezza della striscia h', { min: 0.05, max: 0.8, step: 0.05, value: S.h, format: function (v) { return SA.fmt(v, 2); }, oninput: function (v) { S.h = v; render(true); }, onchange: function () { codeBox.refresh(); } }),
       el('div', { style: 'display:grid;grid-template-columns:1fr 1fr;gap:10px' },
-        el('label.field', el('span', 'Coppie N'), el('select', { onchange: function () { S.N = +this.value; restart(); } }, [500, 2000, 5000, 20000].map(function (v) { return el('option', { value: v, selected: v === S.N }, String(v)); }))),
+        el('label.field', el('span', 'Coppie N'), el('select', { onchange: function () { S.N = +this.value; restart(); } }, [10, 100, 1000, 10000, 100000].map(function (v) { return el('option', { value: v, selected: v === S.N }, String(v)); }))),
         el('label.field', el('span', 'Seed'), el('input', { type: 'number', value: S.seed, min: 1, onchange: function () { S.seed = Math.max(1, Math.floor(+this.value || 1)); restart(); } }))));
     run.controls('Una coppia').forEach(function (n) { ctrlBox.appendChild(n); });
   }
@@ -219,7 +219,7 @@
     },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
-      run = SA.ui.runner({ speed: 2, step: step, render: render, done: function () { return S.k >= S.N; }, progress: function () { return S.k / S.N; }, reset: function () { S = newState(S); } });
+      run = SA.ui.runner({ coop: true, step: step, render: render, done: function () { return S.k >= S.N; }, progress: function () { return S.k / S.N; }, reset: function () { S = newState(S); } });
       var openT = function (l) { SA.ui.openDrawer('Variabili bivariate', THEORY, l); };
       page.appendChild(el('header.lab-head', el('div', el('div.kicker', info.part.part + ' · ' + info.part.title + ' · Laboratorio ' + info.lab.num),
         el('h1', info.lab.title), el('p.lede', 'Due variabili insieme: la nuvola, le sue proiezioni e le sue sezioni. E perché una correlazione nulla può nascondere un legame fortissimo.')),

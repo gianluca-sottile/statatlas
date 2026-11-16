@@ -1177,6 +1177,8 @@ SA.sf = (function () {
     var lf = -x + a * Math.log(x) - lgamma(a), i;
     if (x < a + 1) {
       var ap = a, sum = 1 / a, del = sum;
+      // Il ramo serie e' destinato a shape moderati. Per chi-quadrato
+      // a df elevati, l'inversione usa l'approssimazione calibrata sotto.
       for (i = 0; i < 1000; i++) { ap++; del *= x / ap; sum += del; if (Math.abs(del) < Math.abs(sum) * 1e-16) break; }
       var p = sum * Math.exp(lf); return [p, 1 - p];
     }
@@ -1353,6 +1355,21 @@ SA.laws = (function () {
       rargs: function (p) { return 'df = ' + p.df; },
       pdf: function (x, p) { var k = p.df / 2; return x <= 0 ? 0 : Math.exp(-k * Math.log(2) + (k - 1) * Math.log(x) - x / 2 - sf.lgamma(k)); },
       cdf: function (x, p) { return x <= 0 ? 0 : sf.gammaPQ(p.df / 2, x / 2)[0]; },
+      // Per df >= 10000 evitiamo la ripetuta inversione della gamma incompleta:
+      // la trasformazione di Wilson-Hilferty ha errore assoluto sul quantile
+      // trascurabile sulla scala degli intervalli (divisione per 2n).
+      // Controlli indipendenti con SciPy per n fino a 100000 nel LAB 08.
+      q: function (u, p) {
+        if (u <= 0) return 0;
+        if (u >= 1) return Infinity;
+        if (p.df >= 10000) {
+          var t = 2 / (9 * p.df), v = 1 - t + SA.qnorm(u) * Math.sqrt(t);
+          return p.df * Math.pow(Math.max(0, v), 3);
+        }
+        return sf.invert(function (x) { return x <= 0 ? 0 : sf.gammaPQ(p.df / 2, x / 2)[0]; },
+          function (x) { var k = p.df / 2; return x <= 0 ? 0 : Math.exp(-k * Math.log(2) + (k - 1) * Math.log(x) - x / 2 - sf.lgamma(k)); },
+          u, 0, p.df + 5.5 * Math.sqrt(2 * p.df) + 2);
+      },
       range: function (p) { return [0, p.df + 5.5 * Math.sqrt(2 * p.df) + 2]; },
       mean: function (p) { return p.df; }, var: function (p) { return 2 * p.df; },
       formula: 'X = Z₁² + … + Z<sub>ν</sub>², &nbsp;Zᵢ ~ N(0, 1) indipendenti',
@@ -5198,13 +5215,43 @@ SA.ui = (function () {
     sec.body = body; return sec;
   }
 
-  /* Motore di animazione condiviso: avvia/pausa, passo, completa, ricomincia, velocità.
+  /* Velocita uniforme 0..100: default 25 in tutti gli esperimenti animati.
+   * Il numero e' una posizione di controllo (non un moltiplicatore del tempo):
+   * 0 = 2 passi/s, 25 = 30 passi/s, 100 = 1200 passi/s nominali.
+   * Interpolazione esponenziale continua, con un budget per frame per non
+   * bloccare il thread UI. Dati, seed e ordine delle repliche non cambiano. */
+  var SPEED_DEFAULT = 25;
+  function speedRate(value) {
+    var v = Math.max(0, Math.min(100, isFinite(+value) ? +value : SPEED_DEFAULT));
+    return v <= 25 ? 2 * Math.pow(15, v / 25) : 30 * Math.pow(40, (v - 25) / 75);
+  }
+  function speedBatch(state, now) {
+    var t = typeof now === 'number' && isFinite(now) ? now : Date.now();
+    if (state.lastTick == null) {
+      state.lastTick = t;
+      state.speedCredit = 0;
+      return 1; // risposta immediata all'avvio
+    }
+    var dt = Math.max(0, Math.min(100, t - state.lastTick));
+    state.lastTick = t;
+    state.speedCredit = (state.speedCredit || 0) + speedRate(state.speed) * dt / 1000;
+    // Al massimo 24 passi per frame, scartando l'arretrato se il tab era sospeso.
+    var n = Math.min(24, Math.floor(state.speedCredit));
+    state.speedCredit = Math.min(1, Math.max(0, state.speedCredit - n));
+    return n;
+  }
+  function speedSlider(value, setSpeed) {
+    var out = el('output', String(value) + '/100');
+    var inp = el('input', { type: 'range', min: 0, max: 100, step: 1, value: value, 'aria-label': 'Velocità',
+      oninput: function () { var v = +this.value; out.textContent = v + '/100'; setSpeed(v); } });
+    return el('label.field', el('div.field-row', el('span', 'Velocità'), out), inp);
+  }
+
+  /* Motore di animazione condiviso: avvia/pausa, passo, completa, ricomincia.
    * o.step() → false a esperimento concluso; o.render(full); o.reset(); o.done(); o.progress() ∈ [0,1] */
-  var SPEEDS = [{ label: 'Lenta', per: 1, every: 8 }, { label: 'Media', per: 1, every: 2 },
-    { label: 'Veloce', per: 4, every: 1 }, { label: 'Turbo', per: 30, every: 1 }]; // aggiornamenti frequenti e regolari: animazione fluida
   function runner(o) {
-    var r = { running: false, frame: 0, speed: o.speed == null ? 1 : o.speed, raf: null };
-    var speeds = o.speeds || SPEEDS, bar = el('i');
+    var r = { running: false, frame: 0, speed: SPEED_DEFAULT, raf: null, lastTick: null, speedCredit: 0 };
+    var bar = el('i');
     r.playBtn = button(' Avvia', { icon: 'play', cls: 'btn-primary', onclick: function () { r.set(!r.running); } });
     function label() {
       r.playBtn.innerHTML = ''; r.playBtn.appendChild(icon(r.running ? 'pause' : 'play'));
@@ -5212,11 +5259,11 @@ SA.ui = (function () {
       r.playBtn.setAttribute('aria-pressed', String(r.running));
       bar.style.width = (100 * o.progress()) + '%';
     }
-    function loop() {
+    function loop(now) {
       r.raf = null; if (!r.running) return;
-      var sp = speeds[r.speed]; r.frame++;
-      if (r.frame % sp.every === 0) {
-        for (var i = 0; i < sp.per; i++) if (o.step() === false) break;
+      var n = speedBatch(r, now); r.frame++;
+      if (n > 0) {
+        for (var i = 0; i < n; i++) if (o.step() === false) break;
         o.render(false); bar.style.width = (100 * o.progress()) + '%';
       }
       if (o.done()) { r.set(false); return; }
@@ -5225,17 +5272,24 @@ SA.ui = (function () {
     r.set = function (on) {
       if (r.task) return;
       if (on && o.done()) { o.reset(); o.render(true); } // simulazione finita: «Riavvia» ricomincia con lo stesso seed
+      var wasRunning = r.running;
       r.running = !!on && !o.done();
+      if (r.running && !wasRunning) { r.lastTick = null; r.speedCredit = 0; }
       if (r.running && !r.raf) r.raf = requestAnimationFrame(loop);
-      if (!r.running) o.render(true);
+      if (!r.running) {
+        if (r.raf) cancelAnimationFrame(r.raf);
+        r.raf = null; r.lastTick = null; r.speedCredit = 0;
+        o.render(true);
+      }
       label();
     };
-    r.stepOnce = function () { if (r.task) return; r.running = false; o.step(); o.render(true); label(); };
+    r.stepOnce = function () { if (r.task) return; r.stop(); o.step(); o.render(true); label(); };
     /* Completa: sincrono per i lab leggeri; con o.coop a fette di ~30 ms (UI-01), annullabile, con avanzamento.
      * Durante il lavoro playBtn ha data-busy = "1" (usato anche dagli smoke test). */
     function endBusy() { r.task = null; r.playBtn.removeAttribute('data-busy'); r.playBtn.disabled = false; }
     r.finish = function () {
-      r.running = false;
+      if (r.task) return;
+      r.stop();
       if (!o.coop) { var guard = 0; while (!o.done() && o.step() !== false && guard++ < 1e6); o.render(true); label(); return; }
       if (r.task) return;
       var tk = r.task = { alive: true }; r.playBtn.setAttribute('data-busy', '1'); r.playBtn.disabled = true;
@@ -5248,7 +5302,7 @@ SA.ui = (function () {
       })();
     };
     r.restart = function () { r.stop(); o.reset(); o.render(true); label(); };
-    r.stop = function () { r.running = false; if (r.raf) cancelAnimationFrame(r.raf); r.raf = null; if (r.task) { r.task.alive = false; endBusy(); } };
+    r.stop = function () { r.running = false; if (r.raf) cancelAnimationFrame(r.raf); r.raf = null; r.lastTick = null; r.speedCredit = 0; if (r.task) { r.task.alive = false; endBusy(); } };
     r.refresh = label;
     r.key = function (e) {
       if (/INPUT|SELECT|TEXTAREA|BUTTON/.test(e.target.tagName) || e.metaKey || e.ctrlKey || e.altKey) return;
@@ -5256,11 +5310,8 @@ SA.ui = (function () {
       else if (e.key === 'ArrowRight') { e.preventDefault(); r.stepOnce(); }
     };
     r.controls = function (stepTitle) {
-      var spOut = el('output', speeds[r.speed].label);
-      var spIn = el('input', { type: 'range', min: 0, max: speeds.length - 1, step: 1, value: r.speed, 'aria-label': 'Velocità',
-        oninput: function () { r.speed = +this.value; spOut.textContent = speeds[r.speed].label; } });
       return [
-        el('label.field', el('div.field-row', el('span', 'Velocità'), spOut), spIn),
+        speedSlider(r.speed, function (v) { r.speed = v; }),
         el('div.transport', r.playBtn,
           button('', { icon: 'step', cls: 'btn-icon', aria: stepTitle || 'Un passo', title: (stepTitle || 'Un passo') + ' (→)', onclick: r.stepOnce }),
           button('', { icon: 'fast', cls: 'btn-icon', aria: 'Completa l’esperimento', title: 'Completa l’esperimento', onclick: r.finish }),
@@ -5296,7 +5347,7 @@ SA.ui = (function () {
     f.input = inp; f.output = out; return f;
   }
 
-  return { el: el, icon: icon, runner: runner, slider: slider, chunked: chunked, button: button, toast: toast, download: download, copy: copy, codeBlock: codeBlock,
+  return { el: el, icon: icon, runner: runner, speedRate: speedRate, speedBatch: speedBatch, speedSlider: speedSlider, slider: slider, chunked: chunked, button: button, toast: toast, download: download, copy: copy, codeBlock: codeBlock,
     exportPNG: exportPNG, csv: csv, openDrawer: openDrawer, closeDrawer: closeDrawer, badge: badge, step: step, highlightR: highlightR };
 })();
 
@@ -7740,10 +7791,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
  * Osservazioni generate per inversione X = F⁻¹(U): stessi numeri di R con q*(runif(N)). */
 (function () {
   var el, S, LAWS = SA.laws, BINS = 40;
-  var N_VALUES = [100, 500, 1000, 5000, 10000];
-  var SPEEDS = [{ label: 'Lenta', per: 1, every: 12 }, { label: 'Media', per: 1, every: 2 },
-    { label: 'Veloce', per: 10, every: 1 }, { label: 'Turbo', per: 120, every: 1 }];
-
+  var N_VALUES = [10, 100, 1000, 10000, 100000];
   /* ---------- stato ---------- */
   var memo = {}; // parametri ricordati per legge
   function defaults(law) { var p = {}; law.params.forEach(function (q) { p[q.key] = q.value; }); return p; }
@@ -8386,7 +8434,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     mount: function (page, info) {
       el = SA.ui.el;
       S = newState(S);
-      run = SA.ui.runner({ speeds: SPEEDS, speed: 1, step: draw1, render: render,
+      run = SA.ui.runner({ coop: true, step: draw1, render: render,
         done: function () { return S.k >= S.N; }, progress: function () { return S.k / S.N; },
         reset: function () { S = newState({ law: S.law, N: S.N, seed: S.seed, guess: S.guess, a: S.a, b: S.b }); } });
       var openT = function (lvl) { SA.ui.openDrawer('Distribuzioni di probabilità', THEORY, lvl); };
@@ -8477,7 +8525,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   };
   function M() { return MODELS[S.model]; }
   function newState(prev) {
-    var s = { model: 'norm', N: 2000, seed: 2026, x0: 1, h: 0.25, pred: null, view: '2d', a: null };
+    var s = { model: 'norm', N: 1000, seed: 2026, x0: 1, h: 0.25, pred: null, view: '2d', a: null };
     if (prev) for (var k in s) if (prev[k] !== undefined && prev[k] !== null) s[k] = prev[k];
     if (s.a == null) s.a = MODELS[s.model].def;
     s.rng = new SA.RRNG(s.seed); s.k = 0; s.x = new Float64Array(s.N); s.y = new Float64Array(s.N);
@@ -8667,7 +8715,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
       SA.ui.slider('Punto di condizionamento x₀', { min: -2.5, max: 2.5, step: 0.05, value: S.x0, format: function (v) { return SA.fmt(v, 2); }, oninput: function (v) { S.x0 = v; render(true); }, onchange: function () { codeBox.refresh(); } }),
       SA.ui.slider('Semiampiezza della striscia h', { min: 0.05, max: 0.8, step: 0.05, value: S.h, format: function (v) { return SA.fmt(v, 2); }, oninput: function (v) { S.h = v; render(true); }, onchange: function () { codeBox.refresh(); } }),
       el('div', { style: 'display:grid;grid-template-columns:1fr 1fr;gap:10px' },
-        el('label.field', el('span', 'Coppie N'), el('select', { onchange: function () { S.N = +this.value; restart(); } }, [500, 2000, 5000, 20000].map(function (v) { return el('option', { value: v, selected: v === S.N }, String(v)); }))),
+        el('label.field', el('span', 'Coppie N'), el('select', { onchange: function () { S.N = +this.value; restart(); } }, [10, 100, 1000, 10000, 100000].map(function (v) { return el('option', { value: v, selected: v === S.N }, String(v)); }))),
         el('label.field', el('span', 'Seed'), el('input', { type: 'number', value: S.seed, min: 1, onchange: function () { S.seed = Math.max(1, Math.floor(+this.value || 1)); restart(); } }))));
     run.controls('Una coppia').forEach(function (n) { ctrlBox.appendChild(n); });
   }
@@ -8678,7 +8726,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
-      run = SA.ui.runner({ speed: 2, step: step, render: render, done: function () { return S.k >= S.N; }, progress: function () { return S.k / S.N; }, reset: function () { S = newState(S); } });
+      run = SA.ui.runner({ coop: true, step: step, render: render, done: function () { return S.k >= S.N; }, progress: function () { return S.k / S.N; }, reset: function () { S = newState(S); } });
       var openT = function (l) { SA.ui.openDrawer('Variabili bivariate', THEORY, l); };
       page.appendChild(el('header.lab-head', el('div', el('div.kicker', info.part.part + ' · ' + info.part.title + ' · Laboratorio ' + info.lab.num),
         el('h1', info.lab.title), el('p.lede', 'Due variabili insieme: la nuvola, le sue proiezioni e le sue sezioni. E perché una correlazione nulla può nascondere un legame fortissimo.')),
@@ -9005,7 +9053,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
           Object.keys(FUNS).map(function (k) { return el('option', { value: k, selected: k === S.fun }, FUNS[k].label); })));
     ctrlBox.append(el('div.field', el('span', 'Metodo'), seg), pick,
       el('div', { style: 'display:grid;grid-template-columns:1fr 1fr;gap:10px' },
-        el('label.field', el('span', 'Estrazioni N'), el('select', { onchange: function () { S.N = +this.value; restart(); } }, [200, 1000, 5000, 20000].map(function (v) { return el('option', { value: v, selected: v === S.N }, String(v)); }))),
+        el('label.field', el('span', 'Estrazioni N'), el('select', { onchange: function () { S.N = +this.value; restart(); } }, [10, 100, 1000, 10000, 100000].map(function (v) { return el('option', { value: v, selected: v === S.N }, String(v)); }))),
         el('label.field', el('span', 'Seed'), el('input', { type: 'number', value: S.seed, min: 1, onchange: function () { S.seed = Math.max(1, Math.floor(+this.value || 1)); restart(); } }))));
     run.controls(S.mode === 'inv' ? 'Una estrazione' : 'Una coppia (u, v)').forEach(function (n) { ctrlBox.appendChild(n); });
   }
@@ -9021,7 +9069,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
-      run = SA.ui.runner({ speed: 1, step: step, render: render, done: function () { return S.k >= S.N; }, progress: function () { return S.k / S.N; }, reset: function () { S = newState(S); } });
+      run = SA.ui.runner({ coop: true, step: step, render: render, done: function () { return S.k >= S.N; }, progress: function () { return S.k / S.N; }, reset: function () { S = newState(S); } });
       var openT = function (l) { SA.ui.openDrawer('Metodi di simulazione', THEORY, l); };
       page.appendChild(el('header.lab-head', el('div', el('div.kicker', info.part.part + ' · ' + info.part.title + ' · Laboratorio ' + info.lab.num),
         el('h1', info.lab.title), el('p.lede', 'Come un generatore di numeri uniformi diventa qualunque legge, e come il caso calcola un integrale.')),
@@ -9423,10 +9471,10 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
       Object.keys(POPS).map(function (k) { return el('option', { value: k, selected: k === S.pop }, POPS[k].label + (k === 'cauchy' ? ' — controesempio' : '')); }));
     var sizes = S.mode === 'lln'
       ? el('label.field', el('span', 'Osservazioni per traiettoria'), el('select', { onchange: function () { S.N = +this.value; buildPrediction(); restart(); } },
-          [100, 500, 1000, 5000].map(function (v) { return el('option', { value: v, selected: v === S.N }, String(v)); })))
+          [10, 100, 1000, 10000, 100000].map(function (v) { return el('option', { value: v, selected: v === S.N }, String(v)); })))
       : el('div', { style: 'display:grid;grid-template-columns:1fr 1fr;gap:10px' },
           el('label.field', el('span', 'n per campione'), el('select', { onchange: function () { S.n = +this.value; buildPrediction(); restart(); } },
-            [1, 2, 5, 10, 30, 100, 500].map(function (v) { return el('option', { value: v, selected: v === S.n }, String(v)); }))),
+            [10, 100, 1000, 10000, 100000].map(function (v) { return el('option', { value: v, selected: v === S.n }, String(v)); }))),
           el('label.field', el('span', 'Campioni B'), el('select', { onchange: function () { S.B = +this.value; restart(); } },
             [500, 1000, 5000].map(function (v) { return el('option', { value: v, selected: v === S.B }, String(v)); }))));
     var seedIn = el('input', { type: 'number', value: S.seed, min: 1, max: 99999, 'aria-label': 'Seed', onchange: function () { S.seed = Math.max(1, Math.floor(+this.value || 1)); restart(); } });
@@ -9453,7 +9501,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
-      run = SA.ui.runner({ speed: 1, step: step, render: render, done: function () { return S.k >= total(); },
+      run = SA.ui.runner({ coop: true, step: step, render: render, done: function () { return S.k >= total(); },
         progress: function () { return S.k / total(); }, reset: function () { S = newState(S); } });
       var openT = function (l) { SA.ui.openDrawer('Grandi numeri e limite centrale', THEORY, l); };
       page.appendChild(el('header.lab-head',
@@ -9524,7 +9572,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     return Object.keys(HYP).filter(function (h) { var m = HYP[h]; return !!m.disc === !!d.disc && (!m.pos || d.pos) && (!m.max10 || d.max10); });
   }
   function newState(prev) {
-    var s = { data: 'norm', hyp: 'norm', N: 200, seed: 2026, pred: null };
+    var s = { data: 'norm', hyp: 'norm', N: 100, seed: 2026, pred: null };
     if (prev) for (var k in s) if (prev[k] !== undefined) s[k] = prev[k];
     if (hypOptions(s.data).indexOf(s.hyp) < 0) s.hyp = hypOptions(s.data)[0];
     s.rng = new SA.RRNG(s.seed); s.k = 0; s.x = new Float64Array(s.N); s.mc = null;
@@ -9536,7 +9584,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   function chisq(x, hp) {
     var h = H(), L = LAWS.get(h.law), n = x.length, cls = [], i;
     if (h.disc) {
-      var top = Math.max.apply(null, x), lo = 0, hi = Math.max(top, L.q(0.9999, hp)), cells = [];
+      var top = x.reduce(function (m, v) { return Math.max(m, v); }, 0), lo = 0, hi = Math.max(top, L.q(0.9999, hp)), cells = [];
       for (var v = lo; v <= hi; v++) cells.push({ a: v, b: v, e: n * L.pmf(v, hp) });
       cells[cells.length - 1].e = n * (1 - L.cdf(hi - 1, hp)); // ultima classe: coda superiore
       // fusione di classi adiacenti finché l'attesa è ≥ 5
@@ -9621,7 +9669,9 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     });
     P.svg('path', { d: P.path(up.concat(dn.reverse())) + 'Z', fill: t.c3, 'fill-opacity': 0.14 }, g);
     P.svg('line', { x1: f.x(lo), y1: f.y(lo), x2: f.x(hi), y2: f.y(hi), stroke: t.c2, 'stroke-dasharray': '7 4', 'stroke-width': 1.6 }, g);
-    var qq = []; for (i = 0; i < n; i++) qq.push([f.x(L.q((i + 0.5) / n, c.hp)), cl(x[i])]);
+    var qq = [], stride = Math.max(1, Math.floor(n / 400));
+    for (i = 0; i < n; i += stride) qq.push([f.x(L.q((i + 0.5) / n, c.hp)), cl(x[i])]);
+    if (n > 1 && (n - 1) % stride !== 0) qq.push([f.x(L.q((n - 0.5) / n, c.hp)), cl(x[n - 1])]);
     P.dots(g, qq, n > 500 ? 1.8 : 2.8, t.c1, 0.8);
   }
   function drawCells() {
@@ -9656,13 +9706,15 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
       el('tr', el('td', 'Statistica X² di Pearson'), el('td', fmt(c.X2, 3)), el('td', c.cls.length + ' classi, ' + H().k + ' parametri stimati')),
       el('tr', el('td', 'Gradi di libertà'), el('td', String(c.df)), el('td', 'classi − 1 − parametri stimati')),
       el('tr', el('td', 'p-value asintotico (χ²)'), el('td', fmt(c.p, 4)), el('td', b('asym'))),
-      el('tr', el('td', 'p-value Monte Carlo (' + MCB + ' campioni)'), el('td', S.mc ? fmt(S.mc.p, 4) : '—'), el('td', S.mc ? b('mc') : 'premi il pulsante sotto')),
+      el('tr', el('td', 'p-value Monte Carlo (' + MCB + ' campioni)'), el('td', S.mc ? fmt(S.mc.p, 4) : '—'), el('td', S.mc ? b('mc') : S.k > 10000 ? 'non disponibile nel browser per N > 10000' : 'premi il pulsante sotto')),
       el('tr', el('td', 'Distanza di Kolmogorov sup|F̂ − F̂₀|'), el('td', fmt(c.D, 4)), el('td', 'con parametri stimati la tabella di Kolmogorov non vale')));
     kpiBox.innerHTML = '';
     var hp = c.hp, ptxt = Object.keys(hp).map(function (k) { return k + ' = ' + SA.fmt(hp[k], 3); }).join(', ');
     kpiBox.append(el('div.kpi', el('b', String(S.k)), el('span', 'osservazioni')), el('div.kpi', el('b', { style: 'font-size:1.05rem' }, ptxt), el('span', 'stime ML del modello ipotizzato')),
       el('div.kpi', el('b', c.p < 0.05 ? 'rifiuto' : 'non rifiuto'), el('span', 'decisione al 5% (asintotica)')));
-    if (mcBtn) mcBtn.disabled = S.k < 10;
+    if (mcBtn) { mcBtn.disabled = S.k < 10 || S.k > 10000;
+      mcBtn.title = S.k > 10000 ? 'Bootstrap parametrico interattivo limitato a 10000 dati; il test asintotico resta disponibile' : '';
+    }
     updateFeedback();
   }
   function sameFamily() { return DATA[S.data].law === HYP[S.hyp].law; }
@@ -9739,7 +9791,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
       el('label.field', el('span', 'Modello ipotizzato'), el('select', { onchange: function () { S.hyp = this.value; S.pred = null; buildPrediction(); restart(); } },
         hypOptions(S.data).map(function (k) { return el('option', { value: k, selected: k === S.hyp }, HYP[k].label); }))),
       el('div', { style: 'display:grid;grid-template-columns:1fr 1fr;gap:10px' },
-        el('label.field', el('span', 'Osservazioni N'), el('select', { onchange: function () { S.N = +this.value; buildPrediction(); restart(); } }, [30, 100, 200, 500, 2000].map(function (v) { return el('option', { value: v, selected: v === S.N }, String(v)); }))),
+        el('label.field', el('span', 'Osservazioni N'), el('select', { onchange: function () { S.N = +this.value; buildPrediction(); restart(); } }, [10, 100, 1000, 10000, 100000].map(function (v) { return el('option', { value: v, selected: v === S.N }, String(v)); }))),
         el('label.field', el('span', 'Seed'), el('input', { type: 'number', value: S.seed, min: 1, onchange: function () { S.seed = Math.max(1, Math.floor(+this.value || 1)); restart(); } }))));
     run.controls('Una osservazione').forEach(function (n) { ctrlBox.appendChild(n); });
   }
@@ -9750,7 +9802,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
-      run = SA.ui.runner({ speed: 2, step: step, render: render, done: function () { return S.k >= S.N; }, progress: function () { return S.k / S.N; }, reset: function () { S = newState(S); cache = null; } });
+      run = SA.ui.runner({ coop: true, step: step, render: render, done: function () { return S.k >= S.N; }, progress: function () { return S.k / S.N; }, reset: function () { S = newState(S); cache = null; } });
       var openT = function (l) { SA.ui.openDrawer('Adattamento di un modello', THEORY, l); };
       page.appendChild(el('header.lab-head', el('div', el('div.kicker', info.part.part + ' · ' + info.part.title + ' · Laboratorio ' + info.lab.num),
         el('h1', info.lab.title), el('p.lede', 'Un modello è una scommessa sulla forma dei dati. Istogramma, QQ plot e test X² dicono, in modi diversi, quando la scommessa è persa.')),
@@ -9788,11 +9840,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
  * Implementazione e testi originali. */
 (function () {
   var THETA = 0, BINS = 48, SQ2PI = Math.sqrt(2 * Math.PI);
-  var N_VALUES = [5, 10, 15, 20, 30, 50, 100, 200];
-  var SPEEDS = [ // [repliche per passo, frame tra passi]
-    { label: 'Lenta', per: 1, every: 20 }, { label: 'Media', per: 1, every: 4 },
-    { label: 'Veloce', per: 3, every: 1 }, { label: 'Turbo', per: 25, every: 1 }];
-
+  var N_VALUES = [10, 100, 1000, 10000, 100000];
   var EST = {
     mean:   { r: 'media',   label: 'Media',   long: 'Media campionaria',   col: 'c1', dash: null,    shape: 'tri' },
     median: { r: 'mediana', label: 'Mediana', long: 'Mediana campionaria', col: 'c2', dash: '7 4',   shape: 'diamond' },
@@ -9844,11 +9892,11 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   var el, S; // stato
 
   function newState(prev) {
-    var s = { model: 'normal', nIdx: 3, M: 1000, seed: 2026, speed: 1, prediction: null };
+    var s = { model: 'normal', nIdx: 1, M: 1000, seed: 2026, speed: 25, prediction: null };
     if (prev) ['model', 'nIdx', 'M', 'seed', 'speed', 'prediction'].forEach(function (k) { s[k] = prev[k]; });
     s.n = N_VALUES[s.nIdx];
     s.rng = new SA.RRNG(s.seed);
-    s.k = 0; s.running = false; s.frame = 0; s.last = null;
+    s.k = 0; s.running = false; s.frame = 0; s.last = null; s.lastTick = null; s.speedCredit = 0;
     s.est = {}; s.bins = {}; s.out = {};
     var th = MODELS[s.model].theory(s.n), maxVar = 0;
     MODELS[s.model].est.forEach(function (e) {
@@ -9897,7 +9945,9 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
       return;
     }
     var x = S.last.x, left = 0, right = 0;
-    for (var j = 0; j < x.length; j++) {
+    // Grafico: massimo 400 punti visualizzati, senza campionare le stime.
+    var stride = Math.max(1, Math.ceil(x.length / 400));
+    for (var j = 0; j < x.length; j += stride) {
       if (x[j] < X0) { left++; continue; } if (x[j] > X1) { right++; continue; }
       var jit = ((j * 0.6180339887) % 1);
       P.svg('circle', { cx: f.x(x[j]), cy: bandTop + 18 + jit * (bandBot - bandTop - 26), r: 3.6, fill: t.ink, 'fill-opacity': 0.55, stroke: t.card, 'stroke-width': 0.8 }, g);
@@ -10199,31 +10249,46 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   }
   function setRunning(on) {
     if (on && S.k >= S.M) { reset(); } // simulazione finita: «Riavvia» ricomincia
+    var wasRunning = S.running;
     S.running = on && S.k < S.M;
+    if (S.running && !wasRunning) { S.lastTick = null; S.speedCredit = 0; }
+    if (!S.running && raf) { cancelAnimationFrame(raf); raf = null; }
     playBtn.innerHTML = ''; playBtn.appendChild(SA.ui.icon(S.running ? 'pause' : 'play'));
     playBtn.appendChild(document.createTextNode(S.running ? ' Pausa' : S.k >= S.M ? ' Riavvia' : S.k ? ' Riprendi' : ' Avvia'));
     playBtn.setAttribute('aria-pressed', String(S.running));
     if (S.running && !raf) raf = requestAnimationFrame(loop);
     if (!S.running) render(true);
   }
-  function loop() {
+  function loop(now) {
     raf = null;
     if (!S.running) return;
-    var sp = SPEEDS[S.speed]; S.frame++;
-    if (S.frame % sp.every === 0) {
-      for (var i = 0; i < sp.per; i++) if (!replicate()) break;
+    var batch = SA.ui.speedBatch(S, now); S.frame++;
+    if (batch > 0) {
+      for (var i = 0; i < batch; i++) if (!replicate()) break;
       render(false);
     }
     if (S.k >= S.M) { setRunning(false); return; }
     raf = requestAnimationFrame(loop);
   }
   function reset(changes) {
+    cancelFinish();
     var keep = S; if (changes) for (var k in changes) keep[k] = changes[k];
     S = newState(keep);
     buildLegend(); interpretation(); codeBox.refresh();
     setRunning(false);
   }
-  function runAll() { while (replicate()); setRunning(false); }
+  var finishTask = null;
+  function cancelFinish() {
+    if (finishTask) { finishTask.cancel(); finishTask = null; }
+    if (playBtn) { playBtn.removeAttribute('data-busy'); playBtn.disabled = false; }
+  }
+  function runAll() {
+    cancelFinish(); setRunning(false);
+    playBtn.setAttribute('data-busy', '1'); playBtn.disabled = true;
+    finishTask = SA.ui.chunked(S.M - S.k, function () { replicate(); },
+      function () { progress.style.width = (100 * S.k / S.M) + '%'; },
+      function () { finishTask = null; playBtn.removeAttribute('data-busy'); playBtn.disabled = false; setRunning(false); });
+  }
 
   function controls() {
     var modelSeg = el('div.seg', { role: 'group', 'aria-label': 'Modello' });
@@ -10239,11 +10304,9 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     var mSel = el('select', { 'aria-label': 'Numero di repliche M', onchange: function () { reset({ M: +this.value }); } },
       [200, 500, 1000, 2000, 5000].map(function (v) { return el('option', { value: v, selected: v === S.M }, String(v)); }));
     var seedIn = el('input', { type: 'number', value: S.seed, min: 1, max: 99999, step: 1, 'aria-label': 'Seed', onchange: function () { reset({ seed: Math.max(1, Math.floor(+this.value || 1)) }); } });
-    var spOut = el('output', SPEEDS[S.speed].label);
-    var spIn = el('input', { type: 'range', min: 0, max: SPEEDS.length - 1, step: 1, value: S.speed, 'aria-label': 'Velocità',
-      oninput: function () { S.speed = +this.value; spOut.textContent = SPEEDS[S.speed].label; } });
-    playBtn = SA.ui.button(' Avvia', { icon: 'play', cls: 'btn-primary', onclick: function () { setRunning(!S.running); } });
-    var stepBtn = SA.ui.button('', { icon: 'step', cls: 'btn-icon', aria: 'Un campione alla volta', title: 'Un campione (→)', onclick: function () { setRunning(false); replicate(); render(true); } });
+    var speedControl = SA.ui.speedSlider(S.speed, function (v) { S.speed = v; });
+    playBtn = SA.ui.button(' Avvia', { icon: 'play', cls: 'btn-primary', onclick: function () { cancelFinish(); setRunning(!S.running); } });
+    var stepBtn = SA.ui.button('', { icon: 'step', cls: 'btn-icon', aria: 'Un campione alla volta', title: 'Un campione (→)', onclick: function () { cancelFinish(); setRunning(false); replicate(); render(true); } });
     var allBtn = SA.ui.button('', { icon: 'fast', cls: 'btn-icon', aria: 'Completa tutte le repliche', title: 'Completa tutte le repliche', onclick: runAll });
     var resetBtn = SA.ui.button('', { icon: 'reset', cls: 'btn-icon', aria: 'Ricomincia', title: 'Ricomincia con lo stesso seed', onclick: function () { reset(); } });
     progress = el('i');
@@ -10252,7 +10315,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
       el('label.field', el('div.field-row', el('span', 'Numerosità n'), nOut), nIn),
       el('div', { style: 'display:grid;grid-template-columns:1fr 1fr;gap:10px' },
         el('label.field', el('span', 'Repliche M'), mSel), el('label.field', el('span', 'Seed'), seedIn)),
-      el('label.field', el('div.field-row', el('span', 'Velocità'), spOut), spIn),
+      speedControl,
       el('div.transport', playBtn, stepBtn, allBtn, resetBtn),
       el('div.progress', { 'aria-hidden': 'true' }, progress),
       el('p.muted', { style: 'margin:0;font-size:.78rem' }, 'Tastiera: spazio avvia/pausa, → un campione.'));
@@ -10310,6 +10373,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     mount: function (page, info) {
       el = SA.ui.el;
       S = newState(S);
+      S.speed = 25; // ogni nuova apertura comincia con la stessa velocita' degli altri laboratori
       if (SA.challenges) SA.challenges.traces.stimatori = {steps:0};
       var theoryBtn = SA.ui.button('Approfondisci', { icon: 'book', onclick: function () { SA.ui.openDrawer('Stimatori di posizione', THEORY); } });
       page.appendChild(el('header.lab-head',
@@ -10359,6 +10423,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
       document.addEventListener('keydown', onKey);
     },
     unmount: function () {
+      cancelFinish();
       if (S) S.running = false;
       if (raf) cancelAnimationFrame(raf); raf = null;
       document.removeEventListener('keydown', onKey);
@@ -10445,15 +10510,16 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
         mle: 'mle_cauchy(x)', extra: 'mle_cauchy <- function(x, tol = 1e-10, maxit = 100) {   # MM/IRLS dalla mediana\n  t <- median(x)\n  for (i in seq_len(maxit)) {\n    w <- 1 / (1 + (x - t)^2); t_new <- sum(w * x) / sum(w)\n    if (abs(t_new - t) < tol) break\n    t <- t_new\n  }\n  t_new\n}' } },
     unif: { label: 'Uniforme (0, θ): estremo θ — non regolare', par: 'θ', min: 0.5, max: 5, step: 0.1, def: 2, pos: true, irregular: true,
       gen: function (g, n) { return g.runif(n, 0, S.theta); }, rgen: 'runif(n, min = 0, max = theta)',
-      ll: function (t, x) { var m = Math.max.apply(null, x); return t < m ? -Infinity : -x.length * Math.log(t); },
-      mle: function (x) { return Math.max.apply(null, x); }, I: function () { return NaN; },
+      ll: function (t, x) { var m = sampleMax(x); return t < m ? -Infinity : -x.length * Math.log(t); },
+      mle: function (x) { return sampleMax(x); }, I: function () { return NaN; },
       exact: function (t, n) { return { m: n * t / (n + 1), v: n * t * t / ((n + 1) * (n + 1) * (n + 2)), d: function (y) { return y <= 0 || y > t ? 0 : n * Math.pow(y / t, n - 1) / t; } }; },
       r: { ll: 'ifelse(t < max(x), -Inf, -length(x) * log(t))', mle: 'max(x)' } }
   };
 
+  function sampleMax(x) { var mx = -Infinity; for (var i = 0; i < x.length; i++) if (x[i] > mx) mx = x[i]; return mx; }
   function M() { return MODELS[S.model]; }
   function newState(prev) {
-    var s = { model: 'normMean', n: 20, B: 1000, seed: 2026, pred: null, theta: null };
+    var s = { model: 'normMean', n: 100, B: 1000, seed: 2026, pred: null, theta: null };
     if (prev) for (var k in s) if (prev[k] !== undefined && prev[k] !== null) s[k] = prev[k];
     if (s.theta == null) s.theta = MODELS[s.model].def;
     s.rng = new SA.RRNG(s.seed); s.k = 0; s.last = null;
@@ -10509,7 +10575,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     P.svg('line', { x1: f.x(f.x.domain[0]), x2: f.x(f.x.domain[1]), y1: f.y(-CUT), y2: f.y(-CUT), stroke: t.c3, 'stroke-dasharray': '4 3' }, g);
     P.text(g, f.W - f.m.r - 4, f.y(-CUT) - 5, '−1,92: soglia dell’intervallo di verosimiglianza 95%', { 'text-anchor': 'end', fill: t.c3, 'font-size': 11 });
     if (!m.irregular) { var Jh = m.J(th, x); if (isFinite(Jh) && Jh > 0) P.curve(f, function (v) { return -0.5 * Jh * (v - th) * (v - th); }, f.x.domain[0], f.x.domain[1], { stroke: t.c2, 'stroke-dasharray': '7 4', 'stroke-width': 1.8 }); }
-    P.curve(f, function (v) { var l = m.ll(v, x) - l0; return isFinite(l) ? Math.max(l, -6) : NaN; }, f.x.domain[0], f.x.domain[1], { stroke: t.c1, 'stroke-width': 2.4 }, 400);
+    P.curve(f, function (v) { var l = m.ll(v, x) - l0; return isFinite(l) ? Math.max(l, -6) : NaN; }, f.x.domain[0], f.x.domain[1], { stroke: t.c1, 'stroke-width': 2.4 }, S.n >= 10000 ? 80 : 400);
     if (m.irregular) P.svg('line', { x1: f.x(th), x2: f.x(th), y1: f.y(0), y2: f.y(-6), stroke: t.c1, 'stroke-width': 2 }, g);
     P.svg('line', { x1: f.x(S.theta), x2: f.x(S.theta), y1: f.m.t, y2: f.y(-6), stroke: t.ink, 'stroke-dasharray': '3 3' }, g);
     P.text(g, f.x(S.theta) + 4, f.m.t + 12, m.par + ' vero', { fill: t.ink_2, 'font-size': 11.5 });
@@ -10668,7 +10734,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
       el('label.field', el('span', 'Modello'), el('select', { onchange: function () { S.model = this.value; S.theta = MODELS[S.model].def; S.pred = null; buildControls(); buildPrediction(); restart(); } },
         Object.keys(MODELS).map(function (k) { return el('option', { value: k, selected: k === S.model }, MODELS[k].label); }))),
       SA.ui.slider(m.par + ' vero', { min: m.min, max: m.max, step: m.step, value: S.theta, format: function (v) { return SA.fmt(v, 2); }, onchange: function (v) { S.theta = v; restart(); } }),
-      el('div', { style: 'display:grid;grid-template-columns:1fr 1fr;gap:10px' }, sel('n', 'n', [5, 10, 20, 50, 100, 200]), sel('Campioni B', 'B', [200, 1000, 5000]),
+      el('div', { style: 'display:grid;grid-template-columns:1fr 1fr;gap:10px' }, sel('n', 'n', [10, 100, 1000, 10000, 100000]), sel('Campioni B', 'B', [200, 1000, 5000]),
         el('label.field', el('span', 'Seed'), el('input', { type: 'number', value: S.seed, min: 1, onchange: function () { S.seed = Math.max(1, Math.floor(+this.value || 1)); restart(); } }))));
     run.controls('Un campione').forEach(function (n) { ctrlBox.appendChild(n); });
   }
@@ -10679,7 +10745,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
-      run = SA.ui.runner({ speed: 1, step: step, render: render, done: function () { return S.k >= S.B; }, progress: function () { return S.k / S.B; }, reset: function () { S = newState(S); } });
+      run = SA.ui.runner({ coop: true, step: step, render: render, done: function () { return S.k >= S.B; }, progress: function () { return S.k / S.B; }, reset: function () { S = newState(S); } });
       var openT = function (l) { SA.ui.openDrawer('Verosimiglianza e informazione', THEORY, l); };
       page.appendChild(el('header.lab-head', el('div', el('div.kicker', info.part.part + ' · ' + info.part.title + ' · Laboratorio ' + info.lab.num),
         el('h1', info.lab.title), el('p.lede', 'La forma della verosimiglianza di un campione racconta quanto è precisa la stima. Ripetendo l’esperimento, la curvatura diventa l’informazione di Fisher.')),
@@ -10755,7 +10821,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   };
 
   function newState(prev) {
-    var s = { method: 'z', n: 20, level: 0.95, B: 1000, seed: 2026, mu: 10, sigma: 2, p: 0.1, lambda: 2, rate: 1, pred: null };
+    var s = { method: 'z', n: 100, level: 0.95, B: 1000, seed: 2026, mu: 10, sigma: 2, p: 0.1, lambda: 2, rate: 1, pred: null };
     if (prev) for (var k in s) if (prev[k] !== undefined) s[k] = prev[k];
     s.rng = new SA.RRNG(s.seed); s.k = 0; s.cov = 0; s.width = 0;
     s.lo = new Float64Array(s.B); s.hi = new Float64Array(s.B); s.trace = [];
@@ -10769,13 +10835,41 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   function exactCoverage() {
     var m = M(), key = [S.method, S.n, S.level, S.p, S.lambda].join('|');
     if (exactCache[key] != null) return exactCache[key];
-    var a = 1 - S.level, n = S.n, c = 0, s, pr;
-    if (m.model === 'bern') {
-      for (s = 0; s <= n; s++) { pr = Math.exp(lchoose(n, s) + s * Math.log(S.p) + (n - s) * Math.log1p(-S.p)); var ci = m.ciS(s, n, a); if (S.p >= ci[0] && S.p <= ci[1]) c += pr; }
-    } else if (m.model === 'pois') {
-      var mu = n * S.lambda, top = Math.ceil(mu + 12 * Math.sqrt(mu) + 30);
-      for (s = 0; s <= top; s++) { pr = Math.exp(-mu + s * Math.log(mu) - SA.sf.lgamma(s + 1)); var c2 = m.ciS(s, n, a); if (S.lambda >= c2[0] && S.lambda <= c2[1]) c += pr; }
-    } else c = S.level;
+    var a = 1 - S.level, n = S.n, c = S.level;
+    if (m.model === 'bern' || m.model === 'pois') {
+      // L'intervallo [L(S), U(S)] cresce monotonicamente in S.
+      // La regione di accettazione della copertura e' quindi un intervallo
+      // di conteggi: due ricerche binarie, non 100000 quantili per n elevato.
+      var p = m.model === 'bern' ? S.p : S.lambda;
+      var mu = m.model === 'bern' ? n * p : n * p;
+      var top = m.model === 'bern' ? n : Math.ceil(mu + 15 * Math.sqrt(mu) + 100);
+      function first(ok) { var lo = 0, hi = top + 1; while (lo < hi) { var mid = Math.floor((lo + hi) / 2); if (ok(mid)) hi = mid; else lo = mid + 1; } return lo; }
+      var left = first(function (s) { return m.ciS(s, n, a)[1] >= p; });
+      var right = first(function (s) { return m.ciS(s, n, a)[0] > p; }) - 1;
+      // Probabilita' Poisson da rapporti consecutivi: stabile anche per
+      // mu = 200000. La gamma incompleta a shape molto grande e' numericamente
+      // delicata, mentre qui bastano O(sqrt(mu)) termini vicino alla moda.
+      function poissonCDF(k, lambda) {
+        if (k < 0) return 0;
+        if (lambda <= 0) return 1;
+        var upper = k >= lambda, j = upper ? k + 1 : k;
+        var term = Math.exp(-lambda + j * Math.log(lambda) - SA.sf.lgamma(j + 1));
+        var sum = term;
+        for (var t = 0; t < 100000 && term > 1e-16 * Math.max(sum, 1e-300); t++) {
+          if (upper) { j++; term *= lambda / j; }
+          else { term *= j / lambda; j--; }
+          sum += term;
+          if (!upper && j <= 0) break;
+        }
+        return Math.max(0, Math.min(1, upper ? 1 - sum : sum));
+      }
+      function cdf(s) {
+        if (s < 0) return 0;
+        if (m.model === 'bern') return s >= n ? 1 : SA.sf.pbeta(1 - p, n - s, s + 1);
+        return poissonCDF(s, mu);
+      }
+      c = right < left ? 0 : Math.max(0, Math.min(1, cdf(right) - cdf(left - 1)));
+    }
     return (exactCache[key] = c);
   }
   function theoWidth() {
@@ -10896,10 +10990,29 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
       '         copre = basso <= vero & vero <= alto)', '',
       'sim |> summarise(copertura = mean(copre), ampiezza_media = mean(alto - basso),',
       '                 errore_mc = sqrt(copertura * (1 - copertura) / B))');
-    if (m.model === 'bern') L.push('', '# Copertura esatta: somma su S = Σx ~ Binomiale(n, p)',
-      'copertura_esatta <- sum(map_dbl(0:n, \\(s) {', '  x <- c(rep(1, s), rep(0, n - s))   # un campione con somma s', '  ci <- intervallo(x)', '  dbinom(s, n, vero) * (ci[1] <= vero & vero <= ci[2])', '}))', 'copertura_esatta');
-    if (m.model === 'pois') L.push('', '# Copertura esatta: somma su S = Σx ~ Poisson(nλ)',
-      'smax <- qpois(1 - 1e-12, n * vero)', 'copertura_esatta <- sum(map_dbl(0:smax, \\(s) {', '  x <- c(s, rep(0, n - 1))           # un campione con somma s', '  ci <- intervallo(x)', '  dpois(s, n * vero) * (ci[1] <= vero & vero <= ci[2])', '}))', 'copertura_esatta');
+    if (m.model === 'bern' || m.model === 'pois') {
+      // La regione di copertura nel conteggio S e' contigua: due ricerche
+      // binarie al posto di n+1 valutazioni con campioni lunghi n.
+      L.push('', '# Copertura esatta della procedura sui conteggi sufficienti',
+        '# Si invertono gli estremi monotoni: O(log(n)) intervalli.',
+        'intervallo_da_s <- function(s) {',
+        m.model === 'bern' ? '  x <- c(rep.int(1, s), rep.int(0, n - s))' : '  x <- c(s, rep.int(0, n - 1))',
+        '  intervallo(x)', '}',
+        'primo_valido <- function(condizione, massimo) {',
+        '  lo <- 0; hi <- massimo + 1',
+        '  while (lo < hi) {',
+        '    mid <- floor((lo + hi) / 2)',
+        '    if (condizione(mid)) hi <- mid else lo <- mid + 1',
+        '  }',
+        '  lo', '}');
+      L.push(m.model === 'bern' ? 'smax <- n' : 'smax <- ceiling(n * vero + 15 * sqrt(n * vero) + 100)',
+        's_min <- primo_valido(\\(s) intervallo_da_s(s)[2] >= vero, smax)',
+        's_max <- primo_valido(\\(s) intervallo_da_s(s)[1] > vero, smax) - 1',
+        m.model === 'bern' ?
+          'copertura_esatta <- if (s_max < s_min) 0 else pbinom(s_max, n, vero) - pbinom(s_min - 1, n, vero)' :
+          'copertura_esatta <- if (s_max < s_min) 0 else ppois(s_max, n * vero) - ppois(s_min - 1, n * vero)',
+        'copertura_esatta');
+    }
     L.push('', '# Gli ultimi ' + SHOW + ' intervalli',
       'theme_statatlas <- function(base_size = 12) {', '  theme_minimal(base_size = base_size, base_family = "serif") +',
       '    theme(panel.grid.minor = element_blank(), legend.position = "top",', '          plot.background = element_rect(fill = "#FAF8F3", colour = NA))', '}',
@@ -10946,7 +11059,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
         Object.keys(METHODS).map(function (k) { return el('option', { value: k, selected: k === S.method }, METHODS[k].label); }))),
       par,
       el('div', { style: 'display:grid;grid-template-columns:1fr 1fr;gap:10px' },
-        sel('n', 'n', [5, 10, 20, 30, 50, 100, 200]), sel('Livello', 'level', [0.8, 0.9, 0.95, 0.99], function (v) { return Math.round(v * 100) + '%'; }),
+        sel('n', 'n', [10, 100, 1000, 10000, 100000]), sel('Livello', 'level', [0.8, 0.9, 0.95, 0.99], function (v) { return Math.round(v * 100) + '%'; }),
         sel('Intervalli B', 'B', [100, 500, 1000, 5000]),
         el('label.field', el('span', 'Seed'), el('input', { type: 'number', value: S.seed, min: 1, onchange: function () { S.seed = Math.max(1, Math.floor(+this.value || 1)); restart(); } }))));
     run.controls('Un intervallo').forEach(function (n) { ctrlBox.appendChild(n); });
@@ -10962,7 +11075,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
-      run = SA.ui.runner({ speed: 1, step: step, render: render, done: function () { return S.k >= S.B; }, progress: function () { return S.k / S.B; }, reset: function () { S = newState(S); } });
+      run = SA.ui.runner({ coop: true, step: step, render: render, done: function () { return S.k >= S.B; }, progress: function () { return S.k / S.B; }, reset: function () { S = newState(S); } });
       var openT = function (l) { SA.ui.openDrawer('Intervalli di confidenza', THEORY, l); };
       page.appendChild(el('header.lab-head', el('div', el('div.kicker', info.part.part + ' · ' + info.part.title + ' · Laboratorio ' + info.lab.num),
         el('h1', info.lab.title), el('p.lede', 'Il parametro sta fermo, gli intervalli si muovono. Il livello di confidenza è una promessa sul metodo: vediamo se la mantiene.')),
@@ -11000,7 +11113,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   var el, S, BINS = 48, Phi = SA.sf.pnorm, q = SA.qnorm;
 
   function newState(prev) {
-    var s = { n: 20, delta: 0.5, alpha: 0.05, alt: 'two', B: 1000, seed: 2026, pred: null };
+    var s = { n: 100, delta: 0.5, alpha: 0.05, alt: 'two', B: 1000, seed: 2026, pred: null };
     if (prev) for (var k in s) if (prev[k] !== undefined) s[k] = prev[k];
     s.rng = new SA.RRNG(s.seed); s.k = 0; s.rej0 = 0; s.rej1 = 0;
     s.z0 = new Float64Array(s.B); s.z1 = new Float64Array(s.B);
@@ -11018,8 +11131,16 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
 
   function step() {
     if (S.k >= S.B) return false;
-    var x0 = S.rng.rnorm(S.n, 0, 1), x1 = S.rng.rnorm(S.n, S.delta, 1); // prima sotto H0, poi sotto H1
-    var z0 = Math.sqrt(S.n) * SA.stat.mean(x0), z1 = Math.sqrt(S.n) * SA.stat.mean(x1), bw = (S.hi - S.lo) / BINS;
+    // Sotto normalita': Z ha esattamente legge N(0,1) sotto H0
+    // e N(delta*sqrt(n),1) sotto H1. Per n elevato simuliamo
+    // direttamente la statistica sufficiente senza 2n osservazioni.
+    var z0, z1;
+    if (S.n >= 10000) { z0 = S.rng.norm(); z1 = S.rng.norm() + nc(); }
+    else {
+      var x0 = S.rng.rnorm(S.n, 0, 1), x1 = S.rng.rnorm(S.n, S.delta, 1);
+      z0 = Math.sqrt(S.n) * SA.stat.mean(x0); z1 = Math.sqrt(S.n) * SA.stat.mean(x1);
+    }
+    var bw = (S.hi - S.lo) / BINS;
     S.z0[S.k] = z0; S.z1[S.k] = z1;
     if (reject(z0)) S.rej0++; if (reject(z1)) S.rej1++;
     var b0 = Math.floor((z0 - S.lo) / bw), b1 = Math.floor((z1 - S.lo) / bw);
@@ -11124,10 +11245,15 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
       'n <- ' + S.n + '; B <- ' + S.B + '; alpha <- ' + S.alpha + '; delta <- ' + S.delta + '   # effetto in unità di σ (σ = 1, μ₀ = 0)',
       'z_crit <- qnorm(1 - alpha' + (two ? ' / 2' : '') + ')',
       'rifiuta <- function(z) ' + (two ? 'abs(z) > z_crit' : 'z > z_crit'), '',
-      '# Per ogni replica: un campione sotto H0, poi uno sotto H1 (stesso ordine di StatAtlas)',
+      '# Per n >= 10000 la statistica Z normale e simulata esattamente da N(0,1)',
+      '# e N(delta * sqrt(n), 1), senza generare il campione completo.',
       'sim <- tibble(replica = seq_len(B)) |>',
-      '  mutate(z = map(replica, \\(r) c(z0 = sqrt(n) * mean(rnorm(n, 0, 1)),',
-      '                                 z1 = sqrt(n) * mean(rnorm(n, delta, 1))))) |>',
+      '  mutate(z = map(replica, \\(r) if (n >= 10000) {',
+      '    c(z0 = rnorm(1), z1 = rnorm(1) + delta * sqrt(n))',
+      '  } else {',
+      '    c(z0 = sqrt(n) * mean(rnorm(n, 0, 1)),',
+      '      z1 = sqrt(n) * mean(rnorm(n, delta, 1)))',
+      '  })) |>',
       '  unnest_wider(z)', '',
       'potenza_teorica <- function(d, n) ' + (two ? 'pnorm(-z_crit + d * sqrt(n)) + pnorm(-z_crit - d * sqrt(n))' : 'pnorm(d * sqrt(n) - z_crit)'),
       'sim |> summarise(errore_I = mean(rifiuta(z0)), potenza = mean(rifiuta(z1))) |>',
@@ -11175,7 +11301,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     };
     ctrlBox.append(
       SA.ui.slider('Effetto vero δ (in σ)', { min: 0, max: 1.5, step: 0.05, value: S.delta, format: function (v) { return SA.fmt(v, 2); }, onchange: function (v) { S.delta = v; restart(); } }),
-      SA.ui.slider('Numerosità n', { min: 2, max: 200, step: 1, value: S.n, onchange: function (v) { S.n = v; legends(); restart(); } }),
+      sel('Numerosità n', 'n', [10, 100, 1000, 10000, 100000]),
       el('div', { style: 'display:grid;grid-template-columns:1fr 1fr;gap:10px' },
         sel('Livello α', 'alpha', [0.01, 0.05, 0.1]), sel('Alternativa', 'alt', ['two', 'greater'], function (v) { return v === 'two' ? 'μ ≠ μ₀' : 'μ > μ₀'; }),
         sel('Repliche B', 'B', [200, 1000, 5000]),
@@ -11189,7 +11315,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
-      run = SA.ui.runner({ speed: 1, step: step, render: render, done: function () { return S.k >= S.B; }, progress: function () { return S.k / S.B; }, reset: function () { S = newState(S); } });
+      run = SA.ui.runner({ coop: true, step: step, render: render, done: function () { return S.k >= S.B; }, progress: function () { return S.k / S.B; }, reset: function () { S = newState(S); } });
       var openT = function (l) { SA.ui.openDrawer('Test e potenza', THEORY, l); };
       page.appendChild(el('header.lab-head', el('div', el('div.kicker', info.part.part + ' · ' + info.part.title + ' · Laboratorio ' + info.lab.num),
         el('h1', info.lab.title), el('p.lede', 'Ogni replica simula due mondi: uno in cui H₀ è vera e uno in cui non lo è. Il test sbaglia in entrambi, con frequenze che possiamo controllare.')),
@@ -11469,7 +11595,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
-      run = SA.ui.runner({ speed: 1, step: step, render: render, done: function () { return S.k >= S.B; }, progress: function () { return S.k / S.B; }, reset: function () { S = newState(S); step(); } });
+      run = SA.ui.runner({ step: step, render: render, done: function () { return S.k >= S.B; }, progress: function () { return S.k / S.B; }, reset: function () { S = newState(S); step(); } });
       var openT = function (l) { SA.ui.openDrawer('Regressione lineare', THEORY, l); };
       page.appendChild(el('header.lab-head', el('div', el('div.kicker', info.part.part + ' · ' + info.part.title + ' · Laboratorio ' + info.lab.num),
         el('h1', info.lab.title), el('p.lede', 'Trascina i punti e guarda la retta reagire. Poi ripeti l’esperimento molte volte e controlla se le bande mantengono le loro promesse.')),
@@ -11724,7 +11850,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
-      run = SA.ui.runner({ speed: 1, step: step, render: render, done: function () { return S.k >= S.M; }, progress: function () { return S.k / S.M; }, reset: function () { S = newState(S); } });
+      run = SA.ui.runner({ step: step, render: render, done: function () { return S.k >= S.M; }, progress: function () { return S.k / S.M; }, reset: function () { S = newState(S); } });
       var openT = function (l) { SA.ui.openDrawer('Regressione L1, L2, Lp', THEORY, l); };
       page.appendChild(el('header.lab-head', el('div', el('div.kicker', info.part.part + ' · ' + info.part.title + ' · Laboratorio ' + info.lab.num),
         el('h1', info.lab.title), el('p.lede', 'Stessi dati, tre modi di misurare l’errore. Quando gli errori hanno code pesanti, la scelta del criterio conta più della numerosità.')),
@@ -11948,7 +12074,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
-      run = SA.ui.runner({ speed: 1, step: step, render: render, done: function () { return S.k >= S.M; }, progress: function () { return S.k / S.M; }, reset: function () { S = newState(S); } });
+      run = SA.ui.runner({ step: step, render: render, done: function () { return S.k >= S.M; }, progress: function () { return S.k / S.M; }, reset: function () { S = newState(S); } });
       var openT = function (l) { SA.ui.openDrawer('Modelli lineari generalizzati', THEORY, l); };
       page.appendChild(el('header.lab-head', el('div', el('div.kicker', info.part.part + ' · ' + info.part.title + ' · Laboratorio ' + info.lab.num),
         el('h1', info.lab.title), el('p.lede', 'Quando la risposta è un sì/no o un conteggio, la retta non basta: serve un legame. E le garanzie diventano asintotiche.')),
@@ -12175,7 +12301,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
-      run = SA.ui.runner({ speed: 2, step: step, render: render, done: function () { return S.k >= S.T; }, progress: function () { return S.k / S.T; }, reset: function () { S = newState(S); } });
+      run = SA.ui.runner({ step: step, render: render, done: function () { return S.k >= S.T; }, progress: function () { return S.k / S.T; }, reset: function () { S = newState(S); } });
       var openT = function (l) { SA.ui.openDrawer('Serie temporali ARMA', THEORY, l); };
       page.appendChild(el('header.lab-head', el('div', el('div.kicker', info.part.part + ' · ' + info.part.title + ' · Laboratorio ' + info.lab.num),
         el('h1', info.lab.title), el('p.lede', 'Dati che ricordano il proprio passato. La memoria si legge nelle autocorrelazioni, e la stabilità nelle radici di un polinomio.')),
@@ -12423,7 +12549,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S); setRange();
-      run = SA.ui.runner({ speed: 1, step: step, render: render, done: function () { return S.k >= S.M; }, progress: function () { return S.k / S.M; }, reset: function () { S = newState(S); setRange(); step(); } });
+      run = SA.ui.runner({ step: step, render: render, done: function () { return S.k >= S.M; }, progress: function () { return S.k / S.M; }, reset: function () { S = newState(S); setRange(); step(); } });
       var openT = function (l) { SA.ui.openDrawer('Regressione quantilica', THEORY, l); };
       page.appendChild(el('header.lab-head', el('div', el('div.kicker', info.part.part + ' · ' + info.part.title + ' · Laboratorio ' + info.lab.num),
         el('h1', info.lab.title), el('p.lede', 'Non solo la media: ogni quantile della risposta ha la sua retta. Insieme descrivono come x cambia l’intera distribuzione di y.')),
@@ -12785,7 +12911,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
-      run = SA.ui.runner({ speed: 1, step: step, render: render, done: function () { return S.view !== 'path' || S.k >= S.M; }, progress: function () { return S.view === 'path' ? S.k / S.M : 0; }, reset: function () { S = newState(S); if (S.view === 'path') initPath(); } });
+      run = SA.ui.runner({ step: step, render: render, done: function () { return S.view !== 'path' || S.k >= S.M; }, progress: function () { return S.view === 'path' ? S.k / S.M : 0; }, reset: function () { S = newState(S); if (S.view === 'path') initPath(); } });
       var openT = function (l) { SA.ui.openDrawer('Regressione penalizzata', THEORY, l); };
       page.appendChild(el('header.lab-head', el('div', el('div.kicker', info.part.part + ' · ' + info.part.title + ' · Laboratorio ' + info.lab.num),
         el('h1', info.lab.title), el('p.lede', 'Ridge, lasso ed elastic net: la stessa idea, regioni di vincolo diverse. La geometria spiega perché il lasso seleziona le variabili e il ridge no.')),
@@ -13046,7 +13172,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S); prepare();
-      run = SA.ui.runner({ speed: 1, step: step, render: render, done: function () { return S.k >= S.M; }, progress: function () { return S.k / S.M; }, reset: function () { S = newState(S); prepare(); step(); } });
+      run = SA.ui.runner({ step: step, render: render, done: function () { return S.k >= S.M; }, progress: function () { return S.k / S.M; }, reset: function () { S = newState(S); prepare(); step(); } });
       var openT = function (l) { SA.ui.openDrawer('Regressione non parametrica e spline', THEORY, l); };
       page.appendChild(el('header.lab-head', el('div', el('div.kicker', info.part.part + ' · ' + info.part.title + ' · Laboratorio ' + info.lab.num),
         el('h1', info.lab.title), el('p.lede', 'Quando la relazione non è una retta, lasciamo che i dati disegnino la curva. Ma quanta libertà concedere?')),
@@ -13288,7 +13414,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
-      run = SA.ui.runner({ speed: 1, step: step, render: render, done: function () { return S.k >= S.B; }, progress: function () { return S.k / S.B; }, reset: function () { S = newState(S); step(); } });
+      run = SA.ui.runner({ step: step, render: render, done: function () { return S.k >= S.B; }, progress: function () { return S.k / S.B; }, reset: function () { S = newState(S); step(); } });
       var openT = function (l) { SA.ui.openDrawer('Regressione segmentata', THEORY, l); };
       page.appendChild(el('header.lab-head', el('div', el('div.kicker', info.part.part + ' · ' + info.part.title + ' · Laboratorio ' + info.lab.num),
         el('h1', info.lab.title), el('p.lede', 'Una relazione che a un certo punto cambia pendenza. Dove? E come distinguere un vero cambiamento da una fluttuazione del caso?')),
@@ -13569,7 +13695,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
-      run = SA.ui.runner({ speed: 1, coop: true, step: step, render: render, done: function () { return S.k >= S.B; }, progress: function () { return S.k / S.B; }, reset: function () { S = newState(S); step(); } });
+      run = SA.ui.runner({ coop: true, step: step, render: render, done: function () { return S.k >= S.B; }, progress: function () { return S.k / S.B; }, reset: function () { S = newState(S); step(); } });
       var openT = function (l) { SA.ui.openDrawer('Validazione e overfitting', THEORY, l); };
       page.appendChild(el('header.lab-head', el('div', el('div.kicker', info.part.part + ' · ' + info.part.title + ' · Laboratorio ' + info.lab.num),
         el('h1', info.lab.title), el('p.lede', 'Un modello più flessibile si adatta sempre meglio ai dati che ha visto. Su quelli nuovi, no. Come lo si scopre senza ingannarsi?')),
@@ -13894,7 +14020,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
-      run = SA.ui.runner({ speed: 1, coop: true, step: step, render: render, done: function () { return S.k >= S.B; }, progress: function () { return S.k / S.B; }, reset: function () { S = newState(S); step(); } });
+      run = SA.ui.runner({ coop: true, step: step, render: render, done: function () { return S.k >= S.B; }, progress: function () { return S.k / S.B; }, reset: function () { S = newState(S); step(); } });
       var openT = function (l) { SA.ui.openDrawer('k vicini più prossimi', THEORY, l); };
       page.appendChild(el('header.lab-head', el('div', el('div.kicker', info.part.part + ' · ' + info.part.title + ' · Laboratorio ' + info.lab.num),
         el('h1', info.lab.title), el('p.lede', 'Classificare un punto guardando i suoi vicini: l’idea più semplice dell’apprendimento supervisionato, e un laboratorio perfetto per vedere flessibilità, errore di Bayes e scelta di k.')),
@@ -14180,7 +14306,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
-      run = SA.ui.runner({ speed: 1, coop: true, step: step, render: render, done: function () { return S.k >= S.B; }, progress: function () { return S.k / S.B; }, reset: function () { S = newState(S); step(); } });
+      run = SA.ui.runner({ coop: true, step: step, render: render, done: function () { return S.k >= S.B; }, progress: function () { return S.k / S.B; }, reset: function () { S = newState(S); step(); } });
       var openT = function (l) { SA.ui.openDrawer('Alberi ed ensemble', THEORY, l); };
       page.appendChild(el('header.lab-head', el('div', el('div.kicker', info.part.part + ' · ' + info.part.title + ' · Laboratorio ' + info.lab.num),
         el('h1', info.lab.title), el('p.lede', 'Un albero di decisione è facile da leggere e difficile da fidarsi: basta poco per cambiarlo. Farne votare molti, resi diversi apposta, è una delle idee più efficaci della statistica moderna.')),
@@ -14473,7 +14599,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
-      run = SA.ui.runner({ speed: 1, coop: true, step: step, render: render, done: function () { return S.k >= S.B; }, progress: function () { return S.k / S.B; }, reset: function () { S = newState(S); } });
+      run = SA.ui.runner({ coop: true, step: step, render: render, done: function () { return S.k >= S.B; }, progress: function () { return S.k / S.B; }, reset: function () { S = newState(S); } });
       var openT = function (l) { SA.ui.openDrawer('Gradient boosting', THEORY, l); };
       page.appendChild(el('header.lab-head', el('div', el('div.kicker', info.part.part + ' · ' + info.part.title + ' · Laboratorio ' + info.lab.num), el('h1', info.lab.title),
         el('p.lede', 'Un albero corregge gli errori del precedente: osserva come una sequenza di alberi di regressione segue i gradienti della perdita, e quando la validazione suggerisce di fermarsi.')),
@@ -14747,7 +14873,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
-      run = SA.ui.runner({ speed: 3, coop: true, step: step, render: render, done: function () { return S.e >= S.E || S.diverged; }, progress: function () { return S.diverged ? 1 : S.e / S.E; }, reset: function () { S = newState(S); } });
+      run = SA.ui.runner({ coop: true, step: step, render: render, done: function () { return S.e >= S.E || S.diverged; }, progress: function () { return S.diverged ? 1 : S.e / S.E; }, reset: function () { S = newState(S); } });
       var openT = function (l) { SA.ui.openDrawer('Reti neurali', THEORY, l); };
       page.appendChild(el('header.lab-head', el('div', el('div.kicker', info.part.part + ' · ' + info.part.title + ' · Laboratorio ' + info.lab.num),
         el('h1', info.lab.title), el('p.lede', 'Una rete piccola, abbastanza da guardarla per intero: pesi, passaggio in avanti, errore propagato all’indietro, e una frontiera che si piega epoca dopo epoca.')),
@@ -15041,7 +15167,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
-      run = SA.ui.runner({ speed: 1, step: step, render: render, done: function () { return S.k0 >= S.B; }, progress: function () { return S.k0 / S.B; }, reset: function () { S = newState(S); step(); } });
+      run = SA.ui.runner({ step: step, render: render, done: function () { return S.k0 >= S.B; }, progress: function () { return S.k0 / S.B; }, reset: function () { S = newState(S); step(); } });
       var openT = function (l) { SA.ui.openDrawer('Componenti principali', THEORY, l); };
       page.appendChild(el('header.lab-head', el('div', el('div.kicker', info.part.part + ' · ' + info.part.title + ' · Laboratorio ' + info.lab.num),
         el('h1', info.lab.title), el('p.lede', 'Molte variabili, poche direzioni importanti: la PCA trova gli assi lungo cui i dati variano di più e dice quanta informazione si perde tenendone solo alcuni.')),
@@ -15307,7 +15433,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
-      run = SA.ui.runner({ speed: 1, step: step, render: render, done: function () { return S.done; }, progress: function () { var d = S.runs.filter(function (r) { return r.done; }).length; return d / nStarts(); }, reset: function () { S = newState(S); } });
+      run = SA.ui.runner({ step: step, render: render, done: function () { return S.done; }, progress: function () { var d = S.runs.filter(function (r) { return r.done; }).length; return d / nStarts(); }, reset: function () { S = newState(S); } });
       var openT = function (l) { SA.ui.openDrawer('k-means e clustering gerarchico', THEORY, l); };
       page.appendChild(el('header.lab-head', el('div', el('div.kicker', info.part.part + ' · ' + info.part.title + ' · Laboratorio ' + info.lab.num),
         el('h1', info.lab.title), el('p.lede', 'Raggruppare osservazioni simili senza conoscere i gruppi: due algoritmi classici, i loro passi, le loro trappole.')),
@@ -15588,7 +15714,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
-      run = SA.ui.runner({ speed: 2, step: step, render: render, done: function () { return S.finished; }, progress: function () { var d = 0; for (var i = 0; i < S.N; i++) if (S.cl[i] !== -1) d++; return S.finished ? 1 : d / S.N; }, reset: function () { S = newState(S); } });
+      run = SA.ui.runner({ step: step, render: render, done: function () { return S.finished; }, progress: function () { var d = 0; for (var i = 0; i < S.N; i++) if (S.cl[i] !== -1) d++; return S.finished ? 1 : d / S.N; }, reset: function () { S = newState(S); } });
       var openT = function (l) { SA.ui.openDrawer('DBSCAN', THEORY, l); };
       page.appendChild(el('header.lab-head', el('div', el('div.kicker', info.part.part + ' · ' + info.part.title + ' · Laboratorio ' + info.lab.num),
         el('h1', info.lab.title), el('p.lede', 'Gruppi come regioni dense separate da zone vuote: forme qualunque, nessun K da scegliere, e un’etichetta onesta per i punti che non appartengono a nessuno.')),

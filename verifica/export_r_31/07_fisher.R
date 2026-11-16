@@ -5,7 +5,7 @@
 library(tidyverse)
 
 set.seed(2026)
-theta <- 0.5; n <- 20; B <- 1000
+theta <- 0.5; n <- 100; B <- 1000
 
 # Log-verosimiglianza, score, informazione osservata e stima ML (t = parametro)
 loglik <- function(t, x) -0.5 * sum((x - t)^2)
@@ -23,7 +23,7 @@ sim <- tibble(replica = seq_len(B)) |>
 # Identità di Bartlett: E[U] = 0, Var[U] = E[J] = n I(theta)
 sim |> summarise(media_U = mean(U), var_U = var(U), media_J = mean(Jt),
                  media_stima = mean(stima), var_stima = var(stima), copertura_wald = mean(wald))
-c(n_I = 20, cramer_rao = 0.05)
+c(n_I = 100, cramer_rao = 0.01)
 
 theme_statatlas <- function(base_size = 12) {
   theme_minimal(base_size = base_size, base_family = "serif") +

@@ -29,7 +29,7 @@
     return Object.keys(HYP).filter(function (h) { var m = HYP[h]; return !!m.disc === !!d.disc && (!m.pos || d.pos) && (!m.max10 || d.max10); });
   }
   function newState(prev) {
-    var s = { data: 'norm', hyp: 'norm', N: 200, seed: 2026, pred: null };
+    var s = { data: 'norm', hyp: 'norm', N: 100, seed: 2026, pred: null };
     if (prev) for (var k in s) if (prev[k] !== undefined) s[k] = prev[k];
     if (hypOptions(s.data).indexOf(s.hyp) < 0) s.hyp = hypOptions(s.data)[0];
     s.rng = new SA.RRNG(s.seed); s.k = 0; s.x = new Float64Array(s.N); s.mc = null;
@@ -41,7 +41,7 @@
   function chisq(x, hp) {
     var h = H(), L = LAWS.get(h.law), n = x.length, cls = [], i;
     if (h.disc) {
-      var top = Math.max.apply(null, x), lo = 0, hi = Math.max(top, L.q(0.9999, hp)), cells = [];
+      var top = x.reduce(function (m, v) { return Math.max(m, v); }, 0), lo = 0, hi = Math.max(top, L.q(0.9999, hp)), cells = [];
       for (var v = lo; v <= hi; v++) cells.push({ a: v, b: v, e: n * L.pmf(v, hp) });
       cells[cells.length - 1].e = n * (1 - L.cdf(hi - 1, hp)); // ultima classe: coda superiore
       // fusione di classi adiacenti finché l'attesa è ≥ 5
@@ -126,7 +126,9 @@
     });
     P.svg('path', { d: P.path(up.concat(dn.reverse())) + 'Z', fill: t.c3, 'fill-opacity': 0.14 }, g);
     P.svg('line', { x1: f.x(lo), y1: f.y(lo), x2: f.x(hi), y2: f.y(hi), stroke: t.c2, 'stroke-dasharray': '7 4', 'stroke-width': 1.6 }, g);
-    var qq = []; for (i = 0; i < n; i++) qq.push([f.x(L.q((i + 0.5) / n, c.hp)), cl(x[i])]);
+    var qq = [], stride = Math.max(1, Math.floor(n / 400));
+    for (i = 0; i < n; i += stride) qq.push([f.x(L.q((i + 0.5) / n, c.hp)), cl(x[i])]);
+    if (n > 1 && (n - 1) % stride !== 0) qq.push([f.x(L.q((n - 0.5) / n, c.hp)), cl(x[n - 1])]);
     P.dots(g, qq, n > 500 ? 1.8 : 2.8, t.c1, 0.8);
   }
   function drawCells() {
@@ -161,13 +163,15 @@
       el('tr', el('td', 'Statistica X² di Pearson'), el('td', fmt(c.X2, 3)), el('td', c.cls.length + ' classi, ' + H().k + ' parametri stimati')),
       el('tr', el('td', 'Gradi di libertà'), el('td', String(c.df)), el('td', 'classi − 1 − parametri stimati')),
       el('tr', el('td', 'p-value asintotico (χ²)'), el('td', fmt(c.p, 4)), el('td', b('asym'))),
-      el('tr', el('td', 'p-value Monte Carlo (' + MCB + ' campioni)'), el('td', S.mc ? fmt(S.mc.p, 4) : '—'), el('td', S.mc ? b('mc') : 'premi il pulsante sotto')),
+      el('tr', el('td', 'p-value Monte Carlo (' + MCB + ' campioni)'), el('td', S.mc ? fmt(S.mc.p, 4) : '—'), el('td', S.mc ? b('mc') : S.k > 10000 ? 'non disponibile nel browser per N > 10000' : 'premi il pulsante sotto')),
       el('tr', el('td', 'Distanza di Kolmogorov sup|F̂ − F̂₀|'), el('td', fmt(c.D, 4)), el('td', 'con parametri stimati la tabella di Kolmogorov non vale')));
     kpiBox.innerHTML = '';
     var hp = c.hp, ptxt = Object.keys(hp).map(function (k) { return k + ' = ' + SA.fmt(hp[k], 3); }).join(', ');
     kpiBox.append(el('div.kpi', el('b', String(S.k)), el('span', 'osservazioni')), el('div.kpi', el('b', { style: 'font-size:1.05rem' }, ptxt), el('span', 'stime ML del modello ipotizzato')),
       el('div.kpi', el('b', c.p < 0.05 ? 'rifiuto' : 'non rifiuto'), el('span', 'decisione al 5% (asintotica)')));
-    if (mcBtn) mcBtn.disabled = S.k < 10;
+    if (mcBtn) { mcBtn.disabled = S.k < 10 || S.k > 10000;
+      mcBtn.title = S.k > 10000 ? 'Bootstrap parametrico interattivo limitato a 10000 dati; il test asintotico resta disponibile' : '';
+    }
     updateFeedback();
   }
   function sameFamily() { return DATA[S.data].law === HYP[S.hyp].law; }
@@ -244,7 +248,7 @@
       el('label.field', el('span', 'Modello ipotizzato'), el('select', { onchange: function () { S.hyp = this.value; S.pred = null; buildPrediction(); restart(); } },
         hypOptions(S.data).map(function (k) { return el('option', { value: k, selected: k === S.hyp }, HYP[k].label); }))),
       el('div', { style: 'display:grid;grid-template-columns:1fr 1fr;gap:10px' },
-        el('label.field', el('span', 'Osservazioni N'), el('select', { onchange: function () { S.N = +this.value; buildPrediction(); restart(); } }, [30, 100, 200, 500, 2000].map(function (v) { return el('option', { value: v, selected: v === S.N }, String(v)); }))),
+        el('label.field', el('span', 'Osservazioni N'), el('select', { onchange: function () { S.N = +this.value; buildPrediction(); restart(); } }, [10, 100, 1000, 10000, 100000].map(function (v) { return el('option', { value: v, selected: v === S.N }, String(v)); }))),
         el('label.field', el('span', 'Seed'), el('input', { type: 'number', value: S.seed, min: 1, onchange: function () { S.seed = Math.max(1, Math.floor(+this.value || 1)); restart(); } }))));
     run.controls('Una osservazione').forEach(function (n) { ctrlBox.appendChild(n); });
   }
@@ -255,7 +259,7 @@
     },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
-      run = SA.ui.runner({ speed: 2, step: step, render: render, done: function () { return S.k >= S.N; }, progress: function () { return S.k / S.N; }, reset: function () { S = newState(S); cache = null; } });
+      run = SA.ui.runner({ coop: true, step: step, render: render, done: function () { return S.k >= S.N; }, progress: function () { return S.k / S.N; }, reset: function () { S = newState(S); cache = null; } });
       var openT = function (l) { SA.ui.openDrawer('Adattamento di un modello', THEORY, l); };
       page.appendChild(el('header.lab-head', el('div', el('div.kicker', info.part.part + ' · ' + info.part.title + ' · Laboratorio ' + info.lab.num),
         el('h1', info.lab.title), el('p.lede', 'Un modello è una scommessa sulla forma dei dati. Istogramma, QQ plot e test X² dicono, in modi diversi, quando la scommessa è persa.')),

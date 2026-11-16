@@ -41,7 +41,7 @@
   };
 
   function newState(prev) {
-    var s = { method: 'z', n: 20, level: 0.95, B: 1000, seed: 2026, mu: 10, sigma: 2, p: 0.1, lambda: 2, rate: 1, pred: null };
+    var s = { method: 'z', n: 100, level: 0.95, B: 1000, seed: 2026, mu: 10, sigma: 2, p: 0.1, lambda: 2, rate: 1, pred: null };
     if (prev) for (var k in s) if (prev[k] !== undefined) s[k] = prev[k];
     s.rng = new SA.RRNG(s.seed); s.k = 0; s.cov = 0; s.width = 0;
     s.lo = new Float64Array(s.B); s.hi = new Float64Array(s.B); s.trace = [];
@@ -55,13 +55,41 @@
   function exactCoverage() {
     var m = M(), key = [S.method, S.n, S.level, S.p, S.lambda].join('|');
     if (exactCache[key] != null) return exactCache[key];
-    var a = 1 - S.level, n = S.n, c = 0, s, pr;
-    if (m.model === 'bern') {
-      for (s = 0; s <= n; s++) { pr = Math.exp(lchoose(n, s) + s * Math.log(S.p) + (n - s) * Math.log1p(-S.p)); var ci = m.ciS(s, n, a); if (S.p >= ci[0] && S.p <= ci[1]) c += pr; }
-    } else if (m.model === 'pois') {
-      var mu = n * S.lambda, top = Math.ceil(mu + 12 * Math.sqrt(mu) + 30);
-      for (s = 0; s <= top; s++) { pr = Math.exp(-mu + s * Math.log(mu) - SA.sf.lgamma(s + 1)); var c2 = m.ciS(s, n, a); if (S.lambda >= c2[0] && S.lambda <= c2[1]) c += pr; }
-    } else c = S.level;
+    var a = 1 - S.level, n = S.n, c = S.level;
+    if (m.model === 'bern' || m.model === 'pois') {
+      // L'intervallo [L(S), U(S)] cresce monotonicamente in S.
+      // La regione di accettazione della copertura e' quindi un intervallo
+      // di conteggi: due ricerche binarie, non 100000 quantili per n elevato.
+      var p = m.model === 'bern' ? S.p : S.lambda;
+      var mu = m.model === 'bern' ? n * p : n * p;
+      var top = m.model === 'bern' ? n : Math.ceil(mu + 15 * Math.sqrt(mu) + 100);
+      function first(ok) { var lo = 0, hi = top + 1; while (lo < hi) { var mid = Math.floor((lo + hi) / 2); if (ok(mid)) hi = mid; else lo = mid + 1; } return lo; }
+      var left = first(function (s) { return m.ciS(s, n, a)[1] >= p; });
+      var right = first(function (s) { return m.ciS(s, n, a)[0] > p; }) - 1;
+      // Probabilita' Poisson da rapporti consecutivi: stabile anche per
+      // mu = 200000. La gamma incompleta a shape molto grande e' numericamente
+      // delicata, mentre qui bastano O(sqrt(mu)) termini vicino alla moda.
+      function poissonCDF(k, lambda) {
+        if (k < 0) return 0;
+        if (lambda <= 0) return 1;
+        var upper = k >= lambda, j = upper ? k + 1 : k;
+        var term = Math.exp(-lambda + j * Math.log(lambda) - SA.sf.lgamma(j + 1));
+        var sum = term;
+        for (var t = 0; t < 100000 && term > 1e-16 * Math.max(sum, 1e-300); t++) {
+          if (upper) { j++; term *= lambda / j; }
+          else { term *= j / lambda; j--; }
+          sum += term;
+          if (!upper && j <= 0) break;
+        }
+        return Math.max(0, Math.min(1, upper ? 1 - sum : sum));
+      }
+      function cdf(s) {
+        if (s < 0) return 0;
+        if (m.model === 'bern') return s >= n ? 1 : SA.sf.pbeta(1 - p, n - s, s + 1);
+        return poissonCDF(s, mu);
+      }
+      c = right < left ? 0 : Math.max(0, Math.min(1, cdf(right) - cdf(left - 1)));
+    }
     return (exactCache[key] = c);
   }
   function theoWidth() {
@@ -182,10 +210,29 @@
       '         copre = basso <= vero & vero <= alto)', '',
       'sim |> summarise(copertura = mean(copre), ampiezza_media = mean(alto - basso),',
       '                 errore_mc = sqrt(copertura * (1 - copertura) / B))');
-    if (m.model === 'bern') L.push('', '# Copertura esatta: somma su S = Σx ~ Binomiale(n, p)',
-      'copertura_esatta <- sum(map_dbl(0:n, \\(s) {', '  x <- c(rep(1, s), rep(0, n - s))   # un campione con somma s', '  ci <- intervallo(x)', '  dbinom(s, n, vero) * (ci[1] <= vero & vero <= ci[2])', '}))', 'copertura_esatta');
-    if (m.model === 'pois') L.push('', '# Copertura esatta: somma su S = Σx ~ Poisson(nλ)',
-      'smax <- qpois(1 - 1e-12, n * vero)', 'copertura_esatta <- sum(map_dbl(0:smax, \\(s) {', '  x <- c(s, rep(0, n - 1))           # un campione con somma s', '  ci <- intervallo(x)', '  dpois(s, n * vero) * (ci[1] <= vero & vero <= ci[2])', '}))', 'copertura_esatta');
+    if (m.model === 'bern' || m.model === 'pois') {
+      // La regione di copertura nel conteggio S e' contigua: due ricerche
+      // binarie al posto di n+1 valutazioni con campioni lunghi n.
+      L.push('', '# Copertura esatta della procedura sui conteggi sufficienti',
+        '# Si invertono gli estremi monotoni: O(log(n)) intervalli.',
+        'intervallo_da_s <- function(s) {',
+        m.model === 'bern' ? '  x <- c(rep.int(1, s), rep.int(0, n - s))' : '  x <- c(s, rep.int(0, n - 1))',
+        '  intervallo(x)', '}',
+        'primo_valido <- function(condizione, massimo) {',
+        '  lo <- 0; hi <- massimo + 1',
+        '  while (lo < hi) {',
+        '    mid <- floor((lo + hi) / 2)',
+        '    if (condizione(mid)) hi <- mid else lo <- mid + 1',
+        '  }',
+        '  lo', '}');
+      L.push(m.model === 'bern' ? 'smax <- n' : 'smax <- ceiling(n * vero + 15 * sqrt(n * vero) + 100)',
+        's_min <- primo_valido(\\(s) intervallo_da_s(s)[2] >= vero, smax)',
+        's_max <- primo_valido(\\(s) intervallo_da_s(s)[1] > vero, smax) - 1',
+        m.model === 'bern' ?
+          'copertura_esatta <- if (s_max < s_min) 0 else pbinom(s_max, n, vero) - pbinom(s_min - 1, n, vero)' :
+          'copertura_esatta <- if (s_max < s_min) 0 else ppois(s_max, n * vero) - ppois(s_min - 1, n * vero)',
+        'copertura_esatta');
+    }
     L.push('', '# Gli ultimi ' + SHOW + ' intervalli',
       'theme_statatlas <- function(base_size = 12) {', '  theme_minimal(base_size = base_size, base_family = "serif") +',
       '    theme(panel.grid.minor = element_blank(), legend.position = "top",', '          plot.background = element_rect(fill = "#FAF8F3", colour = NA))', '}',
@@ -232,7 +279,7 @@
         Object.keys(METHODS).map(function (k) { return el('option', { value: k, selected: k === S.method }, METHODS[k].label); }))),
       par,
       el('div', { style: 'display:grid;grid-template-columns:1fr 1fr;gap:10px' },
-        sel('n', 'n', [5, 10, 20, 30, 50, 100, 200]), sel('Livello', 'level', [0.8, 0.9, 0.95, 0.99], function (v) { return Math.round(v * 100) + '%'; }),
+        sel('n', 'n', [10, 100, 1000, 10000, 100000]), sel('Livello', 'level', [0.8, 0.9, 0.95, 0.99], function (v) { return Math.round(v * 100) + '%'; }),
         sel('Intervalli B', 'B', [100, 500, 1000, 5000]),
         el('label.field', el('span', 'Seed'), el('input', { type: 'number', value: S.seed, min: 1, onchange: function () { S.seed = Math.max(1, Math.floor(+this.value || 1)); restart(); } }))));
     run.controls('Un intervallo').forEach(function (n) { ctrlBox.appendChild(n); });
@@ -248,7 +295,7 @@
     },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
-      run = SA.ui.runner({ speed: 1, step: step, render: render, done: function () { return S.k >= S.B; }, progress: function () { return S.k / S.B; }, reset: function () { S = newState(S); } });
+      run = SA.ui.runner({ coop: true, step: step, render: render, done: function () { return S.k >= S.B; }, progress: function () { return S.k / S.B; }, reset: function () { S = newState(S); } });
       var openT = function (l) { SA.ui.openDrawer('Intervalli di confidenza', THEORY, l); };
       page.appendChild(el('header.lab-head', el('div', el('div.kicker', info.part.part + ' · ' + info.part.title + ' · Laboratorio ' + info.lab.num),
         el('h1', info.lab.title), el('p.lede', 'Il parametro sta fermo, gli intervalli si muovono. Il livello di confidenza è una promessa sul metodo: vediamo se la mantiene.')),

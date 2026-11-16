@@ -4,94 +4,41 @@
 
 <h1 align="center">StatAtlas</h1>
 
+<p align="center"><em>Vedere la statistica mentre accade.</em></p>
+
 <p align="center">
-  <em>Vedere la statistica mentre accade.</em><br>
-  Un atlante interattivo di probabilità, inferenza, machine learning e statistica spaziale: 31 laboratori, simulazioni riproducibili in R e un unico file HTML utilizzabile anche offline.
+  Atlante interattivo di probabilità, inferenza, modelli statistici, machine learning e statistica spaziale.<br>
+  <strong>31 laboratori · 93 sfide · 31 script R · un solo file HTML utilizzabile offline.</strong>
 </p>
 
 <p align="center">
-  <a href="https://gianluca-sottile.github.io/statatlas/"><strong>Apri StatAtlas →</strong></a>
-  &nbsp;·&nbsp; <a href="#i-laboratori">Laboratori</a>
-  &nbsp;·&nbsp; <a href="#come-è-fatto-un-laboratorio">Struttura</a>
-  &nbsp;·&nbsp; <a href="#riproducibilità-in-r">Riproducibilità in R</a>
-  &nbsp;·&nbsp; <a href="#sviluppo">Sviluppo</a>
+  <a href="https://gianluca-sottile.github.io/statatlas/"><strong>Apri StatAtlas</strong></a>
+  · <a href="#i-laboratori">Laboratori</a>
+  · <a href="#integrazione-con-from-data-to-models-with-r">Corso R</a>
+  · <a href="#riproducibilita-e-validazione-in-r">R e verifiche</a>
+  · <a href="#sviluppo-e-test">Sviluppo</a>
 </p>
 
 <p align="center">
-  <img alt="Versione" src="https://img.shields.io/badge/versione-2.1.0--rc-9A3412">
+  <img alt="Versione corrente del ramo main" src="https://img.shields.io/badge/ramo_main-2.1-9A3412">
   <img alt="Lingua" src="https://img.shields.io/badge/lingua-italiano-1C1B19">
-  <img alt="Offline" src="https://img.shields.io/badge/funziona-offline-1F6F43">
-  <img alt="Dipendenze" src="https://img.shields.io/badge/dipendenze-nessuna-1E4E8C">
-  <img alt="Licenza" src="https://img.shields.io/badge/licenza-MIT%20%2B%20CC%20BY%204.0-6B3E8A">
+  <img alt="HTML autonomo" src="https://img.shields.io/badge/runtime-offline-1F6F43">
+  <img alt="Licenze" src="https://img.shields.io/badge/licenze-MIT%20%2B%20CC%20BY%204.0-6B3E8A">
 </p>
 
----
+> **Stato del progetto — novembre 2026.** Il codice del ramo `main` comprende le Macrofasi **A** (audit scientifico, QA e validazione R 31/31) e **B** (collegamento curricolare con il corso R). La Macrofase **C** (inglese e accessibilità) è successiva. La numerazione del codice 2.1 non implica necessariamente la presenza di un nuovo tag GitHub o una validazione didattica già condotta con studenti.
 
-## Perché StatAtlas
+## Che cos'è StatAtlas
 
-Molti concetti della statistica — la legge dei grandi numeri, il teorema centrale, la copertura di un intervallo, la potenza di un test — sono affermazioni su **che cosa succede ripetendo un esperimento molte volte**. StatAtlas rende visibile proprio questo: ogni osservazione, ogni campione, ogni intervallo viene generato davanti allo studente, e il risultato si confronta passo dopo passo con ciò che la teoria garantisce.
+StatAtlas è un ambiente di insegnamento *esperienziale*: lo studente formula una previsione, modifica i parametri di un esperimento, osserva le realizzazioni e interpreta i risultati confrontandoli con proprietà teoriche, ipotesi e possibili fallimenti. Non si limita a visualizzare formule né richiede un server o un account.
 
-- **Didattica attiva.** Ogni laboratorio parte da una domanda; chi vuole può fare una previsione *prima* di vedere i dati.
-- **Rigore dichiarato.** Ogni risultato teorico è etichettato come *esatto*, *asintotico*, *approssimato* o *Monte Carlo*: non si confonde mai ciò che vale per ogni n con ciò che vale al limite.
-- **Stessi numeri in R.** Il generatore di numeri casuali di R è reimplementato nel browser: lo script fornito, con lo stesso seed, riproduce gli stessi campioni. Ogni script dichiara fin dove arriva la corrispondenza (livelli R0–R3) e richiede la verifica eseguibile in R per ogni nuova versione. La riproducibilita a livelli R0-R3 dipende dal singolo laboratorio: il verificatore 31/31 controlla parsing ed esecuzione, mentre la parita numerica richiede confronti aggiuntivi per ogni algoritmo.
-- **Due livelli di lettura.** Un pannello *Approfondisci* con teoria essenziale, derivazioni avanzate, esercizi con soluzione e bibliografia; formule composte tipograficamente e numerate, senza librerie esterne.
-- **Nessuna installazione.** Un unico file `index.html`, che funziona anche offline. Nessun server, nessuna libreria esterna.
+- **31 laboratori in otto parti**, dalle distribuzioni alla geostatistica, con pannelli *Essenziale*, *Avanzato*, *Esercizi* e *Bibliografia*.
+- **93 Challenges** (Comprensione, Applicazione, Avanzato): richiedono attività sperimentali effettive e risposte interpretative; gli indicatori A/B rimangono descrittivi dove non esistono repliche indipendenti.
+- **Esperimenti riproducibili** con seed controllato, esportazione R, dati CSV e grafici PNG dove previsti.
+- **Macrofase B:** 62 collegamenti a 29 lezioni selezionate di *From Data to Models with R*, una sequenza operativa per laboratorio, 31 schede studente scaricabili e guida docente. I collegamenti possono essere diretti oppure propedeutici.
+- **Offline:** `index.html` contiene i sorgenti compilati in HTML/CSS/JavaScript, senza librerie JavaScript da scaricare. I collegamenti alle lezioni esterne richiedono connessione.
 
-## Parte VIII — Sei laboratori unificati su mappe continue (sviluppo 2.1)
-
-**I laboratori 26–31 hanno sostituito le vecchie interfacce.** Ciascuno mostra **una sola mappa, un solo pannello di parametri e un unico campione modificabile**. I vecchi esperimenti grafici, le loro duplicazioni e i controlli separati **non vengono più montati**. Gli algoritmi numerici condivisi restano nel progetto come sorgenti testabili, non come secondi laboratori. Gli script R della Parte VIII sono ora generati dai **punti effettivamente visualizzati**; dodici snapshot delle sei mappe (prima e dopo modifica) sono stati verificati nel collaudo su GNU R, JavaScript e Python.
-
-- **26 — Moran:** modifica valori e posizioni, crea gruppi o alternanze e osserva l'indice globale calcolato sui punti con pesi kNN normalizzati. La heatmap non è il campione utilizzato per il calcolo.
-- **27 — LISA:** aggiungi osservazioni alte/basse, individua HH, LL, HL e LH e osserva come cambiano al variare del vicinato. I quadranti sono **descrittivi**: questa interfaccia non stima p-value locali.
-- **28 — Processi puntuali:** inserisci eventi singoli o gruppi e confronta KDE, distanza fra eventi e curva L(r)−r. Non sono calcolati envelope o test CSR.
-- **29 — Variogrammi:** aggiungi e trascina sensori, osserva la semivarianza empirica per classi di distanza. La superficie IDW serve soltanto a comunicare visivamente la disposizione delle misure.
-- **30 — Kriging:** aggiungi, rimuovi e sposta sensori sullo **stesso campo latente simulato**. La previsione e la varianza condizionale usano il motore numerico di kriging; il range è una ipotesi di covarianza, non una verità nota allo studente.
-- **31 — Regressione spaziale:** modifica osservazioni dotate di risposta Y, covariata X e coordinate; confronta OLS `Y ~ X` e `Y ~ X + x + y`, R² e Moran dei residui. SAR e SEM sono spiegati nella teoria, **non** adattati dalla nuova interfaccia.
-
-Le coordinate delle mappe sono **normalizzate sul quadrato unitario**, non longitudini e latitudini reali in gradi. Il confronto A/B usa due snapshot dello stesso dataset e non li presenta come repliche Monte Carlo indipendenti. Le 18 Challenges della Parte VIII sono state riscritte per i nuovi controlli; il progresso dei 31 laboratori resta di 93 sfide complessive.
-
-Consulta [architettura, limiti scientifici, verifica dei dati e test](docs/PARTE_VIII_UNIFICATA.md). Il report di audit delle formule ed ipotesi e disponibile in [`docs/AUDIT_FORMALE_TEORICO_31.md`](docs/AUDIT_FORMALE_TEORICO_31.md).
-
-## StatAtlas Challenges — 31 laboratori, 93 sfide (versione di sviluppo 2.1)
-
-La modalità **«Mettiti alla prova»** è disponibile in **tutti i 31 laboratori**, con tre attività progressive per ciascuno: **Comprensione**, **Applicazione** e **Avanzato**. Ogni attività comprende un obiettivo operativo specifico, una domanda interpretativa a tre alternative e feedback metodologico. Le sfide non si completano semplicemente selezionando una risposta: richiedono esperimenti **eseguiti dopo l’apertura**; nei laboratori preesistenti i prerequisiti rimangono legati al relativo motore. Nelle sei lezioni della Parte VIII, invece, le condizioni sono specifiche per una mappa continua e per registrazioni di valori sul medesimo campione, senza ripetizioni artificiali. Il progresso è mostrato in tempo reale e un pulsante porta direttamente ai controlli. Le nove sfide pilota mantengono verifiche di stato specifiche.
-
-**Novità: evidenze quantitative e protocollo A/B controllato (fase 2.1).** Dopo ogni passo, tutti i 31 laboratori possono registrare in sola lettura un indicatore o valore numerico proveniente dal loro vero stato sperimentale. Nelle sfide estese agli esperimenti originali non basta più il conteggio dei passi: per l'**Avanzato** è richiesta anche una risposta sul confronto empirico delle medie A/B/pari. Il confronto tra configurazioni è accettato solo quando gli altri controlli registrati rimangono costanti. Per il boosting (21) e le reti neurali (22) si richiedono tre checkpoint appaiati con dati e seed invariati, confrontando le stesse iterazioni; per gli altri 26 laboratori estesi il confronto resta descrittivo. Le iterazioni successive non sono repliche indipendenti, e non vengono costruiti p-value o intervalli ingiustificati. Consulta la [verifica conclusiva del protocollo A/B](docs/FASE_2_1_CONCLUSIVA_CONTROLLO_AB.md) e la [matrice delle 31 evidenze](docs/FASE_2_1_EVIDENZE_QUANTITATIVE_2026_11_15.md).
-
-- Nei laboratori **08 e 18** rimangono i prerequisiti specialistici precedenti; le tre sfide del **30 — Kriging** sono state aggiornate alla nuova mappa unica (sensori, previsione, range).
-- Nei **23 laboratori estesi non spaziali** i livelli Applicazione e Avanzato verificano un controllo pertinente e passi eseguiti sotto configurazioni effettive; nei **cinque laboratori spaziali estesi** richiedono osservazioni puntuali e, quando previsto, due snapshot sugli stessi dati. Per l'Avanzato l'esperimento viene **respinto** se cambiano anche altri controlli, con indicazione del parametro da mantenere fisso; il semplice tracciamento non prova la comprensione statistica. L'interpretazione resta valutata con una risposta a scelta motivata.
-- Il punteggio è **formativo e temporaneo**, non viene salvato o inviato online. Non sono presenti certificazione dell'apprendimento, telemetria o valutazione psicometrica.
-- Gli algoritmi già verificati in R non sono stati modificati. È stato aggiunto un tracciamento degli eventi del runner; il laboratorio 06 espone esclusivamente il conteggio delle repliche per le sfide.
-
-La revisione delle schede **Essenziale e Avanzato** copre ora i **31 laboratori**, con trattazioni aggiuntive di ipotesi, derivazioni e casi limite specifici, integrate negli approfondimenti senza rimuovere il materiale preesistente. L'audit è documentato in [`docs/AUDIT_REVISIONE_31.md`](docs/AUDIT_REVISIONE_31.md). **La presenza di una derivazione non equivale a una verifica formale indipendente di ogni teorema o riferimento bibliografico**: i risultati non dimostrati integralmente rimangono soggetti a revisione specialistica.
-
-Test rapidi della versione completa (i test scientifici indipendenti richiedono NumPy/SciPy, quelli browser Playwright/Chromium):
-
-```bash
-python3 build.py
-node tests/audit_science.js
-node tests/test_challenges_full.js
-for f in tests/test_*.js; do node "$f"; done
-python3 tests/test_challenges_browser_full.py
-```
-
-## Esperienza mobile e tablet
-
-L'interfaccia è adattata ai dispositivi touch senza modificare i motori numerici: sui tablet fino a 1180 px il menu dei laboratori è a scomparsa, mentre sui telefoni è disponibile una barra di navigazione rapida per tornare a **Parametri**, **Grafici**, **Risultati** e **Inizio**. I pulsanti **Avvia**, **Passo**, **Completa** e **Ricomincia** rimangono gli stessi degli esperimenti desktop e, sui dispositivi compatti, compaiono prima della lista dei parametri.
-
-- **Grafici:** pulsante di ingrandimento con bersaglio touch 44 px; su telefono l'ingrandimento mostra un grafico largo e scorrevole orizzontalmente, con comando di chiusura sempre visibile.
-- **Approfondimenti:** pannello a tutta larghezza su telefono, con le quattro schede distribuite su due righe e formule scorrevoli quando necessario.
-- **Tabelle e codice R:** contenitori con scorrimento orizzontale indipendente; suggerimento visibile solo su telefono per le tabelle.
-- **Accessibilità:** menu laterale con chiusura mediante Esc o tocco esterno, stato `aria-expanded`, gestione del focus e rispetto della preferenza di movimento ridotto.
-
-Il bundle resta un singolo `index.html` funzionante senza rete. Per ripetere il collaudo browser (richiede Playwright e Chromium):
-
-```bash
-python3 build.py
-python3 tests/test_mobile_tablet.py
-```
-
-Sono stati testati Chromium desktop emulando viewport da 320, 390, 768 e 1024 px; rimane opportuno un collaudo manuale su Safari iOS/iPadOS reale, incluse rotazioni e gesti tattili.
+![StatAtlas: esperienza didattica desktop](docs/MACROFASE_B_DESKTOP.png)
 
 ## I laboratori
 
@@ -129,155 +76,124 @@ Sono stati testati Chromium desktop emulando viewport da 320, 390, 768 e 1024 px
 | | 30 · Kriging e disegno dei sensori | Un solo campo fissato, ordinary kriging, sensori e varianza condizionale |
 | | 31 · Regressione spaziale e validazione geografica | Punti modificabili, OLS Y~X contro Y~X+coordinate; SAR/SEM introdotti in teoria |
 
-## Come è fatto un laboratorio
+## Come funziona un laboratorio
 
-Ogni laboratorio segue la stessa sequenza, così lo studente impara un’unica interfaccia:
+Il percorso didattico standard comprende una **domanda iniziale**, una **previsione facoltativa**, un **esperimento controllato**, il **confronto tra risultati simulati e teoria**, l'**interpretazione**, gli **approfondimenti** e il modulo **Riproduci in R**. La guida «Come usare il laboratorio» accompagna l'esperimento; la modalità «Mettiti alla prova» offre tre sfide per laboratorio.
 
-1. **Domanda** — un problema concreto da cui partire, con una *previsione facoltativa*: chi vuole mettersi alla prova annota che cosa si aspetta e riceve un riscontro a simulazione avanzata.
-2. **Esperimento** — una guida specifica «Come usare il laboratorio» propone quattro mosse; controlli per seed, numerosità e velocità, avvio, pausa e un passo alla volta. Un riquadro spiega *che cosa stiamo valutando*.
-3. **Teoria e simulazione a confronto** — una tabella con il valore teorico, quello simulato e la natura del risultato.
-4. **Interpretazione** — che cosa significa, quando vale, dove si rompe.
-5. **Approfondisci** — Essenziale · Avanzato · Esercizi · Bibliografia.
-6. **Codice R** — uno script R che si aggiorna con i parametri scelti; si copia o si scarica.
+### Velocità delle simulazioni (aggiornamento 2.1)
 
-I dati e le figure si esportano in CSV e PNG.
+Nei **25 laboratori con animazione temporizzata (01–25)** la velocità si imposta con un cursore **0–100, a incrementi di 1, con valore iniziale 25** all'apertura di ciascun laboratorio.
 
-## Riproducibilità in R
+- Il numero è un **indice di velocità**, non una percentuale delle osservazioni o del tempo totale. Il valore 0 rappresenta il ritmo minimo, non equivale a «Pausa».
+- La scala è continua nella conversione ai passi/secondo: valori indicativi **0 ≈ 2**, **25 ≈ 30**, **100 ≈ 1200** passi al secondo. La velocità effettiva dipende dal carico computazionale e dalla frequenza di aggiornamento del browser; è limitato il numero di passi per fotogramma per preservare la reattività.
+- La regolazione agisce **durante** la simulazione; non cambia seed, distribuzioni, campioni, stime o script R. I comandi **Avvia/Pausa**, **Un passo**, **Completa** e **Ricomincia** restano disponibili.
+- Nel laboratorio **15 (regressione penalizzata)** il cursore appare nella vista **Percorsi**, dove avvengono le repliche; non è necessario nella vista statica **Spazio delle soluzioni**.
+- I **laboratori spaziali 26–31** sono mappe con aggiornamento immediato dopo le azioni sui punti e sui parametri, non animazioni temporizzate: non mostrano un cursore di velocità privo di effetto.
 
-StatAtlas implementa in JavaScript il generatore **Mersenne-Twister** di R, inclusa la procedura di inizializzazione del seed (*scrambling*) di `set.seed()`, e il metodo di **inversione** usato da `rnorm()`. Le altre leggi sono generate come `q*(runif(n), …)`, cioè per inversione della funzione di ripartizione. Di conseguenza, con R ≥ 4.1 e le impostazioni predefinite (`RNGkind("Mersenne-Twister", "Inversion")`):
+![Cursore velocità 0–100 con impostazione predefinita 25](docs/VELOCITA_CONTINUA_2_1.png)
 
-```r
-set.seed(2026)
-runif(3)   # gli stessi tre numeri che StatAtlas genera con seed 2026
-```
+Su desktop e smartphone la stessa impostazione iniziale è usata, con supporto touch e navigazione via tastiera (Spazio = avvia/pausa; freccia destra = un passo, fuori dai campi di input).
 
-### Livelli di riproducibilità
+## Integrazione con From Data to Models with R
 
-| Livello | Che cosa coincide | Esempi |
+La **Macrofase B** collega le osservazioni interattive all'analisi statistica in R, senza trasformare StatAtlas in una dipendenza del sito del corso. Ogni laboratorio comprende un piccolo percorso *domanda → esperimento → verifica in R*, due rimandi alle lezioni pertinenti e una scheda Markdown scaricabile. Le corrispondenze sono suddivise in **15 allineamenti diretti** e **16 propedeutici**: in particolare i laboratori spaziali rimandano a prerequisiti e non sono dichiarati coperti integralmente dal corso.
+
+Materiali disponibili:
+
+- [Guida docente e rubriche didattiche](docs/MACROFASE_B_GUIDA_DOCENTE.md)
+- [Mappatura completa laboratorio–lezione in CSV](docs/MACROFASE_B_MAPPATURA_CORSO.csv)
+- [31 schede studente](docs/schede_studenti_B/)
+- [Relazione della Macrofase B](docs/MACROFASE_B_RELAZIONE.md)
+- [Stato dei benchmark R/JavaScript 01–25](docs/MACROFASE_B_PARITA_01_25.md)
+
+L'integrazione **inversa** dal repository Quarto del corso a StatAtlas è una modifica separata, non inclusa nel repository attuale. Per visitare le lezioni online: [From Data to Models with R](https://gianluca-sottile.github.io/An-R-Tutorial-for-Beginners/).
+
+## Statistica spaziale: interfaccia unificata (26–31)
+
+Ogni laboratorio spaziale usa **una sola mappa e un dataset corrente modificabile**. Dati e statistiche sono ricalcolati dalle osservazioni visualizzate; non vengono mantenute in parallelo le vecchie interfacce. Si possono esplorare Moran globale, quadranti LISA descrittivi, KDE e statistiche per processi puntuali, variogrammi, kriging e regressione spaziale. Le coordinate sono normalizzate, non longitudini/latitudini geografiche.
+
+Le limitazioni metodologiche sono esplicitate: i quadranti LISA non sono p-value locali; la curva L(r)−r non costituisce da sola un test CSR; la superficie IDW illustrativa non fornisce una varianza di kriging; SAR/SEM non vengono adattati nell'interfaccia compatta del laboratorio 31. [Dettagli e QA scientifico](docs/PARTE_VIII_UNIFICATA.md).
+
+## Riproducibilità e validazione in R
+
+Il generatore pseudo-casuale di StatAtlas riproduce in JavaScript il **Mersenne–Twister** e l'inversione normale di R, entro le ipotesi documentate. Gli script esportati seguono i parametri correnti e sono formattati in righe brevi per evitare il limite della console R. La riproducibilità deve essere interpretata **laboratorio per laboratorio**:
+
+| Livello | Obiettivo | Evidenza necessaria |
 |---|---|---|
-| **R0** · stessi dati | Stesso seed, stessi campioni, stesse suddivisioni training/test e fold, stessi campioni bootstrap | tutti i laboratori |
-| **R1** · stesse misure | Stesse stime ed errori, a meno dell’arrotondamento | `prcomp` nel lab 23, `lm` con `poly()` nel lab 18 |
-| **R2** · stesso algoritmo | Stessi passi e stesse regole nei casi di parità | CART e foreste del lab 20, boosting didattico del lab 21, DBSCAN del lab 25, discesa del gradiente del lab 22, `kmeans(algorithm = "Lloyd")` |
-| **R3** · confronto di metodo | Pacchetti che seguono regole diverse: risultati vicini, non identici | `segmented`, `ranger`, `class::knn`, `dbscan`, `nnet` |
+| **R0** | Stessi dati/seed | Confronto dei campioni e delle suddivisioni |
+| **R1** | Stesse statistiche | Verifica numerica entro tolleranze definite |
+| **R2** | Stesso algoritmo | Confronto di traiettorie, aggiornamenti e regole di parità |
+| **R3** | Confronto di metodo | Differenze dichiarate fra implementazioni/librerie |
 
-Gli script richiedono R ≥ 4.1 e il pacchetto `tidyverse`; alcuni laboratori usano solo funzioni di base di R (`persp`, `glm`, `arima`), i laboratori 14 e 15 anche `quantreg` e `glmnet`, il 17 `segmented`. Anche la suddivisione training/test e i fold del laboratorio 18 coincidono con quelli di R (`sample()`, R ≥ 3.6).
+Nella Macrofase A e nel collaudo della Macrofase B sono stati eseguiti con successo i **31 script R estratti dal browser**, controllandone integrità, parsing e un invariante eseguibile per laboratorio. Sono disponibili confronti numerici indipendenti per sei laboratori spaziali su 12 snapshot. **I benchmark completi di equivalenza numerica R/JavaScript per i laboratori 01–25 non sono ancora certificati**: 31 esecuzioni riuscite non implicano parità algoritmica R2.
 
-## Uso
-
-- **Online:** apri il sito pubblicato con GitHub Pages.
-- **Offline:** scarica `index.html` e aprilo con un browser recente (Chrome, Edge, Firefox, Safari). Funziona anche senza connessione.
-- **In aula:** il tema scuro si attiva dalla barra laterale; i grafici si ingrandiscono con la finestra del browser. Tastiera: <kbd>Spazio</kbd> avvia o mette in pausa, <kbd>→</kbd> esegue un passo.
-
-## Sviluppo
-
-StatAtlas (sviluppo 2.1) usa **HTML, CSS e JavaScript nativi**, senza dipendenze obbligatorie a runtime. Il codice modulare in `src/` è assemblato da `build.py` nell'unico file distribuibile `index.html`. La struttura comprende 31 file in `src/labs/`, il motore numerico in `src/core/`, i componenti didattici condivisi, le verifiche JS in `tests/` e i riferimenti R in `verifica/`.
+Dalla radice del repository, con GNU R e le dipendenze indicate dal validatore:
 
 ```bash
-python3 build.py                         # rigenera il file offline index.html
-for f in tests/test_*.js; do node "$f" || exit 1; done  # suite numerica/editoriale
+Rscript verifica/valida_tutti_31.R --timeout=900
 ```
 
-Per gli smoke test che richiedono jsdom, installare le dipendenze **solo nell'ambiente di sviluppo** (non servono agli utenti del sito):
+Il validatore ricostruisce l'HTML, esporta i 31 script dal browser, ne verifica SHA e sintassi, li esegue separatamente e genera `verifica/REPORT_VALIDAZIONE_R_31.csv` e i log per laboratorio. **Dopo ogni modifica a `index.html` occorre rigenerare il report**, perché il gate di pubblicazione richiede lo stesso hash della build, anche quando non sono cambiati i calcoli statistici.
+
+Le verifiche delle ipotesi e delle formule dei 31 laboratori sono documentate in [Audit formale teorico](docs/AUDIT_FORMALE_TEORICO_31.md), [Matrice delle verifiche della Macrofase A](docs/MACROFASE_A_MATRICE_VERIFICHE.csv) e [Relazione Macrofase A](docs/MACROFASE_A_RELAZIONE_2026_11_16.md). Queste verifiche non sostituiscono la revisione bibliografica dei teoremi avanzati.
+
+### Numerosità campionaria in probabilità e inferenza (aggiornamento post-B)
+
+Nei laboratori **01–09**, dove il parametro rappresenta la numerosità delle osservazioni o di ciascun campione, la scelta ora comprende **10, 100, 1.000, 10.000 e 100.000**. Nel laboratorio 04 la scala si applica sia alle osservazioni per traiettoria della legge dei grandi numeri, sia alla dimensione *n* di ciascun campione del TCL.
+
+**Attenzione: n/N non è B/M.** In 06–09 il selettore di *n* riguarda la numerosità del singolo campione; il numero di repliche resta indipendente e configurabile. In 01–03 e 05, *N* è il totale delle osservazioni/estrazioni generate. I valori elevati possono allungare l'esperimento: il comando *Completa* nei laboratori con runner condiviso lavora per blocchi annullabili, mentre il laboratorio 06 usa un completamento cooperativo. I grafici più pesanti mostrano un sottoinsieme limitato di punti, **ma calcolano le statistiche sull'intero campione**.
+
+Due casi speciali, dichiarati esplicitamente: nel **LAB 09**, per n ≥ 10.000, si simula direttamente la distribuzione **esatta** della statistica Z sotto normalità, senza generare esplicitamente 2n osservazioni per replica (anche lo script R adotta lo stesso algoritmo). Nel **LAB 05**, per N > 10.000 il bootstrap parametrico interattivo è disabilitato per evitare blocchi del browser; istogramma, QQ plot e test asintotico restano disponibili. Una simulazione con n = 100.000 e migliaia di repliche può comunque richiedere tempi significativi, soprattutto per MLE e modelli non normali. Nel **LAB 08** la copertura per binomiale e Poisson è calcolata sulla regione dei conteggi sufficienti tramite CDF, anche nell'esportazione R, evitando scansioni di n o centinaia di migliaia di campioni. Per i quantili χ² con almeno 10.000 gradi di libertà il browser utilizza la trasformazione numerica di Wilson–Hilferty, confrontata con SciPy fino a n = 100.000; le formule inferenziali restano quelle previste dai metodi, mentre la loro valutazione numerica adotta questa approssimazione ad alti gradi di libertà.
+
+## Utilizzo online e offline
+
+- **Online:** [StatAtlas su GitHub Pages](https://gianluca-sottile.github.io/statatlas/).
+- **Offline:** scarica il file `index.html` dalla [radice del repository](https://github.com/gianluca-sottile/statatlas) e aprilo con un browser moderno. I contenuti dell'atlante restano disponibili senza rete, mentre i link al corso R richiedono Internet.
+- **In aula:** proietta l'esperimento, chiedi una previsione agli studenti e confronta gli esiti con la teoria. Le schede della Macrofase B sono utilizzabili anche separatamente dal browser.
+
+## Sviluppo e test
+
+Il frontend utilizza **HTML, CSS e JavaScript nativi**, senza framework, backend o database. `build.py` incorpora i moduli in `src/core/`, i 31 file di `src/labs/` e i fogli di stile nell'unico `index.html`. I test di sviluppo utilizzano Node.js, Python con NumPy/SciPy, Playwright/Chromium e GNU R; **non sono dipendenze necessarie per usare il sito**.
 
 ```bash
-npm install --no-save jsdom
-node tests/smoke/smoke_fase7.js index.html
+python3 build.py
+for f in tests/test_*.js; do node "$f" || exit 1; done
+python3 tests/test_speed_slider_browser.py   # controllo velocità 25 lab, mobile + desktop
+python3 tests/test_sample_sizes_browser.py    # n = 10, 100, 1000, 10000, 100000 nei lab 01-09
+python3 tests/test_large_sample_coverage.py    # 15 confronti indipendenti SciPy per la copertura
+python3 tests/test_mobile_tablet.py           # 31 lab, quattro larghezze
 ```
 
-Per ripetere i test responsive è necessario Python con Playwright e Chromium disponibili localmente:
+Per il collaudo integrato della build corrente (GNU R, pacchetti e Playwright presenti):
 
 ```bash
-python3 tests/test_mobile_tablet.py
-```
-
-### Verifiche indipendenti in R
-
-Gli script R sono raccolti nella directory `verifica/`. **Per validare in un solo comando i 31 script esportati dalla pagina attuale**, lancia dalla radice del progetto (GNU R e dipendenze R installati, Python Playwright+Chromium disponibili):
-
-```bash
-Rscript verifica/valida_tutti_31.R --timeout=900 > MACROFASE_A_R31.log 2>&1
+PATH="$PWD/.venv/bin:$PATH" sh tests/run_macrofase_B.sh > COLLAUDO_2_1.log 2>&1
 echo "Codice di uscita: $?"
 ```
 
-Il verificatore ricompila `index.html`, estrae dal browser i 31 script R correnti, controlla SHA-256/MD5, verifica il parsing, esegue separatamente ognuno dei 31 script in GNU R e salva report e log per ogni laboratorio. Non sono ammessi SKIP tra i PASS. Richiede i pacchetti R `tidyverse`, `quantreg`, `segmented` e `cluster`; in caso di pacchetti mancanti, il report indica come installarli. I file di output sono `verifica/REPORT_VALIDAZIONE_R_31.csv` e `verifica/runs/`. **La sola esecuzione non dimostra la parita numerica R/JS dei laboratori 01-25.** Il report matematico descrive il perimetro dell'audit, le correzioni e le limitazioni.
-
-Il master storico comprende i confronti precedenti e richiama le verifiche autonome dei moduli aggiunti. Le verifiche indipendenti dei nuovi metodi si possono anche eseguire singolarmente:
+Per preparare la pubblicazione senza commit o push, dopo aver validato **la build corrente**:
 
 ```bash
-Rscript verifica/verifica_statatlas.R
-Rscript verifica/verifica_gradient_boosting.R
-Rscript verifica/verifica_moran.R
-Rscript verifica/verifica_lisa.R
-Rscript verifica/verifica_processi_puntuali.R
-Rscript verifica/verifica_variogrammi.R
-Rscript verifica/verifica_kriging.R
-Rscript verifica/verifica_regressione_spaziale.R
+sh scripts/pubblica_github.sh --no-push
 ```
 
-**Stato al 14 novembre 2026:** l'autore ha confermato in R le verifiche del gradient boosting (lab 21) e dei sei laboratori spaziali (26–31); le verifiche storiche sono documentate nel progetto. I calcoli JavaScript e i laboratori non sono stati modificati per questa preparazione di release. Restano raccomandate prove manuali su Safari iOS/iPadOS fisici, in particolare gesti touch, rotazione e download.
+Il push effettivo va eseguito solo dopo aver esaminato l'anteprima. Il workflow [StatAtlas QA](.github/workflows/scientific-qa.yml) è ora **leggero su ogni push/PR**: esegue soltanto build e test JavaScript, senza installare NumPy, SciPy, Chromium o GNU R. Le modifiche limitate a documentazione e immagini non attivano il workflow. I controlli scientifici indipendenti e i browser test completi sono disponibili con **Actions → StatAtlas QA → Run workflow**. Il collaudo sostanziale e il gate R 31/31 restano obbligatori **in locale prima del push**. Questa scelta riduce il tempo di CI, non la dimensione o il tempo di download del sito GitHub Pages. [Cronologia delle modifiche](CHANGELOG.md).
 
-### Comportamento delle simulazioni spaziali
+## Roadmap e limitazioni
 
-Nei laboratori **26–31** i dati e i grafici sono disponibili all'apertura, ma le simulazioni Monte Carlo **non partono automaticamente**. I comandi Avvia, Passo e Completa sono espliciti. Le modifiche strutturali invalidano i risultati non più comparabili; quelle di sola visualizzazione o inferenza conservano le repliche ancora valide, secondo le regole di ciascun esperimento.
+- **Macrofase A:** audit teorico, correzioni, UI responsive, 31 esecuzioni R e verifiche scientifiche; pubblicata.
+- **Macrofase B:** collegamento con il corso R, schede studente/guida docente, test e validazione delle esportazioni; pubblicata sul ramo principale.
+- **Macrofase C:** internazionalizzazione inglese, accessibilità e consolidamento finale; non ancora svolta.
+- **Attività scientifiche residue:** benchmark numerici JS/R per i lab 01–25, riferimenti primari per alcuni teoremi avanzati e collegamenti inversi nel corso Quarto separato.
+- **Validazione didattica con studenti:** programmata dopo il completamento del repository; non è una misura già disponibile della sua efficacia formativa.
 
-Per la storia delle modifiche, consultare [CHANGELOG.md](CHANGELOG.md). Per gli audit tecnici e responsive: [`docs/AUDIT_UI_TEORIA_31.md`](docs/AUDIT_UI_TEORIA_31.md) e [`docs/AUDIT_RESPONSIVE_31.md`](docs/AUDIT_RESPONSIVE_31.md).
+## Citazione, crediti e licenze
 
-## Come citare
+**Autore:** Gianluca Sottile, Università degli Studi di Palermo. Per citare il codice pubblicato della versione corrente indicare il repository e, preferibilmente, il commit consultato; i metadati [CITATION.cff](CITATION.cff) rimangono riferiti alla release taggata precedente finché non sarà aggiornato il tag ufficiale.
 
-> Sottile G. (2026). *StatAtlas: un atlante interattivo di probabilità, inferenza, machine learning e statistica spaziale* (versione 2.0.0, ultima release pubblicata; per la versione 2.1 usare la citazione del relativo tag quando disponibile). https://github.com/gianluca-sottile/statatlas
+> Sottile, G. (2026). *StatAtlas: un atlante interattivo di probabilità, inferenza, machine learning e statistica spaziale*. Repository GitHub: https://github.com/gianluca-sottile/statatlas
 
-## Crediti
+Le idee di presentazione della simulazione sono anche ispirate a [Simul2000 di Marcello Chiodi](https://github.com/marcellochiodi/simul2000). Sorgenti, testi e illustrazioni di StatAtlas sono originali.
 
-Progetto di **Gianluca Sottile**, Università degli Studi di Palermo.
-
-Diversi laboratori traggono ispirazione dalle idee didattiche di **Simul2000** di Marcello Chiodi (Università di Palermo), in particolare l’attenzione al processo di simulazione osservabile. Codice, testi e illustrazioni di StatAtlas sono originali.
-
-## Licenza
-
-- **Codice** (file `.js`, `.css`, `.html`, `.py`): [licenza MIT](LICENSE).
-- **Contenuti didattici** (testi, esercizi, illustrazioni): [Creative Commons Attribuzione 4.0 Internazionale (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/deed.it).
-
-Puoi usare, modificare e ridistribuire StatAtlas, anche nei tuoi corsi, citando l’autore.
-
-### Audit scientifico indipendente — fase 2 (sviluppo 2.1)
-
-I 31 laboratori sono accompagnati da una **batteria indipendente di 31 controlli matematici**, uno per argomento, nel file `tests/test_science_independent_31.py`. La suite verifica identità e condizioni definite; non costituisce una certificazione di tutti i teoremi o riferimenti. La sua esecuzione richiede **NumPy e SciPy soltanto in fase di test**, senza cambiare le dipendenze del file HTML offline.
-
-```bash
-python3 tests/test_science_independent_31.py
-node tests/test_challenges_full.js
-```
-
-Nelle Challenges avanzate, un confronto che cambia solo il parametro-obiettivo viene distinto da un confronto *esplorativo*, dove variano anche altri controlli. L'avvertimento didattico non blocca la risposta. Dettagli, matrice dei 31 controlli, assunzioni ed esclusioni: [`docs/AUDIT_SCIENTIFICO_FASE_2_31.md`](docs/AUDIT_SCIENTIFICO_FASE_2_31.md).
-
-La suite può essere lanciata con `sh tests/run_qa_2_1.sh`; il workflow `.github/workflows/scientific-qa.yml` ripete gli stessi controlli numerici e scientifici sui push e sulle pull request. I collaudi browser e R restano separati e richiedono i rispettivi ambienti.
-
-## Codice R: esportazione e console
-
-Gli script prodotti da **Riproduci in R** sono formattati su righe brevi, compatibili con la console R. Il codice mostrato, copiato e scaricato coincide. Per script lunghi preferire **Scarica .R** e l'esecuzione tramite Source in RStudio. I controlli automatici della lunghezza delle righe coprono i 31 laboratori; la CI verifica anche il parsing con GNU R. Dettagli in `docs/R_EXPORT_CONSOLE_AUDIT.md`.
-
-## Macrofase A — consolidamento 2.1 (candidato di collaudo)
-
-Le verifiche scientifiche e responsive 2.1, comprese le correzioni di navigazione
-mobile e del ripristino delle mappe, sono documentate in
-[`docs/MACROFASE_A_RELAZIONE_2026_11_16.md`](docs/MACROFASE_A_RELAZIONE_2026_11_16.md).
-
-Il collaudo riproducibile si avvia con `sh tests/run_macrofase_A.sh --require-r`
-(dopo avere installato Node.js, Python/NumPy/SciPy/Playwright/Chromium e GNU R).
-La presenza di 31 esportazioni R brevi e sintatticamente valide **non** equivale
-alla certificazione di esecuzione e concordanza numerica R dei 31 laboratori.
-Non interpretare la versione di sviluppo 2.1 come release finale certificata.
-
-### Audit formale e pubblicazione 2.1
-
-- [`docs/AUDIT_FORMALE_TEORICO_31.md`](docs/AUDIT_FORMALE_TEORICO_31.md): assunzioni, dimostrazioni/derivazioni, controesempi e rettifiche di tutte le 31 schede.
-- [`docs/RELEASE_CANDIDATE_A_2_1.md`](docs/RELEASE_CANDIDATE_A_2_1.md): protocollo di accettazione, evidenze ancora richieste e stato delle fasi B e C.
-- `sh scripts/pubblica_github.sh --no-push` verifica la pronta pubblicazione senza toccare il repository remoto; `sh scripts/pubblica_github.sh` pubblica **solo dopo** che il report R 31/31 passa ed e stato validato dall'autore. Non eseguire push se la validazione non e completa.
-
-## Macrofase B — Dal laboratorio a From Data to Models with R (candidate)
-
-Ogni laboratorio presenta un collegamento curricolare al corso R, un percorso di verifica in tre passaggi e una scheda studente in Markdown scaricabile. I rimandi sono distinti fra *diretti* e *propedeutici*; le sei lezioni spaziali rimangono autonome e i riferimenti al corso indicano solo prerequisiti. Le risorse esterne richiedono connessione, ma il file `index.html` resta utilizzabile offline.
-
-La mappa delle 31 attività e la rubrica docente si trovano in [`docs/MACROFASE_B_GUIDA_DOCENTE.md`](docs/MACROFASE_B_GUIDA_DOCENTE.md) e in [`docs/MACROFASE_B_MAPPATURA_CORSO.csv`](docs/MACROFASE_B_MAPPATURA_CORSO.csv). Le 31 schede sono disponibili anche in [`docs/schede_studenti_B/`](docs/schede_studenti_B/). Per il collaudo, `python3 tests/test_course_bridge_browser.py` controlla interfaccia, download e link sulla build corrente. **Prima di pubblicare questa nuova build, ripetere sul Mac `Rscript verifica/valida_tutti_31.R --timeout=900`**: i report R precedenti sono associati alla build 2.1 della Macrofase A e non devono essere riutilizzati.
-
-La copertura dei benchmark numerici R/JS dei laboratori 01–25 e la validazione con studenti sono attività distinte, non implicitamente certificate dall'integrazione curricolare.
+- **Software:** [licenza MIT](LICENSE).
+- **Materiali didattici:** [Creative Commons Attribution 4.0 International](https://creativecommons.org/licenses/by/4.0/deed.it).

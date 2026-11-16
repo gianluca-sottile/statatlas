@@ -287,7 +287,7 @@
           Object.keys(FUNS).map(function (k) { return el('option', { value: k, selected: k === S.fun }, FUNS[k].label); })));
     ctrlBox.append(el('div.field', el('span', 'Metodo'), seg), pick,
       el('div', { style: 'display:grid;grid-template-columns:1fr 1fr;gap:10px' },
-        el('label.field', el('span', 'Estrazioni N'), el('select', { onchange: function () { S.N = +this.value; restart(); } }, [200, 1000, 5000, 20000].map(function (v) { return el('option', { value: v, selected: v === S.N }, String(v)); }))),
+        el('label.field', el('span', 'Estrazioni N'), el('select', { onchange: function () { S.N = +this.value; restart(); } }, [10, 100, 1000, 10000, 100000].map(function (v) { return el('option', { value: v, selected: v === S.N }, String(v)); }))),
         el('label.field', el('span', 'Seed'), el('input', { type: 'number', value: S.seed, min: 1, onchange: function () { S.seed = Math.max(1, Math.floor(+this.value || 1)); restart(); } }))));
     run.controls(S.mode === 'inv' ? 'Una estrazione' : 'Una coppia (u, v)').forEach(function (n) { ctrlBox.appendChild(n); });
   }
@@ -303,7 +303,7 @@
     },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
-      run = SA.ui.runner({ speed: 1, step: step, render: render, done: function () { return S.k >= S.N; }, progress: function () { return S.k / S.N; }, reset: function () { S = newState(S); } });
+      run = SA.ui.runner({ coop: true, step: step, render: render, done: function () { return S.k >= S.N; }, progress: function () { return S.k / S.N; }, reset: function () { S = newState(S); } });
       var openT = function (l) { SA.ui.openDrawer('Metodi di simulazione', THEORY, l); };
       page.appendChild(el('header.lab-head', el('div', el('div.kicker', info.part.part + ' · ' + info.part.title + ' · Laboratorio ' + info.lab.num),
         el('h1', info.lab.title), el('p.lede', 'Come un generatore di numeri uniformi diventa qualunque legge, e come il caso calcola un integrale.')),

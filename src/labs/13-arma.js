@@ -194,7 +194,7 @@
     },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
-      run = SA.ui.runner({ speed: 2, step: step, render: render, done: function () { return S.k >= S.T; }, progress: function () { return S.k / S.T; }, reset: function () { S = newState(S); } });
+      run = SA.ui.runner({ step: step, render: render, done: function () { return S.k >= S.T; }, progress: function () { return S.k / S.T; }, reset: function () { S = newState(S); } });
       var openT = function (l) { SA.ui.openDrawer('Serie temporali ARMA', THEORY, l); };
       page.appendChild(el('header.lab-head', el('div', el('div.kicker', info.part.part + ' · ' + info.part.title + ' · Laboratorio ' + info.lab.num),
         el('h1', info.lab.title), el('p.lede', 'Dati che ricordano il proprio passato. La memoria si legge nelle autocorrelazioni, e la stabilità nelle radici di un polinomio.')),

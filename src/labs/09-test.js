@@ -3,7 +3,7 @@
   var el, S, BINS = 48, Phi = SA.sf.pnorm, q = SA.qnorm;
 
   function newState(prev) {
-    var s = { n: 20, delta: 0.5, alpha: 0.05, alt: 'two', B: 1000, seed: 2026, pred: null };
+    var s = { n: 100, delta: 0.5, alpha: 0.05, alt: 'two', B: 1000, seed: 2026, pred: null };
     if (prev) for (var k in s) if (prev[k] !== undefined) s[k] = prev[k];
     s.rng = new SA.RRNG(s.seed); s.k = 0; s.rej0 = 0; s.rej1 = 0;
     s.z0 = new Float64Array(s.B); s.z1 = new Float64Array(s.B);
@@ -21,8 +21,16 @@
 
   function step() {
     if (S.k >= S.B) return false;
-    var x0 = S.rng.rnorm(S.n, 0, 1), x1 = S.rng.rnorm(S.n, S.delta, 1); // prima sotto H0, poi sotto H1
-    var z0 = Math.sqrt(S.n) * SA.stat.mean(x0), z1 = Math.sqrt(S.n) * SA.stat.mean(x1), bw = (S.hi - S.lo) / BINS;
+    // Sotto normalita': Z ha esattamente legge N(0,1) sotto H0
+    // e N(delta*sqrt(n),1) sotto H1. Per n elevato simuliamo
+    // direttamente la statistica sufficiente senza 2n osservazioni.
+    var z0, z1;
+    if (S.n >= 10000) { z0 = S.rng.norm(); z1 = S.rng.norm() + nc(); }
+    else {
+      var x0 = S.rng.rnorm(S.n, 0, 1), x1 = S.rng.rnorm(S.n, S.delta, 1);
+      z0 = Math.sqrt(S.n) * SA.stat.mean(x0); z1 = Math.sqrt(S.n) * SA.stat.mean(x1);
+    }
+    var bw = (S.hi - S.lo) / BINS;
     S.z0[S.k] = z0; S.z1[S.k] = z1;
     if (reject(z0)) S.rej0++; if (reject(z1)) S.rej1++;
     var b0 = Math.floor((z0 - S.lo) / bw), b1 = Math.floor((z1 - S.lo) / bw);
@@ -127,10 +135,15 @@
       'n <- ' + S.n + '; B <- ' + S.B + '; alpha <- ' + S.alpha + '; delta <- ' + S.delta + '   # effetto in unità di σ (σ = 1, μ₀ = 0)',
       'z_crit <- qnorm(1 - alpha' + (two ? ' / 2' : '') + ')',
       'rifiuta <- function(z) ' + (two ? 'abs(z) > z_crit' : 'z > z_crit'), '',
-      '# Per ogni replica: un campione sotto H0, poi uno sotto H1 (stesso ordine di StatAtlas)',
+      '# Per n >= 10000 la statistica Z normale e simulata esattamente da N(0,1)',
+      '# e N(delta * sqrt(n), 1), senza generare il campione completo.',
       'sim <- tibble(replica = seq_len(B)) |>',
-      '  mutate(z = map(replica, \\(r) c(z0 = sqrt(n) * mean(rnorm(n, 0, 1)),',
-      '                                 z1 = sqrt(n) * mean(rnorm(n, delta, 1))))) |>',
+      '  mutate(z = map(replica, \\(r) if (n >= 10000) {',
+      '    c(z0 = rnorm(1), z1 = rnorm(1) + delta * sqrt(n))',
+      '  } else {',
+      '    c(z0 = sqrt(n) * mean(rnorm(n, 0, 1)),',
+      '      z1 = sqrt(n) * mean(rnorm(n, delta, 1)))',
+      '  })) |>',
       '  unnest_wider(z)', '',
       'potenza_teorica <- function(d, n) ' + (two ? 'pnorm(-z_crit + d * sqrt(n)) + pnorm(-z_crit - d * sqrt(n))' : 'pnorm(d * sqrt(n) - z_crit)'),
       'sim |> summarise(errore_I = mean(rifiuta(z0)), potenza = mean(rifiuta(z1))) |>',
@@ -178,7 +191,7 @@
     };
     ctrlBox.append(
       SA.ui.slider('Effetto vero δ (in σ)', { min: 0, max: 1.5, step: 0.05, value: S.delta, format: function (v) { return SA.fmt(v, 2); }, onchange: function (v) { S.delta = v; restart(); } }),
-      SA.ui.slider('Numerosità n', { min: 2, max: 200, step: 1, value: S.n, onchange: function (v) { S.n = v; legends(); restart(); } }),
+      sel('Numerosità n', 'n', [10, 100, 1000, 10000, 100000]),
       el('div', { style: 'display:grid;grid-template-columns:1fr 1fr;gap:10px' },
         sel('Livello α', 'alpha', [0.01, 0.05, 0.1]), sel('Alternativa', 'alt', ['two', 'greater'], function (v) { return v === 'two' ? 'μ ≠ μ₀' : 'μ > μ₀'; }),
         sel('Repliche B', 'B', [200, 1000, 5000]),
@@ -192,7 +205,7 @@
     },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
-      run = SA.ui.runner({ speed: 1, step: step, render: render, done: function () { return S.k >= S.B; }, progress: function () { return S.k / S.B; }, reset: function () { S = newState(S); } });
+      run = SA.ui.runner({ coop: true, step: step, render: render, done: function () { return S.k >= S.B; }, progress: function () { return S.k / S.B; }, reset: function () { S = newState(S); } });
       var openT = function (l) { SA.ui.openDrawer('Test e potenza', THEORY, l); };
       page.appendChild(el('header.lab-head', el('div', el('div.kicker', info.part.part + ' · ' + info.part.title + ' · Laboratorio ' + info.lab.num),
         el('h1', info.lab.title), el('p.lede', 'Ogni replica simula due mondi: uno in cui H₀ è vera e uno in cui non lo è. Il test sbaglia in entrambi, con frequenze che possiamo controllare.')),
