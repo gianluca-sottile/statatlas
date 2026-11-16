@@ -6,8 +6,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).parent
 SRC = ROOT / "src"
-STYLES = ["styles/tokens.css", "styles/app.css", "styles/editorial.css", "styles/challenges.css", "styles/mobile.css", "styles/spatial-studio.css"]
-SCRIPTS = ["core/rng.js", "core/dist.js", "core/laws.js", "core/math.js", "core/linalg.js", "core/resampling.js", "core/ml.js", "core/boost.js", "core/spatial.js", "core/spatial-areal.js", "core/spatial-local.js", "core/spatial-points.js", "core/spatial-geostat.js", "core/spatial-kriging.js", "core/spatial-regression.js", "core/r-code.js", "core/spatial-studio.js", "core/spatial-unified.js", "core/cluster.js", "core/nn.js", "core/plot.js", "core/plot3d.js", "core/art.js", "core/content.js", "core/pedagogy.js", "core/pedagogy-theory.js", "core/pedagogy-formulas.js", "core/pedagogy-rigorous.js", "core/ui.js", "core/challenges.js", "core/challenges-curriculum.js", "core/app.js"]
+STYLES = ["styles/tokens.css", "styles/app.css", "styles/editorial.css", "styles/challenges.css", "styles/mobile.css", "styles/spatial-studio.css", "styles/course-bridge.css"]
+SCRIPTS = ["core/rng.js", "core/dist.js", "core/laws.js", "core/math.js", "core/linalg.js", "core/resampling.js", "core/ml.js", "core/boost.js", "core/spatial.js", "core/spatial-areal.js", "core/spatial-local.js", "core/spatial-points.js", "core/spatial-geostat.js", "core/spatial-kriging.js", "core/spatial-regression.js", "core/r-code.js", "core/spatial-studio.js", "core/spatial-unified.js", "core/cluster.js", "core/nn.js", "core/plot.js", "core/plot3d.js", "core/art.js", "core/content.js", "core/pedagogy.js", "core/pedagogy-theory.js", "core/pedagogy-formulas.js", "core/pedagogy-rigorous.js", "core/ui.js", "core/challenges.js", "core/challenges-curriculum.js", "core/course-bridge.js", "core/app.js"]
 SCRIPTS += sorted(str(p.relative_to(SRC)) for p in (SRC / "labs").glob("*.js"))
 
 

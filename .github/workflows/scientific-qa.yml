@@ -56,6 +56,10 @@ jobs:
         run: python tests/test_r_exports_browser.py --require-r
       - name: Numerical parity of six actual spatial R exports against independent Python and JS references
         run: python tests/test_spatial_export_equivalence.py --require-r
+      - name: Curriculum bridge and offline worksheets (31 labs)
+        run: |
+          python tests/test_course_bridge_browser.py --width 390
+          python tests/test_course_bridge_browser.py --width 1366
       - name: Responsive QA for all 31 labs (320, 390, 768 and 1024 px)
         run: python tests/test_mobile_tablet.py
       - name: Responsive spatial studio and map interactions

@@ -31,7 +31,7 @@ cd "$WORK/repo"
 BRANCH=$(git branch --show-current)
 if [ "$BRANCH" != main ]; then echo "ERRORE: il ramo corrente e' $BRANCH, atteso main." >&2; exit 1; fi
 printf '2/5 Copio la versione conclusiva senza modificare la cronologia Git...\n'
-rsync -a --delete --exclude='.git/' --exclude='.venv/' --exclude='__pycache__/' \
+rsync -a --delete --exclude='.git/' --exclude='.venv/' --exclude='.venv_backup*/' --exclude='node_modules/' --exclude='__pycache__/' \
   --exclude='*.pyc' --exclude='*.log' --exclude='verifica/runs/' \
   --exclude='verifica/REPORT_VALIDAZIONE_R_31.csv' "$SOURCE/" "$WORK/repo/"
 printf '3/5 Ricostruisco la versione offline...\n'
@@ -61,6 +61,6 @@ if [ -z "$(git status --porcelain)" ]; then
 fi
 printf '5/5 Creo un unico commit e pubblico su main...\n'
 git add -A
-git commit -m 'StatAtlas 2.1: audit formale, verifica R 31 laboratori, QA responsivo'
+git commit -m 'StatAtlas 2.1: Macrofase B, integrazione curricolare con il corso R'
 git push origin main
 printf 'PUBBLICAZIONE COMPLETATA. Ora verifica GitHub Actions e la checklist conclusiva.\n'

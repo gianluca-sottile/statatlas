@@ -136,7 +136,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   };
   var STEPS = [['Domanda', 'Un problema concreto, con una previsione facoltativa'], ['Esperimento', 'Dati generati sotto i tuoi occhi, passo dopo passo'],
     ['Teoria e simulazione', 'Esatto, asintotico o Monte Carlo: sempre dichiarato'], ['Interpretazione', 'Che cosa significa, quando vale, dove si rompe'],
-    ['Approfondisci', 'Teoria, esercizi e bibliografia'], ['Codice R', 'Script riproducibili con verifiche numeriche documentate']];
+    ['Approfondisci', 'Teoria, esercizi e bibliografia'], ['Corso R', 'Lezioni collegate e scheda studente'], ['Codice R', 'Script riproducibili con verifiche numeriche documentate']];
   function labCountText() {
     var n = SA.catalog.reduce(function (a, p) { return a + p.labs.length; }, 0);
     var W = { 16: 'Sedici', 17: 'Diciassette', 18: 'Diciotto', 19: 'Diciannove', 20: 'Venti', 21: 'Ventuno', 22: 'Ventidue', 23: 'Ventitré', 24: 'Ventiquattro', 25: 'Venticinque', 26: 'Ventisei', 27: 'Ventisette', 28: 'Ventotto', 29: 'Ventinove', 30: 'Trenta', 31: 'Trentuno' };
@@ -149,7 +149,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
         el('div.kicker', 'Atlante interattivo di probabilità e statistica'),
         el('h1', 'Vedere la statistica ', el('em', 'mentre accade')),
         el('p.lede', labCountText() + ', dalla probabilità alla statistica spaziale e all’apprendimento statistico. Ognuno parte da una domanda, genera i dati sotto i tuoi occhi e confronta ciò che osservi con ciò che la teoria garantisce. Ogni esperimento si ripete in R con lo script fornito.'),
-        el('div.hero-actions', el('button.btn.btn-primary', { type: 'button', 'aria-haspopup': 'dialog', onclick: openMap }, 'Sfoglia l’atlante: la mappa dei laboratori'))),
+        el('div.hero-actions', el('button.btn.btn-primary', { type: 'button', 'aria-haspopup': 'dialog', onclick: openMap }, 'Sfoglia l’atlante: la mappa dei laboratori'), el('a.btn.btn-ghost', { href: 'https://gianluca-sottile.github.io/An-R-Tutorial-for-Beginners/it/', target: '_blank', rel: 'noopener noreferrer' }, 'Studia anche con R ↗'))),
       el('div.hero-art', { html: '<div class="hero-logo">' + SA.art.logo(132) + '</div>' + ['distribuzioni', 'intervalli', 'regressione', 'lgn-tcl'].map(function (k, i) { return '<div class="mosaic m' + i + '">' + SA.art.get(k) + '</div>'; }).join('') })));
     page.appendChild(el('section.how', el('div.step-label', 'Come funziona un laboratorio'),
       el('ol.how-steps', STEPS.map(function (s, i) { return el('li', el('span.how-num', String(i + 1)), el('strong', s[0]), el('span', s[1])); }))));
@@ -387,6 +387,10 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
       var info = SA.findLab(id);
       head.appendChild(el('figure.lab-cover', { html: SA.art.get(id) + '<figcaption>Tavola ' + info.lab.num + ' · ' + info.part.title + '</figcaption>', 'aria-hidden': 'true' }));
     }
+    // Macrofase B: un percorso per laboratorio, senza modificare simulazioni o stato numerico.
+    if (SA.courseBridge) SA.courseBridge.mount(page, id, SA.findLab(id));
+    // Macrofase B: un percorso per laboratorio, senza modificare simulazioni o stato numerico.
+    if (SA.courseBridge) SA.courseBridge.mount(page, id, SA.findLab(id));
     // la previsione diventa un riquadro facoltativo dentro la domanda; i passi si rinumerano
     var steps = page.querySelectorAll('section.step');
     if (steps.length > 1 && /previsione/i.test(steps[1].querySelector('.step-label').textContent)) {

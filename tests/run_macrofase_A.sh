@@ -23,6 +23,7 @@ python3 tests/test_science_independent_31.py
 python3 tests/test_scientific_claims.py
 printf '\n=== BROWSER: RESPONSIVE, SPATIAL, CHALLENGES AND PEDAGOGY ===\n'
 for f in \
+ tests/test_course_bridge_browser.py \
  tests/test_mobile_tablet.py \
  tests/test_spatial_studio_browser.py \
  tests/test_spatial_studio_interactions.py \

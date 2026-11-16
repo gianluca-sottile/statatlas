@@ -273,3 +273,11 @@ Non interpretare la versione di sviluppo 2.1 come release finale certificata.
 - [`docs/AUDIT_FORMALE_TEORICO_31.md`](docs/AUDIT_FORMALE_TEORICO_31.md): assunzioni, dimostrazioni/derivazioni, controesempi e rettifiche di tutte le 31 schede.
 - [`docs/RELEASE_CANDIDATE_A_2_1.md`](docs/RELEASE_CANDIDATE_A_2_1.md): protocollo di accettazione, evidenze ancora richieste e stato delle fasi B e C.
 - `sh scripts/pubblica_github.sh --no-push` verifica la pronta pubblicazione senza toccare il repository remoto; `sh scripts/pubblica_github.sh` pubblica **solo dopo** che il report R 31/31 passa ed e stato validato dall'autore. Non eseguire push se la validazione non e completa.
+
+## Macrofase B — Dal laboratorio a From Data to Models with R (candidate)
+
+Ogni laboratorio presenta un collegamento curricolare al corso R, un percorso di verifica in tre passaggi e una scheda studente in Markdown scaricabile. I rimandi sono distinti fra *diretti* e *propedeutici*; le sei lezioni spaziali rimangono autonome e i riferimenti al corso indicano solo prerequisiti. Le risorse esterne richiedono connessione, ma il file `index.html` resta utilizzabile offline.
+
+La mappa delle 31 attività e la rubrica docente si trovano in [`docs/MACROFASE_B_GUIDA_DOCENTE.md`](docs/MACROFASE_B_GUIDA_DOCENTE.md) e in [`docs/MACROFASE_B_MAPPATURA_CORSO.csv`](docs/MACROFASE_B_MAPPATURA_CORSO.csv). Le 31 schede sono disponibili anche in [`docs/schede_studenti_B/`](docs/schede_studenti_B/). Per il collaudo, `python3 tests/test_course_bridge_browser.py` controlla interfaccia, download e link sulla build corrente. **Prima di pubblicare questa nuova build, ripetere sul Mac `Rscript verifica/valida_tutti_31.R --timeout=900`**: i report R precedenti sono associati alla build 2.1 della Macrofase A e non devono essere riutilizzati.
+
+La copertura dei benchmark numerici R/JS dei laboratori 01–25 e la validazione con studenti sono attività distinte, non implicitamente certificate dall'integrazione curricolare.

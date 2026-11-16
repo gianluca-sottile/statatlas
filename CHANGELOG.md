@@ -1,3 +1,10 @@
+## Macrofase B — Candidate di integrazione curricolare (16 novembre 2026)
+
+- Ponte didattico da tutti i 31 laboratori a lezioni selezionate del corso *From Data to Models with R*; rimandi diretti vs propedeutici, con segnalazione dei contenuti non coperti dal corso.
+- Percorsi operativi (previsione, esperimento, verifica R), schede studente scaricabili e guida docente.
+- QA browser e test di mappatura specifici, senza modifiche al motore statistico.
+- Nuova build richiede aggiornamento obbligatorio del report GNU R 31/31 prima di un futuro push.
+
 # Changelog
 
 ## Unreleased — 16/11/2026 · Macrofase A: audit formale e validatore unico R

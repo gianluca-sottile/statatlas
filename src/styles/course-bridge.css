@@ -1,0 +1,20 @@
+/* Macrofase B: ponte al corso R. Contrasto e semantica non dipendono dal solo colore. */
+.course-bridge{margin:20px 0 28px;padding:18px 20px;border:1px solid var(--rule, #7f848a);border-radius:14px;background:var(--paper-2, transparent);max-width:100%;overflow-wrap:anywhere}
+.course-bridge-head{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:8px}
+.course-bridge-kicker{font-weight:700;letter-spacing:.025em}
+.course-bridge-kind{font-size:.82rem;opacity:.85}
+.course-bridge>p{margin:8px 0 12px;line-height:1.55}
+.course-bridge-links{display:flex;flex-wrap:wrap;gap:8px 22px;list-style:none;padding:0;margin:12px 0 12px}
+.course-bridge-links a{color:var(--accent, currentColor);text-decoration:underline;text-underline-offset:3px;font-weight:600}
+.course-bridge-links a:focus-visible,.course-bridge summary:focus-visible,.course-bridge button:focus-visible{outline:3px solid currentColor;outline-offset:4px}
+.course-bridge-details{margin:12px 0 14px;border-top:1px solid var(--rule, #7f848a);padding-top:10px}
+.course-bridge-details summary{cursor:pointer;font-weight:600}
+.course-bridge-steps{line-height:1.58;max-width:90ch}
+.course-bridge-steps p{margin:10px 0}
+.course-bridge-caution{font-style:italic}
+.course-bridge-offline{font-size:.82rem;opacity:.82}
+@media(max-width:640px){.course-bridge{padding:14px 12px}.course-bridge-links{display:block}.course-bridge-links li{margin:8px 0}.course-bridge-download{max-width:100%;white-space:normal}}
+@media print{.course-bridge-download{display:none}.course-bridge-details:not([open]) .course-bridge-steps{display:block}}
+
+.course-bridge{scroll-margin-top:80px}
+.course-bridge-jump{min-height:40px}
