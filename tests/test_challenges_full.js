@@ -24,7 +24,10 @@ for (const id of ids) {
     if(i>0)assert(q.focus && q.focus.length>=1);checks++;
     const key=C.keyOf(q.focus||'test'), controls={[key]:'old', ...(id==='penalizzata'?{vista:'Percorsi'}:{})};
     const b={actions:0,changes:0,edits:[],samples:[],controls};
-    const mkSamples=(values)=>values.map((v,j)=>({seq:j+1,values:{[key]:v}}));
+    const mkSamples=(values)=>values.map((v,j)=>({
+      seq:j+1,values:{[key]:v}, metric:{label:'Statistica osservata',value:v==='old'?0.2:0.8,
+      ...(id==='boost'||id==='reti-neurali'?{design:'paired-trajectory',dataKey:'same-frozen-data',iteration:(j%3)+1}:{})}
+    }));
     let s={actions:0,changes:0,edits:[],samples:[],controls};
     assert.equal(C.evaluate(id,q.id,s,b,q.correct).ready,false);checks++;
     if(i===0){
@@ -36,20 +39,25 @@ for (const id of ids) {
       const noSim={...s,samples:mkSamples(['old','old'])};
       assert.equal(C.evaluate(id,q.id,noSim,b,q.correct).ready,false,'wrong configuration '+q.id);checks++;
     }else {
-      s={actions:5,changes:1,edits:[{key,from:'old',to:'new'}],controls:{...controls,[key]:'new'},samples:mkSamples(['old','old','new','new','new'])};
-      assert.equal(C.evaluate(id,q.id,{...s,samples:mkSamples(['new','new','new','new','new'])},b,q.correct).ready,false,'two configurations '+q.id);checks++;
+      s={actions:6,changes:1,edits:[{key,from:'old',to:'new'}],controls:{...controls,[key]:'new'},samples:mkSamples(['old','old','old','new','new','new'])};
+      assert.equal(C.evaluate(id,q.id,{...s,samples:mkSamples(['new','new','new','new','new','new'])},b,q.correct).ready,false,'two configurations '+q.id);checks++;
     }
-    assert.equal(C.evaluate(id,q.id,s,b,q.correct).ok,true,'valid evidence '+q.id);checks++;
-    assert.equal(C.evaluate(id,q.id,s,b,(q.correct+1)%3).ok,false,'wrong answer '+q.id);checks++;
+    const extra=i===2?q.rule(s,b).comparison.correct:undefined;
+    assert.equal(C.evaluate(id,q.id,s,b,q.correct,extra).ok,true,'valid quantitative evidence '+q.id);checks++;
+    if(i===2){
+      assert.equal(C.evaluate(id,q.id,s,b,q.correct,(extra+1)%3).ok,false,'incorrect empirical comparison '+q.id);checks++;
+      assert.equal(C.evaluate(id,q.id,s,b,q.correct).ok,false,'missing empirical comparison '+q.id);checks++;
+    }
+    assert.equal(C.evaluate(id,q.id,s,b,(q.correct+1)%3,extra).ok,false,'wrong answer '+q.id);checks++;
     if(i===2){
       const clean=q.rule(s,b);
-      assert(clean.ready && clean.quality && clean.quality.includes('controllato'),
+      assert(clean.ready && clean.quality && clean.comparison.controlled,
         'controlled comparison must be recognized '+q.id);checks++;
       const mixed={...s,samples:s.samples.map(sample=>({
         ...sample,values:{...sample.values,altro_parametro:sample.values[key]==='old'?'uno':'due'}
       }))};
       const warned=q.rule(mixed,b);
-      assert(warned.ready && warned.quality && warned.quality.includes('esplorativo'),
+      assert(!warned.ready && warned.quality && warned.quality.includes('confuso'),
         'a confounded comparison needs methodological warning '+q.id);checks++;
     }
   });

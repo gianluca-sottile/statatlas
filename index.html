@@ -672,6 +672,23 @@ a.eqref { color: var(--accent); text-decoration: none; font-variant-numeric: tab
   .panel.controls > .challenge-return:not([hidden]) { order: -2; grid-column: 1 / -1; min-height: 44px; }
 }
 
+/* Quantitative diagnostic: second, data-dependent answer (non-pilot advanced labs). */
+.challenge-observation { border: 1px solid var(--rule-2); border-radius: 9px; min-width: 0; margin: 18px 0; padding: 13px 15px 16px; background: var(--paper-2); }
+.challenge-observation legend { max-width: 72ch; padding: 0 6px; font: 650 .93rem var(--sans); line-height: 1.5; }
+.challenge-observation .challenge-answer { background: var(--card); }
+.challenge-observation small { display: block; margin: 10px 0 0; color: var(--ink-3); line-height: 1.45; }
+@media(max-width:640px) { .challenge-observation { padding: 12px 11px 15px; } }
+
+/* Diagnostic A/B results: legible without horizontal overflow on phones. */
+.challenge-comparison { margin: 13px 0 18px; border: 1px solid var(--rule-2); border-radius: 9px; padding: 11px 13px; background: var(--paper-2); max-width: 100%; overflow-x: auto; }
+.challenge-comparison[hidden] { display: none !important; }
+.challenge-comparison-table { width: 100%; border-collapse: collapse; font-size: .84rem; text-align: left; }
+.challenge-comparison-table caption { text-align: left; padding: 0 0 10px; font-weight: 700; color: var(--ink); }
+.challenge-comparison-table th, .challenge-comparison-table td { padding: 8px 10px; border-bottom: 1px solid var(--rule); white-space: normal; }
+.challenge-comparison-table tbody th { color: var(--accent); }
+.challenge-comparison > p { font-size: .82rem; color: var(--ink-2); line-height: 1.5; margin: 12px 0 3px; }
+@media (max-width: 640px) { .challenge-comparison { padding: 8px; } .challenge-comparison-table th, .challenge-comparison-table td { padding: 7px 5px; font-size: .74rem; } }
+
 /* styles/mobile.css */
 /* StatAtlas · ottimizzazione mobile/tablet.
  * Override responsive isolati; invariati motori numerici e componenti di simulazione.
@@ -4622,15 +4639,26 @@ SA.ui = (function () {
     ]
   };
 
-  function evaluate(labId, taskId, snapshot, initial, answer) {
+  function evaluate(labId, taskId, snapshot, initial, answer, observedChoice) {
     var tasks = bank[labId] || [], q = tasks.filter(function (t) { return t.id === taskId; })[0];
     if (!q) throw new Error('Sfida sconosciuta: ' + labId + '/' + taskId);
     if (!snapshot) return { ok: false, ready: false, message: 'Laboratorio non inizializzato.' };
     var r = q.rule(snapshot, initial);
     if (!r.ready) return { ok: false, ready: false, message: r.message };
     if (answer == null || answer < 0 || answer >= q.options.length) return { ok: false, ready: true, message: 'Seleziona una risposta prima di verificare.' };
-    var ok = +answer === q.correct;
-    return { ok: ok, ready: true, message: ok ? 'Sfida completata.' : 'Risposta da rivedere.', explanation: q.explanation };
+    var conceptual = +answer === q.correct;
+    if (q.stage === 2) {
+      if (observedChoice == null || ![0, 1, 2].includes(+observedChoice))
+        return {ok:false, ready:true, message:'Rispondi anche alla domanda sui due risultati numerici osservati.'};
+      if (!r.comparison) return {ok:false, ready:false, message:'Mancano statistiche numeriche confrontabili.'};
+      var numeric = +observedChoice === r.comparison.correct;
+      var ok2 = conceptual && numeric;
+      return {ok:ok2, ready:true,
+        message:ok2 ? 'Sfida completata: interpretazione e lettura dei risultati corrette.' :
+          (!conceptual ? 'Rivedi l’interpretazione teorica.' : 'Rivedi il confronto dei valori numerici A e B.'),
+        explanation:q.explanation};
+    }
+    return { ok: conceptual, ready: true, message: conceptual ? 'Sfida completata.' : 'Risposta da rivedere.', explanation: q.explanation };
   }
 
   /* Activity recorder: capture BEFORE lab onchange handlers rebuild .controls.
@@ -4658,10 +4686,32 @@ SA.ui = (function () {
   function ensureTrace(id) {
     return SA.challenges.traces[id] || (SA.challenges.traces[id] = { steps: 0, edits: [], samples: [], current: {} });
   }
+  function observation(id) {
+    var lab = SA.labs && SA.labs[id];
+    if (!lab || typeof lab.challengeEvidence !== 'function') return null;
+    var obj;
+    try { obj = lab.challengeEvidence(); } catch (err) { return null; }
+    if (!obj || typeof obj.value !== 'number' || !Number.isFinite(obj.value) ||
+        typeof obj.label !== 'string' || !obj.label.trim()) return null;
+    var bounds = obj.bounds;
+    if (bounds && (obj.value < bounds[0] - 1e-10 || obj.value > bounds[1] + 1e-10)) return null;
+    var evidence = { label: obj.label, value: obj.value };
+    // Pairing is explicitly opt-in: only labs which can prove identical
+    // underlying datasets/initializations and a common checkpoint expose it.
+    if (obj.design === 'paired-trajectory' && typeof obj.dataKey === 'string' &&
+        Number.isSafeInteger(obj.iteration) && obj.iteration >= 0) {
+      evidence.design = 'paired-trajectory';
+      evidence.dataKey = obj.dataKey;
+      evidence.iteration = obj.iteration;
+    }
+    return evidence;
+  }
   function noteStep(id) {
     var trace = ensureTrace(id);
     trace.steps++;
-    trace.samples.push({ seq: trace.steps, values: Object.assign({}, trace.current) });
+    // Read-only observation immediately AFTER a numerical step succeeds.
+    // Never alter a lab RNG, estimator, training data or control.
+    trace.samples.push({ seq: trace.steps, values: Object.assign({}, trace.current), metric: observation(id) });
     if (typeof trace.onUpdate === 'function') trace.onUpdate();
   }
   function mount(page, id) {
@@ -4732,8 +4782,9 @@ SA.ui = (function () {
       }
     }
     tasks.forEach(function (q, i) {
-      var initial = null, selected = null;
+      var initial = null, selected = null, observedChoice = null, lastComparisonStamp = null;
       var card = el('details.challenge-card', { 'data-challenge-id': q.id });
+      var comparisonPanel = q.stage === 2 ? el('div.challenge-comparison', { 'aria-live': 'polite', hidden: true }) : null;
       var summary = el('summary.challenge-summary', el('span.challenge-index', String(i + 1).padStart(2, '0')),
         el('span', el('strong', q.title), el('small', q.level)));
       var choices = el('fieldset.challenge-answers', el('legend', q.question));
@@ -4742,11 +4793,22 @@ SA.ui = (function () {
           onchange: function () { selected = j; message.textContent = ''; message.hidden = true; } });
         choices.appendChild(el('label.challenge-answer', input, el('span', option)));
       });
+      var observationAnswers = null;
+      if (q.stage === 2) {
+        observationAnswers = el('fieldset.challenge-observation',
+          el('legend', 'Nei tuoi esperimenti, quale configurazione ha prodotto il valore medio più alto dell’indicatore registrato?'));
+        ['A (prima configurazione)', 'B (seconda configurazione)', 'Pari alla precisione mostrata'].forEach(function (option, j) {
+          var input = el('input', {type:'radio', name:'numeric-'+id+'-'+q.id, value:String(j),
+            onchange:function () { observedChoice=j; message.hidden=true; }});
+          observationAnswers.appendChild(el('label.challenge-answer', input, el('span', option)));
+        });
+        observationAnswers.appendChild(el('small', 'La domanda riguarda solo i risultati ottenuti, non una legge universale sul parametro.'));
+      }
       var activity = el('p.challenge-activity', { role: 'status', 'aria-live': 'polite' }, 'Apri la sfida per registrare il punto di partenza.');
       var message = el('div.challenge-feedback', { role: 'status', 'aria-live': 'polite', hidden: true });
       var verify = SA.ui.button('Verifica la sfida', { cls: 'btn-primary', onclick: function () {
         if (q.baseline && !initial) initial = getState();
-        var result = evaluate(id, q.id, getState(), initial, selected);
+        var result = evaluate(id, q.id, getState(), initial, selected, observedChoice);
         message.hidden = false; message.classList.toggle('success', !!result.ok);
         message.textContent = result.message + (result.ready && result.explanation ? ' ' + result.explanation : '');
         if (result.ok) { solved[q.id] = true; card.classList.add('challenge-solved'); syncProgress(); }
@@ -4757,11 +4819,13 @@ SA.ui = (function () {
         navigateTo(page.querySelector('.controls'));
       } });
       var body = el('div.challenge-body', el('p', q.task), choices,
-        activity, el('div.challenge-actions', jump, verify), message);
+        activity, comparisonPanel, observationAnswers, el('div.challenge-actions', jump, verify), message);
       if (q.baseline) {
         var info = el('p.challenge-reference', id === 'kriging' ? 'Apri questa sfida prima di modificare i sensori: registreremo la configurazione corrente.' : 'Le azioni sono conteggiate da quando apri la sfida. Prima esegui i passaggi richiesti, poi verifica la risposta.');
         var reset = SA.ui.button('Aggiorna punto di partenza', { cls: 'btn-ghost', onclick: function () {
           initial = getState();
+          observedChoice = null; lastComparisonStamp = null;
+          if (observationAnswers) observationAnswers.querySelectorAll('input').forEach(function (input) { input.checked = false; });
           activity.textContent = 'Nuovo punto di partenza: 0 passi, 0 modifiche.';
           message.hidden = false; message.classList.remove('success');
           message.textContent = id === 'kriging' ? 'Nuova configurazione registrata. Ora modifica i sensori.' : 'Nuovo punto di partenza registrato. Esegui i passi richiesti dalla sfida.';
@@ -4780,9 +4844,42 @@ SA.ui = (function () {
         var steps = Math.max(0, now.actions - initial.actions);
         var edits = Math.max(0, now.changes - initial.changes);
         var result = q.rule(now, initial);
+        if (q.stage === 2) {
+          var stamp = result.comparison ? JSON.stringify({
+            groups: result.comparison.groups.map(function (g) {
+              return [g.control, g.n, g.mean];
+            }), comparable: result.comparison.controlled, paired: result.comparison.paired,
+            nPairs: result.comparison.nPairs
+          }) : '';
+          if (lastComparisonStamp !== null && stamp !== lastComparisonStamp && observedChoice !== null) {
+            observedChoice = null;
+            if (observationAnswers) observationAnswers.querySelectorAll('input').forEach(function (input) { input.checked = false; });
+            message.hidden = true;
+          }
+          lastComparisonStamp = stamp;
+        }
+        if (comparisonPanel) {
+          var cmp = result.comparison;
+          comparisonPanel.hidden = !cmp;
+          comparisonPanel.replaceChildren();
+          if (cmp) {
+            var tab = el('table.challenge-comparison-table',
+              el('caption', 'Confronto A/B: ' + cmp.label),
+              el('thead', el('tr', el('th', 'Configurazione'), el('th', 'Valore del controllo'),
+                el('th', 'Misure'), el('th', 'Media osservata'))));
+            var tb = el('tbody');
+            cmp.groups.forEach(function (g, j) {
+              tb.appendChild(el('tr', el('th', j === 0 ? 'A' : 'B'),
+                el('td', String(g.control)), el('td', String(g.n)), el('td', Number(g.mean).toLocaleString('it-IT', {maximumFractionDigits: 4}))));
+            });
+            tab.appendChild(tb);
+            comparisonPanel.append(tab, el('p', cmp.diagnostic));
+          }
+        }
         activity.textContent = 'Dopo l’apertura: ' + steps + ' passi · ' + edits +
           ' modifiche. ' + (result.ready ? 'Esperimento pronto: scegli la risposta.' : result.message) +
-          (result.ready && result.quality ? ' ' + result.quality : '');
+          (result.quality ? ' ' + result.quality : '') +
+          (result.ready && result.evidence ? ' ' + result.evidence : '');
       }
       // Baseline captured on the initiating interaction (mouse/touch/keyboard).
       summary.addEventListener('click', function () { if (!card.open) startChallenge(); });
@@ -4836,7 +4933,7 @@ SA.ui = (function () {
       var number = sec.querySelector('.step-num'); if (number) number.textContent = String(i + 1);
     });
   }
-  SA.challenges = { bank: bank, evaluate: evaluate, mount: mount, traces: {}, noteStep: noteStep, keyOf: keyOf };
+  SA.challenges = { bank: bank, evaluate: evaluate, mount: mount, traces: {}, noteStep: noteStep, keyOf: keyOf, observation: observation };
 })();
 
 /* core/challenges-curriculum.js */
@@ -5620,54 +5717,120 @@ SA.ui = (function () {
      return k===wanted || k.indexOf(wanted)>=0;
    })[0] || null;
  }
+ // Convert raw output into defensible quantitative evidence. Observations
+ // come from the actual lab state, never from an estimate of expected behavior.
+ function goodMetric(sample) {
+   return sample && sample.metric && Number.isFinite(sample.metric.value) &&
+     typeof sample.metric.label==='string' && !!sample.metric.label;
+ }
+ function readable(v) {
+   return Number(v).toLocaleString('it-IT', {maximumFractionDigits:4});
+ }
+ // This is an *observational* comparison of the trajectories generated by
+ // the real engines. Only labs which certify a common dataset/seed/checkpoint
+ // can be called paired; serial checkpoints are never independent replicates.
+ function summarize(samples, focusKey) {
+   var groups=[], wrongLabels=false;
+   samples.forEach(function(sample){
+     if(!goodMetric(sample)||!sample.values||sample.values[focusKey]==null)return;
+     var value=sample.values[focusKey];
+     var group=groups.filter(function(g){return g.control===value;})[0];
+     if(!group){group={control:value,label:sample.metric.label,records:[]};groups.push(group);}
+     if(group.label!==sample.metric.label)wrongLabels=true;
+     group.records.push(sample);
+   });
+   if(groups.length<2||wrongLabels||groups[0].label!==groups[1].label)return null;
+   var picked=groups.slice(0,2);
+   picked.forEach(function(g){
+     g.n=g.records.length;
+     g.mean=g.records.reduce(function(a,b){return a+b.metric.value;},0)/g.n;
+   });
+   // Audit the FULL observations from both arms, not a convenient pair of rows.
+   var all=picked[0].records.concat(picked[1].records);
+   var differences=[];
+   var keys={};
+   all.forEach(function(x){Object.keys(x.values).forEach(function(k){
+     if(k!==focusKey&&k!=='velocita')keys[k]=true;
+   });});
+   Object.keys(keys).forEach(function(k){
+     var seen=all.map(function(x){return x.values[k];});
+     if(seen.some(function(v){return v!==seen[0];}))differences.push(k);
+   });
+   var controlled=differences.length===0;
+   var common=[];
+   if(controlled){
+     var A=picked[0].records, B=picked[1].records;
+     // Only exact equality of both the same generated data AND the same
+     // iteration permits paired comparison. No pseudo-pairing by row number.
+     A.forEach(function(x){
+       if(x.metric.design!=='paired-trajectory')return;
+       var y=B.filter(function(z){return z.metric.design==='paired-trajectory'&&
+         z.metric.dataKey===x.metric.dataKey&&z.metric.iteration===x.metric.iteration;})[0];
+       if(y&&!common.some(function(e){return e.iteration===x.metric.iteration;}))
+         common.push({iteration:x.metric.iteration,a:x.metric.value,b:y.metric.value});
+     });
+   }
+   var paired=common.length>=2;
+   // If a paired design is available, use ONLY common checkpoints for the
+   // displayed means and answer. This avoids unequal-budget comparisons.
+   if(paired){
+     picked[0].mean=common.reduce(function(a,r){return a+r.a;},0)/common.length;
+     picked[1].mean=common.reduce(function(a,r){return a+r.b;},0)/common.length;
+   }
+   var a=readable(picked[0].mean),b=readable(picked[1].mean);
+   var correct=a===b?2:(picked[0].mean>picked[1].mean?0:1);
+   var diagnostic=paired?
+     'Confronto appaiato su '+common.length+' checkpoint comuni, con dati e seed invariati. Gli step successivi della stessa traiettoria NON sono repliche indipendenti.':
+     'Confronto descrittivo tra misurazioni non dimostrate appaiate: differenze di seed, dati o traiettoria possono incidere. Nessuna significatività statistica è implicata.';
+   if(!controlled)diagnostic='Confronto confuso: variano anche «'+differences.join('», «')+'». Mantieni invariati gli altri controlli e ripeti A e B.';
+   return {label:picked[0].label,groups:picked,correct:correct,paired:paired,
+     nPairs:common.length,controlled:controlled,confounds:differences,
+     diagnostic:diagnostic,ignored:groups.length-2,
+     text:'Indicatore: '+picked[0].label+'. A («'+picked[0].control+'»): '+a+
+       ' ('+picked[0].n+' misure); B («'+picked[1].control+'»): '+b+
+       ' ('+picked[1].n+' misure). '+(paired?'Medie dei soli checkpoint appaiati. ':'Medie descrittive dei valori raccolti. ')+
+       (groups.length>2?'Attenzione: ulteriori configurazioni non incluse nel confronto. ':'')+diagnostic};
+ }
  function gate(snapshot, initial, focus, level) {
-   if(!initial) return {ready:false,message:'Apri la sfida per registrare il punto di partenza.'};
+   if(!initial)return {ready:false,message:'Apri la sfida per registrare il punto di partenza.'};
    var samples=(snapshot.samples||[]).filter(function(e){return e.seq>initial.actions;});
-   var needed=level===0?1:level===1?2:5;
-   if(level===0) return {ready:samples.length>=needed,
-     message:'Premi Passo o Avvia per generare almeno un nuovo risultato ('+samples.length+'/'+needed+').'};
+   var measured=samples.filter(goodMetric);
+   if(level===0){
+     var one=measured[measured.length-1];
+     return {ready:one!=null,
+       message:one?'Un risultato numerico valido è stato registrato.':
+         'Esegui almeno un passo che produca un valore numerico valido.',
+       evidence:one?'Risultato: '+one.metric.label+' = '+readable(one.metric.value)+'.':''};
+   }
    var key=matchingKey(snapshot.controls,focus);
-   if(!key) return {ready:false,message:'Il controllo «'+focus+'» non è disponibile in questa configurazione. Apri il laboratorio dalla sua pagina iniziale.'};
+   if(!key)return {ready:false,message:'Il controllo «'+focus+'» non è disponibile in questa configurazione.'};
    var edits=(snapshot.edits||[]).slice((initial.edits||[]).length)
      .filter(function(e){return e.key===key;});
-   if(!edits.length) return {ready:false,message:'Modifica «'+focus+'» nel pannello Parametri. Modifiche pertinenti: 0.'};
+   if(!edits.length)return {ready:false,message:'Modifica «'+focus+'» nel pannello Parametri.'};
    var defaultValue=(initial.controls||{})[key];
-   var valueCount={};
-   samples.forEach(function(e){
-     var value=e.values[key];
-     if(value!=null) valueCount[value]=(valueCount[value]||0)+1;
-   });
    if(level===1){
-     var actual=Object.keys(valueCount).filter(function(v){return v!==defaultValue;})
-       .reduce(function(n,v){return n+valueCount[v];},0);
-     return {ready:actual>=needed,
-       message:'Dopo aver modificato «'+focus+'», genera almeno '+needed+
-       ' nuovi passi con il valore modificato ('+actual+'/'+needed+').'};
+     var actual=measured.filter(function(e){return e.values[key]!=null && e.values[key]!==defaultValue;});
+     return {ready:actual.length>=2,
+       message:'Dopo aver modificato «'+focus+'», genera almeno due misure valide con il nuovo valore ('+actual.length+'/2).',
+       evidence:actual.length>=2?'Ultimo risultato: '+actual[actual.length-1].metric.label+
+         ' = '+readable(actual[actual.length-1].metric.value)+'.':''};
    }
-   var values=Object.keys(valueCount).filter(function(k){return valueCount[k]>0;});
-   if(values.length<2) return {ready:false,
-     message:'Confronta due valori distinti di «'+focus+'»: genera almeno un passo per ciascuno ('+values.length+'/2 configurazioni osservate).'};
-   /* Distinguish two values of the focus control from a controlled comparison.
-    * This is feedback, NOT an additional pass/fail prerequisite: changing
-    * a data-generating mechanism may legitimately change which controls exist.
-    * We report a controlled comparison only if at least two actual simulation
-    * steps use distinct focus values with the same other recorded controls.
-    */
-   var controlled=false;
-   for(var a=0;a<samples.length&&!controlled;a++)for(var b=a+1;b<samples.length;b++){
-     var va=samples[a].values||{},vb=samples[b].values||{};
-     if(va[key]==null||vb[key]==null||va[key]===vb[key])continue;
-     var other=Object.keys(va).concat(Object.keys(vb)).filter(function(k,i,all){
-       return k!==key&&k!=='velocita'&&all.indexOf(k)===i;
-     });
-     if(other.every(function(k){return va[k]===vb[k];})){controlled=true;break;}
-   }
-   var quality=controlled?
-     'Confronto controllato: almeno due passi differiscono solo per «'+focus+'» fra i parametri registrati.':
-     'Attenzione: tra le configurazioni sono cambiati anche altri controlli. Il confronto resta esplorativo; per attribuire una differenza a «'+focus+'», ripeti mantenendo fissi gli altri parametri e il seed.';
-   return {ready:samples.length>=needed,quality:quality,
-     message:'Hai esplorato '+values.length+' configurazioni di «'+focus+'». Completa almeno '+needed+
-       ' passi totali ('+samples.length+'/'+needed+').'};
+   var comparison=summarize(measured,key);
+   if(!comparison)return {ready:false,
+     message:'Ottieni misure valide in due configurazioni di «'+focus+'». Mantieni costanti tutti gli altri controlli.'};
+   var g=comparison.groups;
+   var enough=g[0].n>=3&&g[1].n>=3;
+   // For the two deterministic training paths, require an actual matched
+   // checkpoint comparison, never treat different iterations as exchangeable.
+   var pairingRequired=snapshot.labId==='boost'||snapshot.labId==='reti-neurali';
+   var pairedEnough=!pairingRequired||(comparison.paired&&comparison.nPairs>=3);
+   var ready=comparison.controlled&&enough&&pairedEnough;
+   var message=!comparison.controlled?'Mantieni fissi gli altri parametri (diversi: '+comparison.confounds.join(', ')+').':
+     !enough?'Completa almeno tre misure per configurazione: A '+g[0].n+'/3, B '+g[1].n+'/3.':
+     !pairedEnough?'Ripeti almeno tre checkpoint uguali (ad esempio passi 1, 2 e 3) con lo stesso seed/dati nelle configurazioni A e B.':
+     'Due configurazioni comparabili: interpreta la tabella A/B e rispondi.';
+   return {ready:ready,quality:comparison.diagnostic,message:message,
+     evidence:comparison.text,comparison:comparison};
  }
  var levels=['Comprensione','Applicazione','Avanzato'];
  Object.keys(specs).forEach(function(id){
@@ -5680,7 +5843,7 @@ SA.ui = (function () {
      var precondition=id==='penalizzata'?'Seleziona prima la vista «Percorsi» per attivare le simulazioni. ':'';
      var practicalGuide=i===0?'Esegui almeno un passo e osserva ciò che cambia.':
        i===1?'Modifica «'+focus+'», quindi genera almeno due passi con il nuovo valore.':
-       'Confronta due valori di «'+focus+'»: osserva almeno un passo in ciascuna configurazione e almeno cinque complessivamente. Se possibile, mantieni fissi gli altri parametri e il seed.';
+       'Confronta due valori di «'+focus+'» mantenendo gli altri controlli costanti. '+((id==='boost'||id==='reti-neurali')?'Prima di iniziare A, premi «Ricomincia» nei controlli: esegui tre passi, cambia solo il parametro studiato e ripeti tre passi con lo stesso seed. ':'Genera almeno tre misure per configurazione. ')+ 'Interpreta il confronto numerico A/B senza trattare gli step correlati come repliche indipendenti.';
      return {
        id:'full-'+id+'-'+(i+1),level:levels[i],title:data[0],
        task:'Apri questa sfida prima di intervenire. '+(SA.pedagogy[id]&&SA.pedagogy[id].guida?SA.pedagogy[id].guida[Math.min(i,3)]:'Esplora il laboratorio.')+
@@ -5689,7 +5852,7 @@ SA.ui = (function () {
        focus:focus,stage:i,
        rule:function(s,b){
          if(id==='penalizzata'&&s.controls&&s.controls['vista']!=='Percorsi')return {ready:false,message:'Seleziona «Percorsi» nella vista del laboratorio per attivare le repliche.'};
-         return gate(s,b,focus,i);
+         return gate(Object.assign({labId:id},s),b,focus,i);
        }
      };
    });
@@ -6818,6 +6981,9 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   }
 
   SA.registerLab('distribuzioni', {
+    challengeEvidence: function () {
+      return { label: 'Ultima osservazione estratta X', value: S && S.k ? S.x[S.k - 1] : NaN };
+    },
     mount: function (page, info) {
       el = SA.ui.el;
       S = newState(S);
@@ -7108,6 +7274,9 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   }
 
   SA.registerLab('bivariata', {
+    challengeEvidence: function () {
+      return { label: 'Ultimo valore generato Y', value: S && S.k ? S.y[S.k - 1] : NaN };
+    },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
       run = SA.ui.runner({ speed: 2, step: step, render: render, done: function () { return S.k >= S.N; }, progress: function () { return S.k / S.N; }, reset: function () { S = newState(S); } });
@@ -7448,6 +7617,9 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   }
 
   SA.registerLab('simulazione', {
+    challengeEvidence: function () {
+      return { label: 'Estrazione o media Monte Carlo', value: S && S.k ? (S.mode === 'inv' ? S.x[S.k - 1] : S.sumF / S.k) : NaN };
+    },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
       run = SA.ui.runner({ speed: 1, step: step, render: render, done: function () { return S.k >= S.N; }, progress: function () { return S.k / S.N; }, reset: function () { S = newState(S); } });
@@ -7877,6 +8049,9 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   }
 
   SA.registerLab('lgn-tcl', {
+    challengeEvidence: function () {
+      return { label: 'Media cumulativa o statistica del TCL', value: S && S.k ? (S.mode === 'lln' ? S.path[0][S.k-1] : S.vals[S.k-1]) : NaN };
+    },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
       run = SA.ui.runner({ speed: 1, step: step, render: render, done: function () { return S.k >= total(); },
@@ -8171,6 +8346,9 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   }
 
   SA.registerLab('adattamento', {
+    challengeEvidence: function () {
+      return { label: 'Ultima osservazione del campione', value: S && S.k ? S.x[S.k-1] : NaN };
+    },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
       run = SA.ui.runner({ speed: 2, step: step, render: render, done: function () { return S.k >= S.N; }, progress: function () { return S.k / S.N; }, reset: function () { S = newState(S); cache = null; } });
@@ -8726,6 +8904,9 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   }
 
   SA.registerLab('stimatori', {
+    challengeEvidence: function () {
+      return { label: 'Mediana dell’ultima replica', value: S && S.last && S.last.vals ? S.last.vals.median : NaN };
+    },
     challengeState: function () { return {k: S ? S.k : 0}; },
     mount: function (page, info) {
       el = SA.ui.el;
@@ -9094,6 +9275,9 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   }
 
   SA.registerLab('fisher', {
+    challengeEvidence: function () {
+      return { label: 'Ultima stima di massima verosimiglianza', value: S && S.k ? S.mle[S.k-1] : NaN };
+    },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
       run = SA.ui.runner({ speed: 1, step: step, render: render, done: function () { return S.k >= S.B; }, progress: function () { return S.k / S.B; }, reset: function () { S = newState(S); } });
@@ -9370,6 +9554,9 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   }
 
   SA.registerLab('intervalli', {
+    challengeEvidence: function () {
+      return { label: 'Copertura empirica cumulativa', value: S && S.k ? S.cov / S.k : NaN, bounds: [0, 1] };
+    },
     challengeState: function () {
       return S && { method: S.method, n: S.n, level: S.level, p: S.p,
         k: S.k, B: S.B, cover: S.k ? S.cov / S.k : null };
@@ -9598,6 +9785,9 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   }
 
   SA.registerLab('test', {
+    challengeEvidence: function () {
+      return { label: 'Frequenza di rifiuto sotto H₀', value: S && S.k ? S.rej0 / S.k : NaN, bounds: [0, 1] };
+    },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
       run = SA.ui.runner({ speed: 1, step: step, render: render, done: function () { return S.k >= S.B; }, progress: function () { return S.k / S.B; }, reset: function () { S = newState(S); } });
@@ -9875,6 +10065,9 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   }
 
   SA.registerLab('regressione', {
+    challengeEvidence: function () {
+      return { label: 'Pendenza OLS stimata', value: S && S.k ? S.slopes[S.k-1] : NaN };
+    },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
       run = SA.ui.runner({ speed: 1, step: step, render: render, done: function () { return S.k >= S.B; }, progress: function () { return S.k / S.B; }, reset: function () { S = newState(S); step(); } });
@@ -10127,6 +10320,9 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   }
 
   SA.registerLab('regressione-lp', {
+    challengeEvidence: function () {
+      return { label: 'Pendenza Lp stimata', value: S && S.k ? S.est.lp[S.k-1] : NaN };
+    },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
       run = SA.ui.runner({ speed: 1, step: step, render: render, done: function () { return S.k >= S.M; }, progress: function () { return S.k / S.M; }, reset: function () { S = newState(S); } });
@@ -10348,6 +10544,9 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   }
 
   SA.registerLab('glm', {
+    challengeEvidence: function () {
+      return { label: 'Quota di stime GLM finite', value: S && S.k ? S.ok / S.k : NaN, bounds: [0, 1] };
+    },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
       run = SA.ui.runner({ speed: 1, step: step, render: render, done: function () { return S.k >= S.M; }, progress: function () { return S.k / S.M; }, reset: function () { S = newState(S); } });
@@ -10572,6 +10771,9 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   }
 
   SA.registerLab('arma', {
+    challengeEvidence: function () {
+      return { label: 'Ultimo valore della serie', value: S && S.k ? S.x[S.k-1] : NaN };
+    },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
       run = SA.ui.runner({ speed: 2, step: step, render: render, done: function () { return S.k >= S.T; }, progress: function () { return S.k / S.T; }, reset: function () { S = newState(S); } });
@@ -10817,6 +11019,9 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   }
 
   SA.registerLab('quantilica', {
+    challengeEvidence: function () {
+      return { label: 'Pendenza della regressione quantilica', value: S && S.k ? S.est[S.k-1] : NaN };
+    },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S); setRange();
       run = SA.ui.runner({ speed: 1, step: step, render: render, done: function () { return S.k >= S.M; }, progress: function () { return S.k / S.M; }, reset: function () { S = newState(S); setRange(); step(); } });
@@ -11176,6 +11381,9 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   }
 
   SA.registerLab('penalizzata', {
+    challengeEvidence: function () {
+      return { label: 'Numero medio di coefficienti attivi', value: S && S.k ? S.nz[S.lamIdx] / S.k : NaN, bounds: [0, 8] };
+    },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
       run = SA.ui.runner({ speed: 1, step: step, render: render, done: function () { return S.view !== 'path' || S.k >= S.M; }, progress: function () { return S.view === 'path' ? S.k / S.M : 0; }, reset: function () { S = newState(S); if (S.view === 'path') initPath(); } });
@@ -11434,6 +11642,9 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   }
 
   SA.registerLab('spline', {
+    challengeEvidence: function () {
+      return { label: 'ISE medio sulle repliche', value: S && S.k ? S.ise / S.k : NaN, bounds: [0, Infinity] };
+    },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S); prepare();
       run = SA.ui.runner({ speed: 1, step: step, render: render, done: function () { return S.k >= S.M; }, progress: function () { return S.k / S.M; }, reset: function () { S = newState(S); prepare(); step(); } });
@@ -11673,6 +11884,9 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   }
 
   SA.registerLab('segmentata', {
+    challengeEvidence: function () {
+      return { label: 'Punto di cambio stimato', value: S && S.k ? S.psiHat[S.k-1] : NaN };
+    },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
       run = SA.ui.runner({ speed: 1, step: step, render: render, done: function () { return S.k >= S.B; }, progress: function () { return S.k / S.B; }, reset: function () { S = newState(S); step(); } });
@@ -11947,6 +12161,9 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   }
 
   SA.registerLab('validazione', {
+    challengeEvidence: function () {
+      return { label: 'Errore di test del modello scelto con CV', value: S && S.cur && S.cur.tem ? S.cur.tem[S.cur.dCV] : NaN, bounds: [0, Infinity] };
+    },
     challengeState: function () {
       return S && { fun: S.fun, n: S.n, dShow: S.dShow, D: S.D,
         k: S.k, dCV: S.cur ? S.cur.dCV : null };
@@ -12273,6 +12490,9 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   }
 
   SA.registerLab('knn', {
+    challengeEvidence: function () {
+      return { label: 'Errore di test kNN al k mostrato', value: S && S.cur && S.cur.eTe ? S.cur.eTe[S.kVals.indexOf(S.kShow)] : NaN, bounds: [0, 1] };
+    },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
       run = SA.ui.runner({ speed: 1, coop: true, step: step, render: render, done: function () { return S.k >= S.B; }, progress: function () { return S.k / S.B; }, reset: function () { S = newState(S); step(); } });
@@ -12556,6 +12776,9 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   }
 
   SA.registerLab('alberi', {
+    challengeEvidence: function () {
+      return { label: 'Errore di test Random Forest', value: S && S.k ? S.M[1].teErr[S.M[1].teErr.length-1] : NaN, bounds: [0, 1] };
+    },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
       run = SA.ui.runner({ speed: 1, coop: true, step: step, render: render, done: function () { return S.k >= S.B; }, progress: function () { return S.k / S.B; }, reset: function () { S = newState(S); step(); } });
@@ -12843,6 +13066,12 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     run.controls('Aggiungi un albero').forEach(function (n) { ctrlBox.appendChild(n); });
   }
   SA.registerLab('boost', {
+    challengeEvidence: function () {
+      return { label: 'Loss di validazione del boosting', value: S && S.k && S.hist[S.k] ? S.hist[S.k].va : NaN,
+        bounds: [0, Infinity], design: 'paired-trajectory', iteration: S && S.k,
+        // The generating sample is replayed from the same seed after a depth edit.
+        dataKey: S ? JSON.stringify([S.sc,S.n,S.sigma,S.seed]) : '' };
+    },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
       run = SA.ui.runner({ speed: 1, coop: true, step: step, render: render, done: function () { return S.k >= S.B; }, progress: function () { return S.k / S.B; }, reset: function () { S = newState(S); } });
@@ -13111,6 +13340,12 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   }
 
   SA.registerLab('reti-neurali', {
+    challengeEvidence: function () {
+      return { label: 'Loss di validazione della rete', value: S && S.e && S.hist.va.length ? S.hist.va[S.hist.va.length-1] : NaN,
+        bounds: [0, Infinity], design: 'paired-trajectory', iteration: S && S.e,
+        // Fixed data split and fixed weight initialization when eta alone varies.
+        dataKey: S ? JSON.stringify([S.data,S.n,S.sigma,S.pv,S.seed,S.iseed,S.H,S.act,S.lambda]) : '' };
+    },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
       run = SA.ui.runner({ speed: 3, coop: true, step: step, render: render, done: function () { return S.e >= S.E || S.diverged; }, progress: function () { return S.diverged ? 1 : S.e / S.E; }, reset: function () { S = newState(S); } });
@@ -13402,6 +13637,9 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   }
 
   SA.registerLab('pca', {
+    challengeEvidence: function () {
+      return { label: 'Quota di varianza spiegata dalla prima componente', value: S && S.k0 ? S.pve1[S.k0-1] : NaN, bounds: [0, 1] };
+    },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
       run = SA.ui.runner({ speed: 1, step: step, render: render, done: function () { return S.k0 >= S.B; }, progress: function () { return S.k0 / S.B; }, reset: function () { S = newState(S); step(); } });
@@ -13665,6 +13903,9 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   }
 
   SA.registerLab('clustering', {
+    challengeEvidence: function () {
+      return { label: 'Within-cluster sum of squares corrente', value: S && S.cur && S.cur.w && S.cur.w.length ? S.cur.w[S.cur.w.length-1] : NaN, bounds: [0, Infinity] };
+    },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
       run = SA.ui.runner({ speed: 1, step: step, render: render, done: function () { return S.done; }, progress: function () { var d = S.runs.filter(function (r) { return r.done; }).length; return d / nStarts(); }, reset: function () { S = newState(S); } });
@@ -13943,6 +14184,9 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   }
 
   SA.registerLab('dbscan', {
+    challengeEvidence: function () {
+      return { label: 'Numero di cluster individuati fino al passo', value: S && S.last >= 0 ? S.id : NaN, bounds: [0, Infinity] };
+    },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
       run = SA.ui.runner({ speed: 2, step: step, render: render, done: function () { return S.finished; }, progress: function () { var d = 0; for (var i = 0; i < S.N; i++) if (S.cl[i] !== -1) d++; return S.finished ? 1 : d / S.N; }, reset: function () { S = newState(S); } });
@@ -14211,6 +14455,9 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
       '<h3>Limiti</h3><p>Unità isolate, bordi, scale geografiche, aggregazione dei territori e struttura della matrice W cambiano l’interpretazione. I test asintotici normali richiedono ulteriori ipotesi; qui si privilegia una distribuzione condizionata per permutazione, non una calibrazione universale.</p>' }); }
   };
   SA.registerLab('moran', {
+    challengeEvidence: function () {
+      return { label: 'Indice di Moran I dell’ultima permutazione', value: S && S.perm.length ? S.perm[S.perm.length-1] : NaN };
+    },
     mount: function (page, info) {
       el = SA.ui.el; S = init(S);
       run = SA.ui.runner({ speed: 2, coop: true, step: step, render: render, done: function () { return S.perm.length >= S.B || !S.stats.valid; }, progress: function () { return completed() / S.B; }, reset: function () { configure(S); } });
@@ -14460,7 +14707,10 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     base:function(){return el('div.prose',{html:'<h3>Dal globale al locale</h3><p>Moran globale fornisce una sintesi dell’intero dominio. Il Moran locale Iᵢ identifica quanto il territorio i contribuisce all’associazione spaziale secondo una matrice W definita. Questa statistica non è una misura della sola altezza del valore osservato.</p><h3>Quattro quadranti descrittivi</h3><p>Con zᵢ = xᵢ − media e lag spaziale (Wz)ᵢ, otteniamo HH (alto con vicini alti), LL (basso con vicini bassi), HL e LH (discordanza). Essere HH non rende una zona automaticamente un hotspot statisticamente significativo.</p><div class="eq" data-tex="I_i=\\frac{z_i}{m_2}\\sum_jw_{ij}z_j,\\quad m_2=\\frac{1}{n}\\sum_i z_i^2"></div><h3>Permutazioni condizionali</h3><p>Fissiamo il valore del territorio i e permutiamo quelli delle altre n−1 unità. Il confronto è bilaterale attorno alla speranza condizionale E[Iᵢ|zᵢ] e usa la correzione Monte Carlo +1. Applicando molti test locali occorre considerare i confronti multipli: sono disponibili risultati grezzi, BH e BY.</p><h3>MAUP</h3><p>Il Modifiable Areal Unit Problem si manifesta quando cambiamo scala o confini delle unità geografiche. Nel laboratorio le celle di un gruppo sono sostituite dalla loro media: variano n, W, variabilità e statistiche. Non è un’operazione neutrale.</p><div class="callout warn"><strong>Avvertenza:</strong> un quadrante non è un’ipotesi testata. I p-value dipendono dalla null di randomizzazione; BH controlla il FDR sotto assunzioni di dipendenza, non sempre soddisfatte da dati spaziali.</div>'});},
     adv:function(){return el('div.prose',{html:'<h3>Normalizzazione e relazione con Moran globale</h3><p>Posto m₂ = Σzᵢ²/n, Iᵢ = zᵢ Σⱼwᵢⱼzⱼ/m₂. La somma delle statistiche locali è ΣIᵢ = (S₀)I globale per la stessa W. La relazione vale per la versione del Moran globale definita nel laboratorio 26 e per m₂ calcolato con divisore n.</p><h3>Speranza delle permutazioni condizionali</h3><p>Fissando zᵢ, la media dei restanti valori centrati è −zᵢ/(n−1); quindi E[Iᵢ|zᵢ] = −zᵢ² Σⱼwᵢⱼ/[(n−1)m₂]. Il test qui usato considera |Iᵢ−E[Iᵢ|zᵢ]| e confronta le distanze con quelle delle permutazioni condizionali. È un test bilaterale intorno alla speranza e non un’unica definizione universale di p-value LISA.</p><h3>Molteplicità</h3><p>Il metodo BH ordina i p-value e applica q₍ₖ₎ = min₍ⱼ≥ₖ₎ mp₍ⱼ₎/j (troncato a 1); BY sostituisce m con mHₘ, dove Hₘ = Σⱼ1/j. BY protegge il FDR per dipendenze arbitrarie sotto le ordinarie condizioni di validità dei p-value individuali, risultando più conservativo.</p><h3>Null, dipendenza e interpretazione causale</h3><p>La randomizzazione condizionale non rende automaticamente validi i test quando i valori non sono scambiabili, la media è non stazionaria, i siti sono selezionati in modo informativo o l’eteroschedasticità dipende dalla posizione. Hotspot significativi non indicano un meccanismo causale, né identificano di per sé un rischio sanitario elevato.</p><h3>MAUP: effetto scala e effetto zonizzazione</h3><p>L’aggregazione modifica simultaneamente la numerosità delle aree, la definizione di media, la rete di adiacenza, la varianza e la struttura osservata. Confrontare Moran prima e dopo non è un test formale del MAUP. Il caso con confini spostati illustra il zoning effect, distinto dal cambiamento di risoluzione.</p><h3>Limiti numerici</h3><p>Per campioni ridotti la distribuzione locale può essere discreta; il minimo p Monte Carlo è 1/(B+1) e la correzione per 64 test può rendere poco probabile ottenere risultati BH significativi con B=199. Pesi isolati, valori centrati nulli e diverse convenzioni per m₂ vanno trattati esplicitamente.</p>'});}
   };
-  SA.registerLab('lisa',{
+  SA.registerLab('lisa', {
+    challengeEvidence: function () {
+      return { label: 'Moran I locale permutato nella zona selezionata', value: S && S.samples.length ? S.samples[S.samples.length-1][S.focus] : NaN };
+    },
     mount:function(page,info){
       el=SA.ui.el; S=init(S);configure();
       run=SA.ui.runner({speed:2,coop:true,step:step,render:render,done:function(){return S.samples.length>=S.B||!S.local.valid;},progress:function(){return completed()/S.B;},reset:function(){configure();}});
@@ -14705,7 +14955,10 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     base:function(){return el('div.prose',{html:'<h3>1. Che cosa osserviamo?</h3><p>Un pattern puntuale è un insieme di posizioni osservate in una finestra W. L’intensità λ(s) esprime il numero medio di eventi per unità di area presso s, non la probabilità che un punto cada esattamente in quella posizione.</p><h3>2. Casualità spaziale completa</h3><p>Con CSR (processo di Poisson omogeneo), N(W) ha distribuzione Poisson(λ|W|) e, condizionatamente a N=n, le n posizioni sono indipendenti e uniformi nella finestra. Perciò possono comparire addensamenti visivi anche senza attrazione tra eventi.</p><h3>3. Un esperimento con tre alternative</h3><p>Il processo di Thomas genera eventi attorno a centri parentali; il modello di inibizione sequenziale impone una distanza minima tra eventi accettati; il Poisson non omogeneo aumenta l’intensità lungo l’asse x senza aggiungere interazione tra eventi.</p><h3>4. K e L di Ripley</h3><div class="eq" data-tex="K_{CSR}(r)=\\pi r^2,\\qquad L(r)=\\sqrt{K(r)/\\pi}"></div><p>Per CSR, L(r)−r è teoricamente zero. Una curva osservata positiva può suggerire un eccesso di vicini a quella distanza, una negativa un deficit. Le curve sono stime casuali e dipendono dalla correzione del bordo.</p><h3>5. Inferenza mediante simulazione</h3><p>Conserviamo il numero di eventi osservati e rigeneriamo configurazioni uniformi indipendenti. Le bande al 95% sono envelope <em>puntuali</em>. Il test globale, invece, confronta T = max |L(r)−r| con lo stesso massimo calcolato sulle repliche CSR: evita di interpretare un solo superamento della banda come significativo.</p><div class="callout warn"><strong>Attenzione:</strong> rifiutare la CSR omogenea non dimostra interazione spaziale. Anche un’intensità di fondo variabile può produrre cluster apparenti.</div>'});},
     adv:function(){return el('div.prose',{html:'<h3>Processi puntuali e misure fattoriali</h3><p>Per un processo stazionario di intensità λ, la funzione K si definisce tramite il numero atteso di altri eventi entro r da un evento tipico, diviso λ. Con funzione di correlazione a coppie isotropa g(r), K(r)=2π∫₀ʳ t g(t)dt. Sotto CSR g(r)=1 e K(r)=πr². Questa relazione richiede le opportune ipotesi di stazionarietà/isotropia per la forma radiale.</p><h3>Stima e correzione translation</h3><p>Nel quadrato unitario si considerano le coppie ordinate a distanza ≤r, pesate con l’inverso della frazione di area di sovrapposizione della finestra traslata: eᵢⱼ=(1−|Δx|)(1−|Δy|). L’implementazione usa K̂(r)= Σᵢ≠ⱼ 1(dᵢⱼ≤r)/[n(n−1)eᵢⱼ]. Poiché il denominatore usa n(n−1), la normalizzazione è particolarmente adatta al confronto CSR condizionale su n; alcuni estimatori software hanno convenzioni diverse.</p><h3>Poisson non omogeneo</h3><p>Nel simulatore λ(x,y)=λ[1+a(2x−1)], 0≤a&lt;1, con intensità media λ. Le posizioni sono generate mediante thinning di un processo Poisson omogeneo a intensità λ(1+a). L’inferenza riportata testa sempre CSR <em>omogenea</em>, non l’indipendenza condizionale a questa intensità spazialmente variabile.</p><h3>Processo di Thomas</h3><p>I genitori sono un processo Poisson con intensità κ; ciascuno genera un numero Poisson(μ) di figli, distribuiti con scarti gaussiani isotropi di deviazione σ. L’intensità marginale ideale è κμ=λ. Per evitare forti effetti ai bordi, i genitori vengono simulati su una finestra estesa di 4σ e poi i figli vengono ritagliati sul quadrato: l’errore residuo dovuto alla coda gaussiana è limitato ma non esattamente nullo.</p><h3>Inibizione sequenziale</h3><p>Si propongono uniformemente punti nel quadrato e si accetta un punto soltanto se dista almeno ρ da quelli già accettati, fino a raggiungere n obiettivo oppure il limite di tentativi. Questo è un modello sequenziale didattico e non un processo hard-core Gibbs stazionario campionato all’equilibrio. N non segue una legge Poisson e λ è un obiettivo, non l’intensità del processo.</p><h3>Envelope e validità del test</h3><p>L’envelope fra i quantili empirici 0,025 e 0,975 in ciascun r è puntuale. Il test globale usa T=sup sui 20 raggi discreti |L̂(r)−r|, con p=(1+#{Tᵦ≥Tobs})/(B+1). Condizionando su n e usando lo stesso stimatore per dati e simulazioni, il test di Monte Carlo è valido sotto CSR (a meno della discreteness/numero finito di repliche). La funzione K delle singole realizzazioni non coincide esattamente con il valore teorico πr², anche sotto CSR.</p><h3>Limiti metodologici</h3><p>L’interpretazione della K omogenea si altera con intensità non costante, finestre irregolari, scelta dei raggi o dati di eventi con localizzazione incerta. Una funzione K inhomogeneous richiede stima/definizione dell’intensità λ(s) e ulteriori assunzioni. Distanza media al vicino più prossimo e indice di dispersione per quadrati sono statistiche descrittive influenzate da bordo e dimensione delle celle; da sole non dimostrano clustering.</p>'});}
   };
-  SA.registerLab('processi-puntuali',{
+  SA.registerLab('processi-puntuali', {
+    challengeEvidence: function () {
+      return { label: 'Massimo scostamento di L(r) sotto CSR', value: S && S.sims.length ? S.sims[S.sims.length-1].T : NaN, bounds: [0, Infinity] };
+    },
     mount:function(page,info){
       el=SA.ui.el;S=initial(S);S.gen=PP.generate(S,new SA.RRNG(S.seed));S.pts=S.gen.points.slice();S.edited=false;recompute();
       runner=SA.ui.runner({speed:2,coop:true,step:step,render:render,done:function(){return S.sims.length>=S.B||!S.obs.valid;},progress:function(){return completed()/S.B;},reset:resetEnvelope});
@@ -14933,7 +15186,10 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
    base:function(){return el('div.prose',{html:'<h3>1. Problema statistico</h3><p>Osserviamo una variabile continua in un insieme limitato di posizioni. Vogliamo descrivere come cambia la somiglianza al variare della distanza, prima di prevedere il fenomeno dove non abbiamo sensori.</p><h3>2. Campo aleatorio e covarianza</h3><p>Il simulatore genera un campo gaussiano latente Z(s), stazionario del secondo ordine e a media nulla, con covarianza C(s,t)=σ²ρ(dₐ(s,t)). Ai sensori osserviamo Y(s)=Z(s)+ε(s)+m(s), con ε indipendenti di varianza τ² e un trend m(s) opzionale. Il nugget non viene aggiunto al campo latente rappresentato nella mappa.</p><h3>3. Stimare il variogramma</h3><div class="eq" data-tex="\\widehat{\\gamma}(h_k)=\\frac{1}{2N_k}\\sum_{(i,j)\\in B_k}\\{Y(s_i)-Y(s_j)\\}^2"></div><p>Le coppie sono raggruppate in intervalli di distanza. Una classe vuota NON ha semivarianza zero: la stima non è definita. Cambiando numero di classi o direzione cambia anche il numero di coppie in ciascuna classe.</p><h3>4. Parametri e interpretazione</h3><p>σ² è la varianza parziale, τ² il nugget e φ la scala di correlazione, che NON coincide sempre col range pratico. Il modello esponenziale ha correlazione e<sup>−h/φ</sup>, il gaussiano e<sup>−(h/φ)²</sup>; il sferico raggiunge covarianza nulla per h≥φ.</p><h3>5. Esperimento e confronto</h3><p>Seleziona due sensori sulla mappa, osserva distanza e ½ differenza²; confronta la curva empirica col riferimento teorico, poi premi Avvia per simulare nuovi campioni <em>sui medesimi siti</em>. La variabilità delle curve spiega perché un singolo variogramma è rumoroso.</p><div class="callout warn"><strong>Attenzione:</strong> una tendenza spaziale della media o l’anisotropia possono rendere fuorviante una lettura isotropa del variogramma grezzo. Le bande Monte Carlo sono puntuali e condizionate al modello impostato.</div>'});},
    adv:function(){return el('div.prose',{html:'<h3>Definizioni rigorose</h3><p>La semivarianza è γ(h)=½Var{Z(s+h)−Z(s)}. Sotto stazionarietà del secondo ordine della componente residua, γ(h)=C(0)−C(h), quando la media è costante. Per osservazioni con nugget indipendente, γ<sub>Y</sub>(h)=τ²+σ²[1−ρ(h)] se h&gt;0, mentre γ<sub>Y</sub>(0)=0 per la differenza della stessa osservazione; il limite destro è τ².</p><h3>Validità delle funzioni di covarianza</h3><p>Il modello gaussiano, esponenziale e sferico utilizzati hanno matrici di covarianza positive definite (almeno semidefinite) nelle dimensioni considerate. Il motore genera un campo latente comune usando la Cholesky della covarianza; gli errori di misura sono generati indipendentemente. Se la covarianza campionata sulla griglia è numericamente quasi singolare, il simulatore dichiara una regolarizzazione diagonale inferiore a 10<sup>−8</sup> della varianza parziale per ottenere una fattorizzazione stabile; la regolarizzazione non è il nugget osservazionale e viene riportata nella tabella.</p><h3>Anisotropia geometrica</h3><p>Una rotazione degli assi, seguita dalla scala 1/ratio lungo l’asse minore, trasforma la distanza euclidea in una distanza anisotropa dₐ. Di conseguenza γ dipende non soltanto da |h| ma anche dalla direzione. Per il variogramma omnidirezionale anisotropo non si visualizza una singola curva teorica come se il processo fosse isotropo.</p><h3>Statistica delle coppie</h3><p>L’estimatore classico di Matheron usa una media delle differenze quadratiche sulle coppie dentro la classe. Le coppie non sono indipendenti perché condividono osservazioni: N<sub>k</sub> grande non comporta automaticamente una varianza di ordine 1/N<sub>k</sub>. L’errore di campionamento dipende inoltre da rete dei siti, struttura di quarto ordine e scelta dei bin.</p><h3>Range e nugget</h3><p>Il parametro φ è il range del modello sferico; per l’esponenziale il decadimento al 5% si osserva intorno a 3φ e per il gaussiano intorno a √3 φ. Il sill totale delle osservazioni è σ²+τ². Stime numericamente vicine a zero a distanza elevata non implicano indipendenza matematica nel modello esponenziale o gaussiano.</p><h3>Monte Carlo, trend e simulazione</h3><p>Il simulatore ripete il processo sugli stessi siti: i sensori non vengono ridisegnati. Il confronto in R può riprodurre esattamente il variogramma degli stessi valori (R1), mentre per ripetere l’identica realizzazione casuale della Cholesky serve un accordo su ordine di estrazione, algoritmo e convenzioni. Con trend m(s)=a(x−½), i quadrati delle differenze includono (m(sᵢ)−m(sⱼ))² e il variogramma osservato non coincide con il solo variogramma residuo stazionario.</p><h3>Avvertenza sull’inferenza</h3><p>Gli envelope puntuali al 95% basati su repliche parametriche con parametri noti non sono intervalli di confidenza per φ o τ² e non incorporano incertezza di stima. Una selezione del modello di covarianza richiede ulteriori verifiche e non può basarsi sul solo aspetto della curva empirica.</p>'});}
  };
- SA.registerLab('variogrammi',{
+ SA.registerLab('variogrammi', {
+    challengeEvidence: function () {
+      return { label: 'Media dei valori simulati ai sensori', value: S && S.samples.length ? S.samples[S.samples.length-1].reduce(function(a,b){return a+b;},0) / S.samples[S.samples.length-1].length : NaN };
+    },
    mount:function(page,info){
      el=SA.ui.el;S=init(S);configure();run=SA.ui.runner({speed:2,coop:true,step:step,render:render,done:done,progress:function(){return samples().length/S.B;},reset:resetSamples});
      function theory(level){SA.ui.openDrawer('Variogrammi e campi aleatori spaziali',THEORY,level);}
@@ -15177,7 +15433,10 @@ var THEORY={
 base:function(){return el('div.prose',{html:'<h3>1. Qual è il problema?</h3><p>Osserviamo Y(sᵢ)=Z(sᵢ)+εᵢ in pochi sensori, ma vogliamo prevedere il campo latente Z(s₀) in tutta la regione. Il simulatore conserva una realizzazione vera per confrontare predizione ed errore, mentre lo studente non la conosce.</p><h3>2. Dipendenza, non solo distanza</h3><p>IDW media le osservazioni con pesi inversamente proporzionali a una potenza della distanza. Il kriging utilizza invece un modello di covarianza: la geometria di tutti i sensori e la dipendenza tra le misure entrano simultaneamente nei pesi.</p><h3>3. Due tipi di kriging</h3><p>Il kriging semplice assume nota la media, qui fissata a zero; il kriging ordinario assume una media costante ma ignota e impone che i pesi sommino a uno. La seconda ipotesi non significa che la media venga stimata da una semplice media non pesata.</p><h3>4. Rumore di misura</h3><p>La matrice di covarianza delle osservazioni è C<sub>Y</sub>=C<sub>Z</sub>+τ²I. La covarianza tra valore latente bersaglio e sensori contiene solo C<sub>Z</sub>. Con nugget positivo, la previsione del campo latente nel punto di un sensore non coincide necessariamente con la misura rumorosa.</p><h3>5. Progetta i sensori</h3><p>Clicca celle per aggiungere sensori, oppure scegli la modalità Sposta (origine e destinazione). La superficie prevista e la varianza teorica cambiano subito, ma l’esperimento Monte Carlo resta fermo finché non premi Avvia. Solo l’opzione Mostra campo vero rivela la realizzazione nascosta.</p><div class="callout warn"><strong>Attenzione:</strong> l’incertezza di kriging è condizionata al modello e ai parametri assunti; se la covarianza è errata può essere mal calibrata. L’RMSE osservato su una mappa è una realizzazione, non la varianza teorica.</div>'});},
 adv:function(){return el('div.prose',{html:'<h3>Predittore lineare ottimo e covarianze</h3><p>Per Z₀ latente e Y vettore delle osservazioni, poniamo C=Cov(Y,Y), c=Cov(Y,Z₀) e σ²=Var(Z₀). Con media nota zero, w=C⁻¹c è il predittore lineare di errore quadratico minimo e la varianza è σ²−cᵀC⁻¹c. La normalità non è necessaria per la migliore predizione lineare, ma rende il predittore anche media condizionale.</p><h3>Kriging ordinario e moltiplicatore</h3><p>Richiedendo non distorsione per una media costante ignota, 1ᵀw=1, si risolve Cw+ν1=c, 1ᵀw=1. Con questa convenzione, Var(Z₀−wᵀY)=σ²−wᵀc−ν. La varianza della predizione di una nuova osservazione rumorosa sarebbe maggiore di τ² rispetto a quella del processo latente, assumendo rumore indipendente.</p><h3>Cholesky e stabilità numerica</h3><p>Il sistema è risolto mediante Cholesky di C e sostituzioni triangolari, senza calcolare esplicitamente l’inversa. Siti duplicati sono vietati; se τ²=0 e la geometria produce una matrice numericamente degenere, il laboratorio richiede una configurazione ammissibile anziché occultare il problema.</p><h3>Specificazione scorretta</h3><p>La superficie e la mappa della varianza sono costruite con il modello ASSUNTO, non necessariamente con quello generatore. Variando φ o la famiglia di covarianza assunta senza rigenerare il campo, si distingue la qualità della previsione sulla realizzazione corrente dalla calibrazione delle varianze su campi indipendenti.</p><h3>Ottimalità e disegno</h3><p>Sotto il modello corretto, aggiungere un’osservazione non aumenta la varianza minima teorica; questo NON implica diminuzione dell’errore realizzato in ogni campione. Un criterio per il disegno è l’integrated mean squared prediction error, approssimato dalla media delle varianze sulla griglia. La scelta del prossimo sensore non richiede necessariamente visitare il punto con valore previsto massimo.</p><h3>Confronto con IDW e validazione</h3><p>IDW non è, in generale, un BLUP e non fornisce la stessa varianza modellistica del kriging. Il confronto è sensato solo su uno stesso insieme di dati e bersagli. La simulazione su campi indipendenti verifica la calibrazione usando la media degli RMSE² (MSE), non la media dei soli RMSE.</p><h3>Limiti del laboratorio</h3><p>Parametri assunti noti, dominio quadrato sintetico, campo gaussiano a media zero, covariance esponenziale/sferica/gaussiana e nugget di misura. La stima del variogramma, il kriging universale con trend e la propagazione dell’incertezza dei parametri richiedono ulteriori strumenti e non sono implementati.</p>'});}
 };
-SA.registerLab('kriging',{
+SA.registerLab('kriging', {
+    challengeEvidence: function () {
+      return { label: 'RMSE dell’ultima replica kriging', value: S && S.rep.length ? S.rep[S.rep.length-1].rmse : NaN, bounds: [0, Infinity] };
+    },
 challengeState:function(){return S && {method:S.method,nSensor:S.ids.length,
   sensorKey:S.ids.join(','),fieldKey:S.seed+':'+S.field.field[0].toPrecision(12),
   reps:S.rep.length,meanVar:S.meanVar,phi:S.phi,assumedPhi:S.assumedPhi,
@@ -15324,7 +15583,10 @@ function scriptR(){var d=S.data,fs=S.fits;var v=x=>Number(x).toPrecision(17);ret
  '# I fold geografici rappresentano tre bande verticali contigue; KNN usa le sole coordinate.'
  ].join('\n');}
 var THEORY={base:function(){return el('div.prose',{html:'<h3>1. Perché la regressione spaziale?</h3><p>Nei dati territoriali i valori vicini possono dipendere l’uno dall’altro. La regressione OLS standard spiega y usando X ma non distingue la dipendenza della risposta dalla dipendenza degli errori. Una struttura spaziale non correttamente descritta può alterare inferenza e previsioni.</p><h3>2. Pesi e modelli</h3><p>W è la matrice rook dei 36 territori, normalizzata per riga, con diagonale zero. Il SAR assume y=ρWy+Xβ+ε: una variazione della covariata in un territorio può propagarsi agli altri tramite (I−ρW)⁻¹. Il SEM assume y=Xβ+u, u=λWu+ε: la dipendenza riguarda gli errori.</p><h3>3. Interpretare i grafici</h3><p>La mappa mostra y o i residui. I profili SAR e SEM rappresentano la log-verosimiglianza gaussian ML con σ²=RSS/n e la stessa griglia di 33 valori di ρ/λ fra −0,8 e 0,8. La linea OLS è il riferimento senza parametro spaziale. Il pannello degli impatti utilizza il SAR STIMATO, non il vero processo generatore.</p><h3>4. Validare lontano dai dati osservati</h3><p>Per la validazione confrontiamo lo stesso kNN spaziale (coordinate e distanza euclidea), con k selezionabile. Random CV mescola i siti, mentre spatial block CV esclude intere bande contigue. I due schemi misurano prestazioni per obiettivi predittivi differenti.</p><h3>5. Usa l’esperimento</h3><p>Modifica il generatore e la forza della dipendenza; confronta OLS, SAR e SEM senza cambiare dati. Mostra i fold sulla mappa, scegli k e osserva i due errori CV. Per replicare la validazione su nuovi campioni premi Passo o Completa: i dati visualizzati restano fissi.</p><div class="callout warn"><strong>Attenzione:</strong> la matrice W e la struttura di dipendenza sono assunzioni, non fatti stabiliti dalla sola prossimità geografica. La validazione spaziale non deve essere automaticamente preferita alla casuale: dipende dall’obiettivo della previsione.</div>'});},adv:function(){return el('div.prose',{html:'<h3>1. Esistenza e forma ridotta del SAR</h3><p>Per Aρ=I−ρW invertibile, y=Aρ⁻¹Xβ+Aρ⁻¹ε. Con W row-standardizzata e |ρ|<1, l’inversa esiste e si può espandere nella serie ∑ₕ₌₀∞ρʰWʰ. Pertanto β non coincide con una derivata marginale territoriale indipendente dallo spazio.</p><h3>2. Stima ML e Jacobiano</h3><p>Nel SAR, la trasformazione ε=Aρy−Xβ contribuisce con log|det Aρ| alla log-verosimiglianza. Nel SEM, la trasformazione ε=Aλ(y−Xβ) richiede trasformare anche la matrice delle covariate. I due profili differiscono in generale; la varianza ML profilata è RSS/n, non RSS/(n−p).</p><h3>3. Profilo su griglia: approssimazione dichiarata</h3><p>Per rendere visibile ogni punto della funzione obiettivo, il laboratorio massimizza su {−0,80,−0,75,…,0,80}; non calcola un massimo continuo né intervalli di confidenza, e una stima al bordo va interpretata con cautela. Il log-determinante è calcolato mediante eliminazione LU con pivoting; i coefficienti condizionati al parametro sono calcolati mediante QR.</p><h3>4. Diretti, indiretti, totali</h3><p>Per il SAR, le derivate rispetto alla covariata sono Hβ, con H=(I−ρW)⁻¹. L’effetto diretto medio è β·tr(H)/n; l’effetto totale medio è β·1ᵀH1/n e l’indiretto è la differenza. Con W row-standardizzata, il totale è β/(1−ρ). Non si attribuisce alcun significato causale senza ulteriori assunzioni.</p><h3>5. Residui e identificazione</h3><p>Un Moran residuo elevato può segnalare dipendenza residua, ma un valore basso non garantisce la correttezza dell’intero modello. SAR e SEM possono produrre pattern simili su campioni piccoli. La scelta della matrice W e la presenza di confondenti spaziali influenzano identificazione e interpretazione.</p><h3>6. Validazione e dipendenza</h3><p>Se dati di training e test sono geograficamente vicini, una validazione casuale può stimare una prestazione troppo ottimistica per un’applicazione a territori remoti. Il blocco spaziale, tuttavia, cambia la distribuzione delle distanze di previsione e può essere eccessivamente pessimista se l’uso finale è interpolare fra aree già osservate.</p><h3>7. Disegno e limiti</h3><p>La simulazione ha 36 territori, rook normalizzata, covariata e rumore gaussiani; i parametri reali sono noti al simulatore. Non implementa SEM con eteroschedasticità, covariate endogene, spillover causali, SARAR, panel spaziale o bootstrap per l’incertezza di ML. La Monte Carlo ripete solo la CV kNN sui medesimi fold, non la distribuzione degli stimatori spaziali.</p>'});}};
-SA.registerLab('regressione-spaziale',{mount:function(page,info){el=SA.ui.el;S=make();generate();run=SA.ui.runner({speed:1,coop:true,step:replicate,render:render,done:done,progress:()=>Math.min(S.reps.length,S.B)/S.B,reset:reset});function theory(level){SA.ui.openDrawer('Regressione spaziale e validazione geografica',THEORY,level);}
+SA.registerLab('regressione-spaziale', {
+    challengeEvidence: function () {
+      return { label: 'MSE dell’ultima validazione spaziale', value: S && S.reps.length ? S.reps[S.reps.length-1].spatial : NaN, bounds: [0, Infinity] };
+    },mount:function(page,info){el=SA.ui.el;S=make();generate();run=SA.ui.runner({speed:1,coop:true,step:replicate,render:render,done:done,progress:()=>Math.min(S.reps.length,S.B)/S.B,reset:reset});function theory(level){SA.ui.openDrawer('Regressione spaziale e validazione geografica',THEORY,level);}
  page.append(el('header.lab-head',el('div',el('div.kicker',info.part.part+' · '+info.part.title+' · Laboratorio '+info.lab.num),el('h1',info.lab.title),el('p.lede','Che cosa cambia se i territori non sono indipendenti? Modelli SAR/SEM, propagazione degli effetti e validazione geografica.')),SA.ui.button('Approfondisci',{icon:'book',onclick:()=>theory()})));
  var q=SA.ui.step('1','Domanda');q.body.append(el('p.question','Una regressione può ignorare l’autocorrelazione spaziale senza cambiare inferenza, interpretazione e capacità predittiva?'));
  var p=SA.ui.step('2','La tua previsione');choice=el('div');p.body.append(choice);

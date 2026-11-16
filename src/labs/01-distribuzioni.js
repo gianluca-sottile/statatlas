@@ -642,6 +642,9 @@
   }
 
   SA.registerLab('distribuzioni', {
+    challengeEvidence: function () {
+      return { label: 'Ultima osservazione estratta X', value: S && S.k ? S.x[S.k - 1] : NaN };
+    },
     mount: function (page, info) {
       el = SA.ui.el;
       S = newState(S);

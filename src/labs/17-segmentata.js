@@ -206,6 +206,9 @@
   }
 
   SA.registerLab('segmentata', {
+    challengeEvidence: function () {
+      return { label: 'Punto di cambio stimato', value: S && S.k ? S.psiHat[S.k-1] : NaN };
+    },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
       run = SA.ui.runner({ speed: 1, step: step, render: render, done: function () { return S.k >= S.B; }, progress: function () { return S.k / S.B; }, reset: function () { S = newState(S); step(); } });

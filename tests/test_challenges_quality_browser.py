@@ -18,21 +18,21 @@ with sync_playwright() as pw:
         q.locator('summary').click()
         def steps(k):
             for _ in range(k): page.locator('.controls .transport button').nth(1).click()
-        steps(2)
+        steps(3)
         page.locator('.controls select').nth(2).select_option('1')
         steps(3)
         progress=q.locator('.challenge-activity').inner_text()
-        assert 'Confronto controllato' in progress,progress
+        assert 'appaiato' in progress,progress
         # Start a new baseline on the current configuration, then let a second
         # parameter vary alongside depth: cannot attribute the difference to depth.
         q.get_by_role('button',name='Aggiorna punto di partenza').click()
-        steps(2)
+        steps(3)
         rate=page.locator('.controls input[type="range"]').first
         rate.evaluate("el=>{el.value='0.16';el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}))}")
         page.locator('.controls select').nth(2).select_option('3')
-        steps(5)
+        steps(3)
         progress=q.locator('.challenge-activity').inner_text()
-        assert 'confronto resta esplorativo' in progress,progress
+        assert 'Mantieni fissi gli altri parametri' in progress,progress
         assert not errors,errors
         print('PASS: GBM advanced challenge distinguishes controlled and confounded comparisons, no JS errors')
     finally: browser.close()

@@ -298,6 +298,9 @@
   }
 
   SA.registerLab('simulazione', {
+    challengeEvidence: function () {
+      return { label: 'Estrazione o media Monte Carlo', value: S && S.k ? (S.mode === 'inv' ? S.x[S.k - 1] : S.sumF / S.k) : NaN };
+    },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
       run = SA.ui.runner({ speed: 1, step: step, render: render, done: function () { return S.k >= S.N; }, progress: function () { return S.k / S.N; }, reset: function () { S = newState(S); } });

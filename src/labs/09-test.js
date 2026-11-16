@@ -187,6 +187,9 @@
   }
 
   SA.registerLab('test', {
+    challengeEvidence: function () {
+      return { label: 'Frequenza di rifiuto sotto H₀', value: S && S.k ? S.rej0 / S.k : NaN, bounds: [0, 1] };
+    },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
       run = SA.ui.runner({ speed: 1, step: step, render: render, done: function () { return S.k >= S.B; }, progress: function () { return S.k / S.B; }, reset: function () { S = newState(S); } });

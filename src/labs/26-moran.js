@@ -231,6 +231,9 @@
       '<h3>Limiti</h3><p>Unità isolate, bordi, scale geografiche, aggregazione dei territori e struttura della matrice W cambiano l’interpretazione. I test asintotici normali richiedono ulteriori ipotesi; qui si privilegia una distribuzione condizionata per permutazione, non una calibrazione universale.</p>' }); }
   };
   SA.registerLab('moran', {
+    challengeEvidence: function () {
+      return { label: 'Indice di Moran I dell’ultima permutazione', value: S && S.perm.length ? S.perm[S.perm.length-1] : NaN };
+    },
     mount: function (page, info) {
       el = SA.ui.el; S = init(S);
       run = SA.ui.runner({ speed: 2, coop: true, step: step, render: render, done: function () { return S.perm.length >= S.B || !S.stats.valid; }, progress: function () { return completed() / S.B; }, reset: function () { configure(S); } });

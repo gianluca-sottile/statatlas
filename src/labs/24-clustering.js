@@ -225,6 +225,9 @@
   }
 
   SA.registerLab('clustering', {
+    challengeEvidence: function () {
+      return { label: 'Within-cluster sum of squares corrente', value: S && S.cur && S.cur.w && S.cur.w.length ? S.cur.w[S.cur.w.length-1] : NaN, bounds: [0, Infinity] };
+    },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
       run = SA.ui.runner({ speed: 1, step: step, render: render, done: function () { return S.done; }, progress: function () { var d = S.runs.filter(function (r) { return r.done; }).length; return d / nStarts(); }, reset: function () { S = newState(S); } });

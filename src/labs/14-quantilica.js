@@ -207,6 +207,9 @@
   }
 
   SA.registerLab('quantilica', {
+    challengeEvidence: function () {
+      return { label: 'Pendenza della regressione quantilica', value: S && S.k ? S.est[S.k-1] : NaN };
+    },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S); setRange();
       run = SA.ui.runner({ speed: 1, step: step, render: render, done: function () { return S.k >= S.M; }, progress: function () { return S.k / S.M; }, reset: function () { S = newState(S); setRange(); step(); } });

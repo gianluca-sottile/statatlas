@@ -55,3 +55,20 @@
 @media (max-width: 1180px) {
   .panel.controls > .challenge-return:not([hidden]) { order: -2; grid-column: 1 / -1; min-height: 44px; }
 }
+
+/* Quantitative diagnostic: second, data-dependent answer (non-pilot advanced labs). */
+.challenge-observation { border: 1px solid var(--rule-2); border-radius: 9px; min-width: 0; margin: 18px 0; padding: 13px 15px 16px; background: var(--paper-2); }
+.challenge-observation legend { max-width: 72ch; padding: 0 6px; font: 650 .93rem var(--sans); line-height: 1.5; }
+.challenge-observation .challenge-answer { background: var(--card); }
+.challenge-observation small { display: block; margin: 10px 0 0; color: var(--ink-3); line-height: 1.45; }
+@media(max-width:640px) { .challenge-observation { padding: 12px 11px 15px; } }
+
+/* Diagnostic A/B results: legible without horizontal overflow on phones. */
+.challenge-comparison { margin: 13px 0 18px; border: 1px solid var(--rule-2); border-radius: 9px; padding: 11px 13px; background: var(--paper-2); max-width: 100%; overflow-x: auto; }
+.challenge-comparison[hidden] { display: none !important; }
+.challenge-comparison-table { width: 100%; border-collapse: collapse; font-size: .84rem; text-align: left; }
+.challenge-comparison-table caption { text-align: left; padding: 0 0 10px; font-weight: 700; color: var(--ink); }
+.challenge-comparison-table th, .challenge-comparison-table td { padding: 8px 10px; border-bottom: 1px solid var(--rule); white-space: normal; }
+.challenge-comparison-table tbody th { color: var(--accent); }
+.challenge-comparison > p { font-size: .82rem; color: var(--ink-2); line-height: 1.5; margin: 12px 0 3px; }
+@media (max-width: 640px) { .challenge-comparison { padding: 8px; } .challenge-comparison-table th, .challenge-comparison-table td { padding: 7px 5px; font-size: .74rem; } }

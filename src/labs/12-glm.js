@@ -186,6 +186,9 @@
   }
 
   SA.registerLab('glm', {
+    challengeEvidence: function () {
+      return { label: 'Quota di stime GLM finite', value: S && S.k ? S.ok / S.k : NaN, bounds: [0, 1] };
+    },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
       run = SA.ui.runner({ speed: 1, step: step, render: render, done: function () { return S.k >= S.M; }, progress: function () { return S.k / S.M; }, reset: function () { S = newState(S); } });

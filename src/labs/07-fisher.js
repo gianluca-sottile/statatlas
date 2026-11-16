@@ -304,6 +304,9 @@
   }
 
   SA.registerLab('fisher', {
+    challengeEvidence: function () {
+      return { label: 'Ultima stima di massima verosimiglianza', value: S && S.k ? S.mle[S.k-1] : NaN };
+    },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
       run = SA.ui.runner({ speed: 1, step: step, render: render, done: function () { return S.k >= S.B; }, progress: function () { return S.k / S.B; }, reset: function () { S = newState(S); } });

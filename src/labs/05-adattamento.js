@@ -250,6 +250,9 @@
   }
 
   SA.registerLab('adattamento', {
+    challengeEvidence: function () {
+      return { label: 'Ultima osservazione del campione', value: S && S.k ? S.x[S.k-1] : NaN };
+    },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
       run = SA.ui.runner({ speed: 2, step: step, render: render, done: function () { return S.k >= S.N; }, progress: function () { return S.k / S.N; }, reset: function () { S = newState(S); cache = null; } });

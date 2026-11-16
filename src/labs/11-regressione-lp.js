@@ -215,6 +215,9 @@
   }
 
   SA.registerLab('regressione-lp', {
+    challengeEvidence: function () {
+      return { label: 'Pendenza Lp stimata', value: S && S.k ? S.est.lp[S.k-1] : NaN };
+    },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
       run = SA.ui.runner({ speed: 1, step: step, render: render, done: function () { return S.k >= S.M; }, progress: function () { return S.k / S.M; }, reset: function () { S = newState(S); } });

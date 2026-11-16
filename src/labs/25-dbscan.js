@@ -241,6 +241,9 @@
   }
 
   SA.registerLab('dbscan', {
+    challengeEvidence: function () {
+      return { label: 'Numero di cluster individuati fino al passo', value: S && S.last >= 0 ? S.id : NaN, bounds: [0, Infinity] };
+    },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
       run = SA.ui.runner({ speed: 2, step: step, render: render, done: function () { return S.finished; }, progress: function () { var d = 0; for (var i = 0; i < S.N; i++) if (S.cl[i] !== -1) d++; return S.finished ? 1 : d / S.N; }, reset: function () { S = newState(S); } });

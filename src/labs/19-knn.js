@@ -283,6 +283,9 @@
   }
 
   SA.registerLab('knn', {
+    challengeEvidence: function () {
+      return { label: 'Errore di test kNN al k mostrato', value: S && S.cur && S.cur.eTe ? S.cur.eTe[S.kVals.indexOf(S.kShow)] : NaN, bounds: [0, 1] };
+    },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
       run = SA.ui.runner({ speed: 1, coop: true, step: step, render: render, done: function () { return S.k >= S.B; }, progress: function () { return S.k / S.B; }, reset: function () { S = newState(S); step(); } });

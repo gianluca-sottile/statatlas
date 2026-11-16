@@ -1,3 +1,21 @@
+# Changelog
+## 2.1 — 15/11/2026 · Fase diagnostica conclusiva (sviluppo, senza tag)
+
+- 31 laboratori e 93 Challenges confermati; nove esercizi specialistici preservati.
+- In 28 laboratori, confronto avanzato A/B valido solo con almeno tre misurazioni quantitative per configurazione, due valori del controllo pertinente e **nessuna modifica degli altri controlli**. Il confondimento blocca la verifica e viene esplicitato.
+- Nei laboratori 21 (boosting) e 22 (reti neurali) il confronto richiede tre **checkpoint identici** su dati e seed invariati; i valori sono associati a iterazione e chiave del campione, senza trattare le iterazioni come repliche indipendenti.
+- Tabella visibile dei risultati A/B, limiti metodologici espliciti, verifica della risposta teorica ed empirica. Nessun test di significatività improprio o grado di precisione non supportato.
+- Test automatici supplementari per confondimento, appaiamento, numerosità bilanciata, seed e confronto empirico; motori statistici invariati.
+- Rapporto e checklist unica in `docs/FASE_2_1_CONCLUSIVA_CONTROLLO_AB.md`.
+
+## StatAtlas 2.1 — Challenges con evidenze quantitative reali (sviluppo, 15 novembre 2026)
+
+- Aggiunto un canale **read-only** `challengeEvidence()` nei 31 laboratori: 31 indicatori/valori direttamente dallo stato della simulazione, senza cambiare motori statistici o script R.
+- Nelle **84 sfide estese** il completamento richiede adesso osservazioni numeriche valide, non soltanto click o passi. L'Avanzato valuta anche la **lettura empirica A/B/pari** del confronto, oltre al quesito concettuale.
+- Escluse automaticamente osservazioni non finite, non numeriche o fuori dai limiti pertinenti; la risposta empirica viene invalidata quando cambiano i dati.
+- Test specifici: 1050 asserzioni JS, 31/31 osservatori browser, 84/84 percorsi estesi, verifica end-to-end GBM a 390/1280 px. Conservati i nove prerequisiti specialistici.
+- La differenza osservata è **descrittiva**, non un effetto causale o un test di significatività. Dettagli: [`docs/FASE_2_1_EVIDENZE_QUANTITATIVE_2026_11_15.md`](docs/FASE_2_1_EVIDENZE_QUANTITATIVE_2026_11_15.md).
+
 ## StatAtlas 2.1 — navigazione delle Challenges e allineamento dei prerequisiti (sviluppo, 15 novembre 2026)
 
 - Collegamento **Mettiti alla prova** accanto ad **Approfondisci** nella testata di ciascuno dei 31 laboratori; indicatore locale `0/3` aggiornato dopo il completamento.
@@ -6,7 +24,6 @@
 - Corrette tre formulazioni teoriche nei LAB 05, 07 e 08: bootstrap parametrico non esatto in generale, condizioni di regolarità per Fisher/Cramér–Rao/Wilks, e distinzione fra copertura garantita e nominale dei metodi approssimati.
 - Nessuna modifica a generatori, stimatori, funzioni numeriche o script R; i soli sorgenti LAB modificati contengono modifiche testuali. Il controllo browser è distinto dalla validazione scientifica.
 
-# Changelog
 
 ## Unreleased — 2.1: audit scientifico indipendente e comparabilità delle Challenges (15/11/2026)
 

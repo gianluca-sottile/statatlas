@@ -47,6 +47,7 @@ with sync_playwright() as pw:
    if lab=='penalizzata':
     page.evaluate("()=>document.querySelector('.controls .seg[aria-label=\"Vista\"] button:last-child').click()")
    for stage in range(3):
+    baseline=page.evaluate('(lab)=>SA.challenges.traces[lab].steps',lab)
     q=page.locator('.challenge-card').nth(stage)
     q.locator('summary').click()
     f=page.evaluate('(obj)=>SA.challenges.bank[obj.lab][obj.stage].focus',{ 'lab':lab,'stage':stage })
@@ -57,12 +58,24 @@ with sync_playwright() as pw:
      assert not result.get('error'),result
      for j in range(2):page.locator('.controls .transport button').nth(1).click()
     else:
-     for j in range(2):page.locator('.controls .transport button').nth(1).click()
+     if lab in ('boost','reti-neurali'):
+      page.locator('.controls .transport button[aria-label="Ricomincia"]').click()
+     for j in range(3):page.locator('.controls .transport button').nth(1).click()
      result=page.evaluate(CHANGER,f)
      assert not result.get('error'),result
      for j in range(3):page.locator('.controls .transport button').nth(1).click()
     correct=page.evaluate('(obj)=>SA.challenges.bank[obj.lab][obj.stage].correct',{'lab':lab,'stage':stage})
-    q.locator('input[type=radio]').nth(correct).check()
+    q.locator('.challenge-answers input[type=radio]').nth(correct).check()
+    if stage==2:
+     comp=page.evaluate('''(a)=>{
+       const q=SA.challenges.bank[a.lab][a.stage];
+       const t=SA.challenges.traces[a.lab];
+       const s={samples:t.samples,controls:t.current,edits:t.edits,actions:t.steps};
+       const b={actions:a.baseline,controls:{},edits:[]};
+       return q.rule(s,b).comparison;
+     }''',{'lab':lab,'stage':stage,'baseline':baseline})
+     if comp is None: raise AssertionError('missing comparison '+lab)
+     q.locator('.challenge-observation input[type=radio]').nth(comp['correct']).check()
     q.get_by_role('button',name='Verifica la sfida').click()
     feedback=q.locator('.challenge-feedback').inner_text()
     if 'Sfida completata' not in feedback: raise AssertionError((lab,stage,f,result if stage else '',feedback))

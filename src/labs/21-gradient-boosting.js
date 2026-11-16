@@ -248,6 +248,12 @@
     run.controls('Aggiungi un albero').forEach(function (n) { ctrlBox.appendChild(n); });
   }
   SA.registerLab('boost', {
+    challengeEvidence: function () {
+      return { label: 'Loss di validazione del boosting', value: S && S.k && S.hist[S.k] ? S.hist[S.k].va : NaN,
+        bounds: [0, Infinity], design: 'paired-trajectory', iteration: S && S.k,
+        // The generating sample is replayed from the same seed after a depth edit.
+        dataKey: S ? JSON.stringify([S.sc,S.n,S.sigma,S.seed]) : '' };
+    },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
       run = SA.ui.runner({ speed: 1, coop: true, step: step, render: render, done: function () { return S.k >= S.B; }, progress: function () { return S.k / S.B; }, reset: function () { S = newState(S); } });

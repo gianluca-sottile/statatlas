@@ -252,6 +252,9 @@
   }
 
   SA.registerLab('pca', {
+    challengeEvidence: function () {
+      return { label: 'Quota di varianza spiegata dalla prima componente', value: S && S.k0 ? S.pve1[S.k0-1] : NaN, bounds: [0, 1] };
+    },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
       run = SA.ui.runner({ speed: 1, step: step, render: render, done: function () { return S.k0 >= S.B; }, progress: function () { return S.k0 / S.B; }, reset: function () { S = newState(S); step(); } });

@@ -244,6 +244,9 @@
   }
 
   SA.registerLab('alberi', {
+    challengeEvidence: function () {
+      return { label: 'Errore di test Random Forest', value: S && S.k ? S.M[1].teErr[S.M[1].teErr.length-1] : NaN, bounds: [0, 1] };
+    },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
       run = SA.ui.runner({ speed: 1, coop: true, step: step, render: render, done: function () { return S.k >= S.B; }, progress: function () { return S.k / S.B; }, reset: function () { S = newState(S); step(); } });

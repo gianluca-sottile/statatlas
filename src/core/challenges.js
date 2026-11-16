@@ -140,15 +140,26 @@
     ]
   };
 
-  function evaluate(labId, taskId, snapshot, initial, answer) {
+  function evaluate(labId, taskId, snapshot, initial, answer, observedChoice) {
     var tasks = bank[labId] || [], q = tasks.filter(function (t) { return t.id === taskId; })[0];
     if (!q) throw new Error('Sfida sconosciuta: ' + labId + '/' + taskId);
     if (!snapshot) return { ok: false, ready: false, message: 'Laboratorio non inizializzato.' };
     var r = q.rule(snapshot, initial);
     if (!r.ready) return { ok: false, ready: false, message: r.message };
     if (answer == null || answer < 0 || answer >= q.options.length) return { ok: false, ready: true, message: 'Seleziona una risposta prima di verificare.' };
-    var ok = +answer === q.correct;
-    return { ok: ok, ready: true, message: ok ? 'Sfida completata.' : 'Risposta da rivedere.', explanation: q.explanation };
+    var conceptual = +answer === q.correct;
+    if (q.stage === 2) {
+      if (observedChoice == null || ![0, 1, 2].includes(+observedChoice))
+        return {ok:false, ready:true, message:'Rispondi anche alla domanda sui due risultati numerici osservati.'};
+      if (!r.comparison) return {ok:false, ready:false, message:'Mancano statistiche numeriche confrontabili.'};
+      var numeric = +observedChoice === r.comparison.correct;
+      var ok2 = conceptual && numeric;
+      return {ok:ok2, ready:true,
+        message:ok2 ? 'Sfida completata: interpretazione e lettura dei risultati corrette.' :
+          (!conceptual ? 'Rivedi l’interpretazione teorica.' : 'Rivedi il confronto dei valori numerici A e B.'),
+        explanation:q.explanation};
+    }
+    return { ok: conceptual, ready: true, message: conceptual ? 'Sfida completata.' : 'Risposta da rivedere.', explanation: q.explanation };
   }
 
   /* Activity recorder: capture BEFORE lab onchange handlers rebuild .controls.
@@ -176,10 +187,32 @@
   function ensureTrace(id) {
     return SA.challenges.traces[id] || (SA.challenges.traces[id] = { steps: 0, edits: [], samples: [], current: {} });
   }
+  function observation(id) {
+    var lab = SA.labs && SA.labs[id];
+    if (!lab || typeof lab.challengeEvidence !== 'function') return null;
+    var obj;
+    try { obj = lab.challengeEvidence(); } catch (err) { return null; }
+    if (!obj || typeof obj.value !== 'number' || !Number.isFinite(obj.value) ||
+        typeof obj.label !== 'string' || !obj.label.trim()) return null;
+    var bounds = obj.bounds;
+    if (bounds && (obj.value < bounds[0] - 1e-10 || obj.value > bounds[1] + 1e-10)) return null;
+    var evidence = { label: obj.label, value: obj.value };
+    // Pairing is explicitly opt-in: only labs which can prove identical
+    // underlying datasets/initializations and a common checkpoint expose it.
+    if (obj.design === 'paired-trajectory' && typeof obj.dataKey === 'string' &&
+        Number.isSafeInteger(obj.iteration) && obj.iteration >= 0) {
+      evidence.design = 'paired-trajectory';
+      evidence.dataKey = obj.dataKey;
+      evidence.iteration = obj.iteration;
+    }
+    return evidence;
+  }
   function noteStep(id) {
     var trace = ensureTrace(id);
     trace.steps++;
-    trace.samples.push({ seq: trace.steps, values: Object.assign({}, trace.current) });
+    // Read-only observation immediately AFTER a numerical step succeeds.
+    // Never alter a lab RNG, estimator, training data or control.
+    trace.samples.push({ seq: trace.steps, values: Object.assign({}, trace.current), metric: observation(id) });
     if (typeof trace.onUpdate === 'function') trace.onUpdate();
   }
   function mount(page, id) {
@@ -250,8 +283,9 @@
       }
     }
     tasks.forEach(function (q, i) {
-      var initial = null, selected = null;
+      var initial = null, selected = null, observedChoice = null, lastComparisonStamp = null;
       var card = el('details.challenge-card', { 'data-challenge-id': q.id });
+      var comparisonPanel = q.stage === 2 ? el('div.challenge-comparison', { 'aria-live': 'polite', hidden: true }) : null;
       var summary = el('summary.challenge-summary', el('span.challenge-index', String(i + 1).padStart(2, '0')),
         el('span', el('strong', q.title), el('small', q.level)));
       var choices = el('fieldset.challenge-answers', el('legend', q.question));
@@ -260,11 +294,22 @@
           onchange: function () { selected = j; message.textContent = ''; message.hidden = true; } });
         choices.appendChild(el('label.challenge-answer', input, el('span', option)));
       });
+      var observationAnswers = null;
+      if (q.stage === 2) {
+        observationAnswers = el('fieldset.challenge-observation',
+          el('legend', 'Nei tuoi esperimenti, quale configurazione ha prodotto il valore medio più alto dell’indicatore registrato?'));
+        ['A (prima configurazione)', 'B (seconda configurazione)', 'Pari alla precisione mostrata'].forEach(function (option, j) {
+          var input = el('input', {type:'radio', name:'numeric-'+id+'-'+q.id, value:String(j),
+            onchange:function () { observedChoice=j; message.hidden=true; }});
+          observationAnswers.appendChild(el('label.challenge-answer', input, el('span', option)));
+        });
+        observationAnswers.appendChild(el('small', 'La domanda riguarda solo i risultati ottenuti, non una legge universale sul parametro.'));
+      }
       var activity = el('p.challenge-activity', { role: 'status', 'aria-live': 'polite' }, 'Apri la sfida per registrare il punto di partenza.');
       var message = el('div.challenge-feedback', { role: 'status', 'aria-live': 'polite', hidden: true });
       var verify = SA.ui.button('Verifica la sfida', { cls: 'btn-primary', onclick: function () {
         if (q.baseline && !initial) initial = getState();
-        var result = evaluate(id, q.id, getState(), initial, selected);
+        var result = evaluate(id, q.id, getState(), initial, selected, observedChoice);
         message.hidden = false; message.classList.toggle('success', !!result.ok);
         message.textContent = result.message + (result.ready && result.explanation ? ' ' + result.explanation : '');
         if (result.ok) { solved[q.id] = true; card.classList.add('challenge-solved'); syncProgress(); }
@@ -275,11 +320,13 @@
         navigateTo(page.querySelector('.controls'));
       } });
       var body = el('div.challenge-body', el('p', q.task), choices,
-        activity, el('div.challenge-actions', jump, verify), message);
+        activity, comparisonPanel, observationAnswers, el('div.challenge-actions', jump, verify), message);
       if (q.baseline) {
         var info = el('p.challenge-reference', id === 'kriging' ? 'Apri questa sfida prima di modificare i sensori: registreremo la configurazione corrente.' : 'Le azioni sono conteggiate da quando apri la sfida. Prima esegui i passaggi richiesti, poi verifica la risposta.');
         var reset = SA.ui.button('Aggiorna punto di partenza', { cls: 'btn-ghost', onclick: function () {
           initial = getState();
+          observedChoice = null; lastComparisonStamp = null;
+          if (observationAnswers) observationAnswers.querySelectorAll('input').forEach(function (input) { input.checked = false; });
           activity.textContent = 'Nuovo punto di partenza: 0 passi, 0 modifiche.';
           message.hidden = false; message.classList.remove('success');
           message.textContent = id === 'kriging' ? 'Nuova configurazione registrata. Ora modifica i sensori.' : 'Nuovo punto di partenza registrato. Esegui i passi richiesti dalla sfida.';
@@ -298,9 +345,42 @@
         var steps = Math.max(0, now.actions - initial.actions);
         var edits = Math.max(0, now.changes - initial.changes);
         var result = q.rule(now, initial);
+        if (q.stage === 2) {
+          var stamp = result.comparison ? JSON.stringify({
+            groups: result.comparison.groups.map(function (g) {
+              return [g.control, g.n, g.mean];
+            }), comparable: result.comparison.controlled, paired: result.comparison.paired,
+            nPairs: result.comparison.nPairs
+          }) : '';
+          if (lastComparisonStamp !== null && stamp !== lastComparisonStamp && observedChoice !== null) {
+            observedChoice = null;
+            if (observationAnswers) observationAnswers.querySelectorAll('input').forEach(function (input) { input.checked = false; });
+            message.hidden = true;
+          }
+          lastComparisonStamp = stamp;
+        }
+        if (comparisonPanel) {
+          var cmp = result.comparison;
+          comparisonPanel.hidden = !cmp;
+          comparisonPanel.replaceChildren();
+          if (cmp) {
+            var tab = el('table.challenge-comparison-table',
+              el('caption', 'Confronto A/B: ' + cmp.label),
+              el('thead', el('tr', el('th', 'Configurazione'), el('th', 'Valore del controllo'),
+                el('th', 'Misure'), el('th', 'Media osservata'))));
+            var tb = el('tbody');
+            cmp.groups.forEach(function (g, j) {
+              tb.appendChild(el('tr', el('th', j === 0 ? 'A' : 'B'),
+                el('td', String(g.control)), el('td', String(g.n)), el('td', Number(g.mean).toLocaleString('it-IT', {maximumFractionDigits: 4}))));
+            });
+            tab.appendChild(tb);
+            comparisonPanel.append(tab, el('p', cmp.diagnostic));
+          }
+        }
         activity.textContent = 'Dopo l’apertura: ' + steps + ' passi · ' + edits +
           ' modifiche. ' + (result.ready ? 'Esperimento pronto: scegli la risposta.' : result.message) +
-          (result.ready && result.quality ? ' ' + result.quality : '');
+          (result.quality ? ' ' + result.quality : '') +
+          (result.ready && result.evidence ? ' ' + result.evidence : '');
       }
       // Baseline captured on the initiating interaction (mouse/touch/keyboard).
       summary.addEventListener('click', function () { if (!card.open) startChallenge(); });
@@ -354,5 +434,5 @@
       var number = sec.querySelector('.step-num'); if (number) number.textContent = String(i + 1);
     });
   }
-  SA.challenges = { bank: bank, evaluate: evaluate, mount: mount, traces: {}, noteStep: noteStep, keyOf: keyOf };
+  SA.challenges = { bank: bank, evaluate: evaluate, mount: mount, traces: {}, noteStep: noteStep, keyOf: keyOf, observation: observation };
 })();

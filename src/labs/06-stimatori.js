@@ -518,6 +518,9 @@
   }
 
   SA.registerLab('stimatori', {
+    challengeEvidence: function () {
+      return { label: 'Mediana dell’ultima replica', value: S && S.last && S.last.vals ? S.last.vals.median : NaN };
+    },
     challengeState: function () { return {k: S ? S.k : 0}; },
     mount: function (page, info) {
       el = SA.ui.el;

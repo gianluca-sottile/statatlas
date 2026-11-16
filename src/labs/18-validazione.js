@@ -235,6 +235,9 @@
   }
 
   SA.registerLab('validazione', {
+    challengeEvidence: function () {
+      return { label: 'Errore di test del modello scelto con CV', value: S && S.cur && S.cur.tem ? S.cur.tem[S.cur.dCV] : NaN, bounds: [0, Infinity] };
+    },
     challengeState: function () {
       return S && { fun: S.fun, n: S.n, dShow: S.dShow, D: S.D,
         k: S.k, dCV: S.cur ? S.cur.dCV : null };

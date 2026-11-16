@@ -324,6 +324,9 @@
   }
 
   SA.registerLab('penalizzata', {
+    challengeEvidence: function () {
+      return { label: 'Numero medio di coefficienti attivi', value: S && S.k ? S.nz[S.lamIdx] / S.k : NaN, bounds: [0, 8] };
+    },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
       run = SA.ui.runner({ speed: 1, step: step, render: render, done: function () { return S.view !== 'path' || S.k >= S.M; }, progress: function () { return S.view === 'path' ? S.k / S.M : 0; }, reset: function () { S = newState(S); if (S.view === 'path') initPath(); } });

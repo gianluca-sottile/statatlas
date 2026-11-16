@@ -214,6 +214,9 @@
   }
 
   SA.registerLab('bivariata', {
+    challengeEvidence: function () {
+      return { label: 'Ultimo valore generato Y', value: S && S.k ? S.y[S.k - 1] : NaN };
+    },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
       run = SA.ui.runner({ speed: 2, step: step, render: render, done: function () { return S.k >= S.N; }, progress: function () { return S.k / S.N; }, reset: function () { S = newState(S); } });

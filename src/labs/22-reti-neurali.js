@@ -230,6 +230,12 @@
   }
 
   SA.registerLab('reti-neurali', {
+    challengeEvidence: function () {
+      return { label: 'Loss di validazione della rete', value: S && S.e && S.hist.va.length ? S.hist.va[S.hist.va.length-1] : NaN,
+        bounds: [0, Infinity], design: 'paired-trajectory', iteration: S && S.e,
+        // Fixed data split and fixed weight initialization when eta alone varies.
+        dataKey: S ? JSON.stringify([S.data,S.n,S.sigma,S.pv,S.seed,S.iseed,S.H,S.act,S.lambda]) : '' };
+    },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
       run = SA.ui.runner({ speed: 3, coop: true, step: step, render: render, done: function () { return S.e >= S.E || S.diverged; }, progress: function () { return S.diverged ? 1 : S.e / S.E; }, reset: function () { S = newState(S); } });

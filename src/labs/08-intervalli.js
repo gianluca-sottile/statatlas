@@ -239,6 +239,9 @@
   }
 
   SA.registerLab('intervalli', {
+    challengeEvidence: function () {
+      return { label: 'Copertura empirica cumulativa', value: S && S.k ? S.cov / S.k : NaN, bounds: [0, 1] };
+    },
     challengeState: function () {
       return S && { method: S.method, n: S.n, level: S.level, p: S.p,
         k: S.k, B: S.B, cover: S.k ? S.cov / S.k : null };

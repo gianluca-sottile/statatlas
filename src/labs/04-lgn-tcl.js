@@ -397,6 +397,9 @@
   }
 
   SA.registerLab('lgn-tcl', {
+    challengeEvidence: function () {
+      return { label: 'Media cumulativa o statistica del TCL', value: S && S.k ? (S.mode === 'lln' ? S.path[0][S.k-1] : S.vals[S.k-1]) : NaN };
+    },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S);
       run = SA.ui.runner({ speed: 1, step: step, render: render, done: function () { return S.k >= total(); },

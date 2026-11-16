@@ -224,6 +224,9 @@
   }
 
   SA.registerLab('spline', {
+    challengeEvidence: function () {
+      return { label: 'ISE medio sulle repliche', value: S && S.k ? S.ise / S.k : NaN, bounds: [0, Infinity] };
+    },
     mount: function (page, info) {
       el = SA.ui.el; S = newState(S); prepare();
       run = SA.ui.runner({ speed: 1, step: step, render: render, done: function () { return S.k >= S.M; }, progress: function () { return S.k / S.M; }, reset: function () { S = newState(S); prepare(); step(); } });

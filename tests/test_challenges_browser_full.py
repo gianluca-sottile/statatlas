@@ -21,7 +21,7 @@ with sync_playwright() as pw:
     page.wait_for_function('(lab)=>window.SA.currentLab===lab',arg=lab,timeout=30000)
    page.locator('.challenge-section .challenge-card').first.wait_for(state='attached',timeout=30000)
    assert page.locator('.challenge-card').count()==3,(lab,'cards')
-   assert page.locator('.challenge-answer').count()==9,(lab,'answers')
+   assert page.locator('.challenge-answer').count()==(9 if lab in ('intervalli','validazione','kriging') else 12),(lab,'answers')
    assert page.locator('.lab-head .lab-cover svg').count()>0,(lab,'cover')
    assert page.locator('.lab-howto').count()==1,(lab,'guide')
    assert page.locator('.tbl-wrap').count()>0,(lab,'table')
@@ -32,7 +32,7 @@ with sync_playwright() as pw:
     verify=first.get_by_role('button',name='Verifica la sfida')
     first.locator('input[type=radio]').nth(1).check()
     verify.click()
-    assert ('Esegui' in first.locator('.challenge-feedback').inner_text() or 'Apri' in first.locator('.challenge-feedback').inner_text()),(lab,'missing precondition')
+    assert any(token in first.locator('.challenge-feedback').inner_text() for token in ('Esegui','Apri','Seleziona')),(lab,'missing precondition')
    if errors: raise Exception(f'Browser JS error {lab} {width}: {errors[-1]}')
   page.close()
  # Exercise one full challenge with live runner and changed controls
