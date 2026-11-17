@@ -1,10 +1,23 @@
-## Macrofase D — Candidate, 17 novembre 2026 (NON pubblicata)
+## Macrofase E — StatAtlas for Teachers (candidate, 17 novembre 2026; NON pubblicata)
+
+- Compositore `#/teachers`, bilingue IT/EN: 1–24 attività multi-laboratorio, riordino, consegne, durata, selezione granulare delle 93 Challenges, preset D.
+- Progetto docente versionato JSON `statatlas.teaching-path` v1 e pagina studenti HTML autonoma con motore scientifico completo, senza backend, librerie JS o server runtime.
+- Report formativo JSON `statatlas.student-report` v1, riflessioni e avanzamento locale cancellabile; nessuna promessa di valutazione certificativa o antifrode.
+- Test di regressione nuovi per schema, interfaccia, navigazione, HTML autonomo, input ostili, importazione progetto, preset e checkpoint a 390/1366px.
+- Gate di accettazione E sul Mac con GNU R 31/31 e benchmark R/JS 84/84 su nuova build: **da eseguire**. Nessun push eseguito.
+
+## Macrofase D — StatAtlas Experiments (pubblicata, commit 80f2ea6, 17 novembre 2026)
+
+- Pubblicati esperimenti JSON versionati, replay deterministico dove supportato e link condivisibili, più rimandi IT/EN al corso R.
+- Collaudo su Mac: 31/31 script R e 84/84 controlli numerici R/JS negli scenari predefiniti R1 (non R2).
+
+## Macrofase D — Stato storico della candidate, prima del rilascio
 
 - IT/EN: collegamenti alle pagine della lingua selezionata nel corso *From Data to Models with R*, anche negli worksheet; la lezione 62 resta EN per assenza di traduzione IT.
 - Esperimenti riproducibili: snapshot `statatlas.experiment` v1, controlli e RNG checkpoint, import/export JSON, URL compatto senza backend; SHA-256 del motore come vincolo di compatibilità, validazione di dati e limiti.
 - Stato reale dei dati modificati su sei mappe spaziali e sui campioni dei laboratori 10 e 14; adapter dedicato per il runner del laboratorio 06.
 - Test di round-trip browser per 31 lab, variazioni di parametri, campioni e punti manuali; QA bilingue e verifiche scientifiche invariati.
-- **Gate GNU R 31/31 e numerici R/JS 84/84 non ancora eseguiti su questa nuova build D**. Nessun commit/push automatico; collaudo finale su Mac necessario.
+- **Nota storica:** al momento della candidate, i gate Mac GNU R e R/JS erano ancora pendenti; sono stati successivamente superati e la D è stata pubblicata nel commit `80f2ea6`.
 
 ## Macrofase C — edizione bilingue validata per il rilascio (17 novembre 2026)
 

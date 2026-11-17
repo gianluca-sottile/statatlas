@@ -1,0 +1,25 @@
+/* Macrofase E: accessible offline teaching-path authoring */
+.teacher-builder{max-width:980px;margin:0 auto;padding:18px 20px 60px}
+.teacher-builder h1{font-family:var(--serif,Georgia,serif);font-size:clamp(1.7rem,3vw,2.45rem);line-height:1.2;margin:6px 0 12px}
+.teacher-lead{max-width:76ch;line-height:1.65;margin-bottom:22px}
+.teacher-card{padding:20px;border:1px solid var(--rule,#d3c9bc);border-radius:14px;background:var(--card,#fff);margin-bottom:20px}
+.teacher-card h2{font-size:1.18rem;margin:0 0 15px}
+.teacher-field{display:flex;flex-direction:column;gap:6px;margin:0 0 13px;max-width:100%;font-weight:600}
+.teacher-field input,.teacher-field textarea,.teacher-field select,.teacher-actions select,.teacher-preset input{font:inherit;background:var(--paper,#fff);color:var(--ink,#161616);border:1px solid var(--rule,#aaa);border-radius:7px;padding:9px 11px;max-width:100%}
+.teacher-field textarea{resize:vertical;min-height:88px;font-weight:400}
+.teacher-short{max-width:220px}
+.teacher-step{border:1px solid var(--rule,#d5d0c8);border-radius:11px;padding:16px;margin:14px 0;background:var(--paper,#faf9f7)}
+.teacher-step-head,.teacher-actions{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+.teacher-step-head{justify-content:space-between;margin-bottom:13px}
+.teacher-actions .btn{min-height:36px}
+.teacher-challenges{margin:14px 0;border:1px solid var(--rule,#aaa);border-radius:7px;padding:10px}
+.teacher-challenges legend{font-weight:700;padding:0 5px}
+.teacher-check{display:flex;align-items:flex-start;gap:8px;margin:9px 0;line-height:1.5;cursor:pointer}
+.teacher-check input{margin-top:5px}
+.teacher-preset{font-size:.9rem;padding:12px;border:1px dashed var(--rule,#aaa);border-radius:8px}
+.teacher-preset .teacher-actions{margin-top:8px}
+.teacher-status{margin:12px 0;min-height:30px;font-weight:600}
+@media(max-width:700px){.teacher-builder{padding:14px 12px}.teacher-card{padding:14px}.teacher-step{padding:11px}}
+
+.teacher-builder [hidden]{display:none!important}
+.teacher-nav{font-weight:700;color:var(--accent,#98451a)}

@@ -1,0 +1,312 @@
+/* StatAtlas Macrofase E — Teachers. One-file offline paths, editable JSON projects.
+ * No backend, no remote telemetry, no trusted grades or hidden answer keys.
+ */
+(function () {
+  'use strict';
+  var SA = window.SA || (window.SA = {});
+  var FORMAT = 'statatlas.teaching-path', VERSION = 1, MAX_JSON = 260000, MAX_STEPS = 24;
+  var draft = null;
+  function en(){return !!(SA.i18n && SA.i18n.isEnglish());}
+  function tr(it,english){return en()?english:it;}
+  function E(tag,attrs){return SA.ui.el.apply(null,arguments);}
+  function find(id){return SA.findLab(id);}
+  function allLabs(){return SA.catalog.reduce(function(a,p){return a.concat(p.labs);},[]);}
+  function id(){return 'path-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,9);}
+  function defaultProject(){return {format:FORMAT,version:VERSION,engine:SA.buildId,id:id(),
+    language:en()?'en':'it',title:'',description:'',audience:'',steps:[]};}
+  function taskTitle(lab,challengeId){
+    var list=SA.challenges.bank[lab]||[];
+    var q=list.filter(function(t){return t.id===challengeId;})[0];
+    if(!q)return challengeId;
+    var translated=SA.i18n&&SA.i18n.challengeTasks?SA.i18n.challengeTasks(lab,list):list;
+    return (translated.filter(function(t){return t.id===challengeId;})[0]||q).title;
+  }
+  function validate(obj){
+    if(!obj||typeof obj!=='object'||Array.isArray(obj)||obj.format!==FORMAT||obj.version!==VERSION)
+      throw Error('Unsupported teaching-path format');
+    if(obj.engine!==SA.buildId)throw Error('Different StatAtlas engine: presets may not reproduce identically');
+    if(typeof obj.id!=='string'||!/^[a-zA-Z0-9_-]{3,90}$/.test(obj.id))throw Error('Invalid path id');
+    if(!['it','en'].includes(obj.language))throw Error('Invalid language');
+    [['title',140],['description',1600],['audience',160]].forEach(function(k){
+      if(typeof obj[k[0]]!=='string'||obj[k[0]].length>k[1])throw Error('Invalid '+k[0]);
+    });
+    if(!obj.title.trim())throw Error('A path title is required');
+    if(!Array.isArray(obj.steps)||!obj.steps.length||obj.steps.length>MAX_STEPS)throw Error('A path needs 1–24 steps');
+    var seen=new Set();
+    obj.steps.forEach(function(step){
+      if(!step||typeof step!=='object'||!find(step.lab)||typeof step.id!=='string'||
+        !/^[a-zA-Z0-9_-]{3,90}$/.test(step.id)||seen.has(step.id))throw Error('Invalid or duplicate step');
+      seen.add(step.id);
+      if(typeof step.title!=='string'||step.title.length>160||typeof step.instructions!=='string'||step.instructions.length>2400)
+        throw Error('Invalid step description');
+      if(!Number.isInteger(step.minutes)||step.minutes<1||step.minutes>240)throw Error('Invalid duration');
+      var allowed=new Set((SA.challenges.bank[step.lab]||[]).map(function(q){return q.id;}));
+      if(!Array.isArray(step.challengeIds)||step.challengeIds.length>3||
+        new Set(step.challengeIds).size!==step.challengeIds.length||
+        !step.challengeIds.every(function(x){return typeof x==='string'&&allowed.has(x);}))throw Error('Invalid challenge selection');
+      if(step.preset!=null){
+        if(step.preset.lab!==step.lab)throw Error('Experiment preset belongs to a different laboratory');
+        SA.experiments.validate(step.preset);
+      }
+    });
+    return obj;
+  }
+  function parse(text){
+    if(typeof text!=='string'||text.length>MAX_JSON)throw Error('Teaching project too large');
+    return validate(JSON.parse(text));
+  }
+  function clone(obj){return JSON.parse(JSON.stringify(obj));}
+  function persist(){/* Explicit Save JSON is the only durable teacher-project write. */}
+  function draftStep(lab,preset){
+    var info=find(lab);if(!info)throw Error('Unknown laboratory');
+    return {id:'step-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,9),
+      lab:lab,title:info.lab.title,instructions:'',minutes:20,
+      challengeIds:(SA.challenges.bank[lab]||[]).map(function(q){return q.id;}),preset:preset||null};
+  }
+  function addCurrent(){
+    var snap=SA.experiments.capture();if(!draft)draft=defaultProject();
+    if(draft.steps.length>=MAX_STEPS)throw Error('Maximum 24 steps');
+    draft.steps.push(draftStep(snap.lab,snap));
+    location.hash='#/teachers';
+  }
+  function makeDownload(name,text,type){SA.ui.download(name,text,type||'application/json;charset=utf-8');}
+  function builder(main){
+    if(!draft)draft=defaultProject();
+    var area=E('div.teacher-builder');
+    main.appendChild(area);
+    function status(s){var p=area.querySelector('.teacher-status');if(p)p.textContent=s;}
+    function safe(fn){return function(){try{fn.apply(null,arguments);}catch(e){status(tr('Errore: ','Error: ')+e.message);}};}
+    function textField(label,value,max,oninput,kind){
+      var input=E(kind==='textarea'?'textarea':'input',{maxlength:String(max),'aria-label':label});
+      if(kind!=='textarea')input.type='text';
+      input.value=value;
+      input.addEventListener('input',function(){oninput(input.value);persist();});
+      return E('label.teacher-field',E('span',label),input);
+    }
+    function chooseLab(){
+      var selector=E('select',{'aria-label':tr('Laboratorio da aggiungere','Laboratory to add')});
+      allLabs().forEach(function(l){selector.appendChild(E('option',{value:l.id},l.num+' · '+l.title));});
+      return selector;
+    }
+    function render(){
+      area.replaceChildren();
+      var title=E('h1',tr('StatAtlas for Teachers','StatAtlas for Teachers'));
+      var intro=E('p.teacher-lead',tr('Costruisci un percorso offline con laboratori, sfide, consegne e configurazioni riproducibili. Il progetto docente resta modificabile in JSON.',
+        'Build a standalone offline teaching path with labs, challenges, instructions and reproducible presets. Keep an editable teacher JSON project.'));
+      var hdr=E('section.teacher-card',E('h2',tr('Impostazioni del percorso','Path settings')),
+        textField(tr('Titolo del percorso','Path title'),draft.title,140,function(v){draft.title=v;}),
+        textField(tr('Destinatari','Audience'),draft.audience,160,function(v){draft.audience=v;}),
+        textField(tr('Obiettivi e descrizione','Description and objectives'),draft.description,1600,function(v){draft.description=v;},'textarea'));
+      var language=E('select',{'aria-label':tr('Lingua del percorso distribuito','Student path language')},
+        E('option',{value:'it'},'Italiano'),E('option',{value:'en'},'English'));
+      language.value=draft.language;
+      language.addEventListener('change',function(){draft.language=language.value;});
+      hdr.appendChild(E('label.teacher-field',E('span',tr('Lingua degli studenti','Student language')),language));
+      var select=chooseLab();
+      var add=E('button.btn',{type:'button',onclick:safe(function(){
+        if(draft.steps.length>=MAX_STEPS)throw Error('Maximum 24 steps');
+        draft.steps.push(draftStep(select.value,null));render();
+      })},tr('Aggiungi laboratorio','Add laboratory'));
+      var picker=E('section.teacher-card',E('h2',tr('Sequenza didattica','Teaching sequence')),
+        E('p',tr('Puoi ripetere un laboratorio con consegne o configurazioni diverse. Usa le frecce per riordinare.',
+          'Repeat a laboratory with different instructions or configurations. Reorder with the arrows.')),
+        E('div.teacher-actions',select,add));
+      draft.steps.forEach(function(step,index){
+        var info=find(step.lab), group=E('article.teacher-step'),
+          head=E('div.teacher-step-head',E('strong',(index+1)+'. '+info.lab.num+' · '+info.lab.title));
+        var up=E('button.btn.btn-ghost',{type:'button','aria-label':tr('Sposta su','Move up'),disabled:index===0,onclick:function(){
+          var el=draft.steps.splice(index,1)[0];draft.steps.splice(index-1,0,el);render();
+        }},'↑');
+        var down=E('button.btn.btn-ghost',{type:'button','aria-label':tr('Sposta giù','Move down'),disabled:index===draft.steps.length-1,onclick:function(){
+          var el=draft.steps.splice(index,1)[0];draft.steps.splice(index+1,0,el);render();
+        }},'↓');
+        var remove=E('button.btn.btn-ghost',{type:'button',onclick:function(){draft.steps.splice(index,1);render();}},tr('Rimuovi','Remove'));
+        head.append(E('div.teacher-actions',up,down,remove));group.append(head);
+        group.append(textField(tr('Titolo dell’attività','Activity title'),step.title,160,function(v){step.title=v;}));
+        group.append(textField(tr('Consegna agli studenti','Instructions for students'),step.instructions,2400,function(v){step.instructions=v;},'textarea'));
+        var minutes=E('input',{type:'number',min:'1',max:'240',value:String(step.minutes),
+          'aria-label':tr('Durata stimata in minuti','Estimated duration (minutes)')});
+        minutes.addEventListener('change',function(){step.minutes=+minutes.value;});
+        group.append(E('label.teacher-field.teacher-short',E('span',tr('Minuti previsti','Estimated minutes')),minutes));
+        var challenges=E('fieldset.teacher-challenges',E('legend',tr('Challenges da assegnare','Assigned challenges')));
+        (SA.challenges.bank[step.lab]||[]).forEach(function(q){
+          var checkbox=E('input',{type:'checkbox',value:q.id});checkbox.checked=step.challengeIds.includes(q.id);
+          checkbox.addEventListener('change',function(){
+            if(checkbox.checked && !step.challengeIds.includes(q.id))step.challengeIds.push(q.id);
+            if(!checkbox.checked)step.challengeIds=step.challengeIds.filter(function(x){return x!==q.id;});
+          });
+          challenges.appendChild(E('label.teacher-check',checkbox,E('span',taskTitle(step.lab,q.id))));
+        });
+        group.append(challenges);
+        var file=E('input',{type:'file',accept:'.json,application/json','aria-label':tr('Carica preset esperimento','Upload experiment preset')});
+        file.addEventListener('change',function(){
+          var f=file.files&&file.files[0];if(!f)return;
+          if(f.size>160000){status('Experiment preset too large');return;}
+          f.text().then(function(t){var snap=SA.experiments.parse(t);if(snap.lab!==step.lab)throw Error('Different laboratory');
+            step.preset=snap;render();}).catch(function(err){status(err.message);});
+        });
+        var removePreset=E('button.btn.btn-ghost',{type:'button',onclick:function(){step.preset=null;render();}},tr('Rimuovi preset','Remove preset'));
+        removePreset.hidden=!step.preset;
+        group.append(E('div.teacher-preset',E('strong',step.preset?tr('Esperimento D associato','D experiment attached'):tr('Nessun preset: impostazioni iniziali del laboratorio','No preset: laboratory defaults')),
+          E('div.teacher-actions',file,removePreset)));
+        picker.appendChild(group);
+      });
+      var actions=E('section.teacher-card',E('h2',tr('Esporta o riapri','Export or reopen')),
+        E('p',tr('Il progetto JSON serve al docente. Il file HTML è il percorso autonomo per gli studenti; include il motore, ma non invia dati a un server.',
+          'Teacher JSON remains editable. The student HTML is fully standalone; it includes the engine and sends no information to a server.')));
+      var save=E('button.btn',{type:'button',onclick:safe(function(){validate(draft);
+        makeDownload('StatAtlas_Teachers_project.json',JSON.stringify(draft,null,2)+'\n');status(tr('Progetto JSON esportato.','Teacher JSON exported.'));
+      })},tr('Salva progetto JSON','Save teacher JSON'));
+      var fileProject=E('input',{type:'file',accept:'.json,application/json','aria-label':tr('Apri progetto docente','Open teacher project')});
+      fileProject.addEventListener('change',function(){var f=fileProject.files&&fileProject.files[0];if(!f)return;
+        if(f.size>MAX_JSON){status('Project too large');return;}
+        f.text().then(function(t){draft=clone(parse(t));render();}).catch(function(err){status(err.message);});
+      });
+      var exportHTML=E('button.btn',{type:'button',onclick:safe(function(){var html=buildStudentHTML(draft);
+        makeDownload('StatAtlas_Teachers_'+draft.id+'.html',html,'text/html;charset=utf-8');
+        status(tr('Pagina HTML autonoma esportata.','Standalone student HTML exported.'));
+      })},tr('Esporta HTML studenti','Export student HTML'));
+      actions.append(E('div.teacher-actions',save,fileProject,exportHTML));
+      area.append(title,intro,hdr,picker,actions,E('p.teacher-status',{role:'status','aria-live':'polite'},
+        tr('Nessun dato viene caricato online. I report degli studenti sono locali e non costituiscono voti certificati.',
+          'No data is uploaded. Student reports remain local and are not certified exam grades.')));
+    }
+    render();
+  }
+  // Reconstruct a clean offline StatAtlas document from the compiled CSS and JS.
+  // Never capture live DOM: it would include mutated charts and classroom state.
+  function buildStudentHTML(project){
+    validate(project);
+    var style=Array.prototype.map.call(document.querySelectorAll('head > style'),function(x){return x.textContent;}).join('\n');
+    var core=Array.prototype.find.call(document.scripts,function(x){return x.textContent.includes('window.SA.buildId = ');});
+    if(!style||!core||!core.textContent.includes(SA.buildId))throw Error('Standalone compilation source unavailable');
+    // Use script JSON text rather than interpolation into executable JS (XSS safety).
+    var data=JSON.stringify(project).replace(/</g,'\\u003c').replace(/>/g,'\\u003e').replace(/&/g,'\\u0026');
+    var studentStyle='.teacher-student-banner{position:sticky;top:0;z-index:25;padding:12px 20px;background:var(--paper,#fff);border-bottom:2px solid var(--accent,#85421a);box-shadow:0 2px 7px #0001}' +
+      '.teacher-student-banner h1{font-size:1.12rem;margin:0 0 6px}.teacher-student-banner .teacher-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}' +
+      '.teacher-student-banner button{font:inherit;padding:5px 10px;border:1px solid #777;border-radius:6px;background:transparent;color:inherit;cursor:pointer}' +
+      '.teacher-student-banner button[aria-current="step"]{background:#245d54;color:white}' +
+      '.teacher-student-banner textarea{display:block;width:min(100%,60rem);min-height:60px;margin:6px 0;border:1px solid #888;padding:7px;background:var(--card,#fff);color:inherit}' +
+      '.teacher-student-banner .student-status{font-size:.85rem}.sidebar,.topbar{display:none!important}' +
+      '.app{display:block!important;margin:0!important;width:100%!important}.app main{width:100%!important;max-width:1200px;margin:auto}' +
+      '.challenge-card[hidden],.challenge-section[hidden],.challenge-progress[hidden],.challenge-shortcut[hidden]{display:none!important}@media(max-width:640px){.teacher-student-banner{position:relative;padding:10px}}';
+    var head='<!doctype html><html lang="'+project.language+'"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">' +
+      '<title>StatAtlas for Teachers · Offline</title><style>'+style.replace(/<\/style/gi,'<\\/style')+'\n'+studentStyle+'</style></head><body>';
+    var shell='<a class="sr-only" href="#main">Skip to content</a><div class="topbar"><a class="brand" href="#/" id="topBrand"><span class="brand-mark">StatAtlas</span></a>' +
+      '<button class="btn btn-ghost btn-icon" id="menuBtn" type="button" aria-label="Open menu"></button></div>' +
+      '<section class="teacher-student-banner" id="teacherStudent" aria-label="Teaching path"></section>' +
+      '<div class="app"><aside class="sidebar" id="sidebar"></aside><main id="main" tabindex="-1"></main></div>';
+    var json='<script id="teacherProject" type="application/json">'+data+'</script>';
+    var startup='<script>SA.start();SA.teachers.studentBoot(JSON.parse(document.getElementById("teacherProject").textContent));<\\/script>';
+    // The closing script tag is literal only after joining; all source text is escaped.
+    startup=startup.replace('<\\/script>','</script>');
+    return head+shell+json+'<script>'+core.textContent.replace(/<\/script/gi,'<\\/script')+'</script>'+startup+'</body></html>';
+  }
+  function studentBoot(project){
+    validate(project);
+    var box=document.getElementById('teacherStudent');
+    if(!box)throw Error('Student path shell missing');
+    var i=0, applying=false, records=project.steps.map(function(s){return {step:s.id,completed:false,reflection:'',solved:[]};});
+    var storageKey='sa-teachers-report-'+project.id+'-'+SA.buildId;
+    try {var stored=JSON.parse(localStorage.getItem(storageKey)||'null');
+      if(stored&&Array.isArray(stored.records)&&stored.records.length===records.length)
+        stored.records.forEach(function(r,j){
+          if(r.step===records[j].step){records[j].completed=!!r.completed;records[j].reflection=String(r.reflection||'').slice(0,3000);
+            records[j].solved=Array.isArray(r.solved)?r.solved.filter(function(x){return project.steps[j].challengeIds.includes(x);}):[];}
+        });
+    }catch(e){}
+    function keep(){try{localStorage.setItem(storageKey,JSON.stringify({records:records}));}catch(e){}}
+    function make(t,cls,text){var n=document.createElement(t);if(cls)n.className=cls;if(text!=null)n.textContent=text;return n;}
+    function labels(it,english){return project.language==='en'?english:it;}
+    function observeSolved(){
+      var step=project.steps[i],r=records[i],current=document.querySelectorAll('#main .challenge-card.challenge-solved');
+      current.forEach(function(el){var id=el.getAttribute('data-challenge-id');if(step.challengeIds.includes(id)&&!r.solved.includes(id))r.solved.push(id);});
+      keep();var counter=box.querySelector('.student-status');if(counter)counter.textContent=
+        labels('Sfide completate: ','Challenges completed: ')+r.solved.length+'/'+step.challengeIds.length+
+        labels(' · attività ',' · activity ')+(r.completed?labels('completata','completed'):labels('in corso','in progress'));
+    }
+    function applyView(){
+      if(applying)return;
+      var step=project.steps[i];
+      if(SA.currentLab!==step.lab){location.hash='#/'+step.lab;return;}
+      applying=true;
+      var ready=function(){
+        var section=document.querySelector('#main .challenge-section');
+        if(section){section.hidden=step.challengeIds.length===0;
+          var originalProgress=section.querySelector('.challenge-progress');if(originalProgress)originalProgress.hidden=true;
+          var originalShortcut=document.querySelector('#main .challenge-shortcut');if(originalShortcut)originalShortcut.hidden=true;
+          section.querySelectorAll('.challenge-card').forEach(function(el){el.hidden=!step.challengeIds.includes(el.getAttribute('data-challenge-id'));});}
+        applying=false;observeSolved();
+      };
+      if(step.preset){SA.experiments.restore(step.preset).then(ready,function(err){applying=false;
+        var msg=box.querySelector('.student-error');if(msg)msg.textContent=labels('Preset non ripristinato: ','Preset could not be restored: ')+err.message;
+      });}else ready();
+    }
+    function select(n){
+      if(n<0||n>=project.steps.length)return;
+      i=n;var s=project.steps[i],r=records[i];
+      box.replaceChildren();
+      box.append(make('h1','',project.title));
+      var description=make('p','',project.description);description.hidden=!project.description;box.append(description);
+      var nav=make('nav','teacher-actions');nav.setAttribute('aria-label',labels('Attività del percorso','Path activities'));
+      project.steps.forEach(function(st,j){var b=make('button','',String(j+1)+' · '+(st.title||find(st.lab).lab.title));
+        b.type='button';if(j===i)b.setAttribute('aria-current','step');b.addEventListener('click',function(){select(j);});nav.append(b);});
+      box.append(nav);
+      box.append(make('p','',labels('Consegna: ','Instructions: ')+(s.instructions||labels('Esplora i risultati e rispondi alle Challenges selezionate.',
+        'Explore the results and answer the selected challenges.'))));
+      box.append(make('p','',labels('Durata indicativa: ','Estimated time: ')+s.minutes+' min'));
+      var reflection=make('textarea');reflection.maxLength=3000;
+      reflection.setAttribute('aria-label',labels('Riflessione sul laboratorio','Lab reflection'));
+      reflection.placeholder=labels('Quale conclusione ricavi dall’esperimento?','What do you conclude from this experiment?');
+      reflection.value=r.reflection;reflection.addEventListener('input',function(){r.reflection=reflection.value;keep();});
+      box.append(reflection);
+      var buttons=make('div','teacher-actions');
+      var complete=make('button','',labels('Segna attività completata','Mark activity completed'));
+      complete.addEventListener('click',function(){r.completed=!r.completed;keep();observeSolved();});
+      var dl=make('button','',labels('Esporta report JSON','Export report JSON'));
+      dl.addEventListener('click',function(){observeSolved();var data={format:'statatlas.student-report',version:1,
+        path:project.id,pathTitle:project.title,engine:SA.buildId,exported:new Date().toISOString(),
+        records:project.steps.map(function(st,j){return {stepId:st.id,lab:st.lab,completed:records[j].completed,
+          reflection:records[j].reflection,challengeIds:st.challengeIds.slice(),solved:records[j].solved.slice()};})};
+        SA.ui.download('StatAtlas_student_report_'+project.id+'.json',JSON.stringify(data,null,2)+'\n','application/json;charset=utf-8');});
+      var reset=make('button','',labels('Cancella avanzamento locale','Clear local progress'));
+      reset.addEventListener('click',function(){
+        if(!window.confirm(labels('Cancellare risposte e riflessioni salvate in questo browser?',
+          'Clear answers and reflections stored in this browser?')))return;
+        records.forEach(function(entry){entry.completed=false;entry.reflection='';entry.solved=[];});
+        try{localStorage.removeItem(storageKey);}catch(e){}
+        select(i);
+      });
+      var jump=make('button','',labels('Vai alle Challenges assegnate','Go to assigned Challenges'));
+      jump.hidden=!s.challengeIds.length;
+      jump.addEventListener('click',function(){var target=document.querySelector('#main .challenge-section');
+        if(target){target.scrollIntoView({behavior:'auto',block:'start'});}});
+      buttons.append(complete,dl,reset,jump);box.append(buttons);
+      box.append(make('p','student-status'));
+      box.append(make('p','student-error'));
+      box.append(make('p','',labels('Le riflessioni restano in questo browser fino alla cancellazione. Il report è formativo e può essere modificato: non è un voto certificato.',
+        'Reflections remain in this browser until cleared. The formative report is editable and is not a certified grade.')));
+      var next=make('button','',labels('Attività successiva →','Next activity →'));next.hidden=i===project.steps.length-1;
+      next.addEventListener('click',function(){select(i+1);});box.append(next);
+      if(SA.currentLab!==s.lab)location.hash='#/'+s.lab;
+      else window.dispatchEvent(new Event('hashchange'));
+      setTimeout(applyView,0);
+    }
+    var observer=new MutationObserver(function(mutations){
+      if(mutations.some(function(m){return m.type==='attributes'&&m.attributeName==='class'&&m.target.classList&&m.target.classList.contains('challenge-card');}))
+        observeSolved();
+    });
+    observer.observe(document.getElementById('main'),{subtree:true,attributes:true,attributeFilter:['class']});
+    // Restore the locale without persisting a preference to the student's browser.
+    if(SA.i18n.isEnglish()!==(project.language==='en'))SA.i18n.setLanguage(project.language,SA.catalog);
+    window.addEventListener('hashchange',function(){if(applying)return;
+      var want=project.steps[i].lab;
+      if(location.hash.split('/')[1]!==want){location.hash='#/'+want;return;}
+      setTimeout(function(){if(!applying)applyView();},0);
+    });
+    select(0);
+  }
+  SA.teachers={FORMAT:FORMAT,VERSION:VERSION,validate:validate,parse:parse,builder:builder,
+    buildStudentHTML:buildStudentHTML,studentBoot:studentBoot,addCurrent:addCurrent,
+    getDraft:function(){return draft;},setDraft:function(obj){draft=clone(validate(obj));},draftStep:draftStep};
+})();

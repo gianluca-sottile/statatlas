@@ -1,0 +1,48 @@
+{
+  "format": "statatlas.teaching-path",
+  "version": 1,
+  "engine": "4ef4df6b6be5e7231fdae92ba23abd76bfa2a402dbdd12fbde5de44516598efd",
+  "id": "esempio-campionamento-e",
+  "title": "Dal campionamento agli intervalli di confidenza",
+  "language": "it",
+  "description": "Un percorso in tre attività: grandi numeri, stimatori e intervalli.",
+  "audience": "Primo anno universitario o scuola superiore avanzata",
+  "steps": [
+    {
+      "id": "step-mwkn3fh5-5zn6m1b",
+      "lab": "lgn-tcl",
+      "title": "1. Dalle medie alla regolarità",
+      "instructions": "Confronta le traiettorie delle medie. Che cosa cambia al crescere di n? Quali ipotesi servono?",
+      "minutes": 25,
+      "challengeIds": [
+        "full-lgn-tcl-1",
+        "full-lgn-tcl-2"
+      ],
+      "preset": null
+    },
+    {
+      "id": "step-mwkn3fh5-22kg5oo",
+      "lab": "stimatori",
+      "title": "2. Stimatori e campioni",
+      "instructions": "Confronta media e mediana sugli stessi campioni, poi interpreta precisione e robustezza.",
+      "minutes": 25,
+      "challengeIds": [
+        "full-stimatori-1",
+        "full-stimatori-2"
+      ],
+      "preset": null
+    },
+    {
+      "id": "step-mwkn3fh5-u954ihy",
+      "lab": "intervalli",
+      "title": "3. Copertura e interpretazione",
+      "instructions": "Confronta la copertura nominale e osservata. Esamina Wald e Wilson per piccoli campioni.",
+      "minutes": 30,
+      "challengeIds": [
+        "ci-t",
+        "ci-wald"
+      ],
+      "preset": null
+    }
+  ]
+}

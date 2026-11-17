@@ -112,3 +112,10 @@ jobs:
           python tests/test_D_complex_roundtrip.py
           python tests/test_D_manual_points.py
           python tests/test_D_offline_links.py
+      - name: Phase E offline Teachers path authoring (browser/manual only)
+        run: |
+          python tests/test_E_teachers.py 390
+          python tests/test_E_teachers.py 1366
+          python tests/test_E_presets_navigation.py 390
+          python tests/test_E_presets_navigation.py 1366
+          python tests/test_E_repeat_lab.py

@@ -59,6 +59,8 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   function buildSidebar() {
     sidebar.innerHTML = '';
     var nav = el('nav', { 'aria-label': SA.i18n.tr('Laboratori') });
+    nav.appendChild(el('div.nav-part', SA.i18n.isEnglish() ? 'TEACHING' : 'DIDATTICA'));
+    nav.appendChild(el('a.nav-link.teacher-nav', {href:'#/teachers'}, SA.i18n.isEnglish() ? 'StatAtlas for Teachers' : 'StatAtlas per docenti'));
     SA.catalog.forEach(function (p) {
       nav.appendChild(el('div.nav-part', p.part + ' · ' + p.title));
       nav.appendChild(el('ul.nav-list', p.labs.map(function (l) {
@@ -473,7 +475,9 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
       if (a.dataset.id === id) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
     });
     var info = id && find(id);
-    if (!info) { main.appendChild(home()); document.title = 'StatAtlas'; }
+    if (id === 'teachers' && SA.teachers) {
+      SA.currentLab = null; SA.teachers.builder(main); document.title = 'StatAtlas for Teachers';
+    } else if (!info) { SA.currentLab = null; main.appendChild(home()); document.title = 'StatAtlas'; }
     else if (SA.labs[id]) {
       var page = el('div.page'); main.appendChild(page);
       SA.currentLab = id;
@@ -497,6 +501,13 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
         });
       }
       if (SA.experiments) SA.experiments.mount(page,id);
+      if (SA.teachers && !document.getElementById('teacherStudent')) {
+        var teach = SA.ui.el('button.btn.btn-ghost',{type:'button',onclick:function(){
+          try { SA.teachers.addCurrent(); } catch(err) { SA.ui.toast(err.message); }
+        }}, SA.i18n.isEnglish() ? 'Add experiment to teaching path' : 'Aggiungi esperimento al percorso docente');
+        var expPanel=page.querySelector('.experiment-panel');
+        if (expPanel) expPanel.appendChild(teach);
+      }
       document.title = info.lab.title + ' · StatAtlas';
     } else { main.appendChild(soon(info)); document.title = info.lab.title + ' · StatAtlas'; }
     window.scrollTo(0, 0);

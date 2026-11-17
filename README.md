@@ -1,4 +1,4 @@
-> **Macrofase C — edizione bilingue IT/EN validata sulla build corrente.** Questa versione comprende 31 percorsi didattici inglesi autonomi, 62 capitoli metodologici, 104 esercizi con soluzione e tutte le 93 Challenges in inglese. Il collaudo del 17 novembre 2026 ha superato 31/31 esportazioni GNU R e 84/84 confronti R/JavaScript su 25 scenari predefiniti (R1); non dimostra equivalenza algoritmica generale (R2). L'edizione inglese non è una traduzione letterale di ogni paragrafo italiano. Le verifiche con lettori di schermo e studenti restano da eseguire. Vedi [rapporto di accettazione](docs/MACROFASE_C_ACCETTAZIONE_MAC_2026_11_17.md), [matrice delle traduzioni](docs/MACROFASE_C_STATO_TRADUZIONI.md) e [README English](README.en.md).
+> **Macrofasi C e D pubblicate; Macrofase E in candidate.** La versione bilingue comprende 31 percorsi di studio, 62 approfondimenti, 104 esercizi risolti e 93 Challenges in inglese. I benchmark R/JavaScript superati sulle build pubblicate coprono soltanto gli scenari predefiniti (R1), non l’equivalenza algoritmica generale (R2). I nuovi strumenti docenti della E sono da collaudare sul Mac prima del rilascio. Vedi [protocollo E](docs/MACROFASE_E_PROTOCOLLO.md), [roadmap](docs/ROADMAP_MACROFASI_D_E.md) e [README EN](README.en.md).
 
 <p align="center">
   <img src="assets/logo.svg" width="112" alt="Logo di StatAtlas">
@@ -28,7 +28,7 @@
   <img alt="Licenze" src="https://img.shields.io/badge/licenze-MIT%20%2B%20CC%20BY%204.0-6B3E8A">
 </p>
 
-> **Stato del progetto — 17 novembre 2026.** Le Macrofasi A e B e l'aggiornamento post-B costituiscono la base del progetto. **La Macrofase C bilingue è presente in questa revisione ed è stata validata localmente** sulla build SHA-256 `cadb2eedc383c9d7faa2c957f57ef3a00410815bae0c48a347c7ce58658976d8`: 31 script R eseguiti e 84 confronti numerici R/JS superati (25 scenari predefiniti). Per verificare l'effettiva pubblicazione controllare commit `main`, GitHub Actions e sito GitHub Pages. Accessibilità con tecnologie assistive e valutazione didattica con studenti rimangono attività separate.
+> **Stato del progetto — 17 novembre 2026.** La Macrofase D è stata pubblicata nel commit [`80f2ea6`](https://github.com/gianluca-sottile/statatlas/commit/80f2ea6), con collaudo Mac 31/31 script R e 84/84 confronti numerici R/JS (R1). La **Macrofase E — StatAtlas for Teachers** è implementata come **candidate locale, ancora non collaudata con GNU R su Mac né pubblicata**. I nuovi percorsi docenti richiedono il gate E e l’apertura `file://` in Safari prima del rilascio. Accessibilità manuale e validazione con studenti restano distinte.
 
 ## Che cos'è StatAtlas
 
@@ -45,11 +45,15 @@ StatAtlas è un ambiente di insegnamento *esperienziale*: lo studente formula un
 
 ![Macrofase C: laboratorio e materiali didattici in inglese](docs/MACROFASE_C_FINALE_EN_DESKTOP.png)
 
-## Macrofase D — Esperimenti riproducibili (candidate in verifica)
+## Macrofase D — Esperimenti riproducibili (pubblicata)
 
-Questa candidate introduce tre comandi in ogni laboratorio: **Salva JSON**, **Apri JSON**, **Copia link** (in inglese *Save JSON / Open JSON / Copy link*). Le configurazioni conservano i parametri visibili, l'identità della build, il checkpoint della simulazione e, nei laboratori spaziali e nelle regressioni interattive 10 e 14, le coordinate realmente modificate. I collegamenti condivisibili sono disponibili solo per configurazioni abbastanza piccole; per le altre usare il JSON. Il confronto tra motori diversi è bloccato per non dichiarare una riproduzione non certificata. Non vengono salvate le valutazioni delle Challenges.
+La D (commit `80f2ea6`) introduce **Salva JSON**, **Apri JSON** e **Copia link** nei 31 laboratori. Snapshot versionati con parametri, seed, checkpoint e dati modificati manualmente nei sei lab spaziali e in 10/14. Incompatibilità fra fingerprint rifiutate. Il collegamento con *From Data to Models with R* segue IT/EN, anche nelle schede scaricabili; il deep learning 62 resta solo inglese.
 
-Nella stessa candidate il ponte *From Data to Models with R* segue automaticamente il selettore IT/EN, anche per le schede studente scaricate. I link esterni richiedono rete. **La Macrofase D non è ancora stata convalidata con GNU R sulla sua nuova build né pubblicata**. Vedi [roadmap D/E](docs/ROADMAP_MACROFASI_D_E.md), [protocollo di riproducibilità](docs/MACROFASE_D_PROTOCOLLO.md) e [relazione tecnica](docs/MACROFASE_D_RELAZIONE_CANDIDATE.md). Per il collaudo finale su Mac: `sh tests/run_macrofase_D.sh` con R e le dipendenze browser/Python già installate; nessun push prima dell'esito positivo.
+## Macrofase E — StatAtlas for Teachers (candidate da collaudare)
+
+Dal nuovo elemento **StatAtlas per docenti / StatAtlas for Teachers** si costruiscono percorsi di 1–24 attività con selezione dei laboratori e delle Challenges, consegne, lingua, durata e preset salvati nella Macrofase D. Si esportano due file distinti: **progetto docente JSON**, editabile, e **pagina studenti HTML autonoma** con StatAtlas integrato. Il percorso offre riflessioni, completamento locale e report JSON formativo; non sono voti certificati e nessun dato viene raccolto online.
+
+**La E è ancora una candidate:** prima del push occorre eseguire `sh tests/run_macrofase_E.sh` sul Mac, verificare con Safari il file studenti offline e controllare l'anteprima Git. Vedi [protocollo E](docs/MACROFASE_E_PROTOCOLLO.md), [checklist Mac](docs/MACROFASE_E_CHECKLIST_MAC.md) e [roadmap](docs/ROADMAP_MACROFASI_D_E.md).
 
 ## I laboratori
 
@@ -211,10 +215,10 @@ Le idee di presentazione della simulazione sono anche ispirate a [Simul2000 di M
 - **Software:** [licenza MIT](LICENSE).
 - **Materiali didattici:** [Creative Commons Attribution 4.0 International](https://creativecommons.org/licenses/by/4.0/deed.it).
 
-## Sviluppi successivi — Macrofase D ed E
+## Sviluppi successivi — Macrofasi D, E e F
 
 La roadmap aggiornata (esperimenti versionati e condivisibili, poi *StatAtlas for Teachers*) è in [`docs/ROADMAP_MACROFASI_D_E.md`](docs/ROADMAP_MACROFASI_D_E.md). La localizzazione IT/EN dei link al corso R è un intervento preparatorio della D. Lo stato di pubblicazione e i controlli delle versioni successive sono documentati separatamente: la precedente certificazione C non certifica automaticamente una build modificata.
 
-### Macrofase D — Esperimenti riproducibili (candidate)
+### Macrofase D — Esperimenti riproducibili (pubblicata)
 
-Ogni laboratorio offre **Salva JSON**, **Apri JSON** e **Copia link** per le configurazioni abbastanza compatte. Le istantanee includono il fingerprint del motore, il checkpoint dei runner o i punti spaziali effettivamente modificati. Per evitare risultati falsamente «identici», l'importazione rifiuta le build non corrispondenti. Lo stato delle Challenges non viene esportato. Il programma tecnico e la checklist sono in [`docs/MACROFASE_D_PROTOCOLLO.md`](docs/MACROFASE_D_PROTOCOLLO.md); lo ZIP è una *candidate*, non ancora un rilascio certificato sul Mac.
+Ogni laboratorio offre **Salva JSON**, **Apri JSON** e **Copia link** per le configurazioni abbastanza compatte. Le istantanee includono il fingerprint del motore, il checkpoint dei runner o i punti spaziali effettivamente modificati. Per evitare risultati falsamente «identici», l'importazione rifiuta le build non corrispondenti. Lo stato delle Challenges non viene esportato. Il programma tecnico e la checklist sono in [`docs/MACROFASE_D_PROTOCOLLO.md`](docs/MACROFASE_D_PROTOCOLLO.md); la Macrofase D è stata validata sul Mac e pubblicata il 17 novembre 2026.

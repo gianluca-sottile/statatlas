@@ -32,6 +32,20 @@ if [ -f "$SOURCE/verifica/parita_C_01_16.R" ]; then
     exit 1
   }
 fi
+# Phase E: do not publish authoring paths without the matching E end-to-end report.
+if [ -f "$SOURCE/src/core/teachers.js" ]; then
+  python3 - "$SOURCE" <<'PY_E'
+import json,hashlib,pathlib,sys
+root=pathlib.Path(sys.argv[1])
+p=root/'verifica/REPORT_MACROFASE_E.json'
+assert p.exists(), 'E gate missing: run sh tests/run_macrofase_E.sh on Mac first'
+r=json.loads(p.read_text())
+sha=hashlib.sha256((root/'index.html').read_bytes()).hexdigest()
+assert r.get('format')=='statatlas.phase-e-acceptance' and r.get('html_sha256')==sha, 'E gate tied to different HTML build'
+assert r.get('gates',{}).get('student_html')=='PASS', 'E student HTML not verified'
+print('Gate Macrofase E: HTML standalone, JSON docente, browser 390/1366 PASS; build SHA-256',sha)
+PY_E
+fi
 printf '1/5 Clono il repository in uno spazio temporaneo...\n' 
 git clone --quiet "$URL" "$WORK/repo"
 cd "$WORK/repo"
@@ -40,7 +54,7 @@ if [ "$BRANCH" != main ]; then echo "ERRORE: il ramo corrente e' $BRANCH, atteso
 printf '2/5 Copio la versione conclusiva senza modificare la cronologia Git...\n'
 rsync -a --delete --exclude='.git/' --exclude='.venv/' --exclude='.venv_backup*/' --exclude='node_modules/' --exclude='__pycache__/' \
   --exclude='*.pyc' --exclude='*.log' --exclude='verifica/runs/' \
-  --exclude='verifica/REPORT_VALIDAZIONE_R_31.csv' "$SOURCE/" "$WORK/repo/"
+  --exclude='verifica/REPORT_VALIDAZIONE_R_31.csv' --exclude='verifica/REPORT_MACROFASE_E.json' "$SOURCE/" "$WORK/repo/"
 printf '3/5 Ricostruisco la versione offline...\n'
 python3 build.py
 if command -v node >/dev/null 2>&1; then
@@ -68,6 +82,6 @@ if [ -z "$(git status --porcelain)" ]; then
 fi
 printf '5/5 Creo un unico commit e pubblico su main...\n'
 git add -A
-git commit -m 'StatAtlas 2.1: versioned offline experiment snapshots and language-aware R links'
+git commit -m 'StatAtlas 2.1: offline teaching paths, editable projects and formative reports'
 git push origin main
 printf 'PUBBLICAZIONE COMPLETATA. Ora verifica GitHub Actions e la checklist conclusiva.\n'
