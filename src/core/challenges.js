@@ -141,11 +141,11 @@
   };
 
   function evaluate(labId, taskId, snapshot, initial, answer, observedChoice) {
-    var tasks = bank[labId] || [], q = tasks.filter(function (t) { return t.id === taskId; })[0];
+    var tasks = (SA.i18n && SA.i18n.challengeTasks) ? SA.i18n.challengeTasks(labId, bank[labId] || []) : (bank[labId] || []), q = tasks.filter(function (t) { return t.id === taskId; })[0];
     if (!q) throw new Error('Sfida sconosciuta: ' + labId + '/' + taskId);
     if (!snapshot) return { ok: false, ready: false, message: 'Laboratorio non inizializzato.' };
     var r = q.rule(snapshot, initial);
-    if (!r.ready) return { ok: false, ready: false, message: r.message };
+    if (!r.ready) return { ok: false, ready: false, message: (SA.i18n && SA.i18n.trStatus) ? SA.i18n.trStatus(r.message) : r.message };
     if (answer == null || answer < 0 || answer >= q.options.length) return { ok: false, ready: true, message: 'Seleziona una risposta prima di verificare.' };
     var conceptual = +answer === q.correct;
     if (q.stage === 2) {
@@ -168,7 +168,7 @@
    */
   function nameOf(target) {
     if (!target) return '';
-    var name = target.getAttribute('aria-label');
+    var name = target.dataset.traceName || target.getAttribute('aria-label');
     if (!name) {
       var label = target.closest && target.closest('label');
       if (label) {
@@ -176,7 +176,8 @@
         name = first ? first.textContent : '';
       }
     }
-    return (name || '').trim().replace(/\s+/g, ' ');
+    name = (name || '').trim().replace(/\s+/g, ' ');
+    return SA.i18n && SA.i18n.sourceDisplayName ? SA.i18n.sourceDisplayName(name) : name;
   }
   function keyOf(name) {
     return String(name || '').toLocaleLowerCase('it').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, ' ').trim();
@@ -216,17 +217,20 @@
     if (typeof trace.onUpdate === 'function') trace.onUpdate();
   }
   function mount(page, id) {
-    var tasks = bank[id], lab = SA.labs[id];
+    var tasks = (SA.i18n && SA.i18n.challengeTasks) ? SA.i18n.challengeTasks(id, bank[id]) : bank[id], lab = SA.labs[id];
     if (!tasks || !lab) return;
     var trace = ensureTrace(id);
     trace.edits = []; trace.samples = []; trace.steps = 0; trace.current = {}; trace.listeners = []; trace.onUpdate = null;
     page.querySelectorAll('.controls input, .controls select, .controls textarea').forEach(function (input) {
+      input.dataset.traceName = nameOf(input);
       var key = keyOf(nameOf(input));
       if (key && key !== 'velocita') trace.current[key] = controlValue(input);
     });
     page.querySelectorAll('.controls .seg[aria-label]').forEach(function(group) {
       var pressed = group.querySelector('button[aria-pressed="true"]');
-      if (pressed) trace.current[keyOf(group.getAttribute('aria-label'))] = pressed.textContent.trim();
+      group.dataset.traceName = group.getAttribute('aria-label');
+      group.querySelectorAll('button').forEach(function (b) { b.dataset.traceValue = b.textContent.trim(); });
+      if (pressed) trace.current[keyOf(group.dataset.traceName)] = pressed.dataset.traceValue;
     });
     function recordEdit(key, value) {
       if (!key || key === 'velocita') return;
@@ -248,7 +252,7 @@
       var btn = ev.target.closest && ev.target.closest('.controls .seg button');
       if (!btn) return;
       var group = btn.closest('.seg');
-      recordEdit(keyOf(group.getAttribute('aria-label') || 'Modello dei dati'), btn.textContent.trim());
+      recordEdit(keyOf((SA.i18n && SA.i18n.sourceDisplayName ? SA.i18n.sourceDisplayName(group.dataset.traceName || group.getAttribute('aria-label') || 'Modello dei dati') : (group.dataset.traceName || group.getAttribute('aria-label') || 'Modello dei dati'))), (SA.i18n && SA.i18n.sourceDisplayName ? SA.i18n.sourceDisplayName(btn.dataset.traceValue || btn.textContent.trim()) : (btn.dataset.traceValue || btn.textContent.trim())));
     }, true);
     function getState() {
       var raw = typeof lab.challengeState === 'function' ? lab.challengeState() : {};
@@ -276,10 +280,10 @@
 
     function syncProgress() {
       var k = Object.keys(solved).filter(function (key) { return solved[key]; }).length;
-      progress.textContent = k + ' di ' + tasks.length + ' sfide completate · risultato formativo locale, non un voto.';
+      progress.textContent = SA.i18n && SA.i18n.isEnglish() ? k + ' of ' + tasks.length + ' challenges completed · local formative feedback, not a grade.' : k + ' di ' + tasks.length + ' sfide completate · risultato formativo locale, non un voto.';
       if (shortcut) {
-        shortcut.textContent = 'Mettiti alla prova · ' + k + '/' + tasks.length;
-        shortcut.setAttribute('aria-label', 'Mettiti alla prova: ' + k + ' di ' + tasks.length + ' sfide completate. Vai alle sfide.');
+        shortcut.textContent = (SA.i18n && SA.i18n.isEnglish() ? 'Challenges · ' : 'Mettiti alla prova · ') + k + '/' + tasks.length;
+        shortcut.setAttribute('aria-label', SA.i18n && SA.i18n.isEnglish() ? 'Take the challenge: ' + k + ' of ' + tasks.length + ' completed. Go to challenges.' : 'Mettiti alla prova: ' + k + ' di ' + tasks.length + ' sfide completate. Vai alle sfide.');
       }
     }
     tasks.forEach(function (q, i) {
@@ -311,7 +315,7 @@
         if (q.baseline && !initial) initial = getState();
         var result = evaluate(id, q.id, getState(), initial, selected, observedChoice);
         message.hidden = false; message.classList.toggle('success', !!result.ok);
-        message.textContent = result.message + (result.ready && result.explanation ? ' ' + result.explanation : '');
+        message.textContent = (SA.i18n && SA.i18n.trStatus ? SA.i18n.trStatus(result.message) : result.message) + (result.ready && result.explanation ? ' ' + result.explanation : '');
         if (result.ok) { solved[q.id] = true; card.classList.add('challenge-solved'); syncProgress(); }
       } });
       var jump = SA.ui.button('Vai ai controlli', { cls: 'btn-ghost', onclick: function () {
@@ -365,7 +369,7 @@
           comparisonPanel.replaceChildren();
           if (cmp) {
             var tab = el('table.challenge-comparison-table',
-              el('caption', 'Confronto A/B: ' + cmp.label),
+              el('caption', (SA.i18n && SA.i18n.isEnglish() ? 'A/B comparison: ' : 'Confronto A/B: ') + cmp.label),
               el('thead', el('tr', el('th', 'Configurazione'), el('th', 'Valore del controllo'),
                 el('th', 'Misure'), el('th', 'Media osservata'))));
             var tb = el('tbody');
@@ -374,13 +378,13 @@
                 el('td', String(g.control)), el('td', String(g.n)), el('td', Number(g.mean).toLocaleString('it-IT', {maximumFractionDigits: 4}))));
             });
             tab.appendChild(tb);
-            comparisonPanel.append(tab, el('p', cmp.diagnostic));
+            comparisonPanel.append(tab, el('p', SA.i18n && SA.i18n.trStatus ? SA.i18n.trStatus(cmp.diagnostic) : cmp.diagnostic));
           }
         }
-        activity.textContent = 'Dopo l’apertura: ' + steps + ' passi · ' + edits +
-          ' modifiche. ' + (result.ready ? 'Esperimento pronto: scegli la risposta.' : result.message) +
-          (result.quality ? ' ' + result.quality : '') +
-          (result.ready && result.evidence ? ' ' + result.evidence : '');
+        activity.textContent = (SA.i18n && SA.i18n.isEnglish() ? 'Since opening: ' : 'Dopo l’apertura: ') + steps + (SA.i18n && SA.i18n.isEnglish() ? ' steps · ' : ' passi · ') + edits +
+          (SA.i18n && SA.i18n.isEnglish() ? ' changes. ' : ' modifiche. ') + (result.ready ? (SA.i18n && SA.i18n.isEnglish() ? 'Experiment ready: choose an answer.' : 'Esperimento pronto: scegli la risposta.') : (SA.i18n && SA.i18n.trStatus ? SA.i18n.trStatus(result.message) : result.message)) +
+          (result.quality ? ' ' + (SA.i18n && SA.i18n.trStatus ? SA.i18n.trStatus(result.quality) : result.quality) : '') +
+          (result.ready && result.evidence ? ' ' + (SA.i18n && SA.i18n.trStatus ? SA.i18n.trStatus(result.evidence) : result.evidence) : '');
       }
       // Baseline captured on the initiating interaction (mouse/touch/keyboard).
       summary.addEventListener('click', function () { if (!card.open) startChallenge(); });

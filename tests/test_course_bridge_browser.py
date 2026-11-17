@@ -49,7 +49,25 @@ def run(width):
                     text=download.path().read_text(encoding='utf-8')
                     assert '## Riproducibilità in R' in text and '## Interpretazione e limitazioni' in text
                     assert 'https://gianluca-sottile.github.io/' in text
-            print(f'PASS course bridge: {len(LABS)} labs at {width}px, 4 downloads, no JS exceptions')
+            # Regression guard: an Italian worksheet keeps the pre-C filename,
+            # while the English edition offers a separate localized download.
+            if width < 700:
+                page.locator('#menuBtn').click()
+            page.locator('button.lang-toggle').first.click()
+            page.wait_for_function('document.documentElement.lang === "en"')
+            if width < 700:
+                page.locator('#menuBtn').click()
+            page.evaluate('location.hash="#/distribuzioni"')
+            page.wait_for_function('window.SA.currentLab==="distribuzioni"')
+            with page.expect_download() as d:
+                page.locator('[data-course-bridge="distribuzioni"] button.course-bridge-download').click()
+            download = d.value
+            assert download.suggested_filename == 'StatAtlas_01_EN_student_worksheet.md', download.suggested_filename
+            text = download.path().read_text(encoding='utf-8')
+            assert '## Research question' in text and '## Reproducing the experiment in R' in text
+            assert '## Assumptions and limitations' in text
+            assert not errors, ('en', errors)
+            print(f'PASS course bridge: {len(LABS)} labs at {width}px, 4 IT + 1 EN downloads, no JS exceptions')
         finally:
             page.close();browser.close()
 

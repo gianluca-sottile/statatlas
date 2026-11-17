@@ -5,7 +5,11 @@ const fs = require('fs');
 const ex = JSON.parse(fs.readFileSync(process.argv[2], 'utf8')), rng = JSON.parse(fs.readFileSync(process.argv[3], 'utf8'));
 const num = s => { const m = String(s).replace(/−/g, '-').replace(/(\d),(\d)/g, '$1.$2').match(/-?\d+(?:\.\d+)?(?:e-?\d+)?/gi); return m ? m.map(Number) : []; };
 const row = (id, start) => { const r = ex[id].rows.find(q => q[0].startsWith(start)); if (!r) throw new Error(id + ': riga mancante ' + start); return r; };
-const v = (id, start, col, k) => num(row(id, start)[col])[k];
+const v = (id, start, col, k) => {
+  const value = num(row(id, start)[col])[k];
+  if (!Number.isFinite(value)) throw new Error(`${id}: valore numerico assente (${start}, colonna ${col}, indice ${k}); benchmark non generabile`);
+  return value;
+};
 const LABS = Object.keys(ex), PKG = { quantilica: 'quantreg', penalizzata: 'glmnet', segmentata: 'segmented', dbscan: 'cluster' };
 const out = [];
 const L = s => out.push(s);
@@ -31,13 +35,24 @@ suppressPackageStartupMessages(library(tidyverse))
 
 .verifica <- data.frame(lab = character(), controllo = character(), esito = character(), dettaglio = character())
 registra <- function(lab, controllo, ok, dettaglio = "") {
-  .verifica[nrow(.verifica) + 1, ] <<- list(lab, controllo, if (is.na(ok)) "SALTATO" else if (ok) "OK" else "DIVERSO", dettaglio)
-  cat(sprintf("  %-8s %-62s %s\\n", if (is.na(ok)) "SALTATO" else if (ok) "OK" else "DIVERSO", controllo, dettaglio))
+  stopifnot(is.logical(ok), length(ok) == 1L, length(lab) == 1L,
+            length(controllo) == 1L, length(dettaglio) == 1L)
+  esito <- if (is.na(ok)) "SALTATO" else if (ok) "OK" else "DIVERSO"
+  .verifica[nrow(.verifica) + 1L, ] <<- list(lab, controllo, esito, as.character(dettaglio))
+  cat(sprintf("  %-8s %-62s %s\\n", esito, controllo, dettaglio))
 }
 confronta <- function(lab, controllo, ottenuto, atteso, tol) {
-  ok <- length(ottenuto) == length(atteso) && all(is.finite(ottenuto)) && all(abs(ottenuto - atteso) <= tol)
-  registra(lab, controllo, ok, sprintf("R = %s · browser = %s · tolleranza %g",
-    paste(signif(ottenuto, 7), collapse = " "), paste(signif(atteso, 7), collapse = " "), tol))
+  if (!is.numeric(ottenuto) || !is.numeric(atteso) || !is.numeric(tol) ||
+      !length(ottenuto) || !length(atteso) || length(ottenuto) != length(atteso) ||
+      !(length(tol) %in% c(1L, length(atteso))) ||
+      any(!is.finite(ottenuto)) || any(!is.finite(atteso)) ||
+      any(!is.finite(tol)) || any(tol < 0)) {
+    stop(sprintf("Benchmark %s/%s: riferimento numerico mancante o malformato", lab, controllo))
+  }
+  ok <- all(abs(ottenuto - atteso) <= tol)
+  registra(lab, controllo, ok, sprintf("R = %s · browser = %s · tolleranza %s",
+    paste(signif(ottenuto, 7), collapse = " "), paste(signif(atteso, 7), collapse = " "),
+    paste(signif(tol, 7), collapse = " ")))
 }
 esegui <- function(id) {
   cat("\\n── ", id, " ──────────────────────────────────────────────\\n", sep = "")
@@ -90,8 +105,11 @@ const CHECK = {
   confronta("25", "ARI: k-means, Ward, DBSCAN", c(ari(km$cluster, gruppo), ari(ward, gruppo), ari(db$cluster, gruppo)), c(${num(row('dbscan', 'Accordo con le popolazioni')[2]).join(', ')}), 6e-4)`,
   'reti-neurali': () => `  confronta("22", "perdita finale: training e validazione", unname(fit$storia[E + 1, ]), c(${num(row('reti-neurali', 'Perdita')[2]).join(', ')}), 6e-5)
   confronta("22", "accuratezza di validazione", mean((plogis(avanti(fit$par, Xva)$z) > 0.5) == yva), ${v('reti-neurali', 'Accuratezza', 2, 1)}, 6e-4)
-  registra("22", "controllo del gradiente (differenze finite)", max(abs(num - unlist(gradiente(par0, Xtr, ytr)))) / max(abs(num)) < 1e-6)
-  confronta("22", "20 inizializzazioni: perdita di training min e max", range(esiti$training), c(${num(row('reti-neurali', '20 inizializzazioni')[2]).slice(2, 4).join(', ')}), 6e-4)`
+  err_grad <- max(abs(num - unlist(gradiente(par0, Xtr, ytr)))) / max(abs(num))
+  registra("22", "controllo del gradiente (differenze finite)", is.finite(err_grad) && err_grad < 1e-6, sprintf("errore relativo R %.4g", err_grad))
+  # "20 inizializzazioni" richiede una seconda azione utente.
+  # Nello snapshot predefinito il browser mostra "premi il pulsante".
+  # Il confronto R/JS del laboratorio 22 usa perdita, accuratezza e gradiente.`
 };
 LABS.forEach(id => {
   L(`e <- esegui("${id}")`);

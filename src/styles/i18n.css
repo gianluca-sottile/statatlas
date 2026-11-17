@@ -1,0 +1,18 @@
+/* Bilingual navigation and carefully delimited English scientific companion. */
+.lang-toggle {font-variant-numeric: tabular-nums; min-width: 86px;}
+.en-companion {margin: 20px 0 26px; padding: clamp(16px,2.5vw,28px); border: 1px solid var(--rule-2, var(--rule)); border-left: 4px solid var(--accent); border-radius: 10px; background: var(--card); max-width: 100%;}
+.en-companion h2 {font-size: clamp(1.3rem,2.3vw,1.75rem); margin: 4px 0 14px;}
+.en-companion h3 {font-size: 1.15rem; margin: 16px 0 7px;}
+.en-companion p {max-width: 83ch; line-height: 1.65;}
+.en-companion-grid {display: grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap: 12px 24px; margin: 0 0 12px;}
+.en-companion-grid div {min-width: 0;}
+.en-companion dt {font-weight: 700; margin-bottom: 4px;}
+.en-companion dd {margin: 0; line-height: 1.6;}
+.en-companion details {margin-top: 12px; border-top:1px solid var(--rule); padding-top: 10px;}
+.en-companion summary {cursor: pointer; font-weight: 650;}
+.en-companion .en-coverage-note {font-size: .9rem; line-height: 1.5; margin-top: 18px; color: var(--ink-3);}
+@media(max-width:680px){.en-companion-grid{grid-template-columns:1fr;}}
+@media(prefers-reduced-motion:reduce){.en-companion,.en-companion *{scroll-behavior:auto!important;transition:none!important;}}
+
+/* Original simulator commentary is retained in source but not duplicated beside its English explanation. */
+html[lang='en'] .it-source-hidden { display: none !important; }

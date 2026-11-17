@@ -525,9 +525,55 @@ SA.courseBridge = (function () {
   }
 };
   function lesson(n) { return LESSONS[n] || null; }
+  var LESSON_TITLES_EN = {
+    23:'Describing two variables',25:'Distribution plots',27:'Correlation',28:'Randomness and simulation',
+    29:'Probability distributions',30:'Sampling distributions',31:'Bootstrap',32:'Confidence intervals',
+    33:'The logic of hypothesis tests',34:'Comparing means: t tests',35:'Proportions and chi-square tests',
+    36:'Nonparametric tests',38:'Simple linear regression',39:'Multiple regression',
+    40:'Model selection and validation',41:'Logistic regression',42:'Poisson regression',
+    43:'Penalized regression',44:'The machine-learning workflow',45:'Decision trees',46:'Random forests',
+    47:'Gradient boosting',49:'Comparing and selecting models',50:'Principal component analysis',
+    55:'Introduction to clustering',56:'k-means clustering',57:'Hierarchical clustering',58:'DBSCAN',
+    62:'Deep neural networks for tabular data'
+  };
+  function isEN() { return !!(SA.i18n && SA.i18n.isEnglish()); }
+  function enActivity(id) {
+    var d=SA.english && SA.english.labs[id], goals=SA.englishGoals && SA.englishGoals[id];
+    if (!d) throw Error('Missing English learning bridge for '+id);
+    return {
+      question:d.question, experiment:d.experiment,
+      check:'With the displayed settings and seed, export the R script, reproduce the simulated summary and compare an independently computed numerical quantity. '+(goals ? goals[2]+'.' : ''),
+      caution:d.limit
+    };
+  }
   function worksheet(id, info) {
-    var e = MAP[id]; if (!e) return '';
-    var lessons = e.lessons.map(function (n) { var l=lesson(n); return '- Lezione '+l.num+' — '+l.title+' ('+l.lang.toUpperCase()+'): '+l.url; }).join('\n');
+    var e=MAP[id]; if(!e) return '';
+    if (isEN()) {
+      var d=SA.english.labs[id],g=SA.englishGoals[id],act=enActivity(id);
+      var linksEN=e.lessons.map(function(n){var l=lesson(n);return '- Lesson '+n+' — '+LESSON_TITLES_EN[n]+' ('+l.lang.toUpperCase()+' source): '+l.url;}).join('\n');
+      return [
+        '# StatAtlas — Laboratory '+info.lab.num+' · '+d.title,
+        '', '## Related R lessons', linksEN,
+        '', '**Curricular relationship:** '+(e.alignment==='direct'?'direct thematic connection':'foundational topics only; the specific statistical method may not be covered in the R lesson'),
+        '', '## Research question',act.question,
+        '', '## Interactive experiment',act.experiment,
+        '', '## Learning objectives',g.map(function(x){return '- '+x;}).join('\n'),
+        '', '## Reproducing the experiment in R',
+        'Download the R script generated from the current simulation state. Run it with the stated seed and parameter settings.',
+        act.check,
+        '', '## Interpretation',d.essential,
+        '', '## Assumptions and limitations',act.caution,
+        '', '## What to submit',
+        'Report: (1) parameter values and seed; (2) a prediction made before observing the data; (3) a chart or table; (4) one R comparison; (5) statistical interpretation; and (6) one explicit limitation.',
+        '', '## Self-assessment',
+        '- [ ] I reported the complete model and seed.',
+        '- [ ] I distinguished observed estimates from theoretical expectations.',
+        '- [ ] I checked at least one value using R.',
+        '- [ ] I did not mistake sequential checkpoints for independent replicates.',
+        '', 'External R course links require Internet access. Lesson language is shown alongside each link; StatAtlas itself runs offline.'
+      ].join('\n')+'\n';
+    }
+    var lessons=e.lessons.map(function(n){var l=lesson(n);return '- Lezione '+l.num+' — '+l.title+' ('+l.lang.toUpperCase()+'): '+l.url;}).join('\n');
     return [
       '# StatAtlas — Scheda di laboratorio '+info.lab.num+' · '+info.lab.title,
       '', '## Collegamento al corso R', lessons,
@@ -542,38 +588,36 @@ SA.courseBridge = (function () {
     ].join('\n')+'\n';
   }
   function mount(page, id, info) {
-    var entry=MAP[id], head=page.querySelector('.lab-head');
-    if (!entry || !head || page.querySelector('[data-course-bridge]')) return;
-    var el=SA.ui.el;
-    var links=entry.lessons.map(function (n) {
-      var l=lesson(n);
-      return el('li',el('a',{href:l.url,target:'_blank',rel:'noopener noreferrer',lang:l.lang,'aria-label':'Apri la lezione '+n+' del corso R in '+(l.lang==='en'?'inglese':'italiano')+' (sito esterno)'},
-        'Lezione '+n+' · '+l.title+(l.lang==='en'?' (EN)':'')));
+    var entry=MAP[id],head=page.querySelector('.lab-head');
+    if(!entry||!head||page.querySelector('[data-course-bridge]'))return;
+    var english=isEN(),act=english?enActivity(id):entry,el=SA.ui.el;
+    var links=entry.lessons.map(function(n){
+      var l=lesson(n),text=english ? 'Lesson '+n+' · '+LESSON_TITLES_EN[n]+' ('+l.lang.toUpperCase()+' source)' :
+        'Lezione '+n+' · '+l.title+(l.lang==='en'?' (EN)':'');
+      var aria=english ? 'Open external R course lesson '+n+' in '+(l.lang==='en'?'English':'Italian') :
+        'Apri la lezione '+n+' del corso R in '+(l.lang==='en'?'inglese':'italiano')+' (sito esterno)';
+      return el('li',el('a',{href:l.url,target:'_blank',rel:'noopener noreferrer',lang:english?'en':l.lang,'aria-label':aria},text));
     });
     var direct=entry.alignment==='direct';
-    var panel=el('section.course-bridge',{'data-course-bridge':id,'aria-label':'Percorso integrato con il corso R'},
-      el('div.course-bridge-head',el('span.course-bridge-kicker','Dal laboratorio al codice R'),
-        el('span.course-bridge-kind',direct?'Lezioni direttamente collegate':'Lezioni propedeutiche')),
-      el('p','Per passare dall’esperimento visuale all’analisi riproducibile: consulta il corso R, esegui una prova controllata e verifica un risultato con lo script esportato.'),
+    var panel=el('section.course-bridge',{'data-course-bridge':id,'aria-label':english?'Related R course learning path':'Percorso integrato con il corso R'},
+      el('div.course-bridge-head',el('span.course-bridge-kicker',english?'From experiment to reproducible R':'Dal laboratorio al codice R'),
+        el('span.course-bridge-kind',english?(direct?'Directly related lessons':'Foundational lessons'):(direct?'Lezioni direttamente collegate':'Lezioni propedeutiche'))),
+      el('p',english?'Move from the visual experiment to a reproducible analysis: read the related R material, repeat a controlled experiment and verify a reported result using the exported script.':'Per passare dall’esperimento visuale all’analisi riproducibile: consulta il corso R, esegui una prova controllata e verifica un risultato con lo script esportato.'),
       el('ul.course-bridge-links',links),
       el('details.course-bridge-details',
-        el('summary','Apri il percorso in tre passaggi'),
+        el('summary',english?'Show the three-step learning path':'Apri il percorso in tre passaggi'),
         el('div.course-bridge-steps',
-          el('p',el('strong','1 · Prima. '),entry.question),
-          el('p',el('strong','2 · Durante. '),entry.experiment),
-          el('p',el('strong','3 · In R. '),entry.check),
-          el('p.course-bridge-caution',el('strong','Attenzione. '),entry.caution))),
-      el('button.btn.btn-ghost.course-bridge-download',{type:'button',onclick:function(){SA.ui.download('StatAtlas_'+info.lab.num+'_scheda_studente.md',worksheet(id,info),'text/markdown;charset=utf-8');}},'Scarica la scheda di lavoro'),
-      el('p.course-bridge-offline','Lezioni esterne: connessione richiesta. Esperimenti e codice StatAtlas: disponibili anche offline.'));
+          el('p',el('strong',english?'1 · Before. ':'1 · Prima. '),act.question),
+          el('p',el('strong',english?'2 · During. ':'2 · Durante. '),act.experiment),
+          el('p',el('strong',english?'3 · In R. ':'3 · In R. '),act.check),
+          el('p.course-bridge-caution',el('strong',english?'Caution. ':'Attenzione. '),act.caution))),
+      el('button.btn.btn-ghost.course-bridge-download',{type:'button',onclick:function(){SA.ui.download('StatAtlas_'+info.lab.num+(english?'_EN_student_worksheet.md':'_scheda_studente.md'),worksheet(id,info),'text/markdown;charset=utf-8');}},english?'Download student worksheet':'Scarica la scheda di lavoro'),
+      el('p.course-bridge-offline',english?'External lessons need Internet access; StatAtlas experiments and exported code remain available offline.':'Lezioni esterne: connessione richiesta. Esperimenti e codice StatAtlas: disponibili anche offline.'));
     head.parentNode.insertBefore(panel,head.nextSibling);
-    // Visible entry point above the cover artwork on mobile and desktop.
     var actions=head.querySelector('.head-actions');
-    if (actions) actions.appendChild(el('button.btn.btn-ghost.course-bridge-jump', {
-      type:'button', onclick:function(){
-        var reduce=window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        panel.scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'});
-      }
-    },'Studia con R'));
+    if(actions) actions.appendChild(el('button.btn.btn-ghost.course-bridge-jump',{
+      type:'button',onclick:function(){var reduced=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;panel.scrollIntoView({behavior:reduced?'auto':'smooth',block:'start'});}
+    },english?'Learn with R':'Studia con R'));
   }
   return {lessons:LESSONS,map:MAP,lesson:lesson,worksheet:worksheet,mount:mount};
 })();

@@ -95,7 +95,8 @@ SA.ui = (function () {
     function safeCode() {
       var code = getCode();
       // Un solo punto di normalizzazione per visualizzazione, copia e download.
-      return SA.rCode ? SA.rCode.wrap(code) : code;
+      code = SA.rCode ? SA.rCode.wrap(code) : code;
+      return SA.i18n && SA.i18n.translateRComments ? SA.i18n.translateRComments(code, SA.currentLab) : code;
     }
     var pre = el('pre', { tabindex: '0', 'aria-label': 'Codice R' });
     var box = el('div.code',
@@ -175,6 +176,7 @@ SA.ui = (function () {
   /* Contenuti estesi da SA.content[lab corrente]: si aggiungono a quelli propri del laboratorio */
   function extended(level) {
     var c = SA.content && SA.content[SA.currentLab], d = SA.pedagogy && SA.pedagogy[SA.currentLab], box = el('div');
+    if (SA.i18n && SA.i18n.isEnglish()) return SA.i18n.englishExtended(SA.currentLab, level, el);
     if (level === 'base') {
       if (c) box.appendChild(el('div.objectives', el('div.step-label', 'Obiettivi di apprendimento'), el('ul', c.obiettivi.map(function (o) { return el('li', o); }))));
       box.appendChild(content.base());
@@ -224,12 +226,15 @@ SA.ui = (function () {
     levels.querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.level === currentLevel)); });
     drawerBody.innerHTML = '';
     drawerBody.appendChild(decorate(extended(currentLevel)));
+    if (SA.i18n && SA.i18n.isEnglish()) SA.i18n.localizeSurface(drawerBody);
     drawerBody.scrollTop = 0;
   }
   function openDrawer(title, c, level) {
     if (!drawer) initDrawer();
     content = c; currentLevel = level || 'base';
-    drawerTitle.textContent = title; renderLevel();
+    drawerTitle.textContent = (SA.i18n && SA.i18n.isEnglish() && SA.english.labs[SA.currentLab]) ? SA.english.labs[SA.currentLab].title : title;
+    levels.querySelectorAll('button').forEach(function(b){var en={base:'Essentials',adv:'Advanced',ex:'Exercises',ref:'References'}, it={base:'Essenziale',adv:'Avanzato',ex:'Esercizi',ref:'Bibliografia'}; b.textContent=(SA.i18n && SA.i18n.isEnglish() ? en : it)[b.dataset.level];});
+    renderLevel();
     lastFocus = document.activeElement;
     drawer.removeAttribute('inert');
     drawer.classList.add('open'); drawer.setAttribute('aria-hidden', 'false'); backdrop.classList.add('show');

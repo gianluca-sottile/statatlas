@@ -85,6 +85,10 @@ jobs:
         run: |
           python tests/test_r_exports_browser.py --require-r
           python tests/test_spatial_export_equivalence.py --require-r
+      - name: Bilingual & accessibility smoke (manual only)
+        run: |
+          python tests/test_macrofase_C_i18n.py
+          python tests/test_accessibility_C.py
       - name: Browser and teaching QA
         run: |
           python tests/test_course_bridge_browser.py --width 390

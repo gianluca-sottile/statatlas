@@ -230,8 +230,8 @@
       ctrlBox = el('div.panel.controls'); figA = el('div'); figB = el('div'); legA = el('div.legend'); legB = el('div.legend');
       viewSeg = el('div.seg', { role: 'group', 'aria-label': 'Vista', style: 'margin:6px 0' });
       [['2d', 'Nuvola e marginali'], ['3d', 'Densità 3D']].forEach(function (v) {
-        viewSeg.appendChild(el('button', { type: 'button', 'aria-pressed': String(S.view === v[0]), onclick: function () {
-          S.view = v[0]; viewSeg.querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.textContent === v[1])); }); legends(); render(true); } }, v[1]));
+        viewSeg.appendChild(el('button', { type: 'button', 'aria-pressed': String(S.view === v[0]), 'data-view': v[0], onclick: function () {
+          S.view = v[0]; viewSeg.querySelectorAll('button').forEach(function (b) { b.setAttribute('aria-pressed', String(b.dataset.view === S.view)); }); legends(); render(true); } }, v[1]));
       });
       s3.body.appendChild(el('div.lab-grid', ctrlBox, el('div.figure',
         el('div.fig', el('div.fig-title', el('h3', 'La legge congiunta'), legA), viewSeg, figA),

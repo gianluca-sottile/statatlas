@@ -25,6 +25,13 @@ assert all(r['build_sha256'] == sha and r['runtime'] == 'PASS' and r['parse'] ==
 assert [r['laboratorio'] for r in results] == [m['lab'] for m in manifest], 'Ordine laboratori non coerente'
 print('Gate GNU R: 31 esecuzioni con esito PASS, stessa build corrente')
 PY_VERIFY
+# C release candidate: require the additional 25 live numerical comparisons.
+if [ -f "$SOURCE/verifica/parita_C_01_16.R" ]; then
+  (cd "$SOURCE" && python3 tests/verify_parity_C.py) || {
+    echo 'ERRORE: parita R/JS 01-25 non certificata sulla build corrente.' >&2
+    exit 1
+  }
+fi
 printf '1/5 Clono il repository in uno spazio temporaneo...\n' 
 git clone --quiet "$URL" "$WORK/repo"
 cd "$WORK/repo"
@@ -61,6 +68,6 @@ if [ -z "$(git status --porcelain)" ]; then
 fi
 printf '5/5 Creo un unico commit e pubblico su main...\n'
 git add -A
-git commit -m 'StatAtlas 2.1: numerosita 10-100000, velocita e CI alleggerita'
+git commit -m 'StatAtlas 2.1: full English learning track, accessibility and R parity QA'
 git push origin main
 printf 'PUBBLICAZIONE COMPLETATA. Ora verifica GitHub Actions e la checklist conclusiva.\n'

@@ -1,3 +1,5 @@
+> **Macrofase C — edizione bilingue IT/EN validata sulla build corrente.** Questa versione comprende 31 percorsi didattici inglesi autonomi, 62 capitoli metodologici, 104 esercizi con soluzione e tutte le 93 Challenges in inglese. Il collaudo del 17 novembre 2026 ha superato 31/31 esportazioni GNU R e 84/84 confronti R/JavaScript su 25 scenari predefiniti (R1); non dimostra equivalenza algoritmica generale (R2). L'edizione inglese non è una traduzione letterale di ogni paragrafo italiano. Le verifiche con lettori di schermo e studenti restano da eseguire. Vedi [rapporto di accettazione](docs/MACROFASE_C_ACCETTAZIONE_MAC_2026_11_17.md), [matrice delle traduzioni](docs/MACROFASE_C_STATO_TRADUZIONI.md) e [README English](README.en.md).
+
 <p align="center">
   <img src="assets/logo.svg" width="112" alt="Logo di StatAtlas">
 </p>
@@ -21,12 +23,12 @@
 
 <p align="center">
   <img alt="Versione corrente del ramo main" src="https://img.shields.io/badge/ramo_main-2.1-9A3412">
-  <img alt="Lingua" src="https://img.shields.io/badge/lingua-italiano-1C1B19">
+  <img alt="Lingua" src="https://img.shields.io/badge/lingue-IT%20%2B%20EN-1C1B19">
   <img alt="HTML autonomo" src="https://img.shields.io/badge/runtime-offline-1F6F43">
   <img alt="Licenze" src="https://img.shields.io/badge/licenze-MIT%20%2B%20CC%20BY%204.0-6B3E8A">
 </p>
 
-> **Stato del progetto — novembre 2026.** Il codice del ramo `main` comprende le Macrofasi **A** (audit scientifico, QA e validazione R 31/31) e **B** (collegamento curricolare con il corso R). La Macrofase **C** (inglese e accessibilità) è successiva. La numerazione del codice 2.1 non implica necessariamente la presenza di un nuovo tag GitHub o una validazione didattica già condotta con studenti.
+> **Stato del progetto — 17 novembre 2026.** Le Macrofasi A e B e l'aggiornamento post-B costituiscono la base del progetto. **La Macrofase C bilingue è presente in questa revisione ed è stata validata localmente** sulla build SHA-256 `cadb2eedc383c9d7faa2c957f57ef3a00410815bae0c48a347c7ce58658976d8`: 31 script R eseguiti e 84 confronti numerici R/JS superati (25 scenari predefiniti). Per verificare l'effettiva pubblicazione controllare commit `main`, GitHub Actions e sito GitHub Pages. Accessibilità con tecnologie assistive e valutazione didattica con studenti rimangono attività separate.
 
 ## Che cos'è StatAtlas
 
@@ -37,8 +39,11 @@ StatAtlas è un ambiente di insegnamento *esperienziale*: lo studente formula un
 - **Esperimenti riproducibili** con seed controllato, esportazione R, dati CSV e grafici PNG dove previsti.
 - **Macrofase B:** 62 collegamenti a 29 lezioni selezionate di *From Data to Models with R*, una sequenza operativa per laboratorio, 31 schede studente scaricabili e guida docente. I collegamenti possono essere diretti oppure propedeutici.
 - **Offline:** `index.html` contiene i sorgenti compilati in HTML/CSS/JavaScript, senza librerie JavaScript da scaricare. I collegamenti alle lezioni esterne richiedono connessione.
+- **Edizione inglese (Macrofase C):** 31 guide di studio originali, 62 capitoli metodologici a due livelli, 31 esempi numerici svolti, 104 esercizi con soluzione e 93 Challenges con domande, distrattori e feedback inglesi; conserva in ogni istante le regole di valutazione e le sorgenti italiane. Le 31 schede del corso R hanno una versione inglese, ma i collegamenti esterni possono puntare a lezioni pubblicate in italiano.
 
 ![StatAtlas: esperienza didattica desktop](docs/MACROFASE_B_DESKTOP.png)
+
+![Macrofase C: laboratorio e materiali didattici in inglese](docs/MACROFASE_C_FINALE_EN_DESKTOP.png)
 
 ## I laboratori
 
@@ -164,12 +169,14 @@ python3 tests/test_large_sample_coverage.py    # 15 confronti indipendenti SciPy
 python3 tests/test_mobile_tablet.py           # 31 lab, quattro larghezze
 ```
 
-Per il collaudo integrato della build corrente (GNU R, pacchetti e Playwright presenti):
+Per il **collaudo finale dell'edizione bilingue** (GNU R, pacchetti R richiesti, Playwright/Chromium e Node.js presenti), usare un solo comando:
 
 ```bash
-PATH="$PWD/.venv/bin:$PATH" sh tests/run_macrofase_B.sh > COLLAUDO_2_1.log 2>&1
+PATH="$PWD/.venv/bin:$PATH" sh tests/run_macrofase_C.sh > MACROFASE_C_COLLAUDO.log 2>&1
 echo "Codice di uscita: $?"
 ```
+
+Il gate C ingloba le prove A e B, visita tutti i 31 laboratori in entrambe le lingue, controlla le 93 Challenges, i 62 livelli teorici e la conservazione del codice R, rigenera **sulla build corrente** i 25 benchmark R/JavaScript e rifiuta mismatch, salti e manifest obsoleti. Il completamento del comando non implica equivalenza algoritmica globale (R2): i benchmark campionano lo scenario predefinito di ciascun laboratorio.
 
 Per preparare la pubblicazione senza commit o push, dopo aver validato **la build corrente**:
 
@@ -183,9 +190,9 @@ Il push effettivo va eseguito solo dopo aver esaminato l'anteprima. Il workflow 
 
 - **Macrofase A:** audit teorico, correzioni, UI responsive, 31 esecuzioni R e verifiche scientifiche; pubblicata.
 - **Macrofase B:** collegamento con il corso R, schede studente/guida docente, test e validazione delle esportazioni; pubblicata sul ramo principale.
-- **Macrofase C:** internazionalizzazione inglese, accessibilità e consolidamento finale; non ancora svolta.
-- **Attività scientifiche residue:** benchmark numerici JS/R per i lab 01–25, riferimenti primari per alcuni teoremi avanzati e collegamenti inversi nel corso Quarto separato.
-- **Validazione didattica con studenti:** programmata dopo il completamento del repository; non è una misura già disponibile della sua efficacia formativa.
+- **Macrofase C:** infrastruttura IT/EN e corpus inglese per 31 laboratori, 93 Challenges e teoria a due livelli; **gate locale GNU R 31/31 e parità numerica R/JS 25/25 (84 controlli) superati** il 17 novembre 2026. Questa revisione è pronta al rilascio; lo stato pubblico dipende dal commit e dal deployment.
+- **Attività scientifiche residue:** ampliare i confronti JS/R oltre gli scenari predefiniti per studiare R2/R3; completare le verifiche manuali su riferimenti primari per alcuni risultati teorici avanzati e gli eventuali collegamenti inversi nel corso R separato.
+- **Accessibilità e validazione didattica:** le verifiche automatiche di tastiera, focus e reflow sono smoke test, non certificazione WCAG 2.2 AA; VoiceOver/NVDA e valutazione con studenti sono ancora da effettuare.
 
 ## Citazione, crediti e licenze
 

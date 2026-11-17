@@ -57,7 +57,8 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   SA.findLab = find;
 
   function buildSidebar() {
-    var nav = el('nav', { 'aria-label': 'Laboratori' });
+    sidebar.innerHTML = '';
+    var nav = el('nav', { 'aria-label': SA.i18n.tr('Laboratori') });
     SA.catalog.forEach(function (p) {
       nav.appendChild(el('div.nav-part', p.part + ' · ' + p.title));
       nav.appendChild(el('ul.nav-list', p.labs.map(function (l) {
@@ -66,13 +67,26 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
           el('span.num', l.num), el('span', l.title), el('span.dot', { 'aria-hidden': 'true' })));
       })));
     });
-    var themeBtn = SA.ui.button('Tema', { icon: 'moon', cls: 'btn-ghost', onclick: toggleTheme, aria: 'Cambia tema chiaro/scuro' });
-    var lang = el('button.btn.btn-ghost', { type: 'button', disabled: true, title: 'Versione inglese in preparazione' }, 'IT · EN');
+    var themeBtn = SA.ui.button(SA.i18n.tr('Tema'), { icon: 'moon', cls: 'btn-ghost', onclick: toggleTheme, aria: SA.i18n.tr('Cambia tema chiaro/scuro') });
+    var en = SA.i18n.isEnglish();
+    var lang = el('button.btn.btn-ghost.lang-toggle', {
+      type: 'button', 'aria-label': en ? 'Switch to Italian' : 'Switch to English',
+      'aria-pressed': String(en), 'lang': en ? 'en' : 'it',
+      title: en ? 'Show the complete Italian source content' : 'Show English navigation and scientific companion guides',
+      onclick: function () {
+        if (!SA.i18n.setLanguage(en ? 'it' : 'en', SA.catalog)) return;
+        closeMenu(false);
+        buildSidebar();
+        route();
+        updateMenuAccessibility();
+      }
+    }, en ? 'EN · IT' : 'IT · EN');
     sidebar.append(
-      SA.ui.button('Chiudi indice', { icon: 'close', cls: 'btn-ghost sidebar-close', aria: 'Chiudi indice dei laboratori', onclick: function () { closeMenu(true); } }),
+      SA.ui.button(SA.i18n.tr('Chiudi indice'), { icon: 'close', cls: 'btn-ghost sidebar-close', aria: SA.i18n.tr('Chiudi indice dei laboratori'), onclick: function () { closeMenu(true); } }),
       el('a.brand', { href: '#/', html: SA.art.logo(38) + '<span class="brand-mark">Stat<span>Atlas</span></span>' }),
-      el('p.brand-tag', 'Laboratori di probabilità e inferenza'),
+      el('p.brand-tag', SA.i18n.tr('Laboratori di probabilità e inferenza')),
       nav, el('div.sidebar-foot', themeBtn, lang));
+    SA.i18n.localizeSurface(sidebar);
   }
 
   /* Menu responsivo: lo sfondo viene bloccato, il focus resta raggiungibile e l'indice si chiude
@@ -86,7 +100,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     else sidebar.removeAttribute('inert');
     if (menuBtn) {
       menuBtn.setAttribute('aria-expanded', String(open));
-      menuBtn.setAttribute('aria-label', open ? 'Chiudi indice dei laboratori' : 'Apri indice dei laboratori');
+      menuBtn.setAttribute('aria-label', SA.i18n.tr(open ? 'Chiudi indice dei laboratori' : 'Apri indice dei laboratori'));
     }
     if (menuBackdrop) menuBackdrop.hidden = !open;
     document.body.classList.toggle('mobile-menu-open', open);
@@ -140,16 +154,17 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   function labCountText() {
     var n = SA.catalog.reduce(function (a, p) { return a + p.labs.length; }, 0);
     var W = { 16: 'Sedici', 17: 'Diciassette', 18: 'Diciotto', 19: 'Diciannove', 20: 'Venti', 21: 'Ventuno', 22: 'Ventidue', 23: 'Ventitré', 24: 'Ventiquattro', 25: 'Venticinque', 26: 'Ventisei', 27: 'Ventisette', 28: 'Ventotto', 29: 'Ventinove', 30: 'Trenta', 31: 'Trentuno' };
-    return (W[n] || String(n)) + ' laboratori';
+    return SA.i18n.isEnglish() ? n + ' laboratories' : (W[n] || String(n)) + ' laboratori';
   }
   function home() {
     var page = el('div.page.page-home');
+    var english = SA.i18n.isEnglish();
     page.appendChild(el('header.hero.hero-home',
       el('div.hero-text',
-        el('div.kicker', 'Atlante interattivo di probabilità e statistica'),
-        el('h1', 'Vedere la statistica ', el('em', 'mentre accade')),
-        el('p.lede', labCountText() + ', dalla probabilità alla statistica spaziale e all’apprendimento statistico. Ognuno parte da una domanda, genera i dati sotto i tuoi occhi e confronta ciò che osservi con ciò che la teoria garantisce. Ogni esperimento si ripete in R con lo script fornito.'),
-        el('div.hero-actions', el('button.btn.btn-primary', { type: 'button', 'aria-haspopup': 'dialog', onclick: openMap }, 'Sfoglia l’atlante: la mappa dei laboratori'), el('a.btn.btn-ghost', { href: 'https://gianluca-sottile.github.io/An-R-Tutorial-for-Beginners/it/', target: '_blank', rel: 'noopener noreferrer' }, 'Studia anche con R ↗'))),
+        el('div.kicker', SA.i18n.tr('Atlante interattivo di probabilità e statistica')),
+        el('h1', english ? 'See statistics ' : 'Vedere la statistica ', el('em', english ? 'as it happens' : 'mentre accade')),
+        el('p.lede', english ? labCountText() + ', from probability to spatial statistics and statistical learning. Each experiment starts with a question and can be reproduced using the supplied R script. The laboratory interfaces and detailed Italian lessons retain their original language; an English scientific companion is available inside every lab.' : labCountText() + ', dalla probabilità alla statistica spaziale e all’apprendimento statistico. Ognuno parte da una domanda, genera i dati sotto i tuoi occhi e confronta ciò che osservi con ciò che la teoria garantisce. Ogni esperimento si ripete in R con lo script fornito.'),
+        el('div.hero-actions', el('button.btn.btn-primary', { type: 'button', 'aria-haspopup': 'dialog', onclick: openMap }, SA.i18n.tr('Sfoglia l’atlante: la mappa dei laboratori')), el('a.btn.btn-ghost', { href: 'https://gianluca-sottile.github.io/An-R-Tutorial-for-Beginners/' + (english ? 'en/' : 'it/'), target: '_blank', rel: 'noopener noreferrer' }, SA.i18n.tr('Studia anche con R ↗')))),
       el('div.hero-art', { html: '<div class="hero-logo">' + SA.art.logo(132) + '</div>' + ['distribuzioni', 'intervalli', 'regressione', 'lgn-tcl'].map(function (k, i) { return '<div class="mosaic m' + i + '">' + SA.art.get(k) + '</div>'; }).join('') })));
     page.appendChild(el('section.how', el('div.step-label', 'Come funziona un laboratorio'),
       el('ol.how-steps', STEPS.map(function (s, i) { return el('li', el('span.how-num', String(i + 1)), el('strong', s[0]), el('span', s[1])); }))));
@@ -166,13 +181,15 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     var parts = el('div.parts.part-tiles', { id: 'parti' });
     SA.catalog.forEach(function (p) {
       var d = PART_DESC[p.part];
+      var desc = english ? SA.english.parts[p.part][1] : d[1];
       parts.appendChild(el('button.part-tile', { type: 'button', 'aria-haspopup': 'dialog', onclick: function () { openPart(p); } },
         el('div.part-art', { html: SA.art.get(d[0]), 'aria-hidden': 'true' }),
-        el('div.part-text', el('div.part-roman', p.part), el('h2', p.title), el('p', d[1]),
-          el('div.part-foot', el('span.muted', p.labs.length + ' laboratori · ' + p.labs.map(function (l) { return l.num; }).join(' · ')), el('span.card-go', 'Apri →')))));
+        el('div.part-text', el('div.part-roman', p.part), el('h2', p.title), el('p', desc),
+          el('div.part-foot', el('span.muted', p.labs.length + (english ? ' labs · ' : ' laboratori · ') + p.labs.map(function (l) { return l.num; }).join(' · ')), el('span.card-go', 'Apri →')))));
     });
     page.appendChild(parts);
     page.appendChild(footer());
+    SA.i18n.localizeSurface(page);
     return page;
   }
 
@@ -224,7 +241,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     });
     var nodes = {};
     Object.keys(pos).forEach(function (id) {
-      var q = pos[id], g = P.svg('g', { tabindex: 0, role: 'link', 'aria-label': 'Laboratorio ' + q.lab.num + ': ' + q.lab.title, style: 'cursor:pointer' }, svg);
+      var q = pos[id], g = P.svg('g', { tabindex: 0, role: 'link', 'aria-label': (SA.i18n.isEnglish() ? 'Laboratory ' : 'Laboratorio ') + q.lab.num + ': ' + q.lab.title, style: 'cursor:pointer' }, svg);
       P.svg('rect', { x: q.x - NW / 2, y: q.y - 24, width: NW, height: 48, rx: 10, fill: t.card, stroke: t.rule_2, 'stroke-width': 1.4 }, g);
       P.text(g, q.x - NW / 2 + 10, q.y - 4, q.lab.num, { fill: t.accent, 'font-family': t.serif, 'font-size': 15, 'font-weight': 700 });
       var words = q.lab.title.split(' '), l1 = '', l2 = '';
@@ -254,6 +271,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
         SA.ui.button('', { icon: 'close', cls: 'btn-ghost btn-icon modal-close', aria: 'Chiudi', onclick: closePart })),
       box, caption);
     document.body.append(modalBack, modal); document.body.style.overflow = 'hidden';
+    SA.i18n.localizeSurface(modal);
     document.addEventListener('keydown', escPart);
     modal.querySelector('.modal-close').focus();
   }
@@ -266,7 +284,15 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     document.removeEventListener('keydown', escPart);
     if (modalLast) modalLast.focus();
   }
-  function escPart(e) { if (e.key === 'Escape') closePart(); }
+  function escPart(e) {
+    if (e.key === 'Escape') { e.preventDefault(); closePart(); return; }
+    if (e.key !== 'Tab' || !modal) return;
+    var focusable = Array.prototype.filter.call(modal.querySelectorAll('a[href],button:not([disabled]),[tabindex]:not([tabindex="-1"]),input:not([disabled]),select:not([disabled])'), function (n) { return n.getClientRects().length; });
+    if (!focusable.length) return;
+    var first = focusable[0], last = focusable[focusable.length-1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  }
   function openPart(p) {
     closePart(); modalLast = document.activeElement;
     var d = PART_DESC[p.part];
@@ -274,15 +300,16 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     modal = el('div.modal', { role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'modal-title' },
       el('div.modal-head',
         el('div.modal-art', { html: SA.art.get(d[0]), 'aria-hidden': 'true' }),
-        el('div', el('div.kicker', 'Parte ' + p.part), el('h2', { id: 'modal-title' }, p.title), el('p.muted', d[1])),
+        el('div', el('div.kicker', (SA.i18n.isEnglish() ? 'Part ' : 'Parte ') + p.part), el('h2', { id: 'modal-title' }, p.title), el('p.muted', SA.i18n.isEnglish() ? SA.english.parts[p.part][1] : d[1])),
         SA.ui.button('', { icon: 'close', cls: 'btn-ghost btn-icon modal-close', aria: 'Chiudi', onclick: closePart })),
       el('div.cards', p.labs.map(function (l) {
         var ready = l.status === 'ready', st = STATUS[l.status];
         var inner = [el('div.card-art', { html: SA.art.get(l.id), 'aria-hidden': 'true' }),
-          el('div.card-body', el('span.num', 'Laboratorio ' + l.num), el('h3', l.title), el('p', l.blurb), ready ? el('span.card-go', 'Apri il laboratorio →') : el('span.tag' + (st[0] ? '.' + st[0] : ''), st[1]), l.verifyR ? el('span.tag.tag-new', { style: 'margin-top:6px;align-self:flex-start' }, 'Anteprima · script R da verificare') : null)];
+          el('div.card-body', el('span.num', (SA.i18n.isEnglish() ? 'Lab ' : 'Laboratorio ') + l.num), el('h3', l.title), el('p', l.blurb), ready ? el('span.card-go', 'Apri il laboratorio →') : el('span.tag' + (st[0] ? '.' + st[0] : ''), st[1]), l.verifyR ? el('span.tag.tag-new', { style: 'margin-top:6px;align-self:flex-start' }, 'Anteprima · script R da verificare') : null)];
         return ready ? el('a.card', { href: '#/' + l.id, onclick: closePart }, inner) : el('div.card.is-soon', inner);
       })));
     document.body.append(modalBack, modal); document.body.style.overflow = 'hidden';
+    SA.i18n.localizeSurface(modal);
     document.addEventListener('keydown', escPart);
     modal.querySelector('.modal-close').focus();
   }
@@ -300,6 +327,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   }
 
   function footer() {
+    if (SA.i18n.isEnglish()) return el('footer.foot', el('p', 'StatAtlas · a teaching project by Gianluca Sottile. Some experiments are inspired by Simul2000 by Marcello Chiodi; this application’s code and texts are original.'), el('p', 'Random numbers reproduce R’s Mersenne Twister where documented. Full R/JavaScript numerical equivalence is established only for the verified cases; see the validation matrix.'));
     return el('footer.foot',
       el('p', 'StatAtlas · progetto didattico di Gianluca Sottile. Alcuni laboratori traggono ispirazione dalle idee di Simul2000 di Marcello Chiodi (Università di Palermo); codice e testi sono originali.'),
       el('p', 'Numeri casuali generati con il Mersenne-Twister di R. La riproducibilità dei campioni e la concordanza con R sono documentate per ciascun laboratorio; i confronti R ancora da completare sono segnalati esplicitamente.'));
@@ -313,7 +341,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     if (!zoom) return;
     var z = zoom; zoom = null;
     z.ph.parentNode.replaceChild(z.fig, z.ph); z.fig.classList.remove('fig-in-modal');
-    z.btn.textContent = '⤢'; z.btn.setAttribute('aria-label', 'Ingrandisci il grafico'); z.btn.title = 'Ingrandisci il grafico';
+    z.btn.textContent = '⤢'; z.btn.setAttribute('aria-label', SA.i18n.tr('Ingrandisci il grafico')); z.btn.title = SA.i18n.tr('Ingrandisci il grafico');
     z.overlay.remove(); document.documentElement.classList.remove('zoom-open');
     var cur = SA.currentLab && SA.labs[SA.currentLab]; if (cur && cur.redraw) cur.redraw();
     z.btn.focus();
@@ -323,12 +351,12 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     var ph = el('div.fig-placeholder', { style: 'height:' + fig.offsetHeight + 'px' });
     var box = el('div.fig-modal-box', { role: 'dialog', 'aria-modal': 'true', 'aria-label': (fig.querySelector('h3') || {}).textContent || 'Grafico ingrandito' });
     var overlay = el('div.fig-modal', box);
-    var close = SA.ui.button('Chiudi grafico', { icon: 'close', cls: 'fig-modal-close', aria: 'Chiudi il grafico ingrandito', onclick: closeZoom });
+    var close = SA.ui.button(SA.i18n.tr('Chiudi grafico'), { icon: 'close', cls: 'fig-modal-close', aria: SA.i18n.tr('Chiudi il grafico ingrandito'), onclick: closeZoom });
     box.appendChild(close);
     overlay.addEventListener('click', function (ev) { if (ev.target === overlay) closeZoom(); });
     fig.parentNode.replaceChild(ph, fig); box.appendChild(fig); fig.classList.add('fig-in-modal');
     document.body.appendChild(overlay); document.documentElement.classList.add('zoom-open');
-    btn.textContent = '✕'; btn.setAttribute('aria-label', 'Chiudi l’ingrandimento'); btn.title = 'Chiudi (Esc)';
+    btn.textContent = '✕'; btn.setAttribute('aria-label', SA.i18n.isEnglish() ? 'Close enlarged chart' : 'Chiudi l’ingrandimento'); btn.title = SA.i18n.tr('Chiudi (Esc)');
     zoom = { fig: fig, ph: ph, overlay: overlay, btn: btn };
     var cur = SA.currentLab && SA.labs[SA.currentLab]; if (cur && cur.redraw) cur.redraw();
     if (window.matchMedia && window.matchMedia('(max-width: 640px)').matches) close.focus(); else btn.focus();
@@ -364,13 +392,14 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     ];
     entries = entries.filter(function (pair) { return !!pair[1]; });
     if (entries.length < 2) return;
-    var nav = el('nav.lab-mobile-nav', { 'aria-label': 'Vai alle sezioni del laboratorio' });
+    var nav = el('nav.lab-mobile-nav', { 'aria-label': SA.i18n.tr('Vai alle sezioni del laboratorio') });
     entries.forEach(function (pair) {
       var b = el('button', { type: 'button', 'aria-label': 'Vai a ' + pair[0].toLowerCase(),
         onclick: function () {
           var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
           pair[1].scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
         } }, pair[0]);
+      if (SA.i18n.isEnglish()) b.textContent = SA.i18n.tr(pair[0]);
       nav.appendChild(b);
     });
     page.appendChild(nav);
@@ -381,7 +410,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     var c = SA.content && SA.content[id], head = page.querySelector('.lab-head');
     if (head) {
       var text = head.firstElementChild, btn = head.querySelector(':scope > .btn');
-      if (c) text.appendChild(el('ul.chips', { 'aria-label': 'Obiettivi' }, c.obiettivi.map(function (o) { return el('li', o); })));
+      if (c) text.appendChild(el('ul.chips', { 'aria-label': 'Obiettivi' }, (englishMode ? [SA.english.labs[id].question, SA.english.labs[id].experiment, SA.english.labs[id].essential] : c.obiettivi).map(function (o) { return el('li', o); })));
       if (SA.findLab(id).lab.verifyR) text.appendChild(el('div.callout.warn', { style: 'max-width:70ch' }, el('strong', 'Anteprima. '), 'Laboratorio nuovo: lo script R non è ancora stato verificato in un’installazione reale di R. I risultati del browser sono testati; quelli dello script vanno confermati.'));
       if (btn) text.appendChild(el('div.head-actions', btn));
       var info = SA.findLab(id);
@@ -402,7 +431,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     }
     // Guida didattica condivisa: una sola componente, contenuto specifico per laboratorio.
     // Sostituisce le guide locali precedenti senza toccare controlli o algoritmi.
-    var d = SA.pedagogy && SA.pedagogy[id];
+    var d = SA.pedagogy && SA.pedagogy[id], englishMode = SA.i18n.isEnglish();
     if (d && d.guida && d.guida.length) {
       var experiment = Array.prototype.find.call(page.querySelectorAll('section.step'), function (section) {
         var lab = section.querySelector('.step-label');
@@ -412,10 +441,10 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
         experiment.querySelectorAll('.moran-guide').forEach(function (old) { old.remove(); });
         var body = experiment.querySelector('.step-body');
         var how = el('details.lab-howto', { open: !window.matchMedia || !window.matchMedia('(max-width: 760px)').matches, 'data-lab-guide': id },
-          el('summary', el('span.lab-howto-title', 'Come usare il laboratorio'), el('span.lab-howto-meta', d.guida.length + ' mosse · clic per chiudere')),
+          el('summary', el('span.lab-howto-title', 'Come usare il laboratorio'), el('span.lab-howto-meta', englishMode ? '4 steps · select to close' : d.guida.length + ' mosse · clic per chiudere')),
           el('div.lab-howto-body',
-            el('p.lab-howto-intro', 'Esplora prima il campione e i grafici, quindi usa i controlli per verificare la tua previsione.'),
-            el('ol.lab-howto-list', d.guida.map(function (item) { return el('li', item); }))));
+            el('p.lab-howto-intro', englishMode ? 'Inspect the data and graphics before adjusting controls to test your prediction.' : 'Esplora prima il campione e i grafici, quindi usa i controlli per verificare la tua previsione.'),
+            el('ol.lab-howto-list', (englishMode ? SA.i18n.englishGuide(id) : d.guida).map(function (item) { return el('li', item); }))));
         var title = body.querySelector(':scope > h2');
         body.insertBefore(how, title ? title.nextSibling : body.children[1] || null);
       }
@@ -424,10 +453,10 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     var grid = page.querySelector('.lab-grid');
     if (grid) grid.parentNode.insertBefore(el('div.focus-box',
       el('div.focus-title', el('span.focus-icon', { 'aria-hidden': 'true' }, '◎'), 'Che cosa stiamo valutando'),
-      el('dl.focus-grid', c.valutiamo.map(function (v) { return el('div', el('dt', v[0]), el('dd', v[1])); }))), grid);
+      el('dl.focus-grid', (englishMode ? [['Research focus',SA.english.labs[id].question],['Suggested experiment',SA.english.labs[id].experiment],['Methodological scope',SA.english.labs[id].limit]] : c.valutiamo).map(function (v) { return el('div', el('dt', v[0]), el('dd', v[1])); }))), grid);
     var tbl = page.querySelector('.tbl-wrap');
     if (tbl) {
-      tbl.parentNode.insertBefore(el('div.table-guide', el('strong', 'Come leggere la tabella. '), c.tabella), tbl);
+      tbl.parentNode.insertBefore(el('div.table-guide', el('strong', englishMode ? 'How to read the table. ' : 'Come leggere la tabella. '), englishMode ? SA.english.labs[id].essential : c.tabella), tbl);
       tbl.parentNode.insertBefore(el('p.table-scroll-hint', 'Scorri orizzontalmente la tabella per vedere tutte le colonne.'), tbl);
     }
   }
@@ -447,7 +476,25 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     else if (SA.labs[id]) {
       var page = el('div.page'); main.appendChild(page);
       SA.currentLab = id;
-      current = SA.labs[id]; current.mount(page, info); enhanceLab(page, id); if (SA.challenges) SA.challenges.mount(page, id); addMobileLabNav(page); page.appendChild(footer());
+      current = SA.labs[id]; current.mount(page, info); enhanceLab(page, id);
+      if (SA.challenges) SA.challenges.mount(page, id);
+      addMobileLabNav(page); page.appendChild(footer());
+      if (SA.i18n.isEnglish()) {
+        var guide = SA.i18n.companion(id);
+        var head = page.querySelector('.lab-head');
+        if (guide && head) head.insertAdjacentElement('afterend', guide);
+        SA.i18n.replaceLabProse(page, id);
+        SA.i18n.localizeSurface(page);
+        // Interactive result panels are redrawn by their laboratories. Translate
+        // newly generated display labels on the next user action, without
+        // touching RNG, numerical values, form values or scientific state.
+        page.addEventListener('click', function () {
+          requestAnimationFrame(function () { if (page.isConnected) SA.i18n.localizeCurrent(page); });
+        });
+        page.addEventListener('change', function () {
+          requestAnimationFrame(function () { if (page.isConnected) SA.i18n.localizeCurrent(page); });
+        });
+      }
       document.title = info.lab.title + ' · StatAtlas';
     } else { main.appendChild(soon(info)); document.title = info.lab.title + ' · StatAtlas'; }
     window.scrollTo(0, 0);
@@ -456,6 +503,8 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
 
   SA.start = function () {
     el = SA.ui.el;
+    SA.i18n.init();
+    SA.i18n.applyCatalog(SA.catalog);
     try { var th = localStorage.getItem('sa-theme'); if (th) document.documentElement.setAttribute('data-theme', th); } catch (e) {}
     sidebar = document.getElementById('sidebar'); main = document.getElementById('main');
     buildSidebar();

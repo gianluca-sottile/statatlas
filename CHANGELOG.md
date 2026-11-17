@@ -1,3 +1,14 @@
+## Macrofase C — edizione bilingue validata per il rilascio (17 novembre 2026)
+
+- Versione IT/EN: 31 presentazioni scientifiche, 124 obiettivi inglesi, 62 approfondimenti metodologici in due livelli, 31 esempi numerici originali e 104 esercizi svolti in inglese. Conservata la versione italiana completa.
+- Localizzate in inglese tutte le **93 Challenges** (quesiti, risposte alternative, spiegazioni e istruzioni), mantenendo invariati indici corretti, prerequisiti numerici e registrazione degli esperimenti.
+- Localizzati menu, controlli e messaggi comuni mediante >500 stringhe esplicite, con conservazione delle chiavi dei parametri usate dai test. Schede bilingui per 31 collegamenti al corso R; collegamenti esterni IT contrassegnati.
+- Commenti inglesi negli script R generati su interfaccia EN: 174 righe esplicative controllate su 31 export, senza modifica delle istruzioni eseguibili, dei seed o dei calcoli.
+- Rafforzati i test di accessibilità: cambio lingua via tastiera, focus dei dialoghi, skip link, controllo mobile e `prefers-reduced-motion`. Test end-to-end per 31 laboratori e 93 Challenges. Non è una certificazione WCAG.
+- Validazione finale Mac **sulla build SHA-256 `cadb2eedc383c9d7faa2c957f57ef3a00410815bae0c48a347c7ce58658976d8`**: 31/31 esportazioni R eseguite, 25/25 laboratori confrontati numericamente con 84/84 controlli PASS. Risultati limitati agli scenari predefiniti (R1), senza deduzione di R2 generale.
+- La trattazione inglese è autonoma e scientificamente revisionata, **non una traduzione riga per riga** di ogni paragrafo del testo IT. La pubblicazione va verificata dal commit `main` e dalla distribuzione Pages; nessun tag implicito.
+- CI automatica su GitHub ancora leggera; test browser e GNU R estesi soltanto nel collaudo locale o su esecuzione manuale.
+
 # Changelog
 
 ## 2.1 — Patch post-Macrofase B: grandi campioni e CI essenziale (candidate, da pubblicare)
