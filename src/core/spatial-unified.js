@@ -268,6 +268,59 @@ function register(id,type){
      r.body.append(ui.el('p.prose','Il codice contiene esattamente le coordinate e i valori attuali. Si distinguono formule riprodotte in R e visualizzazioni illustrative; la corrispondenza numerica completa rimane soggetta alla Macrofase A.'));
      var code=ui.codeBlock(function(){return rScript(id,studio);},'statatlas_lab'+info.lab.num+'_mappa.R');r.body.append(code);page.append(r);site.code=code;code.refresh();
    },
+   // D: snapshot the actual edited observations; a seed alone cannot
+   // reproduce user-created/moved sensors or events.
+   exportExperimentState:function(){
+     if(!runtime)return null;
+     var s=runtime.studio.state;
+     return {kind:'spatial-points-v1',points:s.points.map(function(p){return {
+       x:p.x,y:p.y,value:p.value,cov:p.cov,id:p.id
+     };}),knn:s.knn,band:s.band,show:s.show,model:s.model,shown:s.shown,bins:s.bins,
+       tool:s.tool,dataVersion:s.dataVersion||0,
+       covOptions:s.other.covOptions?Object.assign({},s.other.covOptions):null};
+   },
+   importExperimentState:function(snap){
+     if(!runtime||!snap||snap.kind!=='spatial-points-v1'||!Array.isArray(snap.points))throw Error('Invalid spatial state');
+     var s=runtime.studio.state,max=type==='kriging'?40:175;
+     if(snap.points.length<(type==='kriging'?3:5)||snap.points.length>max)throw Error('Invalid number of spatial observations');
+     var ids=new Set();
+     var pts=snap.points.map(function(p){
+       if(!p||!Number.isFinite(p.x)||!Number.isFinite(p.y)||p.x<0||p.x>1||p.y<0||p.y>1)throw Error('Invalid spatial coordinate');
+       if(type==='kriging'){
+         if(!Number.isInteger(p.id)||p.id<0||p.id>=s.grid.length||ids.has(p.id))throw Error('Invalid sensor id');
+         ids.add(p.id);
+         var q=s.grid[p.id];
+         if(Math.abs(q.x-p.x)>1e-8||Math.abs(q.y-p.y)>1e-8 || Math.abs(s.other.values[p.id]-p.value)>1e-8)throw Error('Sensor does not match source field');
+       }
+       if(type!=='points' && (!Number.isFinite(p.value)||Math.abs(p.value)>1e6))throw Error('Invalid observed value');
+       if(type==='regression' && (!Number.isFinite(p.cov)||Math.abs(p.cov)>1e6))throw Error('Invalid covariate');
+       return {x:p.x,y:p.y,value:Number.isFinite(p.value)?p.value:0,cov:p.cov,id:p.id};
+     });
+     var bounds={knn:[1,50],band:[.001,100],bins:[2,100]};
+     Object.keys(bounds).forEach(function(k){
+       if(snap[k]!==undefined && (!Number.isFinite(snap[k])||snap[k]<bounds[k][0]||snap[k]>bounds[k][1]))throw Error('Invalid spatial parameter: '+k);
+     });
+     var allowed={show:['value','uncertainty'],model:['coords','x'],shown:['regression','moran','lisa'],tool:['add','high','low','cluster','move','remove']};
+     Object.keys(allowed).forEach(function(k){
+       if(snap[k]!==undefined && allowed[k].indexOf(snap[k])<0)throw Error('Invalid spatial option: '+k);
+     });
+     var cov=snap.covOptions;
+     if(cov!==null&&cov!==undefined){
+       if(type!=='kriging'||typeof cov!=='object'||Array.isArray(cov))throw Error('Invalid kriging options');
+       Object.keys(cov).forEach(function(k){if(typeof cov[k]==='number' && (!Number.isFinite(cov[k])||Math.abs(cov[k])>1e5))throw Error('Invalid kriging parameter');});
+     }
+     // Commit only after all preconditions have passed.
+     s.points=pts;
+     Object.keys(bounds).forEach(function(k){if(snap[k]!==undefined)s[k]=snap[k];});
+     Object.keys(allowed).forEach(function(k){if(snap[k]!==undefined)s[k]=snap[k];});
+     if(cov)s.other.covOptions=Object.assign({},s.other.covOptions,cov);
+     s.dataVersion=Number.isInteger(snap.dataVersion)?snap.dataVersion:0;
+     s.feedback='Experiment state restored from JSON';
+     runtime.revision=s.dataVersion;
+     runtime.tracker.value=String(s.dataVersion);
+     runtime.studio.render();
+     if(runtime.code)runtime.code.refresh();
+   },
    unmount:function(){runtime=null;},redraw:function(){if(runtime)runtime.studio.render();}
  };
  if(id==='kriging')installKrigingChallenges(); else installMapChallenges(id);

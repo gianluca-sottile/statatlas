@@ -1,3 +1,11 @@
+## Macrofase D — Candidate, 17 novembre 2026 (NON pubblicata)
+
+- IT/EN: collegamenti alle pagine della lingua selezionata nel corso *From Data to Models with R*, anche negli worksheet; la lezione 62 resta EN per assenza di traduzione IT.
+- Esperimenti riproducibili: snapshot `statatlas.experiment` v1, controlli e RNG checkpoint, import/export JSON, URL compatto senza backend; SHA-256 del motore come vincolo di compatibilità, validazione di dati e limiti.
+- Stato reale dei dati modificati su sei mappe spaziali e sui campioni dei laboratori 10 e 14; adapter dedicato per il runner del laboratorio 06.
+- Test di round-trip browser per 31 lab, variazioni di parametri, campioni e punti manuali; QA bilingue e verifiche scientifiche invariati.
+- **Gate GNU R 31/31 e numerici R/JS 84/84 non ancora eseguiti su questa nuova build D**. Nessun commit/push automatico; collaudo finale su Mac necessario.
+
 ## Macrofase C — edizione bilingue validata per il rilascio (17 novembre 2026)
 
 - Versione IT/EN: 31 presentazioni scientifiche, 124 obiettivi inglesi, 62 approfondimenti metodologici in due livelli, 31 esempi numerici originali e 104 esercizi svolti in inglese. Conservata la versione italiana completa.

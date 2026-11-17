@@ -207,6 +207,22 @@
   }
 
   SA.registerLab('quantilica', {
+    exportManualExperimentData: function () {
+      return S && S.manual ? {kind:'manual-xy-v1',manual:true,points:S.pts.map(function(p){return [p[0],p[1]];})} : null;
+    },
+    importManualExperimentData: function (data) {
+      if(!S || !data || data.kind!=='manual-xy-v1' || data.manual!==true ||
+        !Array.isArray(data.points) || data.points.length<4 || data.points.length>500 ||
+        !data.points.every(function(p){return Array.isArray(p) && p.length===2 &&
+          Number.isFinite(p[0]) && p[0]>=0 && p[0]<=10 &&
+          Number.isFinite(p[1]) && Math.abs(p[1])<=1000000;}))
+        throw Error('Invalid manually edited sample');
+      run.stop();
+      S.pts=data.points.map(function(p){return [p[0],p[1]];});
+      S.manual=true;
+      render(true);
+      run.refresh();
+    },
     challengeEvidence: function () {
       return { label: 'Pendenza della regressione quantilica', value: S && S.k ? S.est[S.k-1] : NaN };
     },

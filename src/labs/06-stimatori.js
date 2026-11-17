@@ -529,6 +529,30 @@
   }
 
   SA.registerLab('stimatori', {
+    // D: this laboratory uses a custom chunked animation, not SA.ui.runner.
+    experimentCheckpoint: function () {
+      cancelFinish(); setRunning(false);
+      return {steps:S.k,progress:S.k/S.M,finished:S.k>=S.M};
+    },
+    restoreExperimentCheckpoint: function (snapshot, callback) {
+      if (!snapshot || !Number.isSafeInteger(snapshot.steps) || snapshot.steps<0 || snapshot.steps>100000)
+        return callback(Error('Invalid estimator checkpoint'));
+      reset();
+      var todo=snapshot.steps;
+      (function slice(){
+        var t=Date.now();
+        try {
+          while (S.k<todo && S.k<S.M && Date.now()-t<12)replicate();
+          if(S.k<todo){
+            if(S.k>=S.M)return callback(Error('Estimator checkpoint exceeds M'));
+            return setTimeout(slice,0);
+          }
+          render(true); setRunning(false);
+          if(snapshot.finished !== (S.k>=S.M))return callback(Error('Estimator finished status mismatch'));
+          callback(null);
+        } catch(e){callback(e);}
+      })();
+    },
     challengeEvidence: function () {
       return { label: 'Mediana dell’ultima replica', value: S && S.last && S.last.vals ? S.last.vals.median : NaN };
     },

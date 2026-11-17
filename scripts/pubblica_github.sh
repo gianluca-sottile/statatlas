@@ -68,6 +68,6 @@ if [ -z "$(git status --porcelain)" ]; then
 fi
 printf '5/5 Creo un unico commit e pubblico su main...\n'
 git add -A
-git commit -m 'StatAtlas 2.1: full English learning track, accessibility and R parity QA'
+git commit -m 'StatAtlas 2.1: versioned offline experiment snapshots and language-aware R links'
 git push origin main
 printf 'PUBBLICAZIONE COMPLETATA. Ora verifica GitHub Actions e la checklist conclusiva.\n'

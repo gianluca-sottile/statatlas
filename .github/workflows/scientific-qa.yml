@@ -103,3 +103,12 @@ jobs:
           python tests/test_challenges_browser_full.py
           python tests/test_pedagogy_browser.py --start 1 --stop 16
           python tests/test_pedagogy_browser.py --start 17 --stop 31
+      - name: Phase D language-aware R links and reproducible experiments
+        run: |
+          python tests/test_D_course_urls_browser.py
+          python tests/test_D_experiments.py 390
+          python tests/test_D_experiments.py 1366
+          python tests/test_D_changed_roundtrip.py 1366
+          python tests/test_D_complex_roundtrip.py
+          python tests/test_D_manual_points.py
+          python tests/test_D_offline_links.py

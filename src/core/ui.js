@@ -295,7 +295,11 @@ SA.ui = (function () {
    * o.step() → false a esperimento concluso; o.render(full); o.reset(); o.done(); o.progress() ∈ [0,1] */
   function runner(o) {
     var r = { running: false, frame: 0, speed: SPEED_DEFAULT, raf: null, lastTick: null, speedCredit: 0 };
+    // D: count calls through the public runner, so a checkpoint can be replayed
+    // from the same seed without serialising implementation-private RNG state.
+    var experimentSteps = 0;
     var bar = el('i');
+    function advance() { if (o.done()) return false; experimentSteps++; return o.step(); }
     r.playBtn = button(' Avvia', { icon: 'play', cls: 'btn-primary', onclick: function () { r.set(!r.running); } });
     function label() {
       r.playBtn.innerHTML = ''; r.playBtn.appendChild(icon(r.running ? 'pause' : 'play'));
@@ -307,7 +311,7 @@ SA.ui = (function () {
       r.raf = null; if (!r.running) return;
       var n = speedBatch(r, now); r.frame++;
       if (n > 0) {
-        for (var i = 0; i < n; i++) if (o.step() === false) break;
+        for (var i = 0; i < n; i++) if (advance() === false) break;
         o.render(false); bar.style.width = (100 * o.progress()) + '%';
       }
       if (o.done()) { r.set(false); return; }
@@ -315,7 +319,7 @@ SA.ui = (function () {
     }
     r.set = function (on) {
       if (r.task) return;
-      if (on && o.done()) { o.reset(); o.render(true); } // simulazione finita: «Riavvia» ricomincia con lo stesso seed
+      if (on && o.done()) { o.reset(); experimentSteps = 0; o.render(true); } // simulazione finita: «Riavvia» ricomincia con lo stesso seed
       var wasRunning = r.running;
       r.running = !!on && !o.done();
       if (r.running && !wasRunning) { r.lastTick = null; r.speedCredit = 0; }
@@ -327,27 +331,57 @@ SA.ui = (function () {
       }
       label();
     };
-    r.stepOnce = function () { if (r.task) return; r.stop(); o.step(); o.render(true); label(); };
+    r.stepOnce = function () { if (r.task) return; r.stop(); advance(); o.render(true); label(); };
     /* Completa: sincrono per i lab leggeri; con o.coop a fette di ~30 ms (UI-01), annullabile, con avanzamento.
      * Durante il lavoro playBtn ha data-busy = "1" (usato anche dagli smoke test). */
     function endBusy() { r.task = null; r.playBtn.removeAttribute('data-busy'); r.playBtn.disabled = false; }
     r.finish = function () {
       if (r.task) return;
       r.stop();
-      if (!o.coop) { var guard = 0; while (!o.done() && o.step() !== false && guard++ < 1e6); o.render(true); label(); return; }
+      if (!o.coop) { var guard = 0; while (!o.done() && advance() !== false && guard++ < 1e6); o.render(true); label(); return; }
       if (r.task) return;
       var tk = r.task = { alive: true }; r.playBtn.setAttribute('data-busy', '1'); r.playBtn.disabled = true;
       (function slice() {
         if (!tk.alive) return;
         var t0 = Date.now(), more = true;
-        while (Date.now() - t0 < 30) if (o.done() || o.step() === false) { more = false; break; }
+        while (Date.now() - t0 < 30) if (o.done() || advance() === false) { more = false; break; }
         if (more && !o.done()) { o.render(false); bar.style.width = (100 * o.progress()) + '%'; setTimeout(slice, 0); }
         else { endBusy(); o.render(true); label(); }
       })();
     };
-    r.restart = function () { r.stop(); o.reset(); o.render(true); label(); };
+    r.restart = function () { r.stop(); o.reset(); experimentSteps = 0; o.render(true); label(); };
     r.stop = function () { r.running = false; if (r.raf) cancelAnimationFrame(r.raf); r.raf = null; r.lastTick = null; r.speedCredit = 0; if (r.task) { r.task.alive = false; endBusy(); } };
-    r.refresh = label;
+    r.refresh = function () {
+      if (o.progress() === 0) experimentSteps = 0; // lab-local parameter reset
+      label();
+    };
+    r.experimentCheckpoint = function () {
+      r.set(false); // freeze the simulation before snapshotting it
+      return {steps: experimentSteps, progress: o.progress(), finished: o.done()};
+    };
+    r.restoreExperimentCheckpoint = function (snapshot, callback) {
+      r.stop();
+      var target = snapshot.steps;
+      if (!Number.isSafeInteger(target) || target < 0 || target > 100000)
+        return callback(Error('Invalid experiment step count'));
+      o.reset(); experimentSteps = 0; o.render(true); label();
+      (function slice() {
+        var t0 = Date.now();
+        try {
+          while (experimentSteps < target && !o.done() && Date.now() - t0 < 12) {
+            if (advance() === false) break;
+          }
+          if (experimentSteps < target) {
+            if (o.done()) return callback(Error('Experiment ended before saved checkpoint'));
+            return setTimeout(slice, 0);
+          }
+          o.render(true); label();
+          if (snapshot.finished && !o.done()) return callback(Error('Finished status does not match checkpoint'));
+          callback(null);
+        } catch (err) { callback(err); }
+      })();
+    };
+    SA.ui.activeRunner = r;
     r.key = function (e) {
       if (/INPUT|SELECT|TEXTAREA|BUTTON/.test(e.target.tagName) || e.metaKey || e.ctrlKey || e.altKey) return;
       if (e.code === 'Space') { e.preventDefault(); r.set(!r.running); }

@@ -1,0 +1,9 @@
+/* Macrofase D — compact, keyboard-accessible experiment exchange controls. */
+.experiment-panel {margin: 18px 0 22px; padding:14px 18px; border:1px solid var(--rule);border-radius:12px;background:var(--card);}
+.experiment-panel-header {display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:12px;}
+.experiment-panel-header strong{font-size:0.98rem;}
+.experiment-panel-header span{font-size:.78rem;color:var(--muted);}
+.experiment-actions{display:flex;gap:8px;flex-wrap:wrap;}
+.experiment-actions .btn{min-height:38px;}
+.experiment-status{font-size:.8rem;color:var(--muted);margin:10px 0 0;}
+@media(max-width:480px){.experiment-panel{padding:12px}.experiment-actions .btn{flex:1 1 auto;}}

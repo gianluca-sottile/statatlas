@@ -468,6 +468,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     if (current && current.unmount) current.unmount();
     current = null;
     main.innerHTML = '';
+    if (SA.ui) SA.ui.activeRunner = null;
     sidebar.querySelectorAll('.nav-link').forEach(function (a) {
       if (a.dataset.id === id) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
     });
@@ -495,6 +496,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
           requestAnimationFrame(function () { if (page.isConnected) SA.i18n.localizeCurrent(page); });
         });
       }
+      if (SA.experiments) SA.experiments.mount(page,id);
       document.title = info.lab.title + ' · StatAtlas';
     } else { main.appendChild(soon(info)); document.title = info.lab.title + ' · StatAtlas'; }
     window.scrollTo(0, 0);

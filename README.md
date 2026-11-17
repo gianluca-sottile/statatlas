@@ -39,11 +39,17 @@ StatAtlas è un ambiente di insegnamento *esperienziale*: lo studente formula un
 - **Esperimenti riproducibili** con seed controllato, esportazione R, dati CSV e grafici PNG dove previsti.
 - **Macrofase B:** 62 collegamenti a 29 lezioni selezionate di *From Data to Models with R*, una sequenza operativa per laboratorio, 31 schede studente scaricabili e guida docente. I collegamenti possono essere diretti oppure propedeutici.
 - **Offline:** `index.html` contiene i sorgenti compilati in HTML/CSS/JavaScript, senza librerie JavaScript da scaricare. I collegamenti alle lezioni esterne richiedono connessione.
-- **Edizione inglese (Macrofase C):** 31 guide di studio originali, 62 capitoli metodologici a due livelli, 31 esempi numerici svolti, 104 esercizi con soluzione e 93 Challenges con domande, distrattori e feedback inglesi; conserva in ogni istante le regole di valutazione e le sorgenti italiane. Le 31 schede del corso R hanno una versione inglese, ma i collegamenti esterni possono puntare a lezioni pubblicate in italiano.
+- **Edizione inglese (Macrofase C):** 31 guide di studio originali, 62 capitoli metodologici a due livelli, 31 esempi numerici svolti, 104 esercizi con soluzione e 93 Challenges con domande, distrattori e feedback inglesi; conserva in ogni istante le regole di valutazione e le sorgenti italiane. Le 31 schede del corso R hanno una versione inglese e il selettore EN rimanda alle lezioni del corso pubblicate in inglese; in IT i collegamenti restano italiani (fatta eccezione per il deep learning 62, disponibile solo in EN).
 
 ![StatAtlas: esperienza didattica desktop](docs/MACROFASE_B_DESKTOP.png)
 
 ![Macrofase C: laboratorio e materiali didattici in inglese](docs/MACROFASE_C_FINALE_EN_DESKTOP.png)
+
+## Macrofase D — Esperimenti riproducibili (candidate in verifica)
+
+Questa candidate introduce tre comandi in ogni laboratorio: **Salva JSON**, **Apri JSON**, **Copia link** (in inglese *Save JSON / Open JSON / Copy link*). Le configurazioni conservano i parametri visibili, l'identità della build, il checkpoint della simulazione e, nei laboratori spaziali e nelle regressioni interattive 10 e 14, le coordinate realmente modificate. I collegamenti condivisibili sono disponibili solo per configurazioni abbastanza piccole; per le altre usare il JSON. Il confronto tra motori diversi è bloccato per non dichiarare una riproduzione non certificata. Non vengono salvate le valutazioni delle Challenges.
+
+Nella stessa candidate il ponte *From Data to Models with R* segue automaticamente il selettore IT/EN, anche per le schede studente scaricate. I link esterni richiedono rete. **La Macrofase D non è ancora stata convalidata con GNU R sulla sua nuova build né pubblicata**. Vedi [roadmap D/E](docs/ROADMAP_MACROFASI_D_E.md), [protocollo di riproducibilità](docs/MACROFASE_D_PROTOCOLLO.md) e [relazione tecnica](docs/MACROFASE_D_RELAZIONE_CANDIDATE.md). Per il collaudo finale su Mac: `sh tests/run_macrofase_D.sh` con R e le dipendenze browser/Python già installate; nessun push prima dell'esito positivo.
 
 ## I laboratori
 
@@ -204,3 +210,11 @@ Le idee di presentazione della simulazione sono anche ispirate a [Simul2000 di M
 
 - **Software:** [licenza MIT](LICENSE).
 - **Materiali didattici:** [Creative Commons Attribution 4.0 International](https://creativecommons.org/licenses/by/4.0/deed.it).
+
+## Sviluppi successivi — Macrofase D ed E
+
+La roadmap aggiornata (esperimenti versionati e condivisibili, poi *StatAtlas for Teachers*) è in [`docs/ROADMAP_MACROFASI_D_E.md`](docs/ROADMAP_MACROFASI_D_E.md). La localizzazione IT/EN dei link al corso R è un intervento preparatorio della D. Lo stato di pubblicazione e i controlli delle versioni successive sono documentati separatamente: la precedente certificazione C non certifica automaticamente una build modificata.
+
+### Macrofase D — Esperimenti riproducibili (candidate)
+
+Ogni laboratorio offre **Salva JSON**, **Apri JSON** e **Copia link** per le configurazioni abbastanza compatte. Le istantanee includono il fingerprint del motore, il checkpoint dei runner o i punti spaziali effettivamente modificati. Per evitare risultati falsamente «identici», l'importazione rifiuta le build non corrispondenti. Lo stato delle Challenges non viene esportato. Il programma tecnico e la checklist sono in [`docs/MACROFASE_D_PROTOCOLLO.md`](docs/MACROFASE_D_PROTOCOLLO.md); lo ZIP è una *candidate*, non ancora un rilascio certificato sul Mac.

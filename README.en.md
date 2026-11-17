@@ -4,6 +4,10 @@
 
 **Release status:** Macrophase C is included in this revision and **passed local macOS acceptance testing on 17 November 2026** for build SHA-256 `cadb2eedc383c9d7faa2c957f57ef3a00410815bae0c48a347c7ce58658976d8`. The test executed 31/31 GNU R exports and passed 84/84 numerical R/JavaScript checks for 25 default scenarios (R1). Public availability should be confirmed from the current `main` commit and GitHub Pages deployment. These checks do not certify universal algorithmic parity (R2), WCAG conformance, or student usability.
 
+## Phase D — Reproducible experiments (candidate pending GNU R acceptance)
+
+Each of the 31 labs now supports **Save JSON**, **Open JSON**, and **Copy link**. The versioned experiment file captures displayed controls, exact replay checkpoints where supported, and edited observations from six spatial labs and interactive regression labs 10 and 14. Only small states can fit into shareable links; use JSON for larger datasets. Files tied to a different engine fingerprint are rejected; Challenge scores are not included. The R-course bridge now respects IT/EN in all 31 labs and exported worksheets, except lesson 62 (English only). See [the D/E roadmap](docs/ROADMAP_MACROFASI_D_E.md), [the protocol](docs/MACROFASE_D_PROTOCOLLO.md) and [the technical report](docs/MACROFASE_D_RELAZIONE_CANDIDATE.md). **GNU R acceptance on this new D build and release are still pending.**
+
 ## What is StatAtlas?
 
 StatAtlas is a standalone, offline-capable HTML/CSS/JavaScript learning platform comprising **31 interactive statistics laboratories in eight parts**. Topics span probability distributions, simulation, the law of large numbers, the central limit theorem, estimation, likelihood, confidence intervals, hypothesis testing, regression, GLMs, regularization, supervised learning, unsupervised learning, and spatial statistics.
@@ -63,3 +67,11 @@ Automated checks cover mobile responsiveness, keyboard use, focus management, do
 ## Credits, citation and licences
 
 StatAtlas is authored by **Gianluca Sottile**. Its pedagogical approach also draws inspiration from Marcello Chiodi's [Simul2000](https://github.com/marcellochiodi/simul2000), while StatAtlas code and educational materials are independently authored. See [`CITATION.cff`](CITATION.cff), [`LICENSE`](LICENSE), and the [project changelog](CHANGELOG.md). Software is distributed under MIT and educational materials under CC BY 4.0 as specified in the project documentation.
+
+## Roadmap — Phases D and E
+
+The development plan for versioned, shareable experiments and the later *StatAtlas for Teachers* composer is in [`docs/ROADMAP_MACROFASI_D_E.md`](docs/ROADMAP_MACROFASI_D_E.md). R course lesson links now follow the StatAtlas IT/EN selection, with the English-only deep-learning exception. A new build requires a fresh validation: the Phase C numerical certificate does not automatically cover it.
+
+### Phase D — Reproducible Experiments (candidate)
+
+Every laboratory offers **Save JSON**, **Open JSON** and **Copy link** (for compact configurations). Snapshots include a build fingerprint, deterministic runner checkpoints or user-edited spatial observations. Loading a snapshot from an incompatible build is refused rather than claiming false reproducibility. Challenge scores are excluded. See [`docs/MACROFASE_D_PROTOCOLLO.md`](docs/MACROFASE_D_PROTOCOLLO.md). This is an unvalidated release candidate pending the full GNU R acceptance test on macOS.

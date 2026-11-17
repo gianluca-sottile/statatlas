@@ -524,7 +524,21 @@ SA.courseBridge = (function () {
     "caution": "Il laboratorio non adatta SAR/SEM nella mappa unificata."
   }
 };
-  function lesson(n) { return LESSONS[n] || null; }
+  // The Italian and English course editions share the same lesson paths.
+  // The optional deep-learning track (lesson 62) has no Italian edition.
+  // Return a fresh localized descriptor, never mutate the source catalogue.
+  function lesson(n, requestedLocale) {
+    var source = LESSONS[n];
+    if (!source) return null;
+    if (requestedLocale !== 'it' && requestedLocale !== 'en') return source;
+    var english = requestedLocale === 'en' || source.lang === 'en';
+    return {
+      num: source.num,
+      title: english ? LESSON_TITLES_EN[n] : source.title,
+      url: english ? source.url.replace(BASE + 'it/', BASE) : source.url,
+      lang: english ? 'en' : 'it'
+    };
+  }
   var LESSON_TITLES_EN = {
     23:'Describing two variables',25:'Distribution plots',27:'Correlation',28:'Randomness and simulation',
     29:'Probability distributions',30:'Sampling distributions',31:'Bootstrap',32:'Confidence intervals',
@@ -550,7 +564,7 @@ SA.courseBridge = (function () {
     var e=MAP[id]; if(!e) return '';
     if (isEN()) {
       var d=SA.english.labs[id],g=SA.englishGoals[id],act=enActivity(id);
-      var linksEN=e.lessons.map(function(n){var l=lesson(n);return '- Lesson '+n+' — '+LESSON_TITLES_EN[n]+' ('+l.lang.toUpperCase()+' source): '+l.url;}).join('\n');
+      var linksEN=e.lessons.map(function(n){var l=lesson(n,'en');return '- Lesson '+n+' — '+l.title+': '+l.url;}).join('\n');
       return [
         '# StatAtlas — Laboratory '+info.lab.num+' · '+d.title,
         '', '## Related R lessons', linksEN,
@@ -570,10 +584,10 @@ SA.courseBridge = (function () {
         '- [ ] I distinguished observed estimates from theoretical expectations.',
         '- [ ] I checked at least one value using R.',
         '- [ ] I did not mistake sequential checkpoints for independent replicates.',
-        '', 'External R course links require Internet access. Lesson language is shown alongside each link; StatAtlas itself runs offline.'
+        '', 'External R course links require Internet access. Links follow the selected language; the optional deep-learning lesson is English-only. StatAtlas itself runs offline.'
       ].join('\n')+'\n';
     }
-    var lessons=e.lessons.map(function(n){var l=lesson(n);return '- Lezione '+l.num+' — '+l.title+' ('+l.lang.toUpperCase()+'): '+l.url;}).join('\n');
+    var lessons=e.lessons.map(function(n){var l=lesson(n,'it');return '- Lezione '+l.num+' — '+l.title+' ('+l.lang.toUpperCase()+'): '+l.url;}).join('\n');
     return [
       '# StatAtlas — Scheda di laboratorio '+info.lab.num+' · '+info.lab.title,
       '', '## Collegamento al corso R', lessons,
@@ -592,11 +606,11 @@ SA.courseBridge = (function () {
     if(!entry||!head||page.querySelector('[data-course-bridge]'))return;
     var english=isEN(),act=english?enActivity(id):entry,el=SA.ui.el;
     var links=entry.lessons.map(function(n){
-      var l=lesson(n),text=english ? 'Lesson '+n+' · '+LESSON_TITLES_EN[n]+' ('+l.lang.toUpperCase()+' source)' :
+      var l=lesson(n,english?'en':'it'),text=english ? 'Lesson '+n+' · '+l.title :
         'Lezione '+n+' · '+l.title+(l.lang==='en'?' (EN)':'');
       var aria=english ? 'Open external R course lesson '+n+' in '+(l.lang==='en'?'English':'Italian') :
         'Apri la lezione '+n+' del corso R in '+(l.lang==='en'?'inglese':'italiano')+' (sito esterno)';
-      return el('li',el('a',{href:l.url,target:'_blank',rel:'noopener noreferrer',lang:english?'en':l.lang,'aria-label':aria},text));
+      return el('li',el('a',{href:l.url,target:'_blank',rel:'noopener noreferrer',lang:l.lang,'aria-label':aria},text));
     });
     var direct=entry.alignment==='direct';
     var panel=el('section.course-bridge',{'data-course-bridge':id,'aria-label':english?'Related R course learning path':'Percorso integrato con il corso R'},
