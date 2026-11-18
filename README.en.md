@@ -1,18 +1,18 @@
-> **UX redesign candidate, 17 November 2026.** All 31 laboratories now use a scientific-first workbench with non-reflowing accessible Guide/R course/Save overlays. Teachers use a master-detail editor; student reflections and formative reports live in an overlay. This UX build is **not published or Mac R-certified yet**; run `sh tests/run_macrofase_UX.sh` and the native Safari offline check before one GitHub push. See [UX protocol](docs/UX_REDESIGN_PROTOCOLLO.md) and [design report](docs/UX_REDESIGN_RELAZIONE.md). The previous Phase E passed its Mac acceptance.
+> **Lab toolbar refinement — local candidate, 18 November 2026.** The previous scientific-workbench UX build passed local Mac acceptance. This separate candidate groups lab actions into **Guide · Theory · Challenges | R course · R code | Save / Share**, adds consistent subtle button borders, and places the *original* Challenges and live R script inside non-reflowing drawers. The redundant Simulate toolbar shortcut is removed, while actual Start/Step/Reset simulation controls are preserved. All 31 R exports and 25 R1 reference scenarios are unchanged; GNU R and browser acceptance are required on the new HTML hash before GitHub publication. [Technical note](docs/UX_TOOLBAR_REFINEMENT.md).
 
 # StatAtlas 2.1 — Interactive Atlas of Statistics
 
 **Maintainer:** Gianluca Sottile · [Public StatAtlas application](https://gianluca-sottile.github.io/statatlas/) · [Source repository](https://github.com/gianluca-sottile/statatlas) · [README italiano](README.md)
 
-**Release status:** Macrophases C and D have been published; Phase D was released as commit [`80f2ea6`](https://github.com/gianluca-sottile/statatlas/commit/80f2ea6) after 31/31 R exports and 84/84 R/JavaScript numerical checks for default scenarios (R1). **Phase E is a local development candidate, not yet GNU R-validated on macOS or published.** R2 algorithmic equivalence, manual WCAG assessment and classroom usability are not certified.
+**Release status:** The code integrates the bilingual C, experiments D, Teachers E, and the scientific-workbench UX features. The toolbar refinement is a **separate candidate**, not a certified or published update. Earlier Mac acceptance covered the prior UX fingerprint; rerun `sh tests/run_macrofase_UX.sh` for this new build before publishing. Numerical R/JavaScript checks cover verified default scenarios (R1), not universal equivalence (R2).
 
 ## Phase D — Reproducible experiments (published)
 
 Each of the 31 labs supports **Save JSON**, **Open JSON**, and **Copy link**. Versioned snapshots capture parameters, deterministic checkpoints and edited observations where supported. Incompatible engine builds are rejected. R-course lesson links follow the IT/EN switch, except English-only deep-learning lesson 62.
 
-## Phase E — StatAtlas for Teachers (candidate)
+## Phase E — StatAtlas for Teachers
 
-Create a 1–24-step teaching path from 31 laboratories, select individual Challenges, write instructions and estimated durations, and attach Phase D presets. Export an **editable teacher JSON project** or a **single-file standalone offline student HTML page**. The student page contains the full StatAtlas engine but shows the selected path, collects private local reflections and challenge completion, and exports an **editable formative JSON report**. There is no authentication, server or certified grading. The Phase E release requires a full Mac test, GNU R revalidation, and native Safari `file://` verification. See [protocol](docs/MACROFASE_E_PROTOCOLLO.md) and [Mac release checklist](docs/MACROFASE_E_CHECKLIST_MAC.md).
+The integrated Teachers module creates 1–24 step offline learning paths from 31 laboratories and selected Challenges. Assign D experiment snapshots as initial configurations, export an editable teacher JSON project and a fully standalone student HTML page, and collect private, editable formative JSON reports. The student shortcut **Go to assigned Challenges** now opens the same non-reflowing drawer and counts only assigned tasks. This is not a certified grading system. See [protocol](docs/MACROFASE_E_PROTOCOLLO.md) and [Mac release checklist](docs/MACROFASE_E_CHECKLIST_MAC.md).
 
 ## What is StatAtlas?
 

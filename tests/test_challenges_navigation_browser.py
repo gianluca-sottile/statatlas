@@ -36,7 +36,9 @@ with sync_playwright() as playwright:
                 section=page.locator('#sfide-'+id)
                 assert section.count()==1,(width,id,'missing target section')
                 c.click()
-                assert page.evaluate('(id)=>document.activeElement?.id==="sfide-"+id',id),(width,id,'focus not on section')
+                assert page.locator('.ux-dialog:not([hidden]) .challenge-section').count()==1,(width,id,'Challenges drawer did not open')
+                assert page.evaluate('document.activeElement?.classList.contains("ux-close")'),(width,id,'focus not on drawer close')
+                page.keyboard.press('Escape')
                 assert page.evaluate('document.documentElement.scrollWidth<=window.innerWidth+2'),(width,id,'overflow')
                 if errors: raise AssertionError((width,id,errors[-1]))
             print('PASS: shortcuts and accessible destinations in all 31 labs at',width,'px',flush=True)
@@ -51,8 +53,12 @@ with sync_playwright() as playwright:
         r=page.locator('.controls .challenge-return')
         assert r.is_visible(),'return button not visible'
         r.click()
+        assert page.locator('.ux-dialog').is_visible(), 'return should reopen drawer'
         assert page.evaluate('document.activeElement?.classList.contains("challenge-summary")'), 'return focus'
+        q.get_by_role('button',name='Vai ai controlli').click()
+        assert page.locator('.ux-dialog').is_hidden(), 'control activation should close drawer'
         page.locator('.controls .transport button').nth(1).click()
+        r.click()
         q.locator('input[type=radio]').nth(1).check()
         q.get_by_role('button',name='Verifica la sfida').click()
         assert 'Sfida completata' in q.locator('.challenge-feedback').inner_text(),q.locator('.challenge-feedback').inner_text()

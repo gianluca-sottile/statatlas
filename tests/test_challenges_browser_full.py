@@ -35,6 +35,7 @@ with sync_playwright() as pw:
     assert page.locator('.tbl-wrap').count()>0,(lab,'table')
    assert page.evaluate('document.documentElement.scrollWidth<=window.innerWidth+2'),(lab,width,'overflow')
    if lab not in ('intervalli','validazione','kriging'):
+    page.locator('[data-ux-action="challenges"]').click()
     first=page.locator('.challenge-card').first
     first.locator('summary').click()
     verify=first.get_by_role('button',name='Verifica la sfida')
@@ -50,11 +51,16 @@ with sync_playwright() as pw:
  # Exercise one full challenge with live runner and changed controls
  page=browser.new_page(viewport={'width':1280,'height':900})
  page.goto('about:blank#/test'); page.set_content((root/'index.html').read_text(encoding='utf8'),wait_until='load')
+ page.locator('[data-ux-action="challenges"]').click()
  q=page.locator('.challenge-card').first;q.locator('summary').click()
+ q.get_by_role('button',name='Vai ai controlli').click()
+ assert page.locator('.ux-dialog').is_hidden(), 'Control jump must close challenge overlay'
  step=page.get_by_role('button',name='Un passo',exact=False)
  if step.count()==0: step=page.locator('.controls .transport button').nth(1)
  step.first.click()
  assert page.evaluate('window.SA.challenges.traces.test.steps')>=1,'runner instrumentation'
+ page.locator('.challenge-return').click()
+ assert page.locator('.ux-dialog').is_visible(), 'Return must reopen challenge'
  q.locator('input[type=radio]').nth(1).check()
  q.get_by_role('button',name='Verifica la sfida').click()
  assert 'Sfida completata' in q.locator('.challenge-feedback').inner_text(),q.locator('.challenge-feedback').inner_text()

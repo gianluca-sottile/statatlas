@@ -5,13 +5,18 @@
 .ux-workbench .lab-head .lede{font-size:clamp(.95rem,1.3vw,1.1rem);line-height:1.45;margin:7px 0 0;max-width:72ch}
 .ux-workbench .lab-head .head-actions:empty{display:none}
 .ux-workbench .lab-head .lab-cover{display:none}
-.ux-workbench .ux-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;position:sticky;top:0;z-index:20;padding:11px 0 13px;margin:0 0 8px;border-bottom:1px solid var(--rule);background:var(--paper)}
-.ux-actions .btn{min-height:40px;padding:8px 13px;border-radius:8px;font-weight:650;white-space:normal;font-size:.88rem;line-height:1.2}
-.ux-actions .ux-action-simulate{color:var(--paper);background:var(--accent);border-color:var(--accent)}
-.ux-actions .ux-action-simulate:hover{opacity:.9}
-.ux-actions .ux-action-course,.ux-actions .ux-action-guide{background:transparent;border:1px solid transparent;color:var(--ink-2)}
-.ux-actions .ux-action-share{border:1px solid var(--rule-2);background:var(--card)}
-.ux-actions .challenge-shortcut{border-color:var(--rule-2);background:var(--card)}
+/* Clear reading order: learn | reproduce in R | save. All actions share a border. */
+.ux-workbench .ux-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;position:sticky;top:0;z-index:20;padding:10px 0 12px;margin:0 0 8px;border-bottom:1px solid var(--rule);background:var(--paper)}
+.ux-actions .ux-action-group{display:flex;gap:7px;flex-wrap:wrap;align-items:center;min-width:0}
+.ux-actions .ux-study-group{flex:0 1 auto}
+.ux-actions .ux-r-group{padding-left:11px;border-left:1px solid var(--rule)}
+.ux-actions .ux-save-group{margin-left:auto}
+.ux-actions .btn{min-height:44px;padding:9px 12px;border-radius:9px;font-weight:600;white-space:normal;font-size:.83rem;line-height:1.25;background:var(--card);color:var(--ink-2);border:1px solid var(--rule-2);box-shadow:0 1px 0 rgba(0,0,0,.025)}
+.ux-actions .btn:hover{border-color:var(--accent);background:var(--paper-2);color:var(--ink)}
+.ux-actions .btn:active{transform:translateY(1px)}
+.ux-actions .ux-action-challenges{font-weight:700;color:var(--ink)}
+.ux-actions .ux-action-share{background:transparent}
+.ux-actions .btn[hidden]{display:none!important}
 .ux-actions .ux-action:focus-visible,.ux-close:focus-visible,.ux-dialog a:focus-visible{outline:3px solid var(--focus);outline-offset:3px}
 .ux-workbench .step{padding:20px 0 30px;grid-template-columns:1fr;gap:6px;scroll-margin-top:105px}
 .ux-workbench .step-num{display:none}
@@ -38,19 +43,37 @@
 .ux-dialog-pane .ux-original-question .step-num{display:none}
 .ux-dialog-pane .ux-original-question .step-body{min-width:0}
 .ux-dialog-pane .lab-cover{display:none}
+.ux-dialog-pane .challenge-section{padding:0 0 25px!important;margin:0;display:block!important;scroll-margin-top:0}
+.ux-dialog-pane .challenge-section .step-body{width:100%;max-width:none;min-width:0}
+.ux-dialog-pane .challenge-section .step-label{display:none}
+.ux-dialog-pane .challenge-section h2{margin:0 0 15px;font-size:1.08rem}
+.ux-dialog-pane .challenge-card{max-width:100%;margin:12px 0}
+.ux-dialog-pane .challenge-card[hidden]{display:none!important}
+.ux-dialog-pane .code{min-width:0;max-width:100%;margin:12px 0}
+.ux-dialog-pane .code pre{max-width:100%;overflow-x:auto;white-space:pre;tab-size:2}
+.ux-dialog-pane .step:has(.code){display:block;padding:0 0 24px;scroll-margin-top:0}
+.ux-dialog-pane .step:has(.code) .step-body{max-width:100%;min-width:0}
+.ux-dialog-pane .step:has(.code) .step-label{display:none}
+
 .ux-modal-open{overflow:hidden}
 @media (min-width:1181px){.ux-workbench .ux-actions{top:0}}
 @media (max-width:1180px){.ux-workbench .ux-actions{top:62px;z-index:27}}
+@media (max-width:1080px){
+ .ux-actions .ux-save-group{margin-left:0}
+}
 @media (max-width:860px){
  .ux-workbench .lab-head{padding:0 0 8px}
- .ux-workbench .ux-actions{gap:5px;padding:8px 0 10px}
- .ux-actions .btn{padding:8px 10px;min-height:44px;font-size:.8rem;flex:1 1 auto}
+ .ux-workbench .ux-actions{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1.25fr);gap:6px;padding:8px 0 10px}
+ .ux-actions .ux-study-group{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr 1.3fr;gap:6px}
+ .ux-actions .ux-r-group{padding:0;border:0;display:grid;grid-template-columns:1fr 1fr;gap:6px}
+ .ux-actions .ux-save-group{margin:0;display:grid;gap:6px}
+ .ux-actions .btn{padding:8px 7px;min-height:44px;font-size:.77rem;line-height:1.2;width:100%;justify-content:center;text-align:center}
  .ux-workbench .step{padding:14px 0 25px}
  .ux-dialog-head{padding:12px 15px}
  .ux-dialog-body{padding:15px 15px 40px}
  .ux-dialog{width:min(500px,100vw)}
 }
-@media (max-width:480px){.ux-actions .btn{flex:1 1 30%}.ux-actions .ux-action-simulate{flex:1 1 100%}.ux-workbench .lab-head .lede{font-size:.94rem}}
+@media (max-width:480px){.ux-workbench .lab-head .lede{font-size:.94rem}}
 @media (prefers-reduced-motion: reduce){.ux-dialog,.ux-actions{transition:none!important}}
 @media print{.ux-actions,.ux-dialog,.ux-backdrop{display:none!important}.ux-workbench .step{break-inside:avoid}}
 

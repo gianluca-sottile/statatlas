@@ -267,6 +267,13 @@
     var shortcut = null, activeCard = null, returnButton = null;
     function navigateTo(target) {
       if (!target) return;
+      var wb = SA.workbench;
+      var insideDrawer = !!(target.closest && target.closest('.ux-dialog'));
+      // The challenge is the same live DOM object in a non-reflowing drawer.
+      // A return-to-controls request closes it before moving the viewport;
+      // returning to the challenge reopens the original task and baseline.
+      if (wb && wb.isOpen && wb.isOpen('challenges') && !insideDrawer) wb.close();
+      else if (wb && wb.open && insideDrawer && !(wb.isOpen && wb.isOpen('challenges'))) wb.open('challenges', shortcut);
       var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       target.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' });
       if (!target.hasAttribute('tabindex')) target.setAttribute('tabindex', '-1');

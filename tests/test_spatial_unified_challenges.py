@@ -17,6 +17,14 @@ FOCUS={
  'kriging':'Range assunto',
  'regressione-spaziale':'Previsione cartografica',
 }
+def open_challenges(page):
+  if page.locator('.ux-dialog').is_hidden():
+    page.locator('[data-ux-action="challenges"]').click()
+
+def close_challenges(page):
+  if page.locator('.ux-dialog').is_visible():
+    page.keyboard.press('Escape')
+
 def wait_ready(card, lid):
   """React to browser animation frames instead of sampling transient DOM text.
 
@@ -30,8 +38,7 @@ def wait_ready(card, lid):
   return activity.inner_text()
 
 with sync_playwright() as p:
-  browser=p.chromium.launch(headless=True, executable_path=which('chromium') or which('google-chrome') or None, args=['--no-sandbox','--disable-dev-shm-usage'],
-      **({'executable_path':'/usr/bin/chromium'} if Path('/usr/bin/chromium').exists() else {}))
+  browser=p.chromium.launch(headless=True, executable_path=which('chromium') or which('google-chrome') or None, args=['--no-sandbox','--disable-dev-shm-usage'])
   try:
     for lid in LABS:
       page=browser.new_page(viewport={'width':1024,'height':850})
@@ -46,7 +53,9 @@ with sync_playwright() as p:
 
       # Advanced: one explicitly recorded measurement for each of two settings.
       advanced=cards.nth(2)
+      open_challenges(page)
       advanced.locator('summary').click()
+      close_challenges(page)
       chosen=page.locator('.spatial-studio-field').filter(has_text=FOCUS[lid]).locator('select')
       current=chosen.input_value()
       choices=chosen.locator('option').evaluate_all('(els)=>els.map(e=>e.value)')
@@ -58,10 +67,13 @@ with sync_playwright() as p:
       chosen.select_option(replacement)
       if lid!='kriging':
         # Changing the setting without recording B must still be insufficient.
+        open_challenges(page)
         expect(advanced.locator('.challenge-activity')).to_contain_text('Registra il risultato A', timeout=10000)
+        close_challenges(page)
         page.get_by_role('button',name='Registra questa configurazione').click()
         # Verify that two independently triggered recording actions were counted.
         page.wait_for_function('(lab)=>SA.challenges.traces[lab].samples.length===2', arg=lid)
+      open_challenges(page)
       activity=wait_ready(advanced, lid)
       conceptual=page.evaluate('(id)=>SA.challenges.bank[id][2].correct',lid)
       advanced.locator('.challenge-answers input').nth(conceptual).check()
@@ -84,6 +96,7 @@ with sync_playwright() as p:
       first.locator('summary').click()
       first.get_by_role('button',name='Verifica la sfida').click()
       assert first.locator('.challenge-feedback.success').count()==0,(lid,'unearned success')
+      close_challenges(page)
       tool='add' if lid in ('processi-puntuali','kriging') else 'cluster' if lid in ('moran','lisa') else 'high'
       studio.locator('[data-tool="'+tool+'"]').click()
       bg=studio.locator('[data-action="map"]')
@@ -91,6 +104,7 @@ with sync_playwright() as p:
       before=int(studio.get_attribute('data-points'))
       bg.click(position={'x':bounds['width']*.85,'y':bounds['height']*.12})
       assert int(studio.get_attribute('data-points'))>before,(lid,'dataset unchanged')
+      open_challenges(page)
       activity=wait_ready(first, lid)
       conceptual=page.evaluate('(id)=>SA.challenges.bank[id][0].correct',lid)
       first.locator('.challenge-answers input').nth(conceptual).check()
@@ -101,6 +115,7 @@ with sync_playwright() as p:
       # Application: change a relevant control, then register its result.
       middle=cards.nth(1)
       middle.locator('summary').click()
+      close_challenges(page)
       if lid=='kriging':
         page.locator('.spatial-studio-field').filter(has_text='Superficie da vedere').locator('select').select_option('value')
         before=int(studio.get_attribute('data-points'))
@@ -113,6 +128,7 @@ with sync_playwright() as p:
         replacement=next(v for v in choices if v!=current)
         chosen.select_option(replacement)
         page.get_by_role('button',name='Registra questa configurazione').click()
+      open_challenges(page)
       activity=wait_ready(middle, lid)
       conceptual=page.evaluate('(id)=>SA.challenges.bank[id][1].correct',lid)
       middle.locator('.challenge-answers input').nth(conceptual).check()

@@ -38,3 +38,7 @@ Controlli manuali PRIMA del push:
 ## Pubblicazione
 
 Solo dopo esito `SUCCESS: STATATLAS UX REDESIGN LOCAL ACCEPTANCE PASSED` e verifica manuale, eseguire una sola anteprima `sh scripts/pubblica_github.sh --no-push`, controllare il diff e poi un solo `sh scripts/pubblica_github.sh`. La Macrofase F Classroom resta annotata per il futuro: non rientra in questo redesign.
+
+## Rifinitura toolbar — 18 novembre 2026
+
+Il presente protocollo descrive il precedente redesign workbench. La rifinitura successiva è documentata in [`UX_TOOLBAR_REFINEMENT.md`](UX_TOOLBAR_REFINEMENT.md): sei azioni raggruppate, sfide e codice R in pannelli, report QA per il nuovo fingerprint. Le attestazioni della precedente build non certificano la nuova.

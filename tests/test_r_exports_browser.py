@@ -66,8 +66,10 @@ with tempfile.TemporaryDirectory(prefix='statatlas-r-exports-') as tmp:
                     source = pre.text_content()
                     assert source != before, 'R code not refreshed after adding a point'
                     assert max(map(len, source.splitlines())) < LIMIT
+                    page.locator('[data-ux-action="code"]').click()
                     with page.expect_download(timeout=15000) as dl_info:
-                        page.get_by_role('button', name='Scarica .R').last.click()
+                        page.locator('.ux-dialog-pane[data-ux-pane="code"] .code .toolbar button').last.click()
+                    page.keyboard.press('Escape')
                     dl = dl_info.value
                     saved = out / 'moran-downloaded.R'
                     dl.save_as(str(saved))

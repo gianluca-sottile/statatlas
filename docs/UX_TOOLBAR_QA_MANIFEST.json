@@ -1,0 +1,50 @@
+{
+  "project": "StatAtlas 2.1",
+  "phase": "UX toolbar refinement after UX redesign",
+  "date": "2026-11-18",
+  "status": "candidate_pending_Mac_acceptance_and_manual_Safari",
+  "html_sha256": "0fb7a854401ad116d5a11179b67f65bba8b229b0c863afed5b1f5a1b8f1540e1",
+  "toolbar_groups": [
+    [
+      "guide",
+      "theory",
+      "challenges"
+    ],
+    [
+      "course",
+      "code"
+    ],
+    [
+      "share"
+    ]
+  ],
+  "laboratories_tested": 31,
+  "viewports_px": [
+    390,
+    1366
+  ],
+  "local_QA": {
+    "JS_test_suites": "PASS",
+    "science_31_independent": "PASS",
+    "UX_toolbar_31_mobile_desktop": "PASS",
+    "UX_workbench_31_mobile_desktop": "PASS",
+    "challenge_state_return_and_continue": "PASS",
+    "spatial_challenges_18": "PASS",
+    "live_R_code_refresh": "PASS",
+    "D_JSON_regressions": "PASS",
+    "E_teacher_student_regressions": "PASS",
+    "R_exports_vs_prior_UX": "31/31 byte-for-byte identical",
+    "R1_snapshots_vs_prior_UX": "25/25 numerical payloads identical",
+    "E_standalone_example_rebuilt": "PASS"
+  },
+  "pending_Mac": {
+    "full_A_through_E_and_UX_gate": "PENDING",
+    "GNU_R_31": "PENDING",
+    "R_JS_84_default_scenario_checks": "PENDING",
+    "native_Safari_file_offline": "PENDING"
+  },
+  "scientific_scope": "R1 is one initial scenario for each of the 25 benchmarked labs, not universal algorithmic R2 equivalence.",
+  "privacy": "No backend, telemetry or externally hosted JavaScript; course R lesson hyperlinks still require network.",
+  "accessibility_scope": "Chromium smoke tests of keyboard/focus, not formal WCAG or VoiceOver/NVDA testing.",
+  "new_code_files": []
+}

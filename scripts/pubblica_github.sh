@@ -96,6 +96,6 @@ if [ -z "$(git status --porcelain)" ]; then
 fi
 printf '5/5 Creo un unico commit e pubblico su main...\n'
 git add -A
-git commit -m 'StatAtlas 2.1: scientific workbench and non-reflowing teaching UI'
+git commit -m 'StatAtlas 2.1: grouped workbench tools, Challenges and live R drawers'
 git push origin main
 printf 'PUBBLICAZIONE COMPLETATA. Ora verifica GitHub Actions e la checklist conclusiva.\n'

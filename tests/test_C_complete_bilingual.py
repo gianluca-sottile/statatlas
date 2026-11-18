@@ -75,6 +75,7 @@ def run(width):
             check(actual['correct'] and actual['q'], f'Challenge content/order mismatch {lab}')
             if i<25 and lab != 'penalizzata':
                 check(actual['speed'] == '25', f'Invalid speed default {lab}: {actual["speed"]}')
+            page.locator('[data-ux-action="challenges"]').click()
             cards=page.locator('.challenge-card')
             for j in range(3):
                 card=cards.nth(j)
@@ -84,6 +85,7 @@ def run(width):
                 opts=card.locator('.challenge-answers label').all_text_contents()
                 check(len(opts)==3 and all(x.strip() for x in opts),f'Missing distractors {lab}/{j}')
                 card.locator('summary').click()
+            page.keyboard.press('Escape')
             page.locator('.ux-action-theory').first.click()
             base=page.locator('.drawer-body').inner_text()
             check('Methodological foundations' in base and 'Worked numerical example' in base, f'Missing essential method {lab}')

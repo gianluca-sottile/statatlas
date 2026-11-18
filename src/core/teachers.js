@@ -277,6 +277,11 @@
       keep();var counter=box.querySelector('.student-status');if(counter)counter.textContent=
         labels('Sfide completate: ','Challenges completed: ')+r.solved.length+'/'+step.challengeIds.length+
         labels(' · attività ',' · activity ')+(r.completed?labels('completata','completed'):labels('in corso','in progress'));
+      var shortcut=document.querySelector('#main .challenge-shortcut');
+      if(shortcut && step.challengeIds.length){
+        shortcut.textContent=labels('Mettiti alla prova · ','Challenges · ')+r.solved.length+'/'+step.challengeIds.length;
+        shortcut.setAttribute('aria-label',labels('Apri le sfide assegnate: ','Open assigned Challenges: ')+r.solved.length+'/'+step.challengeIds.length);
+      }
     }
     function applyView(){
       if(applying)return;
@@ -287,7 +292,7 @@
         var section=document.querySelector('#main .challenge-section');
         if(section){section.hidden=step.challengeIds.length===0;
           var originalProgress=section.querySelector('.challenge-progress');if(originalProgress)originalProgress.hidden=true;
-          var originalShortcut=document.querySelector('#main .challenge-shortcut');if(originalShortcut)originalShortcut.hidden=true;
+          var originalShortcut=document.querySelector('#main .challenge-shortcut');if(originalShortcut)originalShortcut.hidden=step.challengeIds.length===0;
           section.querySelectorAll('.challenge-card').forEach(function(el){el.hidden=!step.challengeIds.includes(el.getAttribute('data-challenge-id'));});}
         applying=false;observeSolved();
       };
@@ -341,8 +346,13 @@
       });
       var jump=make('button','',labels('Vai alle Challenges assegnate','Go to assigned Challenges'));
       jump.hidden=!s.challengeIds.length;
-      jump.addEventListener('click',function(){var target=document.querySelector('#main .challenge-section');
-        if(target){target.scrollIntoView({behavior:'auto',block:'start'});}});
+      jump.addEventListener('click',function(){
+        // Challenges are displayed in the original non-reflow workbench drawer.
+        // Do not scroll the laboratory to a section now moved into that drawer.
+        if(SA.workbench && SA.workbench.open){SA.workbench.open('challenges',jump);return;}
+        var target=document.querySelector('#main .challenge-section');
+        if(target)target.scrollIntoView({behavior:'auto',block:'start'});
+      });
       buttons.append(complete,dl,reset);workspace.append(buttons);
       workspace.append(make('p','',labels('Le riflessioni restano in questo browser fino alla cancellazione. Il report è formativo e può essere modificato: non è un voto certificato.',
         'Reflections remain in this browser until cleared. The formative report is editable and is not a certified grade.')));

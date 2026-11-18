@@ -9,6 +9,9 @@ sh tests/run_macrofase_E.sh
 printf '\n=== 2/4 UX ALL 31 LABORATORIES, MOBILE AND DESKTOP ===\n'
 python3 tests/test_UX_workbench.py --width 390
 python3 tests/test_UX_workbench.py --width 1366
+printf "\n=== UX TOOLBAR: CHALLENGES AND LIVE R DRAWERS ===\n"
+python3 tests/test_UX_toolbar.py 390
+python3 tests/test_UX_toolbar.py 1366
 printf '\n=== 3/4 DESIGN AND OFFLINE CONTRACT ===\n'
 node tests/test_UX_contract.js
 python3 - <<'PY'
@@ -35,7 +38,8 @@ assert prior['html_sha256']==sha and prior['gates']['student_html']=='PASS', 'Te
 record={'format':'statatlas.ux-acceptance','version':1,'html_sha256':sha,
   'gates':{'prior_macrofasi_A_to_E':'PASS','R_exports':31,'RJS_default_checks':84,
            'workbench_labs':31,'mobile_390':'PASS','desktop_1366':'PASS',
-           'non_reflowing_overlays':'PASS','teacher_master_detail':'PASS',
+           'non_reflowing_overlays':'PASS','toolbar_six_actions':'PASS',
+           'challenge_overlay':'PASS','live_r_code_overlay':'PASS','teacher_master_detail':'PASS',
            'standalone_student_report':'PASS','D_snapshots':'PASS'},
   'limitations':'R1 default scenario parity only (not R2); native Safari file://, screen readers and student usability require manual verification.'}
 (root/'verifica/REPORT_MACROFASE_UX.json').write_text(json.dumps(record,indent=2,ensure_ascii=False)+'\n',encoding='utf-8')

@@ -1,3 +1,11 @@
+## 18/11/2026 — Rifinitura toolbar UX (candidate; non pubblicata)
+
+- Una barra uniforme e bordata in ciascuno dei 31 laboratori: **Guida · Approfondisci · Mettiti alla prova | Corso R · Codice R | Salva/Condividi**; rimossa soltanto la scorciatoia ridondante *Simula*, preservati i pulsanti reali Avvia/Passo/Reset.
+- Challenges originali e script R corrente collocati in pannelli sovrapposti senza reflow: stato delle sfide preservato; ritorno ai controlli e successiva ripresa della stessa sfida; refresh dello script R da parametri e osservazioni correnti.
+- Percorso studenti E: accesso alle sole Challenges assegnate e contatore coerente, senza spostarsi in cima/fondo pagina.
+- Riorganizzazione puramente UI: 31 esportazioni R identiche byte per byte alla UX precedente, 25 snapshot numerici identici; generati nuovamente script benchmark e riferimenti hash della build candidata. Esecuzione GNU R sulla nuova build richiesta prima del push.
+- Nuovo test browser della toolbar a 390/1366 px, test di compatibilità con le Challenges e i percorsi studenti, screenshot e protocollo. Nessun backend; nessuna nuova funzionalità Classroom F.
+
 ## StatAtlas UX Redesign — 17/11/2026 (release candidate, not yet published)
 
 - Scientific-first workbench for all 31 labs: experiment near the top, contextual Guide / R course / Save panels, keyboard support and no document reflow.

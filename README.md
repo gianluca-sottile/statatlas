@@ -1,4 +1,4 @@
-> **Stato UX — 17 novembre 2026.** La Macrofase E ha superato il collaudo locale sul Mac; il nuovo redesign UX è una candidate separata, non ancora pubblicata. La versione bilingue comprende 31 percorsi di studio, 62 approfondimenti, 104 esercizi risolti e 93 Challenges in inglese. I benchmark R/JavaScript superati sulle build pubblicate coprono soltanto gli scenari predefiniti (R1), non l’equivalenza algoritmica generale (R2). I pannelli UX non cambiano gli algoritmi scientifici; il nuovo gate GNU R sull'hash UX è ancora da eseguire. Vedi [protocollo UX](docs/UX_REDESIGN_PROTOCOLLO.md), [relazione UX](docs/UX_REDESIGN_RELAZIONE.md) e [protocollo E](docs/MACROFASE_E_PROTOCOLLO.md), [roadmap](docs/ROADMAP_MACROFASI_D_E.md) e [README EN](README.en.md).
+> **Rifinitura UX — candidate locale, 18 novembre 2026.** La precedente versione UX ha superato il collaudo completo sul Mac (SHA HTML `f01c3810…`) e lo studente dispone del percorso E. Questa nuova candidate riordina la barra di tutti i 31 laboratori in **Guida · Approfondisci · Mettiti alla prova | Corso R · Codice R | Salva/Condividi**, con bordi uniformi e pannelli sovrapposti per Challenges e codice R. Il comando ridondante «Simula» è rimosso dalla barra, non dai simulatori. I 31 script R e i 25 riferimenti numerici R1 rimangono identici; i gate GNU R devono essere ripetuti sul nuovo fingerprint prima del push. [Rapporto della rifinitura](docs/UX_TOOLBAR_REFINEMENT.md). La Macrofase F Classroom resta soltanto in roadmap.
 
 <p align="center">
   <img src="assets/logo.svg" width="112" alt="Logo di StatAtlas">
@@ -28,13 +28,23 @@
   <img alt="Licenze" src="https://img.shields.io/badge/licenze-MIT%20%2B%20CC%20BY%204.0-6B3E8A">
 </p>
 
-> **Stato del progetto — 17 novembre 2026.** La Macrofase D è stata pubblicata nel commit [`80f2ea6`](https://github.com/gianluca-sottile/statatlas/commit/80f2ea6); la Macrofase E è stata collaudata integralmente sul Mac (SHA HTML `0fcdd824...`), ma il suo push non è attestato qui. Il redesign UX è una **candidate locale da collaudare** sulla nuova build, senza cambiare i motori numerici. Prima del rilascio restano il collaudo GNU R/JS sul nuovo hash, il test manuale Safari `file://`, il dry-run Git e un unico push. Accessibilità assistiva e valutazione con studenti restano verifiche distinte.
+> **Stato di rilascio — 18 novembre 2026.** Le macrofasi D ed E e il redesign scientific-workbench sono la base funzionale. La **rifinitura della toolbar** descritta qui è una nuova candidate integrale da collaudare sul Mac; non effettuare push prima del nuovo gate GNU R/JavaScript e della verifica Safari. I confronti R/JS R1 verificano un solo scenario per laboratorio, non una parità algoritmica generale R2.
 
-## Interfaccia scientific-first — redesign UX (candidate)
+## Interfaccia scientific-first — rifinitura della barra (candidate)
 
-I 31 laboratori aprono direttamente sull'esperimento: i comandi **Guida**, **Corso R** e **Salva / Condividi** aprono pannelli laterali accessibili senza spostare grafici e controlli. La navigazione include una ricerca dei laboratori. **StatAtlas for Teachers** utilizza un elenco ordinato e una sola attività in modifica; le impostazioni e l'export si aprono in un pannello. Anche il report del percorso studente è disponibile da un pannello contestuale. Il redesign conserva il motore offline, il bilinguismo, le 93 Challenges e l'esportazione R.
+Il laboratorio apre subito su controlli e grafici. La barra è organizzata per intenzione didattica, con pulsanti coerenti e bordi leggeri:
 
-**Per validare il codice UX sul Mac prima della pubblicazione:** `sh tests/run_macrofase_UX.sh` (con PATH dell'ambiente virtuale), seguito da un'unica anteprima Git e un unico push. Riferimenti: [protocollo UX](docs/UX_REDESIGN_PROTOCOLLO.md) e [report con schermate](docs/UX_REDESIGN_RELAZIONE.md).
+**Guida · Approfondisci · Mettiti alla prova** | **Corso R · Codice R** | **Salva / Condividi**.
+
+- **Simula** non è più una scorciatoia nella barra: restano intatti i veri pulsanti operativi **Avvia, Passo, Completa e Reset** nei simulatori.
+- **Mettiti alla prova** apre le Challenges originali in un drawer senza reflow. Si possono modificare i controlli usando **Vai ai controlli** e riprendere la sfida, senza cancellare baseline, risposte o progresso.
+- **Codice R** apre il codice dell'**esperimento corrente**, aggiornato quando cambiano seed, parametri o osservazioni. Copia e Scarica `.R` rimangono i controlli originali.
+- **Approfondisci** continua ad aprire il pannello nativo con Essenziale, Avanzato, Esercizi e Bibliografia; **Corso R** mantiene i link bilingui IT/EN; gli strumenti D ed E rimangono compatibili.
+- Nella pagina degli studenti, **Vai alle Challenges assegnate** apre lo stesso pannello e il progresso riporta solo le sfide selezionate dal docente.
+
+[Schermate della nuova barra e dei pannelli](docs/UX_TOOLBAR_REFINEMENT.md#schermate-di-verifica).
+
+Il collaudo unico per questa build resta `sh tests/run_macrofase_UX.sh` dopo aver attivato l'ambiente Python corretto. Include le verifiche A–E, i controlli browser UX e i nuovi test della toolbar a 390/1366 px. [Dettagli e limiti](docs/UX_TOOLBAR_REFINEMENT.md).
 
 ## Che cos'è StatAtlas
 
@@ -55,11 +65,11 @@ StatAtlas è un ambiente di insegnamento *esperienziale*: lo studente formula un
 
 La D (commit `80f2ea6`) introduce **Salva JSON**, **Apri JSON** e **Copia link** nei 31 laboratori. Snapshot versionati con parametri, seed, checkpoint e dati modificati manualmente nei sei lab spaziali e in 10/14. Incompatibilità fra fingerprint rifiutate. Il collegamento con *From Data to Models with R* segue IT/EN, anche nelle schede scaricabili; il deep learning 62 resta solo inglese.
 
-## Macrofase E — StatAtlas for Teachers (candidate da collaudare)
+## Macrofase E — StatAtlas for Teachers
 
 Dal nuovo elemento **StatAtlas per docenti / StatAtlas for Teachers** si costruiscono percorsi di 1–24 attività con selezione dei laboratori e delle Challenges, consegne, lingua, durata e preset salvati nella Macrofase D. Si esportano due file distinti: **progetto docente JSON**, editabile, e **pagina studenti HTML autonoma** con StatAtlas integrato. Il percorso offre riflessioni, completamento locale e report JSON formativo; non sono voti certificati e nessun dato viene raccolto online.
 
-**La E è ancora una candidate:** prima del push occorre eseguire `sh tests/run_macrofase_E.sh` sul Mac, verificare con Safari il file studenti offline e controllare l'anteprima Git. Vedi [protocollo E](docs/MACROFASE_E_PROTOCOLLO.md), [checklist Mac](docs/MACROFASE_E_CHECKLIST_MAC.md) e [roadmap](docs/ROADMAP_MACROFASI_D_E.md).
+**La E è integrata nella base di questa candidate UX:** il suo collaudo su Mac risulta superato per il fingerprint precedente, ma deve essere ripetuto sulla nuova build insieme ai controlli della toolbar. Il collaudo unico è `sh tests/run_macrofase_UX.sh`. Il percorso studente HTML va inoltre verificato da Finder con Safari prima del rilascio. Vedi [protocollo E](docs/MACROFASE_E_PROTOCOLLO.md), [checklist Mac](docs/MACROFASE_E_CHECKLIST_MAC.md) e [roadmap](docs/ROADMAP_MACROFASI_D_E.md).
 
 ## I laboratori
 
@@ -146,7 +156,7 @@ Il generatore pseudo-casuale di StatAtlas riproduce in JavaScript il **Mersenne�
 | **R2** | Stesso algoritmo | Confronto di traiettorie, aggiornamenti e regole di parità |
 | **R3** | Confronto di metodo | Differenze dichiarate fra implementazioni/librerie |
 
-Nella Macrofase A e nel collaudo della Macrofase B sono stati eseguiti con successo i **31 script R estratti dal browser**, controllandone integrità, parsing e un invariante eseguibile per laboratorio. Sono disponibili confronti numerici indipendenti per sei laboratori spaziali su 12 snapshot. **I benchmark completi di equivalenza numerica R/JavaScript per i laboratori 01–25 non sono ancora certificati**: 31 esecuzioni riuscite non implicano parità algoritmica R2.
+Nella Macrofase A e nel collaudo della Macrofase B sono stati eseguiti con successo i **31 script R estratti dal browser**, controllandone integrità, parsing e un invariante eseguibile per laboratorio. Sono disponibili confronti numerici indipendenti per sei laboratori spaziali su 12 snapshot. **Per i laboratori 01–25 sono disponibili 84 confronti numerici R/JavaScript sugli scenari iniziali (R1)**, già superati sulle precedenti build certificate. La nuova build UX richiede il proprio collaudo GNU R. Questo non costituisce una dimostrazione di equivalenza algoritmica globale R2.
 
 Dalla radice del repository, con GNU R e le dipendenze indicate dal validatore:
 
