@@ -349,10 +349,17 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   }
 
   function footer() {
-    if (SA.i18n.isEnglish()) return el('footer.foot', el('p', 'StatAtlas · a teaching project by Gianluca Sottile. Some experiments are inspired by Simul2000 by Marcello Chiodi; this application’s code and texts are original.'), el('p', 'Random numbers reproduce R’s Mersenne Twister where documented. Full R/JavaScript numerical equivalence is established only for the verified cases; see the validation matrix.'));
+    var en = SA.i18n.isEnglish();
+    var owner = el('a', {href:'https://gianlucasottile.rbind.io/', target:'_blank', rel:'noopener noreferrer'}, 'Gianluca Sottile');
+    var ownerEmail = el('a', {href:'mailto:Gianluca.sottile@unipa.it', 'aria-label':en?'Email Gianluca Sottile':'Scrivi a Gianluca Sottile'}, 'email');
+    var source = el('a', {href:'https://marcellochiodi.github.io/simul2000/', target:'_blank', rel:'noopener noreferrer'}, 'Simul2000');
+    var colleague = el('a', {href:'mailto:Marcello.chiodi@unipa.it', 'aria-label':en?'Email Marcello Chiodi':'Scrivi a Marcello Chiodi'}, 'Marcello Chiodi');
+    if(en) return el('footer.foot',
+      el('p','StatAtlas · a teaching project by ',owner,' (',ownerEmail,'). Some experiments are inspired by ',source,' by ',colleague,'; this application’s code and texts are original.'),
+      el('p','Random numbers reproduce R’s Mersenne Twister where documented. Full R/JavaScript numerical equivalence is established only for the verified cases; see the validation matrix.'));
     return el('footer.foot',
-      el('p', 'StatAtlas · progetto didattico di Gianluca Sottile. Alcuni laboratori traggono ispirazione dalle idee di Simul2000 di Marcello Chiodi (Università di Palermo); codice e testi sono originali.'),
-      el('p', 'Numeri casuali generati con il Mersenne-Twister di R. La riproducibilità dei campioni e la concordanza con R sono documentate per ciascun laboratorio; i confronti R ancora da completare sono segnalati esplicitamente.'));
+      el('p','StatAtlas · progetto didattico di ',owner,' (',ownerEmail,'). Alcuni laboratori traggono ispirazione dalle idee di ',source,' di ',colleague,' (Università di Palermo); codice e testi sono originali.'),
+      el('p','Numeri casuali generati con il Mersenne-Twister di R. La riproducibilità dei campioni e la concordanza con R sono documentate per ciascun laboratorio; i confronti R ancora da completare sono segnalati esplicitamente.'));
   }
 
   /* Arricchisce ogni laboratorio con copertina, obiettivi, “che cosa stiamo valutando” e guida alla tabella */
@@ -495,7 +502,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     });
     var info = id && find(id);
     if (id === 'teachers' && SA.teachers) {
-      SA.currentLab = null; SA.teachers.builder(main); document.title = 'StatAtlas for Teachers';
+      SA.currentLab = null; SA.teachers.builder(main); main.appendChild(footer()); document.title = 'StatAtlas for Teachers';
     } else if (!info) { SA.currentLab = null; main.appendChild(home()); document.title = 'StatAtlas'; }
     else if (SA.labs[id]) {
       var page = el('div.page'); main.appendChild(page);
@@ -528,6 +535,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
         if (expPanel) { teach.classList.add('ux-teacher-add'); expPanel.appendChild(teach); }
       }
       if (SA.workbench) SA.workbench.mount(page,id);
+      if (SA.i18n.isEnglish()) { SA.i18n.localizeSurface(page); SA.i18n.watchLive(page); }
       document.title = info.lab.title + ' · StatAtlas';
     } else { main.appendChild(soon(info)); document.title = info.lab.title + ' · StatAtlas'; }
     window.scrollTo(0, 0);

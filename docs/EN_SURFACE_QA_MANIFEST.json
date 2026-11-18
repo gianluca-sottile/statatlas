@@ -1,0 +1,28 @@
+{
+  "project": "StatAtlas 2.1",
+  "candidate": "EN live laboratory surfaces and linked credits",
+  "date": "2026-11-18",
+  "status": "candidate_pending_full_Mac_R_UX_acceptance",
+  "html_sha256": "50fe9d20ccd31304a6eaf972c7f8a33612120f150c22fd89c0801c279f9715c5",
+  "engine_build_id": "4598e468c9bbaf89889d34633956367009127ee453ad4447c48e48363f98e095",
+  "linguistic_coverage": {
+    "labs": 31,
+    "challenge_banks_EN": 31,
+    "challenges": 93,
+    "english_theory_panels": 62,
+    "english_exercises": 104,
+    "live_display_glossary_entries": 607
+  },
+  "development_verification": {
+    "visible_English_surface_initial_and_one_step_all_31": "PASS",
+    "neural_network_EN_tables_svg": "PASS",
+    "footer_links_4": "PASS",
+    "UX_toolbar_390_1366": "PASS",
+    "teacher_student_390_1366": "PASS",
+    "node_JS_suites": "PASS",
+    "scientific_independent_31": "PASS",
+    "R_exports_31_unchanged_SHA256": "PASS",
+    "R1_numerical_reference_25_unchanged": "PASS"
+  },
+  "limitations": "One-step audit is not exhaustive over all parameters or Monte Carlo trajectories. GNU R 31 and R/JS 84 gate must run again on Mac against updated HTML fingerprint. Safari file:// student export should be checked manually."
+}

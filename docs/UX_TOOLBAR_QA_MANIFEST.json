@@ -3,7 +3,7 @@
   "phase": "UX toolbar refinement after UX redesign",
   "date": "2026-11-18",
   "status": "candidate_pending_Mac_acceptance_and_manual_Safari",
-  "html_sha256": "0fb7a854401ad116d5a11179b67f65bba8b229b0c863afed5b1f5a1b8f1540e1",
+  "html_sha256": "50fe9d20ccd31304a6eaf972c7f8a33612120f150c22fd89c0801c279f9715c5",
   "toolbar_groups": [
     [
       "guide",

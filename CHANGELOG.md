@@ -1,3 +1,11 @@
+## 18/11/2026 — Patch completa dei testi EN nei laboratori (candidate; non pubblicata)
+
+- Audit di tutte le 31 superfici EN, inclusi testi generati dinamicamente, figure SVG e tabelle; risolto in particolare il lab 22 sulle reti neurali.
+- Glossario esplicito `i18n-live.js`, traduzione incrementale dei contenuti di simulazione e test di regressione `test_L_language_surface.py` sui 31 laboratori.
+- Corretto il riconoscimento delle interpretazioni italiane da nascondere in EN; preservati modelli, dati, script R e contenuti scientifici originali in IT.
+- Footer in entrambe le lingue: sito e mail del responsabile, pagina Simul2000 e mail di Marcello Chiodi.
+- 31/31 script R e 25/25 snapshot numerici identici alla build UX precedente; fingerprint e materiali didattici di esempio rigenerati. Nuovo collaudo Mac necessario prima del push.
+
 ## 18/11/2026 — Rifinitura toolbar UX (candidate; non pubblicata)
 
 - Una barra uniforme e bordata in ciascuno dei 31 laboratori: **Guida · Approfondisci · Mettiti alla prova | Corso R · Codice R | Salva/Condividi**; rimossa soltanto la scorciatoia ridondante *Simula*, preservati i pulsanti reali Avvia/Passo/Reset.

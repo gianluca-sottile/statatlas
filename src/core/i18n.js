@@ -119,15 +119,37 @@
     'Apri il laboratorio →':'Open laboratory →',
     'Che cosa significa, quando vale, dove si rompe':'Interpretation, assumptions and failure cases'
   };
-  Object.assign(strings, SA.uiEnglish || {});
+  Object.assign(strings, SA.uiEnglish || {}, SA.liveEnglish || {});
   var lowerStrings = {}, reverseStrings = {};
   Object.keys(strings).forEach(function(k){
     lowerStrings[k.toLocaleLowerCase('it-IT')] = strings[k];
     if (!(strings[k] in reverseStrings)) reverseStrings[strings[k]] = k;
   });
+  // Numerically parameterized status labels: translate the sentence while
+  // preserving live numeric tokens, including counts, seeds and estimates.
+  var numeric = /\d+(?:[.,]\d+)?/g;
+  var templates = Object.keys(strings).filter(function(k){
+    return numeric.test(k) && (numeric.lastIndex=0, true) &&
+      (k.match(numeric)||[]).length === (strings[k].match(numeric)||[]).length;
+  }).sort(function(a,b){return b.length-a.length;}).map(function(k){
+    var pattern='^'+k.split(numeric).map(function(x){
+      return x.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+    }).join('([0-9]+(?:[.,][0-9]+)?)')+'$';
+    return {regex:new RegExp(pattern), target:strings[k]};
+  });
   function translateDisplay(x) {
+    if (typeof x !== 'string' || !x) return x;
     if (Object.prototype.hasOwnProperty.call(strings, x)) return strings[x];
-    return lowerStrings[x.toLocaleLowerCase('it-IT')] || x;
+    var lowered = lowerStrings[x.toLocaleLowerCase('it-IT')];
+    if (lowered !== undefined) return lowered;
+    for (var i=0;i<templates.length;i++) {
+      var m=templates[i].regex.exec(x); if (!m) continue;
+      var j=0;
+      return templates[i].target.replace(numeric,function(){
+        return m[++j];
+      });
+    }
+    return x;
   }
   function sourceDisplayName(x) { return reverseStrings[x] || x; }
   function tr(x) { return locale === 'en' && Object.prototype.hasOwnProperty.call(strings, x) ? strings[x] : x; }
@@ -373,7 +395,7 @@
     });
     page.querySelectorAll('section.step').forEach(function(step){
       var lbl=step.querySelector('.step-label');
-      if (!lbl || !/interpretazione/i.test(lbl.textContent)) return;
+      if (!lbl || !/interpretazione|interpretation/i.test(lbl.textContent)) return;
       var body=step.querySelector('.step-body');
       if(!body) return;
       // The original dynamically updated node remains in the DOM and runs as
@@ -411,6 +433,45 @@
       'Switch to Italian for the authoritative original chapters and unmodified R-script comments.'));
     return section;
   }
-  SA.i18n = { init:init, applyCatalog:applyCatalog, setLanguage:setLanguage, isEnglish:isEnglish,
+  var liveObserver=null;
+  function watchLive(root) {
+    if(liveObserver){liveObserver.disconnect();liveObserver=null;}
+    if(!isEnglish() || !root || !window.MutationObserver) return;
+    var pending=false, changed=new Set();
+    liveObserver=new MutationObserver(function(changes){
+      if(!root.isConnected) return;
+      changes.forEach(function(m){
+        if(m.type==='characterData') {
+          if(m.target.parentElement) changed.add(m.target.parentElement);
+        } else {
+          m.addedNodes.forEach(function(n){
+            if(n.nodeType===1) changed.add(n);
+            else if(n.nodeType===3 && n.parentElement) changed.add(n.parentElement);
+          });
+        }
+      });
+      if(pending) return;
+      // Process only changed nodes; never rescan hundreds of SVG marks on
+      // each animation frame of an ongoing statistical simulation.
+      pending=true;
+      requestAnimationFrame(function(){
+        pending=false;
+        var items=Array.from(changed);changed.clear();
+        if(!root.isConnected || !isEnglish()) return;
+        items.forEach(function(n){
+          if(n.isConnected && root.contains(n) && !n.closest('pre,code,script,style,[lang=it],.it-source-hidden')) {
+            // text changes and new elements can both introduce Italian labels
+            localizeSurface(n);
+            if(n.matches && n.matches('[aria-label],[title]')) {
+              ['aria-label','title'].forEach(function(a){var value=n.getAttribute(a);
+                if(value) n.setAttribute(a,translateDisplay(value));});
+            }
+          }
+        });
+      });
+    });
+    liveObserver.observe(root,{subtree:true,childList:true,characterData:true});
+  }
+  SA.i18n = { display:translateDisplay, watchLive:watchLive, init:init, applyCatalog:applyCatalog, setLanguage:setLanguage, isEnglish:isEnglish,
     tr:tr, translateRComments:translateRComments, sourceDisplayName:sourceDisplayName, localizeSurface:localizeSurface, localizeCurrent:localizeCurrent, companion:companion, challengeTasks:challengeTasks, trStatus:trStatus, englishExtended:englishExtended, englishGuide:englishGuide, replaceLabProse:replaceLabProse, get language() {return locale;} };
 })();

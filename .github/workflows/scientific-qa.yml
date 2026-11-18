@@ -127,3 +127,4 @@ jobs:
           python tests/test_UX_toolbar.py 390
           python tests/test_UX_toolbar.py 1366
           node tests/test_UX_contract.js
+          python tests/test_L_language_surface.py

@@ -1,3 +1,5 @@
+> **Patch bilingue EN — candidate, 18 novembre 2026.** Integrate le traduzioni di etichette, tabelle e grafici generati nei 31 laboratori, incluso quello sulle reti neurali; aggiornati i collegamenti del footer. Motori statistici e script R invariati. Richiesto nuovo collaudo Mac della build aggiornata prima della pubblicazione. [Audit e protocollo](docs/EN_SURFACE_PATCH_31.md).
+
 > **Rifinitura UX — candidate locale, 18 novembre 2026.** La precedente versione UX ha superato il collaudo completo sul Mac (SHA HTML `f01c3810…`) e lo studente dispone del percorso E. Questa nuova candidate riordina la barra di tutti i 31 laboratori in **Guida · Approfondisci · Mettiti alla prova | Corso R · Codice R | Salva/Condividi**, con bordi uniformi e pannelli sovrapposti per Challenges e codice R. Il comando ridondante «Simula» è rimosso dalla barra, non dai simulatori. I 31 script R e i 25 riferimenti numerici R1 rimangono identici; i gate GNU R devono essere ripetuti sul nuovo fingerprint prima del push. [Rapporto della rifinitura](docs/UX_TOOLBAR_REFINEMENT.md). La Macrofase F Classroom resta soltanto in roadmap.
 
 <p align="center">

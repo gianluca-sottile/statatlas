@@ -22,7 +22,7 @@ SA.ui = (function () {
       list.forEach(function (c) {
         if (c == null || c === false) return;
         if (Array.isArray(c)) add(c);
-        else e.appendChild(c.nodeType ? c : document.createTextNode(String(c)));
+        else e.appendChild(c.nodeType ? c : document.createTextNode(SA.i18n && SA.i18n.isEnglish() ? SA.i18n.display(String(c)) : String(c)));
       });
     })(kids);
     return e;

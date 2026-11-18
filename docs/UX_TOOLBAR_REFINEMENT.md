@@ -1,6 +1,6 @@
 # StatAtlas 2.1 — Rifinitura finale della barra e dei pannelli UX
 
-**Data:** 18 novembre 2026. **Stato:** candidate integrale da collaudare sul Mac, non pubblicata. **Build HTML SHA-256:** `0fb7a854401ad116d5a11179b67f65bba8b229b0c863afed5b1f5a1b8f1540e1`.
+**Data:** 18 novembre 2026. **Stato:** candidate integrale da collaudare sul Mac, non pubblicata. **Build HTML SHA-256:** `50fe9d20ccd31304a6eaf972c7f8a33612120f150c22fd89c0801c279f9715c5`.
 
 ## Obiettivo
 

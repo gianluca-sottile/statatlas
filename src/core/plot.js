@@ -59,11 +59,11 @@ SA.plot = (function () {
     if (o.xlabel) {
       var xl = svg('text', { x: (m.l + W - m.r) / 2, y: H - 6, 'text-anchor': 'middle', fill: t.ink_2,
         'font-family': t.serif, 'font-style': 'italic', 'font-size': 13 }, root);
-      xl.textContent = o.xlabel;
+      xl.textContent = SA.i18n && SA.i18n.isEnglish() ? SA.i18n.display(o.xlabel) : o.xlabel;
     }
     if (o.ylabel) {
       var yl = svg('text', { x: m.l + 6, y: Math.max(10, m.t - 4), fill: t.ink_3, 'font-size': 11 }, root);
-      yl.textContent = o.ylabel;
+      yl.textContent = SA.i18n && SA.i18n.isEnglish() ? SA.i18n.display(o.ylabel) : o.ylabel;
     }
     var g = svg('g', null, root);
     return { root: root, g: g, x: x, y: y, W: W, H: H, m: m, t: t };
@@ -121,7 +121,7 @@ SA.plot = (function () {
   }
   function text(parent, x, y, txt, attrs) {
     var a = { x: x, y: y }; for (var k in attrs) a[k] = attrs[k];
-    var e = svg('text', a, parent); e.textContent = txt; return e;
+    var e = svg('text', a, parent); e.textContent = SA.i18n && SA.i18n.isEnglish() ? SA.i18n.display(String(txt)) : txt; return e;
   }
 
   return { hist: hist, curve: curve, text: text, dots: dots, svg: svg, scale: scale, ticks: ticks, frame: frame, marker: marker, path: path, legendSwatch: legendSwatch };
