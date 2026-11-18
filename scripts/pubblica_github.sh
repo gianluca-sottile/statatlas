@@ -46,6 +46,20 @@ assert r.get('gates',{}).get('student_html')=='PASS', 'E student HTML not verifi
 print('Gate Macrofase E: HTML standalone, JSON docente, browser 390/1366 PASS; build SHA-256',sha)
 PY_E
 fi
+# UX redesign: require the SAME exact HTML build to have passed the complete Mac release gate.
+if [ -f "$SOURCE/src/core/workbench.js" ]; then
+  python3 - "$SOURCE" <<'PY_UX'
+import hashlib,json,pathlib,sys
+root=pathlib.Path(sys.argv[1]);report=root/'verifica/REPORT_MACROFASE_UX.json'
+assert report.exists(), 'UX gate missing: run sh tests/run_macrofase_UX.sh on Mac first'
+data=json.loads(report.read_text(encoding='utf-8'))
+sha=hashlib.sha256((root/'index.html').read_bytes()).hexdigest()
+assert data.get('format')=='statatlas.ux-acceptance' and data.get('html_sha256')==sha, 'UX gate is tied to another build'
+assert data.get('gates',{}).get('workbench_labs')==31, 'UX laboratory coverage is incomplete'
+assert data.get('gates',{}).get('non_reflowing_overlays')=='PASS', 'UX overlay tests are incomplete'
+print('Gate UX: 31 laboratories + teacher/student UI PASS, exact HTML SHA-256',sha)
+PY_UX
+fi
 printf '1/5 Clono il repository in uno spazio temporaneo...\n' 
 git clone --quiet "$URL" "$WORK/repo"
 cd "$WORK/repo"
@@ -54,7 +68,7 @@ if [ "$BRANCH" != main ]; then echo "ERRORE: il ramo corrente e' $BRANCH, atteso
 printf '2/5 Copio la versione conclusiva senza modificare la cronologia Git...\n'
 rsync -a --delete --exclude='.git/' --exclude='.venv/' --exclude='.venv_backup*/' --exclude='node_modules/' --exclude='__pycache__/' \
   --exclude='*.pyc' --exclude='*.log' --exclude='verifica/runs/' \
-  --exclude='verifica/REPORT_VALIDAZIONE_R_31.csv' --exclude='verifica/REPORT_MACROFASE_E.json' "$SOURCE/" "$WORK/repo/"
+  --exclude='verifica/REPORT_VALIDAZIONE_R_31.csv' --exclude='verifica/REPORT_MACROFASE_E.json' --exclude='verifica/REPORT_MACROFASE_UX.json' "$SOURCE/" "$WORK/repo/"
 printf '3/5 Ricostruisco la versione offline...\n'
 python3 build.py
 if command -v node >/dev/null 2>&1; then
@@ -82,6 +96,6 @@ if [ -z "$(git status --porcelain)" ]; then
 fi
 printf '5/5 Creo un unico commit e pubblico su main...\n'
 git add -A
-git commit -m 'StatAtlas 2.1: offline teaching paths, editable projects and formative reports'
+git commit -m 'StatAtlas 2.1: scientific workbench and non-reflowing teaching UI'
 git push origin main
 printf 'PUBBLICAZIONE COMPLETATA. Ora verifica GitHub Actions e la checklist conclusiva.\n'

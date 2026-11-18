@@ -34,6 +34,7 @@ def run(width=1366):
           SA.teachers.setDraft(p);return p;
         }''',[initial,second])
         # Round-trip a teacher JSON file through the browser file input.
+        author.get_by_role('button',name='Esporta / Apri progetto').click()
         author.locator('.teacher-actions input[type=file]').last.set_input_files({
             'name':'teacher.json','mimeType':'application/json','buffer':json.dumps(project).encode()})
         author.wait_for_function('SA.teachers.getDraft().id==="training-2026-test"')
@@ -55,6 +56,7 @@ def run(width=1366):
         exported.wait_for_function('location.hash==="#/regressione"',timeout=15000)
         assert exported.locator('.teacher-student-banner h1').inner_text()=='Statistical reasoning'
         # Progress and local reflection are recorded for the second step.
+        exported.locator('.student-reflection-toggle').click()
         exported.locator('.teacher-student-banner textarea').fill('Estimation depends on the assumed model')
         exported.locator('.teacher-student-banner button').filter(has_text='Mark activity completed').click()
         with exported.expect_download() as event:

@@ -24,7 +24,7 @@ with sync_playwright() as pw:
    page.locator('.challenge-section .challenge-card').first.wait_for(state='attached',timeout=30000)
    assert page.locator('.challenge-card').count()==3,(lab,'cards')
    assert page.locator('.challenge-answer').count()==(9 if lab in ('intervalli','validazione','kriging') else 12),(lab,'answers')
-   assert page.locator('.lab-head .lab-cover svg').count()>0,(lab,'cover')
+   assert page.locator('.lab-cover svg').count()>0,(lab,'cover')
    assert page.locator('.lab-howto').count()==1,(lab,'guide')
    if lab in SPATIAL:
     assert page.locator('.spatial-studio').count()==1,(lab,'unified studio')

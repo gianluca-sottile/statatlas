@@ -88,12 +88,15 @@
       allLabs().forEach(function(l){selector.appendChild(E('option',{value:l.id},l.num+' · '+l.title));});
       return selector;
     }
+    var selectedStepId=null;
     function render(){
+      if(area._teacherKeys)area.removeEventListener('keydown',area._teacherKeys);
       area.replaceChildren();
+      if(draft.steps.length && !draft.steps.some(function(s){return s.id===selectedStepId;}))selectedStepId=draft.steps[0].id;
       var title=E('h1',tr('StatAtlas for Teachers','StatAtlas for Teachers'));
       var intro=E('p.teacher-lead',tr('Costruisci un percorso offline con laboratori, sfide, consegne e configurazioni riproducibili. Il progetto docente resta modificabile in JSON.',
         'Build a standalone offline teaching path with labs, challenges, instructions and reproducible presets. Keep an editable teacher JSON project.'));
-      var hdr=E('section.teacher-card',E('h2',tr('Impostazioni del percorso','Path settings')),
+      var hdr=E('section.teacher-card.teacher-path-settings',E('h2',tr('Impostazioni del percorso','Path settings')),
         textField(tr('Titolo del percorso','Path title'),draft.title,140,function(v){draft.title=v;}),
         textField(tr('Destinatari','Audience'),draft.audience,160,function(v){draft.audience=v;}),
         textField(tr('Obiettivi e descrizione','Description and objectives'),draft.description,1600,function(v){draft.description=v;},'textarea'));
@@ -105,22 +108,30 @@
       var select=chooseLab();
       var add=E('button.btn',{type:'button',onclick:safe(function(){
         if(draft.steps.length>=MAX_STEPS)throw Error('Maximum 24 steps');
-        draft.steps.push(draftStep(select.value,null));render();
+        var next=draftStep(select.value,null);draft.steps.push(next);selectedStepId=next.id;render();
       })},tr('Aggiungi laboratorio','Add laboratory'));
       var picker=E('section.teacher-card',E('h2',tr('Sequenza didattica','Teaching sequence')),
         E('p',tr('Puoi ripetere un laboratorio con consegne o configurazioni diverse. Usa le frecce per riordinare.',
           'Repeat a laboratory with different instructions or configurations. Reorder with the arrows.')),
-        E('div.teacher-actions',select,add));
+        E('div.teacher-actions.teacher-add-row',select,add));
+      var outline=E('nav.teacher-outline',{'aria-label':tr('Elenco delle attività','Activity outline')});
+      var editor=E('div.teacher-editor-pane');
       draft.steps.forEach(function(step,index){
-        var info=find(step.lab), group=E('article.teacher-step'),
-          head=E('div.teacher-step-head',E('strong',(index+1)+'. '+info.lab.num+' · '+info.lab.title));
+        var tab=E('button.teacher-outline-item',{type:'button','aria-current':step.id===selectedStepId?'step':null,onclick:function(){selectedStepId=step.id;render();}},
+          E('span.teacher-outline-num',String(index+1).padStart(2,'0')),
+          E('span.teacher-outline-name',step.title||find(step.lab).lab.title),
+          E('span.teacher-outline-meta',step.minutes+' min · '+step.challengeIds.length+' ' + tr('sfide','challenges')));
+        outline.appendChild(tab);
+        var info=find(step.lab), group=E('article.teacher-step');
+        group.hidden=step.id!==selectedStepId;
+        var head=E('div.teacher-step-head',E('strong',(index+1)+'. '+info.lab.num+' · '+info.lab.title));
         var up=E('button.btn.btn-ghost',{type:'button','aria-label':tr('Sposta su','Move up'),disabled:index===0,onclick:function(){
           var el=draft.steps.splice(index,1)[0];draft.steps.splice(index-1,0,el);render();
         }},'↑');
         var down=E('button.btn.btn-ghost',{type:'button','aria-label':tr('Sposta giù','Move down'),disabled:index===draft.steps.length-1,onclick:function(){
           var el=draft.steps.splice(index,1)[0];draft.steps.splice(index+1,0,el);render();
         }},'↓');
-        var remove=E('button.btn.btn-ghost',{type:'button',onclick:function(){draft.steps.splice(index,1);render();}},tr('Rimuovi','Remove'));
+        var remove=E('button.btn.btn-ghost',{type:'button',onclick:function(){draft.steps.splice(index,1);selectedStepId=null;render();}},tr('Rimuovi','Remove'));
         head.append(E('div.teacher-actions',up,down,remove));group.append(head);
         group.append(textField(tr('Titolo dell’attività','Activity title'),step.title,160,function(v){step.title=v;}));
         group.append(textField(tr('Consegna agli studenti','Instructions for students'),step.instructions,2400,function(v){step.instructions=v;},'textarea'));
@@ -149,8 +160,10 @@
         removePreset.hidden=!step.preset;
         group.append(E('div.teacher-preset',E('strong',step.preset?tr('Esperimento D associato','D experiment attached'):tr('Nessun preset: impostazioni iniziali del laboratorio','No preset: laboratory defaults')),
           E('div.teacher-actions',file,removePreset)));
-        picker.appendChild(group);
+        editor.appendChild(group);
       });
+      var layout=E('div.teacher-editor-grid',outline,editor);
+      picker.appendChild(layout);
       var actions=E('section.teacher-card',E('h2',tr('Esporta o riapri','Export or reopen')),
         E('p',tr('Il progetto JSON serve al docente. Il file HTML è il percorso autonomo per gli studenti; include il motore, ma non invia dati a un server.',
           'Teacher JSON remains editable. The student HTML is fully standalone; it includes the engine and sends no information to a server.')));
@@ -167,9 +180,49 @@
         status(tr('Pagina HTML autonoma esportata.','Standalone student HTML exported.'));
       })},tr('Esporta HTML studenti','Export student HTML'));
       actions.append(E('div.teacher-actions',save,fileProject,exportHTML));
-      area.append(title,intro,hdr,picker,actions,E('p.teacher-status',{role:'status','aria-live':'polite'},
+      // Modeless editor layout, modal secondary operations. Native fields are MOVED
+      // (not replicated), so preset, file and export event handlers remain intact.
+      var tools=E('div.teacher-ux-toolbar');
+      var settingsBtn=E('button.btn',{type:'button','aria-haspopup':'dialog'},tr('Impostazioni del percorso','Path settings'));
+      var exportBtn=E('button.btn.btn-primary',{type:'button','aria-haspopup':'dialog'},tr('Esporta / Apri progetto','Export / Open project'));
+      var pathSummary=E('span.teacher-ux-summary',draft.title||tr('Percorso senza titolo','Untitled path'));
+      tools.append(settingsBtn,exportBtn,pathSummary);
+      var teacherBack=E('button.teacher-ux-backdrop',{type:'button','aria-label':tr('Chiudi il pannello','Close panel'),hidden:true});
+      var teacherPanel=E('aside.teacher-ux-panel',{role:'dialog','aria-modal':'true','aria-labelledby':'teacher-ux-panel-title','aria-hidden':'true',hidden:true});
+      var panelTitle=E('h2#teacher-ux-panel-title');
+      var close=E('button.btn.btn-ghost',{type:'button','aria-label':tr('Chiudi','Close')},'×');
+      var panelHead=E('div.teacher-ux-panel-head',panelTitle,close);
+      var panelBody=E('div.teacher-ux-panel-body');
+      teacherPanel.append(panelHead,panelBody);
+      var lastButton=null;
+      function openPanel(section,button){
+        lastButton=button;panelTitle.textContent=section==='settings'?tr('Impostazioni del percorso','Path settings'):tr('Esporta o riapri','Export or reopen');
+        panelBody.replaceChildren(section==='settings'?hdr:actions);
+        teacherBack.hidden=false;teacherPanel.hidden=false;teacherPanel.setAttribute('aria-hidden','false');
+        document.body.classList.add('ux-modal-open');close.focus();
+      }
+      function closePanel(){
+        if(teacherPanel.hidden)return;
+        teacherPanel.hidden=true;teacherPanel.setAttribute('aria-hidden','true');teacherBack.hidden=true;
+        document.body.classList.remove('ux-modal-open');if(lastButton&&lastButton.isConnected)lastButton.focus();
+        pathSummary.textContent=draft.title||tr('Percorso senza titolo','Untitled path');
+      }
+      settingsBtn.addEventListener('click',function(){openPanel('settings',settingsBtn);});
+      exportBtn.addEventListener('click',function(){openPanel('export',exportBtn);});
+      close.addEventListener('click',closePanel);teacherBack.addEventListener('click',closePanel);
+      var teacherKeys=function(e){
+        if(teacherPanel.hidden)return;
+        if(e.key==='Escape'){e.preventDefault();closePanel();return;}
+        if(e.key!=='Tab')return;
+        var fields=Array.prototype.filter.call(teacherPanel.querySelectorAll('button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),a[href]'),function(n){return !!n.getClientRects().length;});
+        if(!fields.length)return;
+        if(e.shiftKey&&document.activeElement===fields[0]){e.preventDefault();fields[fields.length-1].focus();}
+        else if(!e.shiftKey&&document.activeElement===fields[fields.length-1]){e.preventDefault();fields[0].focus();}
+      };
+      area._teacherKeys=teacherKeys;area.addEventListener('keydown',teacherKeys);
+      area.append(title,intro,tools,picker,E('p.teacher-status',{role:'status','aria-live':'polite'},
         tr('Nessun dato viene caricato online. I report degli studenti sono locali e non costituiscono voti certificati.',
-          'No data is uploaded. Student reports remain local and are not certified exam grades.')));
+          'No data is uploaded. Student reports remain local and are not certified exam grades.')),teacherBack,teacherPanel);
     }
     render();
   }
@@ -247,19 +300,28 @@
       i=n;var s=project.steps[i],r=records[i];
       box.replaceChildren();
       box.append(make('h1','',project.title));
+      box.append(make('p','student-current',labels('Attività ' ,'Activity ')+(i+1)+'/'+project.steps.length));
       var description=make('p','',project.description);description.hidden=!project.description;box.append(description);
       var nav=make('nav','teacher-actions');nav.setAttribute('aria-label',labels('Attività del percorso','Path activities'));
       project.steps.forEach(function(st,j){var b=make('button','',String(j+1)+' · '+(st.title||find(st.lab).lab.title));
         b.type='button';if(j===i)b.setAttribute('aria-current','step');b.addEventListener('click',function(){select(j);});nav.append(b);});
       box.append(nav);
-      box.append(make('p','',labels('Consegna: ','Instructions: ')+(s.instructions||labels('Esplora i risultati e rispondi alle Challenges selezionate.',
+      box.append(make('p','student-instruction',labels('Consegna: ','Instructions: ')+(s.instructions||labels('Esplora i risultati e rispondi alle Challenges selezionate.',
         'Explore the results and answer the selected challenges.'))));
-      box.append(make('p','',labels('Durata indicativa: ','Estimated time: ')+s.minutes+' min'));
+      box.append(make('p','student-duration',labels('Durata indicativa: ','Estimated time: ')+s.minutes+' min'));
       var reflection=make('textarea');reflection.maxLength=3000;
       reflection.setAttribute('aria-label',labels('Riflessione sul laboratorio','Lab reflection'));
       reflection.placeholder=labels('Quale conclusione ricavi dall’esperimento?','What do you conclude from this experiment?');
       reflection.value=r.reflection;reflection.addEventListener('input',function(){r.reflection=reflection.value;keep();});
-      box.append(reflection);
+      var workspace=make('section','student-reflection-panel');workspace.hidden=true;
+      workspace.setAttribute('aria-label',labels('Riflessione e report','Reflection and report'));
+      var workspaceBack=make('button','student-workspace-backdrop');workspaceBack.type='button';
+      workspaceBack.setAttribute('aria-label',labels('Chiudi il pannello','Close panel'));workspaceBack.hidden=true;
+      var workspaceHead=make('div','student-workspace-head');
+      workspaceHead.append(make('h2','',labels('Riflessione e report','Reflection and report')));
+      var dismiss=make('button','btn btn-ghost');dismiss.type='button';dismiss.textContent='×';
+      dismiss.setAttribute('aria-label',labels('Chiudi','Close'));workspaceHead.append(dismiss);
+      workspace.append(workspaceHead,reflection);
       var buttons=make('div','teacher-actions');
       var complete=make('button','',labels('Segna attività completata','Mark activity completed'));
       complete.addEventListener('click',function(){r.completed=!r.completed;keep();observeSolved();});
@@ -281,13 +343,25 @@
       jump.hidden=!s.challengeIds.length;
       jump.addEventListener('click',function(){var target=document.querySelector('#main .challenge-section');
         if(target){target.scrollIntoView({behavior:'auto',block:'start'});}});
-      buttons.append(complete,dl,reset,jump);box.append(buttons);
-      box.append(make('p','student-status'));
-      box.append(make('p','student-error'));
-      box.append(make('p','',labels('Le riflessioni restano in questo browser fino alla cancellazione. Il report è formativo e può essere modificato: non è un voto certificato.',
+      buttons.append(complete,dl,reset);workspace.append(buttons);
+      workspace.append(make('p','',labels('Le riflessioni restano in questo browser fino alla cancellazione. Il report è formativo e può essere modificato: non è un voto certificato.',
         'Reflections remain in this browser until cleared. The formative report is editable and is not a certified grade.')));
-      var next=make('button','',labels('Attività successiva →','Next activity →'));next.hidden=i===project.steps.length-1;
-      next.addEventListener('click',function(){select(i+1);});box.append(next);
+      var openWorkspace=make('button','student-reflection-toggle');openWorkspace.type='button';
+      openWorkspace.textContent=labels('Riflessione e report','Reflection and report');
+      openWorkspace.setAttribute('aria-expanded','false');
+      var aux=make('div','student-quick-actions');aux.append(jump,openWorkspace);
+      box.append(aux,make('p','student-status'),make('p','student-error'),workspaceBack,workspace);
+      function toggleWorkspace(open){workspace.hidden=!open;workspaceBack.hidden=!open;
+        openWorkspace.setAttribute('aria-expanded',String(open));
+        document.body.classList.toggle('student-workspace-open',open);
+        if(open)dismiss.focus();else openWorkspace.focus();}
+      openWorkspace.addEventListener('click',function(){toggleWorkspace(true);});
+      dismiss.addEventListener('click',function(){toggleWorkspace(false);});
+      workspaceBack.addEventListener('click',function(){toggleWorkspace(false);});
+      workspace.addEventListener('keydown',function(e){if(e.key==='Escape'){e.preventDefault();toggleWorkspace(false);}});
+      document.body.classList.remove('student-workspace-open');
+      var next=make('button','student-next',labels('Attività successiva →','Next activity →'));next.hidden=i===project.steps.length-1;
+      next.addEventListener('click',function(){select(i+1);});aux.append(next);
       if(SA.currentLab!==s.lab)location.hash='#/'+s.lab;
       else window.dispatchEvent(new Event('hashchange'));
       setTimeout(applyView,0);

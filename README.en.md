@@ -1,3 +1,5 @@
+> **UX redesign candidate, 17 November 2026.** All 31 laboratories now use a scientific-first workbench with non-reflowing accessible Guide/R course/Save overlays. Teachers use a master-detail editor; student reflections and formative reports live in an overlay. This UX build is **not published or Mac R-certified yet**; run `sh tests/run_macrofase_UX.sh` and the native Safari offline check before one GitHub push. See [UX protocol](docs/UX_REDESIGN_PROTOCOLLO.md) and [design report](docs/UX_REDESIGN_RELAZIONE.md). The previous Phase E passed its Mac acceptance.
+
 # StatAtlas 2.1 — Interactive Atlas of Statistics
 
 **Maintainer:** Gianluca Sottile · [Public StatAtlas application](https://gianluca-sottile.github.io/statatlas/) · [Source repository](https://github.com/gianluca-sottile/statatlas) · [README italiano](README.md)

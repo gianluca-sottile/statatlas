@@ -1,4 +1,4 @@
-> **Macrofasi C e D pubblicate; Macrofase E in candidate.** La versione bilingue comprende 31 percorsi di studio, 62 approfondimenti, 104 esercizi risolti e 93 Challenges in inglese. I benchmark R/JavaScript superati sulle build pubblicate coprono soltanto gli scenari predefiniti (R1), non l’equivalenza algoritmica generale (R2). I nuovi strumenti docenti della E sono da collaudare sul Mac prima del rilascio. Vedi [protocollo E](docs/MACROFASE_E_PROTOCOLLO.md), [roadmap](docs/ROADMAP_MACROFASI_D_E.md) e [README EN](README.en.md).
+> **Stato UX — 17 novembre 2026.** La Macrofase E ha superato il collaudo locale sul Mac; il nuovo redesign UX è una candidate separata, non ancora pubblicata. La versione bilingue comprende 31 percorsi di studio, 62 approfondimenti, 104 esercizi risolti e 93 Challenges in inglese. I benchmark R/JavaScript superati sulle build pubblicate coprono soltanto gli scenari predefiniti (R1), non l’equivalenza algoritmica generale (R2). I pannelli UX non cambiano gli algoritmi scientifici; il nuovo gate GNU R sull'hash UX è ancora da eseguire. Vedi [protocollo UX](docs/UX_REDESIGN_PROTOCOLLO.md), [relazione UX](docs/UX_REDESIGN_RELAZIONE.md) e [protocollo E](docs/MACROFASE_E_PROTOCOLLO.md), [roadmap](docs/ROADMAP_MACROFASI_D_E.md) e [README EN](README.en.md).
 
 <p align="center">
   <img src="assets/logo.svg" width="112" alt="Logo di StatAtlas">
@@ -28,7 +28,13 @@
   <img alt="Licenze" src="https://img.shields.io/badge/licenze-MIT%20%2B%20CC%20BY%204.0-6B3E8A">
 </p>
 
-> **Stato del progetto — 17 novembre 2026.** La Macrofase D è stata pubblicata nel commit [`80f2ea6`](https://github.com/gianluca-sottile/statatlas/commit/80f2ea6), con collaudo Mac 31/31 script R e 84/84 confronti numerici R/JS (R1). La **Macrofase E — StatAtlas for Teachers** è implementata come **candidate locale, ancora non collaudata con GNU R su Mac né pubblicata**. I nuovi percorsi docenti richiedono il gate E e l’apertura `file://` in Safari prima del rilascio. Accessibilità manuale e validazione con studenti restano distinte.
+> **Stato del progetto — 17 novembre 2026.** La Macrofase D è stata pubblicata nel commit [`80f2ea6`](https://github.com/gianluca-sottile/statatlas/commit/80f2ea6); la Macrofase E è stata collaudata integralmente sul Mac (SHA HTML `0fcdd824...`), ma il suo push non è attestato qui. Il redesign UX è una **candidate locale da collaudare** sulla nuova build, senza cambiare i motori numerici. Prima del rilascio restano il collaudo GNU R/JS sul nuovo hash, il test manuale Safari `file://`, il dry-run Git e un unico push. Accessibilità assistiva e valutazione con studenti restano verifiche distinte.
+
+## Interfaccia scientific-first — redesign UX (candidate)
+
+I 31 laboratori aprono direttamente sull'esperimento: i comandi **Guida**, **Corso R** e **Salva / Condividi** aprono pannelli laterali accessibili senza spostare grafici e controlli. La navigazione include una ricerca dei laboratori. **StatAtlas for Teachers** utilizza un elenco ordinato e una sola attività in modifica; le impostazioni e l'export si aprono in un pannello. Anche il report del percorso studente è disponibile da un pannello contestuale. Il redesign conserva il motore offline, il bilinguismo, le 93 Challenges e l'esportazione R.
+
+**Per validare il codice UX sul Mac prima della pubblicazione:** `sh tests/run_macrofase_UX.sh` (con PATH dell'ambiente virtuale), seguito da un'unica anteprima Git e un unico push. Riferimenti: [protocollo UX](docs/UX_REDESIGN_PROTOCOLLO.md) e [report con schermate](docs/UX_REDESIGN_RELAZIONE.md).
 
 ## Che cos'è StatAtlas
 

@@ -24,8 +24,10 @@ def run(width=1366):
         selector=page.locator('.teacher-card select[aria-label*="Laboratorio"]')
         selector.select_option('distribuzioni')
         page.locator('.teacher-card button').filter(has_text='Aggiungi laboratorio').click()
+        page.get_by_role('button',name='Impostazioni del percorso').click()
         page.locator('input[aria-label="Titolo del percorso"]').fill('Capire le probabilità')
         page.locator('textarea[aria-label="Obiettivi e descrizione"]').fill('Un esempio riproducibile')
+        page.locator('.teacher-ux-panel-head button').click()
         assert page.locator('.teacher-step').count()==1
         step_id=page.evaluate('SA.teachers.getDraft().steps[0].id')
         page.locator('.teacher-step .teacher-check input').last.uncheck()
@@ -60,6 +62,7 @@ def run(width=1366):
         assert student.locator('.teacher-student-banner').is_visible()
         assert student.locator('.sidebar').is_hidden()
         assert student.locator('.challenge-card:not([hidden])').count()==2
+        student.locator('.student-reflection-toggle').click()
         student.locator('.teacher-student-banner textarea').fill('La probabilità è un limite di frequenze, sotto opportune ipotesi.')
         student.locator('.teacher-student-banner button').filter(has_text='Segna attività completata').click()
         assert 'completata' in student.locator('.student-status').inner_text()

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from shutil import which
 """Macrofase D: same-build JSON round-trip / offline links / hostile input."""
 from pathlib import Path
 import sys
@@ -11,7 +12,7 @@ LABS='''distribuzioni bivariata simulazione lgn-tcl adattamento stimatori fisher
 
 def run(width=1366):
     with sync_playwright() as p:
-        browser=p.chromium.launch(headless=True,args=['--no-sandbox','--disable-dev-shm-usage'])
+        browser=p.chromium.launch(headless=True, executable_path=which('chromium') or which('google-chrome') or None,args=['--no-sandbox','--disable-dev-shm-usage'])
         page=browser.new_page(viewport={'width':width,'height':850},accept_downloads=True)
         errors=[]
         page.on('pageerror',lambda err:errors.append(str(err)))

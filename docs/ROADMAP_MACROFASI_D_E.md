@@ -33,7 +33,7 @@ Fornire pulsanti 'Export experiment (JSON)', 'Import experiment (JSON)' e 'Share
 
 Test round-trip per tutti i 31 laboratori; checkpoint iniziale e intermedio in 25 laboratori animati; variazione manuale dei punti nei sei laboratori spaziali e nei laboratori di regressione 10 e 14; cambio lingua; schemi invalidi, payload troppo lunghi, versioni future, valori non validi; browser desktop/mobile e offline; verifiche numeriche con le tolleranze del laboratorio. La corrispondenza tra la build e i report GNU R precedenti va **rivalutata** se il codice cambia. Solo al completamento dei gate può seguire un unico collaudo finale sul Mac e un unico push.
 
-## Macrofase E — StatAtlas for Teachers (candidate implementata, non pubblicata)
+## Macrofase E — StatAtlas for Teachers (collaudo Mac PASS; pubblicazione non confermata in questa documentazione)
 
 **Dipendenza soddisfatta:** la D introduce snapshot versionati e compatibili con il fingerprint del motore. Implementazione disponibile in `src/core/teachers.js`, `src/styles/teachers.css` e vista `#/teachers`:
 
@@ -43,7 +43,11 @@ Test round-trip per tutti i 31 laboratori; checkpoint iniziale e intermedio in 2
 - report formativo `statatlas.student-report` v1 esportabile, niente account né backend; nessuna garanzia antifrode, nessuna raccolta automatica di dati personali;
 - test E schema, browser mobile/desktop, ripristino checkpoint D, due attività, report e input ostili.
 
-**Gate da chiudere:** GNU R 31/31 e 84 confronti R/JS sulla *nuova* build E (soltanto R1), apertura diretta dei file `file://` in Safari, dry run Git, singolo push. Vedi [`MACROFASE_E_PROTOCOLLO.md`](MACROFASE_E_PROTOCOLLO.md) e [`MACROFASE_E_CHECKLIST_MAC.md`](MACROFASE_E_CHECKLIST_MAC.md).
+**Collaudo Mac superato il 17 novembre 2026:** GNU R 31/31 e 84 confronti R/JS sulla build E (soltanto R1), editor e HTML studenti a 390/1366 px, hash `0fcdd8245e8b9ed9780534e5fd53e42c116fb21ac74f5b7bf86fc555f4c661cb`. Il risultato del push E non è attestato in questo documento. L’apertura diretta `file://` in Safari rimane verifica manuale distinta. Vedi [`MACROFASE_E_PROTOCOLLO.md`](MACROFASE_E_PROTOCOLLO.md) e [`MACROFASE_E_CHECKLIST_MAC.md`](MACROFASE_E_CHECKLIST_MAC.md).
+
+## Redesign UX — dopo E, prima di F (candidate implementata, non pubblicata)
+
+Riorganizzazione completa delle viste senza cambiare gli algoritmi statistici: laboratorio scientific-first, Guida/Corso R/Salva in drawer fixed accessibili, catalogo ricercabile, editor docente master-detail e pannello report studente. La Macrofase E ha superato il collaudo Mac; il redesign UX necessita del suo **nuovo** gate GNU R/JS sulla build corrente e del test `file://` in Safari. Vedi [`UX_REDESIGN_PROTOCOLLO.md`](UX_REDESIGN_PROTOCOLLO.md).
 
 ## Macrofase F (opzionale) — StatAtlas Classroom
 

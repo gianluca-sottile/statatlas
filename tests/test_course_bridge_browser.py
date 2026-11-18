@@ -42,8 +42,10 @@ def run(width):
                 assert page.evaluate('document.documentElement.scrollWidth <= innerWidth + 1'),(width,lab,'overflow')
                 assert not errors, (lab,errors)
                 if i in (1,22,26,31):
+                    page.locator('[data-ux-action="course"]').click()
                     with page.expect_download() as d:
                         panel.locator('button.course-bridge-download').click()
+                    page.locator('.ux-close').click()
                     download=d.value
                     assert download.suggested_filename==f'StatAtlas_{i:02d}_scheda_studente.md'
                     text=download.path().read_text(encoding='utf-8')
@@ -59,8 +61,10 @@ def run(width):
                 page.locator('#menuBtn').click()
             page.evaluate('location.hash="#/distribuzioni"')
             page.wait_for_function('window.SA.currentLab==="distribuzioni"')
+            page.locator('[data-ux-action="course"]').click()
             with page.expect_download() as d:
                 page.locator('[data-course-bridge="distribuzioni"] button.course-bridge-download').click()
+            page.locator('.ux-close').click()
             download = d.value
             assert download.suggested_filename == 'StatAtlas_01_EN_student_worksheet.md', download.suggested_filename
             text = download.path().read_text(encoding='utf-8')

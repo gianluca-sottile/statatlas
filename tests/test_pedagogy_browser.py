@@ -48,11 +48,11 @@ async def main():
                 try:
                     assert await guide.count()==1,'missing/duplicate lab guide'
                     assert await guide.locator('ol li').count()==4,'guide must have four steps'
-                    assert await page.locator('.lab-head .lab-cover svg').count()>0,'cover svg missing'
-                    assert await page.locator('.lab-head ul.chips li').count()>=4,'objectives missing'
+                    assert await page.locator('.lab-cover svg').count()>0,'cover svg missing'
+                    assert await page.locator('.chips li').count()>=4,'objectives missing'
                     assert await page.locator('section.step').count()>=4,'step layout missing'
                     assert await page.locator('.moran-guide').count()==0,'legacy guide still visible'
-                    await page.locator('.head-actions button').first.click()
+                    await page.locator('.ux-action-theory').first.click()
                     await page.locator('.drawer.open').wait_for()
                     base=page.locator('.drawer-body .pedagogy-extension')
                     assert await base.count()==1,'missing essential supplement'

@@ -119,3 +119,9 @@ jobs:
           python tests/test_E_presets_navigation.py 390
           python tests/test_E_presets_navigation.py 1366
           python tests/test_E_repeat_lab.py
+
+      - name: Scientific workbench UX (browser/manual only)
+        run: |
+          python tests/test_UX_workbench.py --width 390
+          python tests/test_UX_workbench.py --width 1366
+          node tests/test_UX_contract.js

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from shutil import which
 """Complete EN educational content + Challenges + keyboard/accessibility smoke.
 
 Offline and side-effect free: loads the HTML via set_content; it does not send
@@ -19,7 +20,7 @@ def check(ok, msg):
 
 def run(width):
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True, args=['--no-sandbox'])
+        browser = p.chromium.launch(headless=True, executable_path=which('chromium') or which('google-chrome') or None, args=['--no-sandbox'])
         page = browser.new_page(viewport={'width':width,'height':880}, reduced_motion='reduce')
         errors = []
         page.on('pageerror', lambda e: errors.append(str(e)))
@@ -83,7 +84,7 @@ def run(width):
                 opts=card.locator('.challenge-answers label').all_text_contents()
                 check(len(opts)==3 and all(x.strip() for x in opts),f'Missing distractors {lab}/{j}')
                 card.locator('summary').click()
-            page.locator('.lab-head button').first.click()
+            page.locator('.ux-action-theory').first.click()
             base=page.locator('.drawer-body').inner_text()
             check('Methodological foundations' in base and 'Worked numerical example' in base, f'Missing essential method {lab}')
             check(len(base)>1500, f'Essential English chapter too short {lab}: {len(base)}')

@@ -69,6 +69,22 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
           el('span.num', l.num), el('span', l.title), el('span.dot', { 'aria-hidden': 'true' })));
       })));
     });
+    var search = el('input.ux-sidebar-search', { type: 'search',
+      'aria-label': SA.i18n.isEnglish() ? 'Find a laboratory' : 'Cerca un laboratorio',
+      placeholder: SA.i18n.isEnglish() ? 'Search 31 laboratories…' : 'Cerca tra 31 laboratori…' });
+    search.addEventListener('input', function () {
+      var query = search.value.trim().toLocaleLowerCase();
+      nav.querySelectorAll('ul.nav-list').forEach(function (list) {
+        var shown = 0;
+        list.querySelectorAll('li').forEach(function (item) {
+          var match = !query || item.textContent.toLocaleLowerCase().includes(query);
+          item.hidden = !match; if (match) shown++;
+        });
+        list.hidden = !shown;
+        if (list.previousElementSibling && list.previousElementSibling.classList.contains('nav-part'))
+          list.previousElementSibling.hidden = !shown;
+      });
+    });
     var themeBtn = SA.ui.button(SA.i18n.tr('Tema'), { icon: 'moon', cls: 'btn-ghost', onclick: toggleTheme, aria: SA.i18n.tr('Cambia tema chiaro/scuro') });
     var en = SA.i18n.isEnglish();
     var lang = el('button.btn.btn-ghost.lang-toggle', {
@@ -87,7 +103,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
       SA.ui.button(SA.i18n.tr('Chiudi indice'), { icon: 'close', cls: 'btn-ghost sidebar-close', aria: SA.i18n.tr('Chiudi indice dei laboratori'), onclick: function () { closeMenu(true); } }),
       el('a.brand', { href: '#/', html: SA.art.logo(38) + '<span class="brand-mark">Stat<span>Atlas</span></span>' }),
       el('p.brand-tag', SA.i18n.tr('Laboratori di probabilità e inferenza')),
-      nav, el('div.sidebar-foot', themeBtn, lang));
+      search, nav, el('div.sidebar-foot', themeBtn, lang));
     SA.i18n.localizeSurface(sidebar);
   }
 
@@ -189,7 +205,11 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
         el('div.part-text', el('div.part-roman', p.part), el('h2', p.title), el('p', desc),
           el('div.part-foot', el('span.muted', p.labs.length + (english ? ' labs · ' : ' laboratori · ') + p.labs.map(function (l) { return l.num; }).join(' · ')), el('span.card-go', 'Apri →')))));
     });
-    page.appendChild(parts);
+    // UX: show the actual atlas before secondary explanations, without dropping content.
+    page.insertBefore(parts, page.querySelector('section.how'));
+    var homeHelp = el('details.ux-home-help', el('summary', english ? 'How StatAtlas works · methods and reproducibility' : 'Come funziona StatAtlas · metodi e riproducibilità'));
+    homeHelp.append(page.querySelector('section.how'), page.querySelector('section.legend-home'));
+    page.appendChild(homeHelp);
     page.appendChild(footer());
     SA.i18n.localizeSurface(page);
     return page;
@@ -409,7 +429,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
 
   function enhanceLab(page, id) {
     zoomable(page); if (SA.math) SA.math.typeset(page);
-    var c = SA.content && SA.content[id], head = page.querySelector('.lab-head');
+    var c = SA.content && SA.content[id], head = page.querySelector('.lab-head'), englishMode=SA.i18n.isEnglish();
     if (head) {
       var text = head.firstElementChild, btn = head.querySelector(':scope > .btn');
       if (c) text.appendChild(el('ul.chips', { 'aria-label': 'Obiettivi' }, (englishMode ? [SA.english.labs[id].question, SA.english.labs[id].experiment, SA.english.labs[id].essential] : c.obiettivi).map(function (o) { return el('li', o); })));
@@ -418,8 +438,6 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
       var info = SA.findLab(id);
       head.appendChild(el('figure.lab-cover', { html: SA.art.get(id) + '<figcaption>Tavola ' + info.lab.num + ' · ' + info.part.title + '</figcaption>', 'aria-hidden': 'true' }));
     }
-    // Macrofase B: un percorso per laboratorio, senza modificare simulazioni o stato numerico.
-    if (SA.courseBridge) SA.courseBridge.mount(page, id, SA.findLab(id));
     // Macrofase B: un percorso per laboratorio, senza modificare simulazioni o stato numerico.
     if (SA.courseBridge) SA.courseBridge.mount(page, id, SA.findLab(id));
     // la previsione diventa un riquadro facoltativo dentro la domanda; i passi si rinumerano
@@ -433,7 +451,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     }
     // Guida didattica condivisa: una sola componente, contenuto specifico per laboratorio.
     // Sostituisce le guide locali precedenti senza toccare controlli o algoritmi.
-    var d = SA.pedagogy && SA.pedagogy[id], englishMode = SA.i18n.isEnglish();
+    var d = SA.pedagogy && SA.pedagogy[id];
     if (d && d.guida && d.guida.length) {
       var experiment = Array.prototype.find.call(page.querySelectorAll('section.step'), function (section) {
         var lab = section.querySelector('.step-label');
@@ -466,6 +484,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   function route() {
     closeMenu(false);
     SA.ui.closeDrawer();
+    if (SA.workbench) SA.workbench.teardown();
     var id = (location.hash.replace(/^#\/?/, '').split('/')[0]) || '';
     if (current && current.unmount) current.unmount();
     current = null;
@@ -506,8 +525,9 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
           try { SA.teachers.addCurrent(); } catch(err) { SA.ui.toast(err.message); }
         }}, SA.i18n.isEnglish() ? 'Add experiment to teaching path' : 'Aggiungi esperimento al percorso docente');
         var expPanel=page.querySelector('.experiment-panel');
-        if (expPanel) expPanel.appendChild(teach);
+        if (expPanel) { teach.classList.add('ux-teacher-add'); expPanel.appendChild(teach); }
       }
+      if (SA.workbench) SA.workbench.mount(page,id);
       document.title = info.lab.title + ' · StatAtlas';
     } else { main.appendChild(soon(info)); document.title = info.lab.title + ' · StatAtlas'; }
     window.scrollTo(0, 0);

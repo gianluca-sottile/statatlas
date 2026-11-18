@@ -85,7 +85,7 @@ def main():
             assert page.locator('.spatial-studio-stats').evaluate('(el) => el.getBoundingClientRect().top < innerHeight')
             page.locator('.lab-mobile-nav button').filter(has_text='Inizio').click()
             page.wait_for_timeout(420)
-            page.locator('.head-actions button').first.click()
+            page.locator('.ux-action-theory').first.click()
             assert page.locator('.drawer.open').count() == 1
             tabs = page.locator('.seg-tabs button')
             assert tabs.count() == 4

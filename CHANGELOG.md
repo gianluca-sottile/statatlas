@@ -1,3 +1,12 @@
+## StatAtlas UX Redesign — 17/11/2026 (release candidate, not yet published)
+
+- Scientific-first workbench for all 31 labs: experiment near the top, contextual Guide / R course / Save panels, keyboard support and no document reflow.
+- Searchable navigation, compact home, existing theory and Challenges preserved.
+- Teacher path editor master-detail and overlay for project settings and export; student local report in overlay.
+- Preserved all numerical engines and 31 live exported R scripts, regenerated 25 parity references for the UX build.
+- New Mac acceptance and build-fingerprint Git push gate `tests/run_macrofase_UX.sh`. Mac GNU R validation still required on this new build.
+- Future Macrofase F Classroom noted only; not implemented.
+
 ## Macrofase E — StatAtlas for Teachers (candidate, 17 novembre 2026; NON pubblicata)
 
 - Compositore `#/teachers`, bilingue IT/EN: 1–24 attività multi-laboratorio, riordino, consegne, durata, selezione granulare delle 93 Challenges, preset D.

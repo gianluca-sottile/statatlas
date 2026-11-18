@@ -30,7 +30,7 @@ with sync_playwright() as playwright:
             for id in (LABS if '--full' in sys.argv else ['intervalli','boost','pca','kriging','regressione-spaziale']):
                 page.evaluate('(id)=>location.hash="#/"+id',id)
                 page.wait_for_function('(id)=>SA.currentLab===id',arg=id,timeout=30000)
-                c=page.locator('.lab-head .challenge-shortcut')
+                c=page.locator('.ux-actions .challenge-shortcut')
                 assert c.count()==1,(width,id,'missing header button')
                 assert '0/3' in c.inner_text(),(width,id,'initial progress')
                 section=page.locator('#sfide-'+id)

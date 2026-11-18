@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from shutil import which
 """Exercise edited experiments, including user-generated points and R script snapshots."""
 from pathlib import Path
 from playwright.sync_api import sync_playwright
@@ -8,7 +9,7 @@ HTML=(ROOT/'index.html').read_text()
 LABS='''distribuzioni bivariata simulazione lgn-tcl adattamento stimatori fisher intervalli test regressione regressione-lp glm arma quantilica penalizzata spline segmentata validazione knn alberi boost reti-neurali pca clustering dbscan moran lisa processi-puntuali variogrammi kriging regressione-spaziale'''.split()
 width=int(argv[1]) if len(argv)>1 else 1366
 with sync_playwright() as p:
- browser=p.chromium.launch(headless=True,args=['--no-sandbox'])
+ browser=p.chromium.launch(headless=True, executable_path=which('chromium') or which('google-chrome') or None,args=['--no-sandbox'])
  page=browser.new_page(viewport={'width':width,'height':820})
  errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
  page.set_content(HTML)

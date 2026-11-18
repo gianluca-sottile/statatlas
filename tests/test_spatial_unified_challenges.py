@@ -1,3 +1,4 @@
+from shutil import which
 """Real-browser acceptance: the six unified spatial labs keep their 18 Challenges useful.
 
 Experimental comparisons are two *descriptive snapshots of the same points*, not
@@ -29,7 +30,7 @@ def wait_ready(card, lid):
   return activity.inner_text()
 
 with sync_playwright() as p:
-  browser=p.chromium.launch(headless=True, args=['--no-sandbox','--disable-dev-shm-usage'],
+  browser=p.chromium.launch(headless=True, executable_path=which('chromium') or which('google-chrome') or None, args=['--no-sandbox','--disable-dev-shm-usage'],
       **({'executable_path':'/usr/bin/chromium'} if Path('/usr/bin/chromium').exists() else {}))
   try:
     for lid in LABS:

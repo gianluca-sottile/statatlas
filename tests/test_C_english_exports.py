@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from shutil import which
 """Check EN R-script comment localization without modifying executable R lines.
 
 Parses all 31 stored reproducible scripts from a previous build to confirm the
@@ -14,7 +15,7 @@ SCRIPTS = sorted((ROOT / 'verifica' / 'export_r_31').glob('[0-9][0-9]_*.R'))
 assert len(SCRIPTS) == 31, f'Expected 31 R scripts, got {len(SCRIPTS)}'
 
 with sync_playwright() as pw:
-    b = pw.chromium.launch(headless=True, args=['--no-sandbox', '--disable-dev-shm-usage'])
+    b = pw.chromium.launch(headless=True, executable_path=which('chromium') or which('google-chrome') or None, args=['--no-sandbox', '--disable-dev-shm-usage'])
     try:
         p = b.new_page(viewport={'width': 1366, 'height': 850})
         p.set_content((ROOT/'index.html').read_text(encoding='utf-8'))

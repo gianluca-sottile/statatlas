@@ -23,3 +23,71 @@
 
 .teacher-builder [hidden]{display:none!important}
 .teacher-nav{font-weight:700;color:var(--accent,#98451a)}
+/* UX master/detail editor: only the selected activity occupies the editing surface. */
+.teacher-builder{max-width:1160px}
+.teacher-builder .teacher-lead{max-width:70ch;margin-bottom:16px}
+.teacher-path-settings{display:grid;grid-template-columns:1fr 1fr;gap:3px 16px;align-items:start}
+.teacher-path-settings>h2{grid-column:1/-1}
+.teacher-path-settings .teacher-field:nth-child(4){grid-column:1/-1}
+.teacher-editor-grid{display:grid;grid-template-columns:minmax(210px,.38fr) minmax(0,1fr);gap:18px;margin-top:16px;align-items:start}
+.teacher-outline{display:flex;flex-direction:column;gap:7px;border-right:1px solid var(--rule);padding-right:16px;min-width:0}
+.teacher-outline-item{font:inherit;cursor:pointer;text-align:left;color:var(--ink);background:transparent;border:1px solid transparent;border-radius:9px;padding:11px 12px;display:grid;grid-template-columns:29px 1fr;column-gap:8px;row-gap:3px;min-width:0;min-height:52px}
+.teacher-outline-item:hover{background:var(--paper-2)}
+.teacher-outline-item[aria-current="step"]{background:var(--accent-soft);border-color:var(--rule-2)}
+.teacher-outline-item:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.teacher-outline-num{font:700 .8rem var(--sans);color:var(--accent);padding-top:2px}
+.teacher-outline-name{font-weight:650;font-size:.87rem;overflow-wrap:anywhere}
+.teacher-outline-meta{grid-column:2;color:var(--ink-3);font-size:.76rem}
+.teacher-editor-pane{min-width:0}
+.teacher-editor-pane .teacher-step{margin:0;background:var(--card);padding:18px}
+.teacher-editor-pane .teacher-step[hidden]{display:none!important}
+.teacher-add-row{align-items:center}.teacher-add-row select{flex:1;min-width:190px}
+.teacher-editor-pane .teacher-step-head{gap:10px}
+.teacher-editor-pane .teacher-step-head strong{font:600 1.02rem var(--serif)}
+/* Student workbench: keep route and instructions, open reflection/report off-canvas. */
+.teacher-student-banner{padding:10px 20px;box-shadow:0 3px 14px -10px rgba(0,0,0,.45)}
+.teacher-student-banner h1{display:inline;font-size:1.05rem;margin:0}
+.teacher-student-banner .student-current{display:inline;margin-left:12px;color:var(--ink-3);font-size:.78rem}
+.teacher-student-banner nav{flex-wrap:nowrap;max-width:100%;overflow-x:auto;scrollbar-width:thin;margin:8px 0 6px}
+.teacher-student-banner nav button{flex:0 0 auto;white-space:nowrap;min-height:38px}
+.teacher-student-banner .student-instruction{font-size:.85rem;line-height:1.35;max-width:90ch;margin:5px 0}
+.teacher-student-banner .student-duration{display:none}
+.teacher-student-banner .student-quick-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0 0}
+.teacher-student-banner .student-quick-actions button{font:600 .84rem var(--sans);border:1px solid var(--rule-2);border-radius:8px;background:var(--card);color:var(--ink);padding:8px 12px;min-height:38px;cursor:pointer}
+.teacher-student-banner .student-quick-actions button:focus-visible{outline:3px solid var(--focus)}
+.teacher-student-banner .student-status{font-size:.76rem;margin:5px 0 0;color:var(--ink-2)}
+.teacher-student-banner .student-error:empty{display:none}
+.teacher-student-banner .student-workspace-backdrop{position:fixed;inset:0;z-index:69;background:rgba(21,17,13,.48);width:100%;height:100%;border:0}
+.teacher-student-banner .student-workspace-backdrop[hidden],
+.teacher-student-banner .student-reflection-panel[hidden]{display:none!important}
+.teacher-student-banner .student-reflection-panel{position:fixed;inset:0 0 0 auto;z-index:70;width:min(470px,100vw);height:100vh;height:100dvh;overflow-y:auto;overscroll-behavior:contain;padding:20px;background:var(--paper);border-left:1px solid var(--rule);box-shadow:-8px 0 30px #0003;color:var(--ink)}
+.student-workspace-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:14px}
+.student-workspace-head h2{font-family:var(--serif);margin:0;font-size:1.3rem}
+.student-workspace-head button{min-width:44px;min-height:44px;font-size:1.25rem}
+.student-reflection-panel textarea{display:block;width:100%;min-height:120px;margin:12px 0;padding:12px;border-radius:8px}
+.student-reflection-panel .teacher-actions{gap:8px;margin:12px 0}
+.student-reflection-panel .teacher-actions button{background:var(--card);color:var(--ink);border-color:var(--rule-2);min-height:42px}
+.student-reflection-panel>p{line-height:1.5;color:var(--ink-2);font-size:.86rem}
+body.student-workspace-open{overflow:hidden}
+@media(max-width:800px){
+ .teacher-path-settings,.teacher-editor-grid{grid-template-columns:1fr}
+ .teacher-outline{display:flex;flex-direction:row;overflow-x:auto;border-right:0;border-bottom:1px solid var(--rule);padding:0 0 10px;max-width:100%;gap:4px}
+ .teacher-outline-item{flex:0 0 min(220px,70vw)}
+ .teacher-path-settings .teacher-field:nth-child(4){grid-column:auto}
+}
+@media(max-width:640px){.teacher-student-banner{padding:8px 12px}.teacher-student-banner h1{font-size:1rem}.teacher-student-banner .student-instruction{font-size:.8rem}}
+.teacher-ux-toolbar{display:flex;align-items:center;flex-wrap:wrap;gap:9px;margin:18px 0 14px}
+.teacher-ux-toolbar .btn{min-height:44px;border-radius:8px;padding:9px 15px}
+.teacher-ux-summary{font-size:.86rem;color:var(--ink-2);margin-left:auto;max-width:45ch;overflow-wrap:anywhere}
+.teacher-ux-backdrop{position:fixed;inset:0;background:rgba(19,17,12,.46);z-index:65;border:0;width:100%;height:100%;cursor:default}
+.teacher-ux-backdrop[hidden],.teacher-ux-panel[hidden]{display:none!important}
+.teacher-ux-panel{position:fixed;inset:0 0 0 auto;z-index:66;width:min(580px,100vw);height:100dvh;display:flex;flex-direction:column;background:var(--paper);color:var(--ink);border-left:1px solid var(--rule);box-shadow:-16px 0 42px #0003}
+.teacher-ux-panel-head{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--rule);min-height:74px;padding:14px 20px;gap:12px}
+.teacher-ux-panel-head h2{font-family:var(--serif);font-size:1.3rem;margin:0}
+.teacher-ux-panel-head button{font-size:1.5rem;min-width:44px;min-height:44px}
+.teacher-ux-panel-body{padding:20px;overflow-y:auto;overscroll-behavior:contain;flex:1;min-height:0}
+.teacher-ux-panel-body>.teacher-card{margin:0;padding:18px}
+.teacher-ux-panel-body .teacher-path-settings{display:grid;grid-template-columns:1fr;gap:2px}
+.teacher-ux-panel-body .teacher-path-settings .teacher-field:nth-child(4){grid-column:auto}
+.teacher-ux-panel button:focus-visible{outline:3px solid var(--focus);outline-offset:3px}
+@media(max-width:640px){.teacher-ux-summary{margin-left:0;width:100%}.teacher-ux-panel-body{padding:14px}.teacher-ux-panel-head{padding:10px 14px}}

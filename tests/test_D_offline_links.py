@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
+from shutil import which
 """Open a saved link payload in a fresh offline HTML document (no HTTP)."""
 from pathlib import Path
 from playwright.sync_api import sync_playwright
 root=Path(__file__).resolve().parents[1]
 HTML=(root/'index.html').read_text()
 with sync_playwright() as p:
- browser=p.chromium.launch(headless=True,args=['--no-sandbox'])
+ browser=p.chromium.launch(headless=True, executable_path=which('chromium') or which('google-chrome') or None,args=['--no-sandbox'])
  page=browser.new_page(viewport={'width':1366,'height':800})
  errors=[];page.on('pageerror',lambda e:errors.append(str(e)))
  page.set_content(HTML);page.evaluate('location.hash="#/distribuzioni"')

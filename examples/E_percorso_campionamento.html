@@ -998,10 +998,151 @@ html[lang='en'] .it-source-hidden { display: none !important; }
 
 .teacher-builder [hidden]{display:none!important}
 .teacher-nav{font-weight:700;color:var(--accent,#98451a)}
+/* UX master/detail editor: only the selected activity occupies the editing surface. */
+.teacher-builder{max-width:1160px}
+.teacher-builder .teacher-lead{max-width:70ch;margin-bottom:16px}
+.teacher-path-settings{display:grid;grid-template-columns:1fr 1fr;gap:3px 16px;align-items:start}
+.teacher-path-settings>h2{grid-column:1/-1}
+.teacher-path-settings .teacher-field:nth-child(4){grid-column:1/-1}
+.teacher-editor-grid{display:grid;grid-template-columns:minmax(210px,.38fr) minmax(0,1fr);gap:18px;margin-top:16px;align-items:start}
+.teacher-outline{display:flex;flex-direction:column;gap:7px;border-right:1px solid var(--rule);padding-right:16px;min-width:0}
+.teacher-outline-item{font:inherit;cursor:pointer;text-align:left;color:var(--ink);background:transparent;border:1px solid transparent;border-radius:9px;padding:11px 12px;display:grid;grid-template-columns:29px 1fr;column-gap:8px;row-gap:3px;min-width:0;min-height:52px}
+.teacher-outline-item:hover{background:var(--paper-2)}
+.teacher-outline-item[aria-current="step"]{background:var(--accent-soft);border-color:var(--rule-2)}
+.teacher-outline-item:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.teacher-outline-num{font:700 .8rem var(--sans);color:var(--accent);padding-top:2px}
+.teacher-outline-name{font-weight:650;font-size:.87rem;overflow-wrap:anywhere}
+.teacher-outline-meta{grid-column:2;color:var(--ink-3);font-size:.76rem}
+.teacher-editor-pane{min-width:0}
+.teacher-editor-pane .teacher-step{margin:0;background:var(--card);padding:18px}
+.teacher-editor-pane .teacher-step[hidden]{display:none!important}
+.teacher-add-row{align-items:center}.teacher-add-row select{flex:1;min-width:190px}
+.teacher-editor-pane .teacher-step-head{gap:10px}
+.teacher-editor-pane .teacher-step-head strong{font:600 1.02rem var(--serif)}
+/* Student workbench: keep route and instructions, open reflection/report off-canvas. */
+.teacher-student-banner{padding:10px 20px;box-shadow:0 3px 14px -10px rgba(0,0,0,.45)}
+.teacher-student-banner h1{display:inline;font-size:1.05rem;margin:0}
+.teacher-student-banner .student-current{display:inline;margin-left:12px;color:var(--ink-3);font-size:.78rem}
+.teacher-student-banner nav{flex-wrap:nowrap;max-width:100%;overflow-x:auto;scrollbar-width:thin;margin:8px 0 6px}
+.teacher-student-banner nav button{flex:0 0 auto;white-space:nowrap;min-height:38px}
+.teacher-student-banner .student-instruction{font-size:.85rem;line-height:1.35;max-width:90ch;margin:5px 0}
+.teacher-student-banner .student-duration{display:none}
+.teacher-student-banner .student-quick-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0 0}
+.teacher-student-banner .student-quick-actions button{font:600 .84rem var(--sans);border:1px solid var(--rule-2);border-radius:8px;background:var(--card);color:var(--ink);padding:8px 12px;min-height:38px;cursor:pointer}
+.teacher-student-banner .student-quick-actions button:focus-visible{outline:3px solid var(--focus)}
+.teacher-student-banner .student-status{font-size:.76rem;margin:5px 0 0;color:var(--ink-2)}
+.teacher-student-banner .student-error:empty{display:none}
+.teacher-student-banner .student-workspace-backdrop{position:fixed;inset:0;z-index:69;background:rgba(21,17,13,.48);width:100%;height:100%;border:0}
+.teacher-student-banner .student-workspace-backdrop[hidden],
+.teacher-student-banner .student-reflection-panel[hidden]{display:none!important}
+.teacher-student-banner .student-reflection-panel{position:fixed;inset:0 0 0 auto;z-index:70;width:min(470px,100vw);height:100vh;height:100dvh;overflow-y:auto;overscroll-behavior:contain;padding:20px;background:var(--paper);border-left:1px solid var(--rule);box-shadow:-8px 0 30px #0003;color:var(--ink)}
+.student-workspace-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:14px}
+.student-workspace-head h2{font-family:var(--serif);margin:0;font-size:1.3rem}
+.student-workspace-head button{min-width:44px;min-height:44px;font-size:1.25rem}
+.student-reflection-panel textarea{display:block;width:100%;min-height:120px;margin:12px 0;padding:12px;border-radius:8px}
+.student-reflection-panel .teacher-actions{gap:8px;margin:12px 0}
+.student-reflection-panel .teacher-actions button{background:var(--card);color:var(--ink);border-color:var(--rule-2);min-height:42px}
+.student-reflection-panel>p{line-height:1.5;color:var(--ink-2);font-size:.86rem}
+body.student-workspace-open{overflow:hidden}
+@media(max-width:800px){
+ .teacher-path-settings,.teacher-editor-grid{grid-template-columns:1fr}
+ .teacher-outline{display:flex;flex-direction:row;overflow-x:auto;border-right:0;border-bottom:1px solid var(--rule);padding:0 0 10px;max-width:100%;gap:4px}
+ .teacher-outline-item{flex:0 0 min(220px,70vw)}
+ .teacher-path-settings .teacher-field:nth-child(4){grid-column:auto}
+}
+@media(max-width:640px){.teacher-student-banner{padding:8px 12px}.teacher-student-banner h1{font-size:1rem}.teacher-student-banner .student-instruction{font-size:.8rem}}
+.teacher-ux-toolbar{display:flex;align-items:center;flex-wrap:wrap;gap:9px;margin:18px 0 14px}
+.teacher-ux-toolbar .btn{min-height:44px;border-radius:8px;padding:9px 15px}
+.teacher-ux-summary{font-size:.86rem;color:var(--ink-2);margin-left:auto;max-width:45ch;overflow-wrap:anywhere}
+.teacher-ux-backdrop{position:fixed;inset:0;background:rgba(19,17,12,.46);z-index:65;border:0;width:100%;height:100%;cursor:default}
+.teacher-ux-backdrop[hidden],.teacher-ux-panel[hidden]{display:none!important}
+.teacher-ux-panel{position:fixed;inset:0 0 0 auto;z-index:66;width:min(580px,100vw);height:100dvh;display:flex;flex-direction:column;background:var(--paper);color:var(--ink);border-left:1px solid var(--rule);box-shadow:-16px 0 42px #0003}
+.teacher-ux-panel-head{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--rule);min-height:74px;padding:14px 20px;gap:12px}
+.teacher-ux-panel-head h2{font-family:var(--serif);font-size:1.3rem;margin:0}
+.teacher-ux-panel-head button{font-size:1.5rem;min-width:44px;min-height:44px}
+.teacher-ux-panel-body{padding:20px;overflow-y:auto;overscroll-behavior:contain;flex:1;min-height:0}
+.teacher-ux-panel-body>.teacher-card{margin:0;padding:18px}
+.teacher-ux-panel-body .teacher-path-settings{display:grid;grid-template-columns:1fr;gap:2px}
+.teacher-ux-panel-body .teacher-path-settings .teacher-field:nth-child(4){grid-column:auto}
+.teacher-ux-panel button:focus-visible{outline:3px solid var(--focus);outline-offset:3px}
+@media(max-width:640px){.teacher-ux-summary{margin-left:0;width:100%}.teacher-ux-panel-body{padding:14px}.teacher-ux-panel-head{padding:10px 14px}}
+
+/* styles/workbench.css */
+/* StatAtlas UX: the experiment, not ancillary blocks, is the main surface. */
+.ux-workbench .lab-head{display:block;max-width:100%;padding:8px 0 14px;min-height:0;border-bottom:0}
+.ux-workbench .lab-head>div{max-width:85ch}
+.ux-workbench .lab-head h1{font-size:clamp(1.8rem,3vw,2.6rem);line-height:1.1;margin:7px 0 7px}
+.ux-workbench .lab-head .lede{font-size:clamp(.95rem,1.3vw,1.1rem);line-height:1.45;margin:7px 0 0;max-width:72ch}
+.ux-workbench .lab-head .head-actions:empty{display:none}
+.ux-workbench .lab-head .lab-cover{display:none}
+.ux-workbench .ux-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;position:sticky;top:0;z-index:20;padding:11px 0 13px;margin:0 0 8px;border-bottom:1px solid var(--rule);background:var(--paper)}
+.ux-actions .btn{min-height:40px;padding:8px 13px;border-radius:8px;font-weight:650;white-space:normal;font-size:.88rem;line-height:1.2}
+.ux-actions .ux-action-simulate{color:var(--paper);background:var(--accent);border-color:var(--accent)}
+.ux-actions .ux-action-simulate:hover{opacity:.9}
+.ux-actions .ux-action-course,.ux-actions .ux-action-guide{background:transparent;border:1px solid transparent;color:var(--ink-2)}
+.ux-actions .ux-action-share{border:1px solid var(--rule-2);background:var(--card)}
+.ux-actions .challenge-shortcut{border-color:var(--rule-2);background:var(--card)}
+.ux-actions .ux-action:focus-visible,.ux-close:focus-visible,.ux-dialog a:focus-visible{outline:3px solid var(--focus);outline-offset:3px}
+.ux-workbench .step{padding:20px 0 30px;grid-template-columns:1fr;gap:6px;scroll-margin-top:105px}
+.ux-workbench .step-num{display:none}
+.ux-workbench .step-body{max-width:none;min-width:0}
+.ux-workbench .step-body>h2{font-size:clamp(1.25rem,1.8vw,1.55rem);margin:3px 0 12px}
+.ux-workbench .ux-experiment-context{margin:0 0 12px;border:1px solid var(--rule);border-radius:9px;background:var(--paper-2);padding:9px 13px;color:var(--ink-2);font-size:.9rem}
+.ux-experiment-context summary{cursor:pointer;font-weight:600;list-style-position:inside}
+.ux-experiment-context>*:not(summary){margin-top:10px}
+.ux-workbench .lab-grid{margin-top:10px;scroll-margin-top:105px}
+.ux-backdrop{position:fixed;inset:0;z-index:60;border:0;background:rgba(19,17,12,.48);cursor:default;width:100%;height:100%;border-radius:0}
+.ux-dialog{position:fixed;inset:0 0 0 auto;z-index:61;width:min(620px,100vw);height:100vh;height:100dvh;background:var(--paper);color:var(--ink);box-shadow:-18px 0 54px rgba(0,0,0,.22);display:flex;flex-direction:column;border-left:1px solid var(--rule)}
+.ux-dialog[hidden],.ux-backdrop[hidden],.ux-dialog-pane[hidden]{display:none!important}
+.ux-dialog-head{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:18px 24px;border-bottom:1px solid var(--rule);min-height:74px}
+.ux-dialog-head h2{font-family:var(--serif);font-size:1.35rem;margin:0}
+.ux-close{min-width:44px;min-height:44px;font-size:1.5rem;line-height:1}
+.ux-dialog-body{overflow-y:auto;overscroll-behavior:contain;padding:18px 24px 56px;flex:1;min-height:0}
+.ux-dialog-pane{min-width:0}
+.ux-dialog-pane .course-bridge,.ux-dialog-pane .experiment-panel{margin:0 0 20px;padding:18px;background:var(--card)}
+.ux-dialog-pane .course-bridge-links{gap:10px}
+.ux-dialog-pane .focus-box{margin:14px 0;padding:16px}
+.ux-dialog-pane .lab-howto{margin:15px 0}
+.ux-dialog-pane .chips{display:flex;flex-wrap:wrap;margin:0 0 16px}
+.ux-dialog-pane .ux-original-question{display:block!important;padding:12px 0}
+.ux-dialog-pane .ux-original-question .step-num{display:none}
+.ux-dialog-pane .ux-original-question .step-body{min-width:0}
+.ux-dialog-pane .lab-cover{display:none}
+.ux-modal-open{overflow:hidden}
+@media (min-width:1181px){.ux-workbench .ux-actions{top:0}}
+@media (max-width:1180px){.ux-workbench .ux-actions{top:62px;z-index:27}}
+@media (max-width:860px){
+ .ux-workbench .lab-head{padding:0 0 8px}
+ .ux-workbench .ux-actions{gap:5px;padding:8px 0 10px}
+ .ux-actions .btn{padding:8px 10px;min-height:44px;font-size:.8rem;flex:1 1 auto}
+ .ux-workbench .step{padding:14px 0 25px}
+ .ux-dialog-head{padding:12px 15px}
+ .ux-dialog-body{padding:15px 15px 40px}
+ .ux-dialog{width:min(500px,100vw)}
+}
+@media (max-width:480px){.ux-actions .btn{flex:1 1 30%}.ux-actions .ux-action-simulate{flex:1 1 100%}.ux-workbench .lab-head .lede{font-size:.94rem}}
+@media (prefers-reduced-motion: reduce){.ux-dialog,.ux-actions{transition:none!important}}
+@media print{.ux-actions,.ux-dialog,.ux-backdrop{display:none!important}.ux-workbench .step{break-inside:avoid}}
+
+.ux-teacher-in-panel{width:100%;margin-top:12px;border:1px solid var(--rule-2);text-align:center;justify-content:center;min-height:44px}
+.ux-sidebar-search{font:inherit;font-size:.88rem;width:100%;padding:10px 11px;margin:5px 0 13px;border:1px solid var(--rule-2);border-radius:9px;color:var(--ink);background:var(--card);min-height:44px}
+.ux-sidebar-search:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.nav-list li[hidden],.nav-list[hidden],.nav-part[hidden]{display:none!important}
+.sidebar .teacher-nav{font-size:.84rem;min-height:40px;line-height:1.3}
+.ux-home-help{margin:30px 0;border:1px solid var(--rule);border-radius:12px;padding:14px 18px;background:var(--paper-2)}
+.ux-home-help>summary{cursor:pointer;font-weight:700;color:var(--ink-2);min-height:42px;display:flex;align-items:center}
+.ux-home-help .how,.ux-home-help .legend-home{margin:16px 0 8px}
+.page-home .part-tiles{margin-top:20px}
+
+.ux-dialog-pane .en-companion{display:block!important;margin:10px 0 18px;max-width:none}
+/* Keep the document's available width constant while an overlay is open. */
+html{scrollbar-gutter:stable}
+/* Animating the entire laboratory shifts scientific controls during input. */
+.page.ux-workbench > *{animation:none!important}
 
 
-.teacher-student-banner{position:sticky;top:0;z-index:25;padding:12px 20px;background:var(--paper,#fff);border-bottom:2px solid var(--accent,#85421a);box-shadow:0 2px 7px #0001}.teacher-student-banner h1{font-size:1.12rem;margin:0 0 6px}.teacher-student-banner .teacher-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.teacher-student-banner button{font:inherit;padding:5px 10px;border:1px solid #777;border-radius:6px;background:transparent;color:inherit;cursor:pointer}.teacher-student-banner button[aria-current="step"]{background:#245d54;color:white}.teacher-student-banner textarea{display:block;width:min(100%,60rem);min-height:60px;margin:6px 0;border:1px solid #888;padding:7px;background:var(--card,#fff);color:inherit}.teacher-student-banner .student-status{font-size:.85rem}.sidebar,.topbar{display:none!important}.app{display:block!important;margin:0!important;width:100%!important}.app main{width:100%!important;max-width:1200px;margin:auto}.challenge-card[hidden],.challenge-section[hidden],.challenge-progress[hidden],.challenge-shortcut[hidden]{display:none!important}@media(max-width:640px){.teacher-student-banner{position:relative;padding:10px}}</style></head><body><a class="sr-only" href="#main">Skip to content</a><div class="topbar"><a class="brand" href="#/" id="topBrand"><span class="brand-mark">StatAtlas</span></a><button class="btn btn-ghost btn-icon" id="menuBtn" type="button" aria-label="Open menu"></button></div><section class="teacher-student-banner" id="teacherStudent" aria-label="Teaching path"></section><div class="app"><aside class="sidebar" id="sidebar"></aside><main id="main" tabindex="-1"></main></div><script id="teacherProject" type="application/json">{"format":"statatlas.teaching-path","version":1,"engine":"4ef4df6b6be5e7231fdae92ba23abd76bfa2a402dbdd12fbde5de44516598efd","id":"esempio-campionamento-e","title":"Dal campionamento agli intervalli di confidenza","language":"it","description":"Un percorso in tre attività: grandi numeri, stimatori e intervalli.","audience":"Primo anno universitario o scuola superiore avanzata","steps":[{"id":"step-mwkn3fh5-5zn6m1b","lab":"lgn-tcl","title":"1. Dalle medie alla regolarità","instructions":"Confronta le traiettorie delle medie. Che cosa cambia al crescere di n? Quali ipotesi servono?","minutes":25,"challengeIds":["full-lgn-tcl-1","full-lgn-tcl-2"],"preset":null},{"id":"step-mwkn3fh5-22kg5oo","lab":"stimatori","title":"2. Stimatori e campioni","instructions":"Confronta media e mediana sugli stessi campioni, poi interpreta precisione e robustezza.","minutes":25,"challengeIds":["full-stimatori-1","full-stimatori-2"],"preset":null},{"id":"step-mwkn3fh5-u954ihy","lab":"intervalli","title":"3. Copertura e interpretazione","instructions":"Confronta la copertura nominale e osservata. Esamina Wald e Wilson per piccoli campioni.","minutes":30,"challengeIds":["ci-t","ci-wald"],"preset":null}]}</script><script>
-window.SA = window.SA || {}; window.SA.buildId = '4ef4df6b6be5e7231fdae92ba23abd76bfa2a402dbdd12fbde5de44516598efd';
+.teacher-student-banner{position:sticky;top:0;z-index:25;padding:12px 20px;background:var(--paper,#fff);border-bottom:2px solid var(--accent,#85421a);box-shadow:0 2px 7px #0001}.teacher-student-banner h1{font-size:1.12rem;margin:0 0 6px}.teacher-student-banner .teacher-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.teacher-student-banner button{font:inherit;padding:5px 10px;border:1px solid #777;border-radius:6px;background:transparent;color:inherit;cursor:pointer}.teacher-student-banner button[aria-current="step"]{background:#245d54;color:white}.teacher-student-banner textarea{display:block;width:min(100%,60rem);min-height:60px;margin:6px 0;border:1px solid #888;padding:7px;background:var(--card,#fff);color:inherit}.teacher-student-banner .student-status{font-size:.85rem}.sidebar,.topbar{display:none!important}.app{display:block!important;margin:0!important;width:100%!important}.app main{width:100%!important;max-width:1200px;margin:auto}.challenge-card[hidden],.challenge-section[hidden],.challenge-progress[hidden],.challenge-shortcut[hidden]{display:none!important}@media(max-width:640px){.teacher-student-banner{position:relative;padding:10px}}</style></head><body><a class="sr-only" href="#main">Skip to content</a><div class="topbar"><a class="brand" href="#/" id="topBrand"><span class="brand-mark">StatAtlas</span></a><button class="btn btn-ghost btn-icon" id="menuBtn" type="button" aria-label="Open menu"></button></div><section class="teacher-student-banner" id="teacherStudent" aria-label="Teaching path"></section><div class="app"><aside class="sidebar" id="sidebar"></aside><main id="main" tabindex="-1"></main></div><script id="teacherProject" type="application/json">{"format":"statatlas.teaching-path","version":1,"engine":"b7633bc7663a0e3fdcc391054dc6adb489aeced5ea972ae3b1aca37a46028099","id":"esempio-campionamento-e","title":"Dal campionamento agli intervalli di confidenza","language":"it","description":"Un percorso in tre attività: grandi numeri, stimatori e intervalli.","audience":"Primo anno universitario o scuola superiore avanzata","steps":[{"id":"step-mwkn3fh5-5zn6m1b","lab":"lgn-tcl","title":"1. Dalle medie alla regolarità","instructions":"Confronta le traiettorie delle medie. Che cosa cambia al crescere di n? Quali ipotesi servono?","minutes":25,"challengeIds":["full-lgn-tcl-1","full-lgn-tcl-2"],"preset":null},{"id":"step-mwkn3fh5-22kg5oo","lab":"stimatori","title":"2. Stimatori e campioni","instructions":"Confronta media e mediana sugli stessi campioni, poi interpreta precisione e robustezza.","minutes":25,"challengeIds":["full-stimatori-1","full-stimatori-2"],"preset":null},{"id":"step-mwkn3fh5-u954ihy","lab":"intervalli","title":"3. Copertura e interpretazione","instructions":"Confronta la copertura nominale e osservata. Esamina Wald e Wilson per piccoli campioni.","minutes":30,"challengeIds":["ci-t","ci-wald"],"preset":null}]}</script><script>
+window.SA = window.SA || {}; window.SA.buildId = 'b7633bc7663a0e3fdcc391054dc6adb489aeced5ea972ae3b1aca37a46028099';
 /* core/rng.js */
 /* StatAtlas · core/rng.js
  * Generatore Mersenne-Twister compatibile con R (RNGkind predefinito:
@@ -9947,12 +10088,15 @@ SA.experiments = (function () {
       allLabs().forEach(function(l){selector.appendChild(E('option',{value:l.id},l.num+' · '+l.title));});
       return selector;
     }
+    var selectedStepId=null;
     function render(){
+      if(area._teacherKeys)area.removeEventListener('keydown',area._teacherKeys);
       area.replaceChildren();
+      if(draft.steps.length && !draft.steps.some(function(s){return s.id===selectedStepId;}))selectedStepId=draft.steps[0].id;
       var title=E('h1',tr('StatAtlas for Teachers','StatAtlas for Teachers'));
       var intro=E('p.teacher-lead',tr('Costruisci un percorso offline con laboratori, sfide, consegne e configurazioni riproducibili. Il progetto docente resta modificabile in JSON.',
         'Build a standalone offline teaching path with labs, challenges, instructions and reproducible presets. Keep an editable teacher JSON project.'));
-      var hdr=E('section.teacher-card',E('h2',tr('Impostazioni del percorso','Path settings')),
+      var hdr=E('section.teacher-card.teacher-path-settings',E('h2',tr('Impostazioni del percorso','Path settings')),
         textField(tr('Titolo del percorso','Path title'),draft.title,140,function(v){draft.title=v;}),
         textField(tr('Destinatari','Audience'),draft.audience,160,function(v){draft.audience=v;}),
         textField(tr('Obiettivi e descrizione','Description and objectives'),draft.description,1600,function(v){draft.description=v;},'textarea'));
@@ -9964,22 +10108,30 @@ SA.experiments = (function () {
       var select=chooseLab();
       var add=E('button.btn',{type:'button',onclick:safe(function(){
         if(draft.steps.length>=MAX_STEPS)throw Error('Maximum 24 steps');
-        draft.steps.push(draftStep(select.value,null));render();
+        var next=draftStep(select.value,null);draft.steps.push(next);selectedStepId=next.id;render();
       })},tr('Aggiungi laboratorio','Add laboratory'));
       var picker=E('section.teacher-card',E('h2',tr('Sequenza didattica','Teaching sequence')),
         E('p',tr('Puoi ripetere un laboratorio con consegne o configurazioni diverse. Usa le frecce per riordinare.',
           'Repeat a laboratory with different instructions or configurations. Reorder with the arrows.')),
-        E('div.teacher-actions',select,add));
+        E('div.teacher-actions.teacher-add-row',select,add));
+      var outline=E('nav.teacher-outline',{'aria-label':tr('Elenco delle attività','Activity outline')});
+      var editor=E('div.teacher-editor-pane');
       draft.steps.forEach(function(step,index){
-        var info=find(step.lab), group=E('article.teacher-step'),
-          head=E('div.teacher-step-head',E('strong',(index+1)+'. '+info.lab.num+' · '+info.lab.title));
+        var tab=E('button.teacher-outline-item',{type:'button','aria-current':step.id===selectedStepId?'step':null,onclick:function(){selectedStepId=step.id;render();}},
+          E('span.teacher-outline-num',String(index+1).padStart(2,'0')),
+          E('span.teacher-outline-name',step.title||find(step.lab).lab.title),
+          E('span.teacher-outline-meta',step.minutes+' min · '+step.challengeIds.length+' ' + tr('sfide','challenges')));
+        outline.appendChild(tab);
+        var info=find(step.lab), group=E('article.teacher-step');
+        group.hidden=step.id!==selectedStepId;
+        var head=E('div.teacher-step-head',E('strong',(index+1)+'. '+info.lab.num+' · '+info.lab.title));
         var up=E('button.btn.btn-ghost',{type:'button','aria-label':tr('Sposta su','Move up'),disabled:index===0,onclick:function(){
           var el=draft.steps.splice(index,1)[0];draft.steps.splice(index-1,0,el);render();
         }},'↑');
         var down=E('button.btn.btn-ghost',{type:'button','aria-label':tr('Sposta giù','Move down'),disabled:index===draft.steps.length-1,onclick:function(){
           var el=draft.steps.splice(index,1)[0];draft.steps.splice(index+1,0,el);render();
         }},'↓');
-        var remove=E('button.btn.btn-ghost',{type:'button',onclick:function(){draft.steps.splice(index,1);render();}},tr('Rimuovi','Remove'));
+        var remove=E('button.btn.btn-ghost',{type:'button',onclick:function(){draft.steps.splice(index,1);selectedStepId=null;render();}},tr('Rimuovi','Remove'));
         head.append(E('div.teacher-actions',up,down,remove));group.append(head);
         group.append(textField(tr('Titolo dell’attività','Activity title'),step.title,160,function(v){step.title=v;}));
         group.append(textField(tr('Consegna agli studenti','Instructions for students'),step.instructions,2400,function(v){step.instructions=v;},'textarea'));
@@ -10008,8 +10160,10 @@ SA.experiments = (function () {
         removePreset.hidden=!step.preset;
         group.append(E('div.teacher-preset',E('strong',step.preset?tr('Esperimento D associato','D experiment attached'):tr('Nessun preset: impostazioni iniziali del laboratorio','No preset: laboratory defaults')),
           E('div.teacher-actions',file,removePreset)));
-        picker.appendChild(group);
+        editor.appendChild(group);
       });
+      var layout=E('div.teacher-editor-grid',outline,editor);
+      picker.appendChild(layout);
       var actions=E('section.teacher-card',E('h2',tr('Esporta o riapri','Export or reopen')),
         E('p',tr('Il progetto JSON serve al docente. Il file HTML è il percorso autonomo per gli studenti; include il motore, ma non invia dati a un server.',
           'Teacher JSON remains editable. The student HTML is fully standalone; it includes the engine and sends no information to a server.')));
@@ -10026,9 +10180,49 @@ SA.experiments = (function () {
         status(tr('Pagina HTML autonoma esportata.','Standalone student HTML exported.'));
       })},tr('Esporta HTML studenti','Export student HTML'));
       actions.append(E('div.teacher-actions',save,fileProject,exportHTML));
-      area.append(title,intro,hdr,picker,actions,E('p.teacher-status',{role:'status','aria-live':'polite'},
+      // Modeless editor layout, modal secondary operations. Native fields are MOVED
+      // (not replicated), so preset, file and export event handlers remain intact.
+      var tools=E('div.teacher-ux-toolbar');
+      var settingsBtn=E('button.btn',{type:'button','aria-haspopup':'dialog'},tr('Impostazioni del percorso','Path settings'));
+      var exportBtn=E('button.btn.btn-primary',{type:'button','aria-haspopup':'dialog'},tr('Esporta / Apri progetto','Export / Open project'));
+      var pathSummary=E('span.teacher-ux-summary',draft.title||tr('Percorso senza titolo','Untitled path'));
+      tools.append(settingsBtn,exportBtn,pathSummary);
+      var teacherBack=E('button.teacher-ux-backdrop',{type:'button','aria-label':tr('Chiudi il pannello','Close panel'),hidden:true});
+      var teacherPanel=E('aside.teacher-ux-panel',{role:'dialog','aria-modal':'true','aria-labelledby':'teacher-ux-panel-title','aria-hidden':'true',hidden:true});
+      var panelTitle=E('h2#teacher-ux-panel-title');
+      var close=E('button.btn.btn-ghost',{type:'button','aria-label':tr('Chiudi','Close')},'×');
+      var panelHead=E('div.teacher-ux-panel-head',panelTitle,close);
+      var panelBody=E('div.teacher-ux-panel-body');
+      teacherPanel.append(panelHead,panelBody);
+      var lastButton=null;
+      function openPanel(section,button){
+        lastButton=button;panelTitle.textContent=section==='settings'?tr('Impostazioni del percorso','Path settings'):tr('Esporta o riapri','Export or reopen');
+        panelBody.replaceChildren(section==='settings'?hdr:actions);
+        teacherBack.hidden=false;teacherPanel.hidden=false;teacherPanel.setAttribute('aria-hidden','false');
+        document.body.classList.add('ux-modal-open');close.focus();
+      }
+      function closePanel(){
+        if(teacherPanel.hidden)return;
+        teacherPanel.hidden=true;teacherPanel.setAttribute('aria-hidden','true');teacherBack.hidden=true;
+        document.body.classList.remove('ux-modal-open');if(lastButton&&lastButton.isConnected)lastButton.focus();
+        pathSummary.textContent=draft.title||tr('Percorso senza titolo','Untitled path');
+      }
+      settingsBtn.addEventListener('click',function(){openPanel('settings',settingsBtn);});
+      exportBtn.addEventListener('click',function(){openPanel('export',exportBtn);});
+      close.addEventListener('click',closePanel);teacherBack.addEventListener('click',closePanel);
+      var teacherKeys=function(e){
+        if(teacherPanel.hidden)return;
+        if(e.key==='Escape'){e.preventDefault();closePanel();return;}
+        if(e.key!=='Tab')return;
+        var fields=Array.prototype.filter.call(teacherPanel.querySelectorAll('button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),a[href]'),function(n){return !!n.getClientRects().length;});
+        if(!fields.length)return;
+        if(e.shiftKey&&document.activeElement===fields[0]){e.preventDefault();fields[fields.length-1].focus();}
+        else if(!e.shiftKey&&document.activeElement===fields[fields.length-1]){e.preventDefault();fields[0].focus();}
+      };
+      area._teacherKeys=teacherKeys;area.addEventListener('keydown',teacherKeys);
+      area.append(title,intro,tools,picker,E('p.teacher-status',{role:'status','aria-live':'polite'},
         tr('Nessun dato viene caricato online. I report degli studenti sono locali e non costituiscono voti certificati.',
-          'No data is uploaded. Student reports remain local and are not certified exam grades.')));
+          'No data is uploaded. Student reports remain local and are not certified exam grades.')),teacherBack,teacherPanel);
     }
     render();
   }
@@ -10106,19 +10300,28 @@ SA.experiments = (function () {
       i=n;var s=project.steps[i],r=records[i];
       box.replaceChildren();
       box.append(make('h1','',project.title));
+      box.append(make('p','student-current',labels('Attività ' ,'Activity ')+(i+1)+'/'+project.steps.length));
       var description=make('p','',project.description);description.hidden=!project.description;box.append(description);
       var nav=make('nav','teacher-actions');nav.setAttribute('aria-label',labels('Attività del percorso','Path activities'));
       project.steps.forEach(function(st,j){var b=make('button','',String(j+1)+' · '+(st.title||find(st.lab).lab.title));
         b.type='button';if(j===i)b.setAttribute('aria-current','step');b.addEventListener('click',function(){select(j);});nav.append(b);});
       box.append(nav);
-      box.append(make('p','',labels('Consegna: ','Instructions: ')+(s.instructions||labels('Esplora i risultati e rispondi alle Challenges selezionate.',
+      box.append(make('p','student-instruction',labels('Consegna: ','Instructions: ')+(s.instructions||labels('Esplora i risultati e rispondi alle Challenges selezionate.',
         'Explore the results and answer the selected challenges.'))));
-      box.append(make('p','',labels('Durata indicativa: ','Estimated time: ')+s.minutes+' min'));
+      box.append(make('p','student-duration',labels('Durata indicativa: ','Estimated time: ')+s.minutes+' min'));
       var reflection=make('textarea');reflection.maxLength=3000;
       reflection.setAttribute('aria-label',labels('Riflessione sul laboratorio','Lab reflection'));
       reflection.placeholder=labels('Quale conclusione ricavi dall’esperimento?','What do you conclude from this experiment?');
       reflection.value=r.reflection;reflection.addEventListener('input',function(){r.reflection=reflection.value;keep();});
-      box.append(reflection);
+      var workspace=make('section','student-reflection-panel');workspace.hidden=true;
+      workspace.setAttribute('aria-label',labels('Riflessione e report','Reflection and report'));
+      var workspaceBack=make('button','student-workspace-backdrop');workspaceBack.type='button';
+      workspaceBack.setAttribute('aria-label',labels('Chiudi il pannello','Close panel'));workspaceBack.hidden=true;
+      var workspaceHead=make('div','student-workspace-head');
+      workspaceHead.append(make('h2','',labels('Riflessione e report','Reflection and report')));
+      var dismiss=make('button','btn btn-ghost');dismiss.type='button';dismiss.textContent='×';
+      dismiss.setAttribute('aria-label',labels('Chiudi','Close'));workspaceHead.append(dismiss);
+      workspace.append(workspaceHead,reflection);
       var buttons=make('div','teacher-actions');
       var complete=make('button','',labels('Segna attività completata','Mark activity completed'));
       complete.addEventListener('click',function(){r.completed=!r.completed;keep();observeSolved();});
@@ -10140,13 +10343,25 @@ SA.experiments = (function () {
       jump.hidden=!s.challengeIds.length;
       jump.addEventListener('click',function(){var target=document.querySelector('#main .challenge-section');
         if(target){target.scrollIntoView({behavior:'auto',block:'start'});}});
-      buttons.append(complete,dl,reset,jump);box.append(buttons);
-      box.append(make('p','student-status'));
-      box.append(make('p','student-error'));
-      box.append(make('p','',labels('Le riflessioni restano in questo browser fino alla cancellazione. Il report è formativo e può essere modificato: non è un voto certificato.',
+      buttons.append(complete,dl,reset);workspace.append(buttons);
+      workspace.append(make('p','',labels('Le riflessioni restano in questo browser fino alla cancellazione. Il report è formativo e può essere modificato: non è un voto certificato.',
         'Reflections remain in this browser until cleared. The formative report is editable and is not a certified grade.')));
-      var next=make('button','',labels('Attività successiva →','Next activity →'));next.hidden=i===project.steps.length-1;
-      next.addEventListener('click',function(){select(i+1);});box.append(next);
+      var openWorkspace=make('button','student-reflection-toggle');openWorkspace.type='button';
+      openWorkspace.textContent=labels('Riflessione e report','Reflection and report');
+      openWorkspace.setAttribute('aria-expanded','false');
+      var aux=make('div','student-quick-actions');aux.append(jump,openWorkspace);
+      box.append(aux,make('p','student-status'),make('p','student-error'),workspaceBack,workspace);
+      function toggleWorkspace(open){workspace.hidden=!open;workspaceBack.hidden=!open;
+        openWorkspace.setAttribute('aria-expanded',String(open));
+        document.body.classList.toggle('student-workspace-open',open);
+        if(open)dismiss.focus();else openWorkspace.focus();}
+      openWorkspace.addEventListener('click',function(){toggleWorkspace(true);});
+      dismiss.addEventListener('click',function(){toggleWorkspace(false);});
+      workspaceBack.addEventListener('click',function(){toggleWorkspace(false);});
+      workspace.addEventListener('keydown',function(e){if(e.key==='Escape'){e.preventDefault();toggleWorkspace(false);}});
+      document.body.classList.remove('student-workspace-open');
+      var next=make('button','student-next',labels('Attività successiva →','Next activity →'));next.hidden=i===project.steps.length-1;
+      next.addEventListener('click',function(){select(i+1);});aux.append(next);
       if(SA.currentLab!==s.lab)location.hash='#/'+s.lab;
       else window.dispatchEvent(new Event('hashchange'));
       setTimeout(applyView,0);
@@ -10168,6 +10383,147 @@ SA.experiments = (function () {
   SA.teachers={FORMAT:FORMAT,VERSION:VERSION,validate:validate,parse:parse,builder:builder,
     buildStudentHTML:buildStudentHTML,studentBoot:studentBoot,addCurrent:addCurrent,
     getDraft:function(){return draft;},setDraft:function(obj){draft=clone(validate(obj));},draftStep:draftStep};
+})();
+
+/* core/workbench.js */
+/* StatAtlas UX — scientific-first workbench.
+ * Presentation only: never writes RNG state, input values or model parameters.
+ * Auxiliary material lives in a keyboard-accessible, non-reflowing dialog.
+ */
+var SA = window.SA || (window.SA = {});
+SA.workbench = (function () {
+  'use strict';
+  var active = null;
+  function EN() { return !!(SA.i18n && SA.i18n.isEnglish()); }
+  function t(it,en) { return EN() ? en : it; }
+  function element(tag,klass,text) {
+    var x=document.createElement(tag); if(klass)x.className=klass;
+    if(text!==undefined)x.textContent=text;return x;
+  }
+  function teardown() {
+    if(!active)return;
+    active.close(false);
+    document.removeEventListener('keydown',active.keys);
+    active=null;
+  }
+  function mount(page,id) {
+    teardown();
+    if(!page || !page.querySelector('.lab-head'))return;
+    page.classList.add('ux-workbench');
+    var isStudent=!!document.getElementById('teacherStudent');
+    var head=page.querySelector('.lab-head');
+    var firstStep=page.querySelector('section.step');
+    var experimentStep=Array.prototype.find.call(page.querySelectorAll('section.step'),function(s){
+      return s.querySelector('.lab-grid, .spatial-studio');
+    });
+    var bridge=page.querySelector('.course-bridge');
+    var share=page.querySelector('.experiment-panel');
+    var goals=head.querySelector('.chips');
+    var englishCompanion=page.querySelector('.en-companion');
+    var cover=head.querySelector('.lab-cover');
+    var focus=page.querySelector('.focus-box');
+    var guide=page.querySelector('.lab-howto');
+    var existingActions=head.querySelector('.head-actions');
+    // Keep the research question visible in the hero. The full lesson stays accessible.
+    // Move rather than duplicate DOM nodes to preserve links, download handlers and data.
+    var actionbar=element('nav','ux-actions');actionbar.setAttribute('aria-label',t('Strumenti del laboratorio','Laboratory tools'));
+    var go=function(target){if(!target)return;target.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});};
+    function action(text,kind,fn) {
+      var b=element('button','btn ux-action ux-action-'+kind,text);b.type='button';b.dataset.uxAction=kind;
+      b.addEventListener('click',fn);actionbar.appendChild(b);return b;
+    }
+    action(t('Simula','Simulate'),'simulate',function(){go(page.querySelector('.lab-grid, .spatial-studio')||experimentStep);});
+    // Reuse native theory and challenge buttons: their handler and progress state survive.
+    var theoryButton=existingActions&&existingActions.querySelector(':scope > .btn:first-child');
+    var challengeButton=existingActions&&existingActions.querySelector('.challenge-shortcut');
+    if(challengeButton){challengeButton.classList.add('ux-action','ux-action-challenges');actionbar.appendChild(challengeButton);}
+    if(theoryButton){theoryButton.classList.add('ux-action','ux-action-theory');actionbar.appendChild(theoryButton);}
+    var oldCourse=existingActions&&existingActions.querySelector('.course-bridge-jump');
+    if(oldCourse)oldCourse.remove();
+    var dialog=element('aside','ux-dialog'); dialog.hidden=true;
+    dialog.setAttribute('role','dialog'); dialog.setAttribute('aria-modal','true');
+    dialog.setAttribute('aria-labelledby','ux-dialog-title');dialog.setAttribute('aria-hidden','true');
+    var backdrop=element('button','ux-backdrop');backdrop.type='button';backdrop.hidden=true;
+    backdrop.setAttribute('aria-label',t('Chiudi il pannello','Close panel'));
+    var top=element('div','ux-dialog-head');var title=element('h2','',t('Strumenti','Tools'));title.id='ux-dialog-title';
+    var closeBtn=element('button','btn btn-ghost ux-close','×');closeBtn.type='button';
+    closeBtn.setAttribute('aria-label',t('Chiudi','Close'));top.append(title,closeBtn);
+    var body=element('div','ux-dialog-body');dialog.append(top,body);
+    var panes={};
+    function pane(key) {var x=element('section','ux-dialog-pane');x.dataset.uxPane=key;x.hidden=true;body.append(x);panes[key]=x;return x;}
+    var guidePane=pane('guide'), coursePane=pane('course'), sharePane=pane('share');
+    if(goals)guidePane.appendChild(goals);
+    if(englishCompanion)guidePane.appendChild(englishCompanion);
+    if(focus)guidePane.appendChild(focus);
+    if(guide) {guide.open=true;guidePane.appendChild(guide);}
+    if(firstStep && firstStep!==experimentStep) {
+      firstStep.classList.add('ux-original-question');guidePane.appendChild(firstStep);
+    }
+    if(cover)guidePane.appendChild(cover);
+    if(bridge)coursePane.appendChild(bridge);
+    if(share)sharePane.appendChild(share);
+    // Compact instructions preceding the actual interactive controls; no information lost.
+    if(experimentStep){
+      var expBody=experimentStep.querySelector('.step-body');
+      var grid=experimentStep.querySelector('.lab-grid, .spatial-studio');
+      if(expBody && grid){
+        var extras=[];var before=grid.previousElementSibling;
+        while(before && before!==expBody.querySelector(':scope > h2') && !before.classList.contains('step-label')) {
+          var previous=before.previousElementSibling;
+          if(before.matches('p, ol, ul, .prose, .callout, details:not(.lab-howto)'))extras.unshift(before);
+          before=previous;
+        }
+        if(extras.length){
+          var d=element('details','ux-experiment-context');var s=element('summary','',t('Prima di iniziare · indicazioni','Before you begin · guidance'));d.append(s);
+          extras.forEach(function(e){d.appendChild(e);});expBody.insertBefore(d,grid);
+        }
+      }
+    }
+    var previousFocus=null;
+    var headings={guide:t('Guida e obiettivi','Guide and learning goals'),course:t('Studia con R','Learn with R'),share:t('Salva e condividi','Save and share')};
+    function open(which,trigger){
+      if(!panes[which])return;
+      if(SA.ui && SA.ui.closeDrawer) SA.ui.closeDrawer();
+      previousFocus=trigger||document.activeElement;
+      title.textContent=headings[which];
+      Object.keys(panes).forEach(function(k){panes[k].hidden=k!==which;});
+      backdrop.hidden=false;dialog.hidden=false;
+      dialog.setAttribute('aria-hidden','false');page.classList.add('ux-dialog-open');
+      document.body.classList.add('ux-modal-open');closeBtn.focus();
+    }
+    function close(refocus){
+      if(dialog.hidden)return;
+      dialog.hidden=true;dialog.setAttribute('aria-hidden','true');backdrop.hidden=true;
+      page.classList.remove('ux-dialog-open');document.body.classList.remove('ux-modal-open');
+      if(refocus!==false && previousFocus && previousFocus.isConnected)previousFocus.focus();
+    }
+    function keys(e){
+      if(dialog.hidden)return;
+      if(e.key==='Escape'){e.preventDefault();close();return;}
+      if(e.key!=='Tab')return;
+      var list=Array.prototype.filter.call(dialog.querySelectorAll('button:not([disabled]),a[href],input:not([disabled]),select:not([disabled]),textarea:not([disabled]),summary'),function(n){return !!n.getClientRects().length;});
+      if(!list.length)return;
+      var first=list[0],last=list[list.length-1];
+      if(e.shiftKey && document.activeElement===first){e.preventDefault();last.focus();}
+      else if(!e.shiftKey && document.activeElement===last){e.preventDefault();first.focus();}
+    }
+    closeBtn.addEventListener('click',function(){close();});backdrop.addEventListener('click',function(){close();});
+    document.addEventListener('keydown',keys);
+    if(bridge) action(t('Corso R','R course'),'course',function(e){open('course',e.currentTarget);});
+    if(share) action(t('Salva / Condividi','Save / Share'),'share',function(e){open('share',e.currentTarget);});
+    action(t('Guida','Guide'),'guide',function(e){open('guide',e.currentTarget);});
+    // Move the teacher shortcut out of the large D panel: keep it explicit in author mode.
+    var teach=share&&share.querySelector('.ux-teacher-add');
+    if(teach && !isStudent){teach.classList.add('ux-teacher-in-panel');sharePane.appendChild(teach);}
+    if(experimentStep)page.insertBefore(actionbar,experimentStep);
+    else head.insertAdjacentElement('afterend',actionbar);
+    // The action bar belongs directly after the title, not after a long question.
+    head.insertAdjacentElement('afterend',actionbar);
+    page.append(backdrop,dialog);
+    // Update active helper buttons used in older scripts and keyboard shortcuts.
+    active={close:close,keys:keys,open:open};
+  }
+  return {mount:mount,teardown:teardown};
 })();
 
 /* core/app.js */
@@ -10242,6 +10598,22 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
           el('span.num', l.num), el('span', l.title), el('span.dot', { 'aria-hidden': 'true' })));
       })));
     });
+    var search = el('input.ux-sidebar-search', { type: 'search',
+      'aria-label': SA.i18n.isEnglish() ? 'Find a laboratory' : 'Cerca un laboratorio',
+      placeholder: SA.i18n.isEnglish() ? 'Search 31 laboratories…' : 'Cerca tra 31 laboratori…' });
+    search.addEventListener('input', function () {
+      var query = search.value.trim().toLocaleLowerCase();
+      nav.querySelectorAll('ul.nav-list').forEach(function (list) {
+        var shown = 0;
+        list.querySelectorAll('li').forEach(function (item) {
+          var match = !query || item.textContent.toLocaleLowerCase().includes(query);
+          item.hidden = !match; if (match) shown++;
+        });
+        list.hidden = !shown;
+        if (list.previousElementSibling && list.previousElementSibling.classList.contains('nav-part'))
+          list.previousElementSibling.hidden = !shown;
+      });
+    });
     var themeBtn = SA.ui.button(SA.i18n.tr('Tema'), { icon: 'moon', cls: 'btn-ghost', onclick: toggleTheme, aria: SA.i18n.tr('Cambia tema chiaro/scuro') });
     var en = SA.i18n.isEnglish();
     var lang = el('button.btn.btn-ghost.lang-toggle', {
@@ -10260,7 +10632,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
       SA.ui.button(SA.i18n.tr('Chiudi indice'), { icon: 'close', cls: 'btn-ghost sidebar-close', aria: SA.i18n.tr('Chiudi indice dei laboratori'), onclick: function () { closeMenu(true); } }),
       el('a.brand', { href: '#/', html: SA.art.logo(38) + '<span class="brand-mark">Stat<span>Atlas</span></span>' }),
       el('p.brand-tag', SA.i18n.tr('Laboratori di probabilità e inferenza')),
-      nav, el('div.sidebar-foot', themeBtn, lang));
+      search, nav, el('div.sidebar-foot', themeBtn, lang));
     SA.i18n.localizeSurface(sidebar);
   }
 
@@ -10362,7 +10734,11 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
         el('div.part-text', el('div.part-roman', p.part), el('h2', p.title), el('p', desc),
           el('div.part-foot', el('span.muted', p.labs.length + (english ? ' labs · ' : ' laboratori · ') + p.labs.map(function (l) { return l.num; }).join(' · ')), el('span.card-go', 'Apri →')))));
     });
-    page.appendChild(parts);
+    // UX: show the actual atlas before secondary explanations, without dropping content.
+    page.insertBefore(parts, page.querySelector('section.how'));
+    var homeHelp = el('details.ux-home-help', el('summary', english ? 'How StatAtlas works · methods and reproducibility' : 'Come funziona StatAtlas · metodi e riproducibilità'));
+    homeHelp.append(page.querySelector('section.how'), page.querySelector('section.legend-home'));
+    page.appendChild(homeHelp);
     page.appendChild(footer());
     SA.i18n.localizeSurface(page);
     return page;
@@ -10582,7 +10958,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
 
   function enhanceLab(page, id) {
     zoomable(page); if (SA.math) SA.math.typeset(page);
-    var c = SA.content && SA.content[id], head = page.querySelector('.lab-head');
+    var c = SA.content && SA.content[id], head = page.querySelector('.lab-head'), englishMode=SA.i18n.isEnglish();
     if (head) {
       var text = head.firstElementChild, btn = head.querySelector(':scope > .btn');
       if (c) text.appendChild(el('ul.chips', { 'aria-label': 'Obiettivi' }, (englishMode ? [SA.english.labs[id].question, SA.english.labs[id].experiment, SA.english.labs[id].essential] : c.obiettivi).map(function (o) { return el('li', o); })));
@@ -10591,8 +10967,6 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
       var info = SA.findLab(id);
       head.appendChild(el('figure.lab-cover', { html: SA.art.get(id) + '<figcaption>Tavola ' + info.lab.num + ' · ' + info.part.title + '</figcaption>', 'aria-hidden': 'true' }));
     }
-    // Macrofase B: un percorso per laboratorio, senza modificare simulazioni o stato numerico.
-    if (SA.courseBridge) SA.courseBridge.mount(page, id, SA.findLab(id));
     // Macrofase B: un percorso per laboratorio, senza modificare simulazioni o stato numerico.
     if (SA.courseBridge) SA.courseBridge.mount(page, id, SA.findLab(id));
     // la previsione diventa un riquadro facoltativo dentro la domanda; i passi si rinumerano
@@ -10606,7 +10980,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     }
     // Guida didattica condivisa: una sola componente, contenuto specifico per laboratorio.
     // Sostituisce le guide locali precedenti senza toccare controlli o algoritmi.
-    var d = SA.pedagogy && SA.pedagogy[id], englishMode = SA.i18n.isEnglish();
+    var d = SA.pedagogy && SA.pedagogy[id];
     if (d && d.guida && d.guida.length) {
       var experiment = Array.prototype.find.call(page.querySelectorAll('section.step'), function (section) {
         var lab = section.querySelector('.step-label');
@@ -10639,6 +11013,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   function route() {
     closeMenu(false);
     SA.ui.closeDrawer();
+    if (SA.workbench) SA.workbench.teardown();
     var id = (location.hash.replace(/^#\/?/, '').split('/')[0]) || '';
     if (current && current.unmount) current.unmount();
     current = null;
@@ -10679,8 +11054,9 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
           try { SA.teachers.addCurrent(); } catch(err) { SA.ui.toast(err.message); }
         }}, SA.i18n.isEnglish() ? 'Add experiment to teaching path' : 'Aggiungi esperimento al percorso docente');
         var expPanel=page.querySelector('.experiment-panel');
-        if (expPanel) expPanel.appendChild(teach);
+        if (expPanel) { teach.classList.add('ux-teacher-add'); expPanel.appendChild(teach); }
       }
+      if (SA.workbench) SA.workbench.mount(page,id);
       document.title = info.lab.title + ' · StatAtlas';
     } else { main.appendChild(soon(info)); document.title = info.lab.title + ' · StatAtlas'; }
     window.scrollTo(0, 0);
