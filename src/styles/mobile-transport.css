@@ -1,0 +1,41 @@
+/* StatAtlas responsive simulation transport: replaces, never stacks on, the
+   existing mobile section-navigation while a chart or map is being studied. */
+.sa-mobile-transport{display:none}
+@media (max-width:640px){
+ .ux-workbench.sa-mobile-transport-active .lab-mobile-nav{visibility:hidden!important;pointer-events:none!important}
+ .sa-mobile-transport:not([hidden]){
+   display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;
+   position:fixed;inset:auto 0 0;z-index:29;
+   padding:7px max(10px,env(safe-area-inset-right)) calc(7px + env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left));
+   background:var(--paper);border-top:1px solid var(--rule-2);
+   box-shadow:0 -7px 25px -16px rgba(15,18,24,.36);
+ }
+ .sa-mobile-transport-btn{
+   display:flex;justify-content:center;align-items:center;gap:4px;
+   min-width:0;min-height:46px;padding:8px 3px;border-radius:9px;
+   background:var(--card);border:1px solid var(--rule-2);color:var(--ink);
+   cursor:pointer;font:650 .75rem/1.2 var(--sans);white-space:nowrap;
+ }
+ .sa-mobile-transport-btn:first-child{border-color:var(--accent);background:var(--accent-soft)}
+ /* Keep action names complete even on 320px viewports; the accessible name
+    remains the full original command. */
+ .sa-mobile-transport-btn[data-transport-action="finish"] svg,
+ .sa-mobile-transport-btn[data-transport-action="params"] svg{display:none}
+ .sa-mobile-transport-btn svg{flex:0 0 16px;width:16px;height:16px}
+ .sa-mobile-transport-text{min-width:0;overflow:hidden;text-overflow:ellipsis}
+ .sa-mobile-transport-btn.is-active{background:var(--accent-soft);border-color:var(--accent)}
+ .sa-mobile-transport-btn:focus-visible{outline:3px solid var(--focus);outline-offset:1px}
+ .sa-mobile-transport-btn:disabled{opacity:.48;cursor:not-allowed}
+ .sa-mobile-transport-btn.is-busy{cursor:progress}
+ body.mobile-menu-open .sa-mobile-transport,
+ html.zoom-open .sa-mobile-transport,
+ body.ux-modal-open .sa-mobile-transport,
+ body:has(.drawer.open) .sa-mobile-transport,
+ body:has(.modal:not([hidden])) .sa-mobile-transport{display:none!important}
+}
+@media (max-width:350px){
+ .sa-mobile-transport-btn{font-size:.70rem;gap:3px}
+ .sa-mobile-transport-btn svg{width:14px;height:14px;flex-basis:14px}
+}
+@media (min-width:641px){.sa-mobile-transport{display:none!important}}
+@media print{.sa-mobile-transport{display:none!important}}

@@ -491,6 +491,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   function route() {
     closeMenu(false);
     SA.ui.closeDrawer();
+    if (SA.mobileTransport) SA.mobileTransport.teardown();
     if (SA.workbench) SA.workbench.teardown();
     var id = (location.hash.replace(/^#\/?/, '').split('/')[0]) || '';
     if (current && current.unmount) current.unmount();
@@ -502,7 +503,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     });
     var info = id && find(id);
     if (id === 'teachers' && SA.teachers) {
-      SA.currentLab = null; SA.teachers.builder(main); main.appendChild(footer()); document.title = 'StatAtlas for Teachers';
+      SA.currentLab = null; var teacherPage = el('div.teacher-page'); main.appendChild(teacherPage); SA.teachers.builder(teacherPage); teacherPage.appendChild(footer()); document.title = 'StatAtlas for Teachers';
     } else if (!info) { SA.currentLab = null; main.appendChild(home()); document.title = 'StatAtlas'; }
     else if (SA.labs[id]) {
       var page = el('div.page'); main.appendChild(page);
@@ -535,6 +536,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
         if (expPanel) { teach.classList.add('ux-teacher-add'); expPanel.appendChild(teach); }
       }
       if (SA.workbench) SA.workbench.mount(page,id);
+      if (SA.mobileTransport) SA.mobileTransport.mount(page,id);
       if (SA.i18n.isEnglish()) { SA.i18n.localizeSurface(page); SA.i18n.watchLive(page); }
       document.title = info.lab.title + ' · StatAtlas';
     } else { main.appendChild(soon(info)); document.title = info.lab.title + ' · StatAtlas'; }

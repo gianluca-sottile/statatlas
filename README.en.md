@@ -1,3 +1,7 @@
+> **19 November 2026 candidate:** IT/EN teacher onboarding guide and aligned footer; the adaptive mobile control bar and all 31 labs remain integrated. Repeat Mac/Safari acceptance before publishing. [Teacher guide](docs/TEACHERS_GUIDA_PRATICA_IT_EN.md) · [Release checklist](LEGGIMI_COLLAUDO_FINALE_TEACHERS.md).
+
+**StatAtlas for Teachers guide:** open “How does StatAtlas for Teachers work?” in the teacher view for the six-step quick start. The detailed bilingual instructions, examples and JSON/HTML limitations are in [`docs/TEACHERS_GUIDA_PRATICA_IT_EN.md`](docs/TEACHERS_GUIDA_PRATICA_IT_EN.md).
+
 > **Bilingual surface patch — candidate, 18 November 2026.** The full EN laboratory displays now include reviewed translations for experiment captions, dynamic tables and SVG labels across all 31 labs, plus a live-text regression test. The footer links Gianluca Sottile’s site/email, Simul2000, and Marcello Chiodi’s email. Scientific engines and 31 exported R scripts are unchanged. A new Mac acceptance on the updated fingerprint is required before release. [Audit and protocol](docs/EN_SURFACE_PATCH_31.md).
 
 > **Lab toolbar refinement — local candidate, 18 November 2026.** The previous scientific-workbench UX build passed local Mac acceptance. This separate candidate groups lab actions into **Guide · Theory · Challenges | R course · R code | Save / Share**, adds consistent subtle button borders, and places the *original* Challenges and live R script inside non-reflowing drawers. The redundant Simulate toolbar shortcut is removed, while actual Start/Step/Reset simulation controls are preserved. All 31 R exports and 25 R1 reference scenarios are unchanged; GNU R and browser acceptance are required on the new HTML hash before GitHub publication. [Technical note](docs/UX_TOOLBAR_REFINEMENT.md).
@@ -85,3 +89,8 @@ The development plan for versioned, shareable experiments and the later *StatAtl
 ### Phase D — Reproducible Experiments (published)
 
 Every laboratory offers **Save JSON**, **Open JSON** and **Copy link** (for compact configurations). Snapshots include a build fingerprint, deterministic runner checkpoints or user-edited spatial observations. Loading a snapshot from an incompatible build is refused rather than claiming false reproducibility. Challenge scores are excluded. See [`docs/MACROFASE_D_PROTOCOLLO.md`](docs/MACROFASE_D_PROTOCOLLO.md). Mac acceptance and the GitHub release were completed on 17 November 2026.
+
+
+### Contextual mobile controls (320–640 px)
+
+When the chart is on screen but the original simulation controls are out of view, a compact bottom bar temporarily replaces section navigation. Simulations reuse the native Start/Pause, Step, Finish and Reset actions; spatial maps expose their actual tools. No duplicate simulation engine is created; dialogs and the original controls take priority. Offline student HTML paths remain supported. Details: `docs/UX_MOBILE_TRANSPORT.md`.

@@ -239,11 +239,13 @@ SA.ui = (function () {
     drawer.removeAttribute('inert');
     drawer.classList.add('open'); drawer.setAttribute('aria-hidden', 'false'); backdrop.classList.add('show');
     drawer.querySelector('.drawer-head button[data-level="' + currentLevel + '"]').focus();
+    if (SA.mobileTransport) SA.mobileTransport.refresh();
   }
   function closeDrawer() {
     if (!drawer || !drawer.classList.contains('open')) return;
     drawer.classList.remove('open'); drawer.setAttribute('aria-hidden', 'true'); drawer.setAttribute('inert', ''); backdrop.classList.remove('show');
-    if (lastFocus && lastFocus.isConnected) lastFocus.focus();
+    if (lastFocus && lastFocus.isConnected) lastFocus.focus({preventScroll:true});
+    if (SA.mobileTransport) SA.mobileTransport.refresh();
   }
 
   function badge(status) {

@@ -127,5 +127,10 @@ jobs:
           python tests/test_UX_workbench.py --width 1366
           python tests/test_UX_toolbar.py 390
           python tests/test_UX_toolbar.py 1366
+          python tests/test_UX_mobile_transport.py --width 320
+          python tests/test_UX_mobile_transport.py --width 390
+          python tests/test_UX_mobile_transport.py --width 390 --language en --spot
+          python tests/test_UX_mobile_transport.py --width 768 --spot
+          python tests/test_UX_mobile_transport.py --width 1366 --spot
           node tests/test_UX_contract.js
           python tests/test_L_language_surface.py

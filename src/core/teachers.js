@@ -88,6 +88,56 @@
       allLabs().forEach(function(l){selector.appendChild(E('option',{value:l.id},l.num+' · '+l.title));});
       return selector;
     }
+    // The quick guide is part of the authoring page (never a remote document).
+    // Keep its expanded/collapsed preference when the teacher edits a step.
+    var guideExpanded=true;
+    function makeGuide(){
+      var rows=[
+        [tr('Definisci il percorso','Define the path'),
+          tr('Apri “Impostazioni del percorso”. Scrivi un titolo obbligatorio, indica destinatari e obiettivi e scegli la lingua degli studenti.',
+             'Open “Path settings”. Enter the required title, add the audience and learning goals, and choose the student language.')],
+        [tr('Aggiungi le attività','Add activities'),
+          tr('Scegli un laboratorio tra i 31 disponibili e premi “Aggiungi laboratorio”. Puoi riutilizzare lo stesso laboratorio con consegne diverse (fino a 24 attività).',
+             'Choose one of the 31 laboratories and select “Add laboratory”. You can reuse the same laboratory with different instructions (up to 24 activities).')],
+        [tr('Prepara ogni attività','Prepare each activity'),
+          tr('Seleziona l’attività dall’elenco; modifica consegna, durata e fino a tre sfide. Riordina le attività con le frecce.',
+             'Select an activity from the outline; edit its instructions, duration and up to three challenges. Reorder activities with the arrows.')],
+        [tr('Salva uno scenario, se serve','Attach a scenario if needed'),
+          tr('Per riprodurre gli stessi parametri, configura un laboratorio e scegli “Aggiungi esperimento al percorso docente”, oppure carica il suo preset JSON nell’attività.',
+             'For reproducible parameters, configure a laboratory and select “Add experiment to teaching path”, or upload its JSON preset in the activity.')],
+        [tr('Conserva il progetto docente','Keep the editable teacher project'),
+          tr('Apri “Esporta / Apri progetto” e salva il JSON: serve per riprendere le modifiche. Il progetto non viene salvato automaticamente.',
+             'Open “Export / Open project” and save the JSON to continue editing later. The authoring project is not saved automatically.')],
+        [tr('Distribuisci la lezione agli studenti','Share the lesson with students'),
+          tr('Dallo stesso pannello esporta l’HTML studenti: è un file autonomo utilizzabile offline. Gli studenti possono esportare report JSON locali; non vengono inviati né certificati voti.',
+             'From the same panel export the standalone student HTML, which works offline. Students can export local JSON reports; no grades are uploaded or certified.')]
+      ];
+      var list=E('ol.teacher-guide-steps');
+      rows.forEach(function(row,index){
+        list.appendChild(E('li.teacher-guide-step',
+          E('span.teacher-guide-index',{'aria-hidden':'true'},String(index+1).padStart(2,'0')),
+          E('div',E('strong',row[0]),E('p',row[1]))));
+      });
+      var guide=E('details.teacher-guide',
+        E('summary.teacher-guide-trigger',
+          E('span.teacher-guide-heading',
+            E('span.teacher-guide-kicker',tr('PER INIZIARE','GETTING STARTED')),
+            E('strong',tr('Come funziona StatAtlas for Teachers?','How does StatAtlas for Teachers work?')),
+            E('span.teacher-guide-subtitle',tr('Guida rapida in 6 passaggi · clicca per aprire o chiudere',
+              'Six-step quick start · select to expand or collapse'))),
+          E('span.teacher-guide-caret',{'aria-hidden':'true'},'⌄')),
+        E('div.teacher-guide-body',
+          E('p.teacher-guide-intro',tr('Non occorre programmare: componi una sequenza di esperimenti, aggiungi le consegne e genera una pagina già pronta per la classe.',
+            'No programming required: assemble experiments, add student instructions, and generate a ready-to-use classroom page.')),
+          list,
+          E('p.teacher-guide-notice',
+            E('strong',tr('Da ricordare: ','Remember: ')),
+            tr('JSON = progetto modificabile dal docente; HTML = pagina da consegnare agli studenti. Conserva entrambi. Le configurazioni possono richiedere la stessa versione di StatAtlas.',
+               'JSON = editable teacher project; HTML = page to hand to students. Keep both. Presets may require the same StatAtlas version.'))));
+      guide.open=guideExpanded;
+      guide.addEventListener('toggle',function(){guideExpanded=guide.open;});
+      return guide;
+    }
     var selectedStepId=null;
     function render(){
       if(area._teacherKeys)area.removeEventListener('keydown',area._teacherKeys);
@@ -260,7 +310,7 @@
         else if(!e.shiftKey&&document.activeElement===fields[fields.length-1]){e.preventDefault();fields[0].focus();}
       };
       area._teacherKeys=teacherKeys;area.addEventListener('keydown',teacherKeys);
-      area.append(title,intro,tools,picker,E('p.teacher-status',{role:'status','aria-live':'polite'},
+      area.append(title,intro,tools,makeGuide(),picker,E('p.teacher-status',{role:'status','aria-live':'polite'},
         tr('Nessun dato viene caricato online. I report degli studenti sono locali e non costituiscono voti certificati.',
           'No data is uploaded. Student reports remain local and are not certified exam grades.')),teacherBack,teacherPanel);
     }

@@ -57,6 +57,8 @@ sha=hashlib.sha256((root/'index.html').read_bytes()).hexdigest()
 assert data.get('format')=='statatlas.ux-acceptance' and data.get('html_sha256')==sha, 'UX gate is tied to another build'
 assert data.get('gates',{}).get('workbench_labs')==31, 'UX laboratory coverage is incomplete'
 assert data.get('gates',{}).get('non_reflowing_overlays')=='PASS', 'UX overlay tests are incomplete'
+if (root/'src/core/mobile-transport.js').exists():
+    assert data.get('gates',{}).get('mobile_floating_transport')=='PASS', 'Mobile transport QA gate missing; run UX acceptance on Mac'
 print('Gate UX: 31 laboratories + teacher/student UI PASS, exact HTML SHA-256',sha)
 PY_UX
 fi

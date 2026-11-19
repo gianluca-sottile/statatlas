@@ -140,7 +140,7 @@ SA.workbench = (function () {
       if(dialog.hidden)return;
       dialog.hidden=true;dialog.setAttribute('aria-hidden','true');backdrop.hidden=true;
       page.classList.remove('ux-dialog-open');document.body.classList.remove('ux-modal-open');
-      if(refocus!==false && previousFocus && previousFocus.isConnected)previousFocus.focus();
+      if(refocus!==false && previousFocus && previousFocus.isConnected)previousFocus.focus({preventScroll:true});
     }
     function keys(e){
       if(dialog.hidden)return;

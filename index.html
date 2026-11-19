@@ -1085,6 +1085,49 @@ body.student-workspace-open{overflow:hidden}
 .teacher-path-title-field.teacher-field-invalid input{border:2px solid var(--accent);background:var(--card)}
 .teacher-path-title-field.teacher-field-invalid input:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
 
+
+/* Teacher route has one centered measure for both authoring content and footer.
+   The previous footer was a sibling of a narrower centered builder, starting
+   at the sidebar edge instead of aligning to the actual authoring content. */
+.teacher-page{width:100%;max-width:1200px;margin:0 auto;padding:18px 20px 64px;min-width:0}
+.teacher-page>.teacher-builder{max-width:none;margin:0;padding:0;min-width:0}
+.teacher-page>.foot{max-width:none;margin:30px 0 0;padding:18px 0 0;border-top:1px solid var(--rule);font-size:var(--fs-0);line-height:1.65;overflow-wrap:anywhere}
+.teacher-page>.foot p{margin:0 0 8px;max-width:110ch}
+.teacher-page>.foot a{overflow-wrap:anywhere;text-underline-offset:2px}
+
+/* Integrated teacher onboarding: accessible native disclosure, no modal and
+   no remote assets. The help never blocks the project editor or export drawer. */
+.teacher-guide{border:1px solid var(--rule-2);border-radius:13px;background:var(--card);margin:12px 0 20px;overflow:hidden}
+.teacher-guide-trigger{display:flex;align-items:center;justify-content:space-between;gap:15px;padding:15px 18px;cursor:pointer;list-style:none}
+.teacher-guide-trigger::-webkit-details-marker{display:none}
+.teacher-guide-trigger::marker{content:''}
+.teacher-guide-trigger:hover{background:var(--paper-2)}
+.teacher-guide-trigger:focus-visible{outline:3px solid var(--focus);outline-offset:-3px}
+.teacher-guide-heading{display:flex;flex-direction:column;gap:2px;min-width:0}
+.teacher-guide-kicker{font:750 .67rem/1.4 var(--sans);letter-spacing:.12em;color:var(--accent)}
+.teacher-guide-heading strong{font:600 1.16rem/1.3 var(--serif);color:var(--ink)}
+.teacher-guide-subtitle{font:.79rem/1.45 var(--sans);color:var(--ink-3)}
+.teacher-guide-caret{font:500 1.5rem/1 var(--sans);color:var(--accent);transition:transform .15s;flex-shrink:0}
+.teacher-guide[open] .teacher-guide-caret{transform:rotate(180deg)}
+.teacher-guide-body{border-top:1px solid var(--rule);padding:16px 18px 19px}
+.teacher-guide-intro{font-size:.89rem;color:var(--ink-2);line-height:1.55;max-width:86ch;margin:0 0 16px}
+.teacher-guide-steps{list-style:none;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px;margin:0;padding:0}
+.teacher-guide-step{display:grid;grid-template-columns:29px minmax(0,1fr);gap:9px;padding:12px;border:1px solid var(--rule);border-radius:9px;background:var(--paper);min-width:0}
+.teacher-guide-index{font:700 .82rem var(--sans);color:var(--accent);padding-top:2px}
+.teacher-guide-step strong{font:650 .86rem/1.45 var(--sans);color:var(--ink);display:block}
+.teacher-guide-step p{font:.8rem/1.48 var(--sans);color:var(--ink-2);margin:5px 0 0;overflow-wrap:anywhere}
+.teacher-guide-notice{margin:14px 0 0;border-left:3px solid var(--accent);padding:10px 13px;background:var(--paper-2);font:.83rem/1.55 var(--sans);color:var(--ink-2)}
+.teacher-guide-notice strong{color:var(--ink)}
+@media(max-width:1050px){.teacher-guide-steps{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:700px){
+  .teacher-page{padding:14px 12px 48px}
+  .teacher-page>.foot{margin-top:22px}
+  .teacher-guide-trigger{padding:13px 14px}
+  .teacher-guide-body{padding:12px 14px 16px}
+  .teacher-guide-steps{grid-template-columns:1fr;gap:8px}
+  .teacher-guide-step{padding:11px}
+}
+
 /* styles/workbench.css */
 /* StatAtlas UX: the experiment, not ancillary blocks, is the main surface. */
 .ux-workbench .lab-head{display:block;max-width:100%;padding:8px 0 14px;min-height:0;border-bottom:0}
@@ -1181,6 +1224,49 @@ html{scrollbar-gutter:stable}
 /* Animating the entire laboratory shifts scientific controls during input. */
 .page.ux-workbench > *{animation:none!important}
 
+/* styles/mobile-transport.css */
+/* StatAtlas responsive simulation transport: replaces, never stacks on, the
+   existing mobile section-navigation while a chart or map is being studied. */
+.sa-mobile-transport{display:none}
+@media (max-width:640px){
+ .ux-workbench.sa-mobile-transport-active .lab-mobile-nav{visibility:hidden!important;pointer-events:none!important}
+ .sa-mobile-transport:not([hidden]){
+   display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;
+   position:fixed;inset:auto 0 0;z-index:29;
+   padding:7px max(10px,env(safe-area-inset-right)) calc(7px + env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left));
+   background:var(--paper);border-top:1px solid var(--rule-2);
+   box-shadow:0 -7px 25px -16px rgba(15,18,24,.36);
+ }
+ .sa-mobile-transport-btn{
+   display:flex;justify-content:center;align-items:center;gap:4px;
+   min-width:0;min-height:46px;padding:8px 3px;border-radius:9px;
+   background:var(--card);border:1px solid var(--rule-2);color:var(--ink);
+   cursor:pointer;font:650 .75rem/1.2 var(--sans);white-space:nowrap;
+ }
+ .sa-mobile-transport-btn:first-child{border-color:var(--accent);background:var(--accent-soft)}
+ /* Keep action names complete even on 320px viewports; the accessible name
+    remains the full original command. */
+ .sa-mobile-transport-btn[data-transport-action="finish"] svg,
+ .sa-mobile-transport-btn[data-transport-action="params"] svg{display:none}
+ .sa-mobile-transport-btn svg{flex:0 0 16px;width:16px;height:16px}
+ .sa-mobile-transport-text{min-width:0;overflow:hidden;text-overflow:ellipsis}
+ .sa-mobile-transport-btn.is-active{background:var(--accent-soft);border-color:var(--accent)}
+ .sa-mobile-transport-btn:focus-visible{outline:3px solid var(--focus);outline-offset:1px}
+ .sa-mobile-transport-btn:disabled{opacity:.48;cursor:not-allowed}
+ .sa-mobile-transport-btn.is-busy{cursor:progress}
+ body.mobile-menu-open .sa-mobile-transport,
+ html.zoom-open .sa-mobile-transport,
+ body.ux-modal-open .sa-mobile-transport,
+ body:has(.drawer.open) .sa-mobile-transport,
+ body:has(.modal:not([hidden])) .sa-mobile-transport{display:none!important}
+}
+@media (max-width:350px){
+ .sa-mobile-transport-btn{font-size:.70rem;gap:3px}
+ .sa-mobile-transport-btn svg{width:14px;height:14px;flex-basis:14px}
+}
+@media (min-width:641px){.sa-mobile-transport{display:none!important}}
+@media print{.sa-mobile-transport{display:none!important}}
+
 </style>
 </head>
 <body>
@@ -1195,7 +1281,7 @@ html{scrollbar-gutter:stable}
 </div>
 <noscript><p style="padding:2rem">StatAtlas richiede JavaScript attivo.</p></noscript>
 <script>
-window.SA = window.SA || {}; window.SA.buildId = '3cfe53c4950dbd89337bde51114670974070688a54a076ba5389d5c399a7e470';
+window.SA = window.SA || {}; window.SA.buildId = 'ee6b370d425392a6433315fd05f9aa4c8016ec113027eb057014978e3b1e99e8';
 /* core/rng.js */
 /* StatAtlas · core/rng.js
  * Generatore Mersenne-Twister compatibile con R (RNGkind predefinito:
@@ -5486,11 +5572,13 @@ SA.ui = (function () {
     drawer.removeAttribute('inert');
     drawer.classList.add('open'); drawer.setAttribute('aria-hidden', 'false'); backdrop.classList.add('show');
     drawer.querySelector('.drawer-head button[data-level="' + currentLevel + '"]').focus();
+    if (SA.mobileTransport) SA.mobileTransport.refresh();
   }
   function closeDrawer() {
     if (!drawer || !drawer.classList.contains('open')) return;
     drawer.classList.remove('open'); drawer.setAttribute('aria-hidden', 'true'); drawer.setAttribute('inert', ''); backdrop.classList.remove('show');
-    if (lastFocus && lastFocus.isConnected) lastFocus.focus();
+    if (lastFocus && lastFocus.isConnected) lastFocus.focus({preventScroll:true});
+    if (SA.mobileTransport) SA.mobileTransport.refresh();
   }
 
   function badge(status) {
@@ -10821,6 +10909,56 @@ SA.experiments = (function () {
       allLabs().forEach(function(l){selector.appendChild(E('option',{value:l.id},l.num+' · '+l.title));});
       return selector;
     }
+    // The quick guide is part of the authoring page (never a remote document).
+    // Keep its expanded/collapsed preference when the teacher edits a step.
+    var guideExpanded=true;
+    function makeGuide(){
+      var rows=[
+        [tr('Definisci il percorso','Define the path'),
+          tr('Apri “Impostazioni del percorso”. Scrivi un titolo obbligatorio, indica destinatari e obiettivi e scegli la lingua degli studenti.',
+             'Open “Path settings”. Enter the required title, add the audience and learning goals, and choose the student language.')],
+        [tr('Aggiungi le attività','Add activities'),
+          tr('Scegli un laboratorio tra i 31 disponibili e premi “Aggiungi laboratorio”. Puoi riutilizzare lo stesso laboratorio con consegne diverse (fino a 24 attività).',
+             'Choose one of the 31 laboratories and select “Add laboratory”. You can reuse the same laboratory with different instructions (up to 24 activities).')],
+        [tr('Prepara ogni attività','Prepare each activity'),
+          tr('Seleziona l’attività dall’elenco; modifica consegna, durata e fino a tre sfide. Riordina le attività con le frecce.',
+             'Select an activity from the outline; edit its instructions, duration and up to three challenges. Reorder activities with the arrows.')],
+        [tr('Salva uno scenario, se serve','Attach a scenario if needed'),
+          tr('Per riprodurre gli stessi parametri, configura un laboratorio e scegli “Aggiungi esperimento al percorso docente”, oppure carica il suo preset JSON nell’attività.',
+             'For reproducible parameters, configure a laboratory and select “Add experiment to teaching path”, or upload its JSON preset in the activity.')],
+        [tr('Conserva il progetto docente','Keep the editable teacher project'),
+          tr('Apri “Esporta / Apri progetto” e salva il JSON: serve per riprendere le modifiche. Il progetto non viene salvato automaticamente.',
+             'Open “Export / Open project” and save the JSON to continue editing later. The authoring project is not saved automatically.')],
+        [tr('Distribuisci la lezione agli studenti','Share the lesson with students'),
+          tr('Dallo stesso pannello esporta l’HTML studenti: è un file autonomo utilizzabile offline. Gli studenti possono esportare report JSON locali; non vengono inviati né certificati voti.',
+             'From the same panel export the standalone student HTML, which works offline. Students can export local JSON reports; no grades are uploaded or certified.')]
+      ];
+      var list=E('ol.teacher-guide-steps');
+      rows.forEach(function(row,index){
+        list.appendChild(E('li.teacher-guide-step',
+          E('span.teacher-guide-index',{'aria-hidden':'true'},String(index+1).padStart(2,'0')),
+          E('div',E('strong',row[0]),E('p',row[1]))));
+      });
+      var guide=E('details.teacher-guide',
+        E('summary.teacher-guide-trigger',
+          E('span.teacher-guide-heading',
+            E('span.teacher-guide-kicker',tr('PER INIZIARE','GETTING STARTED')),
+            E('strong',tr('Come funziona StatAtlas for Teachers?','How does StatAtlas for Teachers work?')),
+            E('span.teacher-guide-subtitle',tr('Guida rapida in 6 passaggi · clicca per aprire o chiudere',
+              'Six-step quick start · select to expand or collapse'))),
+          E('span.teacher-guide-caret',{'aria-hidden':'true'},'⌄')),
+        E('div.teacher-guide-body',
+          E('p.teacher-guide-intro',tr('Non occorre programmare: componi una sequenza di esperimenti, aggiungi le consegne e genera una pagina già pronta per la classe.',
+            'No programming required: assemble experiments, add student instructions, and generate a ready-to-use classroom page.')),
+          list,
+          E('p.teacher-guide-notice',
+            E('strong',tr('Da ricordare: ','Remember: ')),
+            tr('JSON = progetto modificabile dal docente; HTML = pagina da consegnare agli studenti. Conserva entrambi. Le configurazioni possono richiedere la stessa versione di StatAtlas.',
+               'JSON = editable teacher project; HTML = page to hand to students. Keep both. Presets may require the same StatAtlas version.'))));
+      guide.open=guideExpanded;
+      guide.addEventListener('toggle',function(){guideExpanded=guide.open;});
+      return guide;
+    }
     var selectedStepId=null;
     function render(){
       if(area._teacherKeys)area.removeEventListener('keydown',area._teacherKeys);
@@ -10993,7 +11131,7 @@ SA.experiments = (function () {
         else if(!e.shiftKey&&document.activeElement===fields[fields.length-1]){e.preventDefault();fields[0].focus();}
       };
       area._teacherKeys=teacherKeys;area.addEventListener('keydown',teacherKeys);
-      area.append(title,intro,tools,picker,E('p.teacher-status',{role:'status','aria-live':'polite'},
+      area.append(title,intro,tools,makeGuide(),picker,E('p.teacher-status',{role:'status','aria-live':'polite'},
         tr('Nessun dato viene caricato online. I report degli studenti sono locali e non costituiscono voti certificati.',
           'No data is uploaded. Student reports remain local and are not certified exam grades.')),teacherBack,teacherPanel);
     }
@@ -11311,7 +11449,7 @@ SA.workbench = (function () {
       if(dialog.hidden)return;
       dialog.hidden=true;dialog.setAttribute('aria-hidden','true');backdrop.hidden=true;
       page.classList.remove('ux-dialog-open');document.body.classList.remove('ux-modal-open');
-      if(refocus!==false && previousFocus && previousFocus.isConnected)previousFocus.focus();
+      if(refocus!==false && previousFocus && previousFocus.isConnected)previousFocus.focus({preventScroll:true});
     }
     function keys(e){
       if(dialog.hidden)return;
@@ -11359,6 +11497,212 @@ SA.workbench = (function () {
     close:function(){if(active)active.close();},
     isOpen:function(which){return !!(active&&active.isOpen(which));}
   };
+})();
+
+/* core/mobile-transport.js */
+/* StatAtlas UX: contextual mobile transport, presentation only.
+ * Proxy the existing transport/map buttons; never create another runner,
+ * mutate numerical state, or duplicate the simulation's event handlers.
+ */
+var SA = window.SA || (window.SA = {});
+SA.mobileTransport = (function () {
+  'use strict';
+  var active = null;
+  function en() { return !!(SA.i18n && SA.i18n.isEnglish()); }
+  function tr(it,english) { return en() ? english : it; }
+  function newElement(tag,cls) {
+    var node=document.createElement(tag);
+    if(cls)node.className=cls;
+    return node;
+  }
+  function teardown() {
+    if(!active)return;
+    active.destroy();active=null;
+  }
+  function mount(page) {
+    teardown();
+    if(!page || !page.classList.contains('ux-workbench'))return;
+    var standard=page.querySelector('.lab-grid');
+    var spatial=page.querySelector('.spatial-studio');
+    if(!standard && !spatial)return;
+    var match=window.matchMedia('(max-width: 640px)');
+    var bar=newElement('nav','sa-mobile-transport');
+    bar.hidden=true;
+    bar.setAttribute('aria-label',tr('Azioni della simulazione sempre disponibili','Persistent experiment actions'));
+    bar.setAttribute('data-transport-mode','none');
+    var buttons=[];
+    var disposed=false, frame=0, observer=null, visibilityObserver=null, observed=null, lastMode='none';
+    page.appendChild(bar);
+    var names={
+      play:['Avvia','Start'], step:['Passo','Step'], finish:['Completa','Finish'], reset:['Reset','Reset'],
+      params:['Strumenti','Tools']
+    };
+    function proxy(key,label,source,icon) {
+      var b=newElement('button','sa-mobile-transport-btn');
+      b.type='button';b.dataset.transportAction=key;
+      b.dataset.sourceAction=key;
+      if(icon){var symbol=SA.ui.icon(icon);if(symbol) b.appendChild(symbol);}
+      var span=newElement('span','sa-mobile-transport-text');span.textContent=label;b.appendChild(span);
+      b.setAttribute('aria-label',source && (source.getAttribute('aria-label')||source.getAttribute('title')) || label);
+      b.addEventListener('click',function(){
+        if(key==='params'){
+          var panel=spatial&&spatial.querySelector('.spatial-studio-panel');
+          if(panel)panel.scrollIntoView({behavior:'auto',block:'start'});
+        }else{
+          var target=targetFor(key);
+          if(target && target.isConnected && !target.disabled)target.click();
+        }
+        schedule();
+      });
+      bar.appendChild(b);buttons.push({key:key,node:b,label:span});
+    }
+    function targetFor(key) {
+      if(lastMode==='spatial'){
+        if(key==='reset')return spatial.querySelector('.spatial-studio-reset');
+        if(key.indexOf('tool-')===0)return spatial.querySelector('.spatial-studio-tools [data-tool="'+key.slice(5)+'"]');
+        return null;
+      }
+      var native=standard&&standard.querySelector('.controls .transport');
+      if(!native)return null;
+      var items=native.querySelectorAll(':scope > button');
+      return items[{play:0,step:1,finish:2,reset:3}[key]]||null;
+    }
+    function compactMapLabel(source) {
+      var kind=source.dataset.tool;
+      if(kind==='high')return tr('+ Alto','+ High');
+      if(kind==='low')return tr('+ Basso','+ Low');
+      if(kind==='cluster')return tr('+ Gruppo','+ Group');
+      if(kind==='move')return tr('Sposta','Move');
+      return source.textContent.trim();
+    }
+    function setup(mode) {
+      if(lastMode===mode)return;
+      lastMode=mode;buttons.length=0;bar.replaceChildren();bar.dataset.transportMode=mode;
+      if(mode==='runner'){
+        proxy('play',tr('Avvia','Start'),targetFor('play'),'play');
+        proxy('step',tr('Passo','Step'),targetFor('step'),'step');
+        proxy('finish',tr('Completa','Finish'),targetFor('finish'),'fast');
+        proxy('reset',tr('Reset','Reset'),targetFor('reset'),'reset');
+      } else if(mode==='spatial'){
+        var tools=spatial.querySelectorAll('.spatial-studio-tools [data-tool]');
+        Array.prototype.slice.call(tools,0,2).forEach(function(source){
+          proxy('tool-'+source.dataset.tool,compactMapLabel(source),source,null);
+        });
+        proxy('params',tr('Strumenti','Tools'),null,'step');
+        proxy('reset',tr('Reset','Reset'),targetFor('reset'),'reset');
+      }
+      observeControls(mode);
+    }
+    function observeControls(mode) {
+      if(observer)observer.disconnect();observer=null;observed=null;
+      var target=mode==='runner' ? standard&&standard.querySelector('.controls') :
+        mode==='spatial' ? spatial&&spatial.querySelector('.spatial-studio-panel') : null;
+      if(!target)return;
+      observed=target;
+      observer=new MutationObserver(schedule);
+      observer.observe(target,{childList:true,subtree:true,characterData:true,attributes:true,
+        attributeFilter:['disabled','aria-pressed','data-busy','class']});
+    }
+    function sync() {
+      buttons.forEach(function(item){
+        if(item.key==='params')return;
+        var src=targetFor(item.key),b=item.node;
+        b.disabled=!src || !!src.disabled;
+        if(!src)return;
+        var activeState=src.getAttribute('aria-pressed');
+        if(activeState!==null)b.setAttribute('aria-pressed',activeState);
+        else b.removeAttribute('aria-pressed');
+        b.classList.toggle('is-active',activeState==='true');
+        b.classList.toggle('is-busy',src.getAttribute('data-busy')==='1');
+        if(item.key==='play'){
+          var raw=src.textContent.trim();
+          var txt=raw;
+          // The runner redraws this label in IT; the original remains the sole state source.
+          if(en())txt=({'Avvia':'Start','Pausa':'Pause','Riprendi':'Resume','Riavvia':'Restart'})[raw]||raw;
+          if(item.label.textContent!==txt)item.label.textContent=txt;
+          var svg=b.querySelector('svg');
+          var expected=/Pausa|Pause/.test(raw)?'pause':'play';
+          if(svg && svg.dataset.transportIcon!==expected){
+            var fresh=SA.ui.icon(expected);fresh.dataset.transportIcon=expected;
+            svg.replaceWith(fresh);
+          }
+          b.setAttribute('aria-label',txt);
+        } else if(item.key.indexOf('tool-')===0){
+          var text=compactMapLabel(src);
+          if(item.label.textContent!==text)item.label.textContent=text;
+          b.setAttribute('aria-label',src.getAttribute('aria-label')||src.textContent.trim());
+        } else b.setAttribute('aria-label',src.getAttribute('aria-label')||src.getAttribute('title')||item.label.textContent);
+      });
+    }
+    function visibleSurface(node,top,bottom) {
+      if(!node)return false;
+      var r=node.getBoundingClientRect();
+      return r.bottom>top+30 && r.top<bottom-15;
+    }
+    function visibleControls(node,top,bottom) {
+      if(!node)return false;
+      var r=node.getBoundingClientRect();
+      return r.top>=top-5 && r.bottom<=bottom+5;
+    }
+    function blocked() {
+      if(document.body.classList.contains('ux-modal-open') ||
+        document.body.classList.contains('mobile-menu-open') ||
+        document.documentElement.classList.contains('zoom-open') ||
+        document.querySelector('.drawer.open, .modal:not([hidden]), .fig-modal:not([hidden])'))return true;
+      var focus=document.activeElement;
+      if(focus && page.contains(focus) && /^(INPUT|SELECT|TEXTAREA)$/.test(focus.tagName))return true;
+      if(window.visualViewport && window.visualViewport.height<window.innerHeight*.72)return true;
+      return false;
+    }
+    function update() {
+      frame=0;if(disposed)return;
+      var mode='none';
+      var bottom=window.visualViewport?Math.min(innerHeight,window.visualViewport.height):innerHeight;
+      var top=72,usableBottom=bottom-80;
+      if(match.matches && !blocked()){
+        var map=spatial&&spatial.querySelector('.spatial-studio-map');
+        var panel=spatial&&spatial.querySelector('.spatial-studio-panel');
+        var native=standard&&standard.querySelector('.controls .transport');
+        if(map && visibleSurface(map,top,usableBottom) && !visibleControls(panel,top,usableBottom))mode='spatial';
+        else if(native && visibleSurface(standard,top,usableBottom) && !visibleControls(native,top,usableBottom))mode='runner';
+      }
+      if(mode!=='none')setup(mode);
+      var show=mode!=='none';
+      bar.hidden=!show;
+      page.classList.toggle('sa-mobile-transport-active',show);
+      if(show)sync();
+    }
+    function schedule() {
+      if(disposed || frame)return;
+      frame=requestAnimationFrame(update);
+    }
+    function resize(){schedule();}
+    window.addEventListener('scroll',schedule,{passive:true});
+    window.addEventListener('resize',resize,{passive:true});
+    if(window.visualViewport){window.visualViewport.addEventListener('resize',resize,{passive:true});window.visualViewport.addEventListener('scroll',schedule,{passive:true});}
+    if(match.addEventListener)match.addEventListener('change',resize);
+    else if(match.addListener)match.addListener(resize);
+    // A dialog can change visibility without scrolling. Re-evaluate when it
+    // closes, otherwise the transport could remain hidden after Escape.
+    visibilityObserver=new MutationObserver(schedule);
+    visibilityObserver.observe(document.body,{attributes:true,attributeFilter:['class']});
+    visibilityObserver.observe(document.documentElement,{attributes:true,attributeFilter:['class']});
+    var nativeDrawer=document.querySelector('.drawer');
+    if(nativeDrawer)visibilityObserver.observe(nativeDrawer,{attributes:true,attributeFilter:['class']});
+    active={refresh:schedule,destroy:function(){
+      disposed=true;
+      if(frame)cancelAnimationFrame(frame);
+      if(observer)observer.disconnect();
+      if(visibilityObserver)visibilityObserver.disconnect();
+      window.removeEventListener('scroll',schedule);window.removeEventListener('resize',resize);
+      if(window.visualViewport){window.visualViewport.removeEventListener('resize',resize);window.visualViewport.removeEventListener('scroll',schedule);}
+      if(match.removeEventListener)match.removeEventListener('change',resize);
+      else if(match.removeListener)match.removeListener(resize);
+      page.classList.remove('sa-mobile-transport-active');bar.remove();
+    }};
+    schedule();
+  }
+  return {mount:mount,teardown:teardown,refresh:function(){if(active)active.refresh();}};
 })();
 
 /* core/app.js */
@@ -11855,6 +12199,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
   function route() {
     closeMenu(false);
     SA.ui.closeDrawer();
+    if (SA.mobileTransport) SA.mobileTransport.teardown();
     if (SA.workbench) SA.workbench.teardown();
     var id = (location.hash.replace(/^#\/?/, '').split('/')[0]) || '';
     if (current && current.unmount) current.unmount();
@@ -11866,7 +12211,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
     });
     var info = id && find(id);
     if (id === 'teachers' && SA.teachers) {
-      SA.currentLab = null; SA.teachers.builder(main); main.appendChild(footer()); document.title = 'StatAtlas for Teachers';
+      SA.currentLab = null; var teacherPage = el('div.teacher-page'); main.appendChild(teacherPage); SA.teachers.builder(teacherPage); teacherPage.appendChild(footer()); document.title = 'StatAtlas for Teachers';
     } else if (!info) { SA.currentLab = null; main.appendChild(home()); document.title = 'StatAtlas'; }
     else if (SA.labs[id]) {
       var page = el('div.page'); main.appendChild(page);
@@ -11899,6 +12244,7 @@ SA.registerLab = function (id, def) { SA.labs[id] = def; };
         if (expPanel) { teach.classList.add('ux-teacher-add'); expPanel.appendChild(teach); }
       }
       if (SA.workbench) SA.workbench.mount(page,id);
+      if (SA.mobileTransport) SA.mobileTransport.mount(page,id);
       if (SA.i18n.isEnglish()) { SA.i18n.localizeSurface(page); SA.i18n.watchLive(page); }
       document.title = info.lab.title + ' · StatAtlas';
     } else { main.appendChild(soon(info)); document.title = info.lab.title + ' · StatAtlas'; }

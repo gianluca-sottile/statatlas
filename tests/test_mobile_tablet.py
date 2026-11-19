@@ -71,8 +71,26 @@ def main():
             page.keyboard.press('Escape')
             assert menu.get_attribute('aria-expanded') == 'false'
             assert page.locator('#sidebar').evaluate('(el) => el.inert')
+            # The new contextual map transport is deliberately visible on a
+            # 390px Kriging screen even at scrollY=0 (the map begins inside the
+            # first viewport). It hides the old section-navigation bar by
+            # design. Verify the absence of stacked navs, then test the
+            # historical section jump links on a touch tablet (768px), where
+            # they are intentionally used instead of the floating transport.
+            page.wait_for_function('''() => {
+                const bar=document.querySelector('.sa-mobile-transport');
+                return bar && !bar.hidden && getComputedStyle(bar).display!=='none';
+            }''')
+            assert not page.locator('.lab-mobile-nav').is_visible(), 'stacked smartphone navs'
+            page.set_viewport_size({'width': 768, 'height': 1024})
+            page.wait_for_function('''() => {
+                const nav=document.querySelector('.lab-mobile-nav');
+                const bar=document.querySelector('.sa-mobile-transport');
+                return nav && getComputedStyle(nav).visibility==='visible'
+                       && bar && getComputedStyle(bar).display==='none';
+            }''')
             # On the unified spatial studio the navigation targets the single
-            # controls panel and the map, not a legacy chart/transport widget.
+            # controls panel and map, not a legacy chart/transport widget.
             page.locator('.lab-mobile-nav button').filter(has_text='Parametri').click()
             page.wait_for_timeout(420)
             assert page.locator('.spatial-studio-panel').evaluate('(el) => el.getBoundingClientRect().top < innerHeight')

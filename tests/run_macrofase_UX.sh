@@ -12,8 +12,17 @@ python3 tests/test_UX_workbench.py --width 1366
 printf "\n=== UX TOOLBAR: CHALLENGES AND LIVE R DRAWERS ===\n"
 python3 tests/test_UX_toolbar.py 390
 python3 tests/test_UX_toolbar.py 1366
+printf "\n=== MOBILE CONTROL BAR: ALL LABS, MODES AND OFFLINE STUDENT HTML ===\n"
+python3 tests/test_UX_mobile_transport.py --width 320
+python3 tests/test_UX_mobile_transport.py --width 390
+python3 tests/test_UX_mobile_transport.py --width 390 --language en --spot
+python3 tests/test_UX_mobile_transport.py --width 600 --spot
+python3 tests/test_UX_mobile_transport.py --width 768 --spot
+python3 tests/test_UX_mobile_transport.py --width 1366 --spot
 printf "\n=== TEACHER PATH TITLE: REQUIRED-FIELD UX IN IT/EN ===\n"
 python3 tests/test_E_required_title.py
+printf "\n=== TEACHER ONBOARDING / CENTERED FOOTER: IT/EN, MOBILE/TABLET/DESKTOP ===\n"
+python3 tests/test_E_teachers_guide_footer.py
 printf '\n=== EN FULL-LAB LIVE DISPLAY AND FOOTER LINKS ===\n'
 python3 tests/test_L_language_surface.py
 printf '\n=== 3/4 DESIGN AND OFFLINE CONTRACT ===\n'
@@ -43,7 +52,7 @@ record={'format':'statatlas.ux-acceptance','version':1,'html_sha256':sha,
   'gates':{'prior_macrofasi_A_to_E':'PASS','R_exports':31,'RJS_default_checks':84,
            'workbench_labs':31,'mobile_390':'PASS','desktop_1366':'PASS',
            'non_reflowing_overlays':'PASS','toolbar_six_actions':'PASS',
-           'challenge_overlay':'PASS','live_r_code_overlay':'PASS','teacher_master_detail':'PASS',
+           'challenge_overlay':'PASS','live_r_code_overlay':'PASS','mobile_floating_transport':'PASS','teacher_master_detail':'PASS','teacher_guide_footer_it_en':'PASS',
            'standalone_student_report':'PASS','D_snapshots':'PASS'},
   'limitations':'R1 default scenario parity only (not R2); native Safari file://, screen readers and student usability require manual verification.'}
 (root/'verifica/REPORT_MACROFASE_UX.json').write_text(json.dumps(record,indent=2,ensure_ascii=False)+'\n',encoding='utf-8')

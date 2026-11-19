@@ -1,3 +1,10 @@
+## UX mobile — Contextual simulation controls (19 November 2026, candidate)
+
+- Mobile-only (≤640px) bottom bar for native simulation controls while viewing plots; switches without overlapping the existing section navigation, respects phone safe areas and drawers.
+- All 31 labs covered (25 standard + 6 spatial); Lab 15 correctly offers transport only in the Paths view. EN/IT, focus, pause/resume and standalone student HTML are preserved.
+- Original runner events are proxied; no statistical algorithms, RNG code or R outputs changed. Full Mac R / R1 parity release gate still required.
+- See `docs/UX_MOBILE_TRANSPORT.md` and `tests/test_UX_mobile_transport.py`.
+
 ## 19/11/2026 — StatAtlas for Teachers: campo titolo obbligatorio (candidate)
 
 - Evidenziato **Titolo del percorso / Path title** con asterisco, etichetta **Obbligatorio / Required** e suggerimento in prossimità del campo.

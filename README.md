@@ -1,3 +1,9 @@
+> **Rettifica QA mobile del 19 novembre 2026:** corretto esclusivamente `tests/test_mobile_tablet.py` per la mutua esclusione tra barra flottante (smartphone) e navigazione sezioni (tablet); nessuna modifica alla build offline o ai laboratori. [Diagnosi e collaudo](docs/COLLAUDO_NAVIGAZIONE_MOBILE_2026_11_19.md).
+
+> **Candidate 19 novembre 2026:** nuova guida d'uso IT/EN per StatAtlas for Teachers e correzione del footer disallineato; la barra mobile adattiva e tutti i 31 laboratori restano consolidati. Richiesto un nuovo collaudo Mac/Safari prima della pubblicazione. [Guida pratica](docs/TEACHERS_GUIDA_PRATICA_IT_EN.md) · [Protocollo](LEGGIMI_COLLAUDO_FINALE_TEACHERS.md).
+
+**Guida a StatAtlas for Teachers:** nella sezione docenti apri «Come funziona StatAtlas for Teachers?» per la procedura in sei passaggi; la guida completa, con esempi e limiti del salvataggio JSON/HTML, è in [`docs/TEACHERS_GUIDA_PRATICA_IT_EN.md`](docs/TEACHERS_GUIDA_PRATICA_IT_EN.md).
+
 > **Patch bilingue EN — candidate, 18 novembre 2026.** Integrate le traduzioni di etichette, tabelle e grafici generati nei 31 laboratori, incluso quello sulle reti neurali; aggiornati i collegamenti del footer. Motori statistici e script R invariati. Richiesto nuovo collaudo Mac della build aggiornata prima della pubblicazione. [Audit e protocollo](docs/EN_SURFACE_PATCH_31.md).
 
 > **Rifinitura UX — candidate locale, 18 novembre 2026.** La precedente versione UX ha superato il collaudo completo sul Mac (SHA HTML `f01c3810…`) e lo studente dispone del percorso E. Questa nuova candidate riordina la barra di tutti i 31 laboratori in **Guida · Approfondisci · Mettiti alla prova | Corso R · Codice R | Salva/Condividi**, con bordi uniformi e pannelli sovrapposti per Challenges e codice R. Il comando ridondante «Simula» è rimosso dalla barra, non dai simulatori. I 31 script R e i 25 riferimenti numerici R1 rimangono identici; i gate GNU R devono essere ripetuti sul nuovo fingerprint prima del push. [Rapporto della rifinitura](docs/UX_TOOLBAR_REFINEMENT.md). La Macrofase F Classroom resta soltanto in roadmap.
@@ -242,3 +248,8 @@ La roadmap aggiornata (esperimenti versionati e condivisibili, poi *StatAtlas fo
 ### Macrofase D — Esperimenti riproducibili (pubblicata)
 
 Ogni laboratorio offre **Salva JSON**, **Apri JSON** e **Copia link** per le configurazioni abbastanza compatte. Le istantanee includono il fingerprint del motore, il checkpoint dei runner o i punti spaziali effettivamente modificati. Per evitare risultati falsamente «identici», l'importazione rifiuta le build non corrispondenti. Lo stato delle Challenges non viene esportato. Il programma tecnico e la checklist sono in [`docs/MACROFASE_D_PROTOCOLLO.md`](docs/MACROFASE_D_PROTOCOLLO.md); la Macrofase D è stata validata sul Mac e pubblicata il 17 novembre 2026.
+
+
+### Comandi contestuali su smartphone (320–640 px)
+
+Quando il grafico è visibile e i comandi originali sono fuori dallo schermo, una barra inferiore **contestuale** sostituisce temporaneamente la navigazione tra sezioni. Nei simulatori include Avvia/Pausa, Passo, Completa e Reset; nelle mappe spaziali include gli strumenti realmente disponibili. Non introduce un secondo motore di simulazione e scompare durante l’uso dei pannelli e il ritorno ai controlli. La modalità offline degli HTML studenti è mantenuta. Dettagli: `docs/UX_MOBILE_TRANSPORT.md`.
