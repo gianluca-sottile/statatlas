@@ -16,6 +16,8 @@ Each of the 31 labs supports **Save JSON**, **Open JSON**, and **Copy link**. Ve
 
 The integrated Teachers module creates 1–24 step offline learning paths from 31 laboratories and selected Challenges. Assign D experiment snapshots as initial configurations, export an editable teacher JSON project and a fully standalone student HTML page, and collect private, editable formative JSON reports. The student shortcut **Go to assigned Challenges** now opens the same non-reflowing drawer and counts only assigned tasks. This is not a certified grading system. See [protocol](docs/MACROFASE_E_PROTOCOLLO.md) and [Mac release checklist](docs/MACROFASE_E_CHECKLIST_MAC.md).
 
+**Required path title:** the teacher path’s **Path title** is visibly marked required. If empty, JSON/HTML export opens Path settings, displays inline validation and focuses the field. Individual activity titles may use their laboratory defaults.
+
 ## What is StatAtlas?
 
 StatAtlas is a standalone, offline-capable HTML/CSS/JavaScript learning platform comprising **31 interactive statistics laboratories in eight parts**. Topics span probability distributions, simulation, the law of large numbers, the central limit theorem, estimation, likelihood, confidence intervals, hypothesis testing, regression, GLMs, regularization, supervised learning, unsupervised learning, and spatial statistics.

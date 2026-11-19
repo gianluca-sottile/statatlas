@@ -1,9 +1,9 @@
 {
   "project": "StatAtlas 2.1",
   "phase": "UX toolbar refinement after UX redesign",
-  "date": "2026-11-18",
-  "status": "candidate_pending_Mac_acceptance_and_manual_Safari",
-  "html_sha256": "50fe9d20ccd31304a6eaf972c7f8a33612120f150c22fd89c0801c279f9715c5",
+  "date": "2026-11-19",
+  "status": "candidate_teacher_title_UX_pending_full_Mac_R_acceptance",
+  "html_sha256": "203c2e6ce79386c305452bfe57fbc0c9eeffe06730667649c1511e0a452059fe",
   "toolbar_groups": [
     [
       "guide",
@@ -35,7 +35,8 @@
     "E_teacher_student_regressions": "PASS",
     "R_exports_vs_prior_UX": "31/31 byte-for-byte identical",
     "R1_snapshots_vs_prior_UX": "25/25 numerical payloads identical",
-    "E_standalone_example_rebuilt": "PASS"
+    "E_standalone_example_rebuilt": "PASS",
+    "teacher_required_path_title_390_1366_IT_EN": "PASS"
   },
   "pending_Mac": {
     "full_A_through_E_and_UX_gate": "PENDING",

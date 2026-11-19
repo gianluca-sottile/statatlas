@@ -12,6 +12,8 @@ python3 tests/test_UX_workbench.py --width 1366
 printf "\n=== UX TOOLBAR: CHALLENGES AND LIVE R DRAWERS ===\n"
 python3 tests/test_UX_toolbar.py 390
 python3 tests/test_UX_toolbar.py 1366
+printf "\n=== TEACHER PATH TITLE: REQUIRED-FIELD UX IN IT/EN ===\n"
+python3 tests/test_E_required_title.py
 printf '\n=== EN FULL-LAB LIVE DISPLAY AND FOOTER LINKS ===\n'
 python3 tests/test_L_language_surface.py
 printf '\n=== 3/4 DESIGN AND OFFLINE CONTRACT ===\n'

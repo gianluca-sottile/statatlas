@@ -91,3 +91,13 @@ body.student-workspace-open{overflow:hidden}
 .teacher-ux-panel-body .teacher-path-settings .teacher-field:nth-child(4){grid-column:auto}
 .teacher-ux-panel button:focus-visible{outline:3px solid var(--focus);outline-offset:3px}
 @media(max-width:640px){.teacher-ux-summary{margin-left:0;width:100%}.teacher-ux-panel-body{padding:14px}.teacher-ux-panel-head{padding:10px 14px}}
+
+/* Required title is visible before export; validation appears next to the actual field. */
+.teacher-path-title-caption{display:flex;align-items:center;flex-wrap:wrap;gap:5px}
+.teacher-required-star{font-weight:800;color:var(--accent)}
+.teacher-required-tag{font:700 .72rem var(--sans);color:var(--accent);background:var(--accent-soft);border:1px solid var(--rule-2);padding:2px 7px;border-radius:6px;margin-left:4px}
+.teacher-path-title-hint{font:400 .8rem/1.45 var(--sans);color:var(--ink-2)}
+.teacher-path-title-error{display:block;font:650 .85rem/1.45 var(--sans);color:var(--accent);margin-top:3px}
+.teacher-path-title-error[hidden]{display:none!important}
+.teacher-path-title-field.teacher-field-invalid input{border:2px solid var(--accent);background:var(--card)}
+.teacher-path-title-field.teacher-field-invalid input:focus-visible{outline:3px solid var(--focus);outline-offset:2px}

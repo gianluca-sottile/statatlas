@@ -1,3 +1,10 @@
+## 19/11/2026 — StatAtlas for Teachers: campo titolo obbligatorio (candidate)
+
+- Evidenziato **Titolo del percorso / Path title** con asterisco, etichetta **Obbligatorio / Required** e suggerimento in prossimità del campo.
+- Se il docente tenta di esportare JSON o HTML senza un titolo non composto da soli spazi, viene aperto il pannello Impostazioni, il campo riceve focus e appare un messaggio di errore associato (`required`, `aria-required`, `aria-invalid`, `aria-describedby`).
+- Nessun cambiamento allo schema JSON, ai titoli delle attività o ai motori dei laboratori. Test funzionali IT/EN a 390/1366 px inclusi nel gate UX.
+- Nuova build da collaudare integralmente sul Mac prima della pubblicazione; nessun push eseguito.
+
 ## 18/11/2026 — Patch completa dei testi EN nei laboratori (candidate; non pubblicata)
 
 - Audit di tutte le 31 superfici EN, inclusi testi generati dinamicamente, figure SVG e tabelle; risolto in particolare il lab 22 sulle reti neurali.

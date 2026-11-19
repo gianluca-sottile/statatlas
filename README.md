@@ -71,6 +71,8 @@ La D (commit `80f2ea6`) introduce **Salva JSON**, **Apri JSON** e **Copia link**
 
 Dal nuovo elemento **StatAtlas per docenti / StatAtlas for Teachers** si costruiscono percorsi di 1–24 attività con selezione dei laboratori e delle Challenges, consegne, lingua, durata e preset salvati nella Macrofase D. Si esportano due file distinti: **progetto docente JSON**, editabile, e **pagina studenti HTML autonoma** con StatAtlas integrato. Il percorso offre riflessioni, completamento locale e report JSON formativo; non sono voti certificati e nessun dato viene raccolto online.
 
+**Titolo del percorso:** il campo è contrassegnato come **obbligatorio** nelle Impostazioni del percorso; se è vuoto, i comandi di esportazione JSON e HTML riaprono le impostazioni, mostrano l’errore vicino al campo e vi riportano il focus. Il titolo della singola attività resta facoltativo.
+
 **La E è integrata nella base di questa candidate UX:** il suo collaudo su Mac risulta superato per il fingerprint precedente, ma deve essere ripetuto sulla nuova build insieme ai controlli della toolbar. Il collaudo unico è `sh tests/run_macrofase_UX.sh`. Il percorso studente HTML va inoltre verificato da Finder con Safari prima del rilascio. Vedi [protocollo E](docs/MACROFASE_E_PROTOCOLLO.md), [checklist Mac](docs/MACROFASE_E_CHECKLIST_MAC.md) e [roadmap](docs/ROADMAP_MACROFASI_D_E.md).
 
 ## I laboratori

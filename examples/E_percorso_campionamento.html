@@ -1067,6 +1067,16 @@ body.student-workspace-open{overflow:hidden}
 .teacher-ux-panel button:focus-visible{outline:3px solid var(--focus);outline-offset:3px}
 @media(max-width:640px){.teacher-ux-summary{margin-left:0;width:100%}.teacher-ux-panel-body{padding:14px}.teacher-ux-panel-head{padding:10px 14px}}
 
+/* Required title is visible before export; validation appears next to the actual field. */
+.teacher-path-title-caption{display:flex;align-items:center;flex-wrap:wrap;gap:5px}
+.teacher-required-star{font-weight:800;color:var(--accent)}
+.teacher-required-tag{font:700 .72rem var(--sans);color:var(--accent);background:var(--accent-soft);border:1px solid var(--rule-2);padding:2px 7px;border-radius:6px;margin-left:4px}
+.teacher-path-title-hint{font:400 .8rem/1.45 var(--sans);color:var(--ink-2)}
+.teacher-path-title-error{display:block;font:650 .85rem/1.45 var(--sans);color:var(--accent);margin-top:3px}
+.teacher-path-title-error[hidden]{display:none!important}
+.teacher-path-title-field.teacher-field-invalid input{border:2px solid var(--accent);background:var(--card)}
+.teacher-path-title-field.teacher-field-invalid input:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+
 /* styles/workbench.css */
 /* StatAtlas UX: the experiment, not ancillary blocks, is the main surface. */
 .ux-workbench .lab-head{display:block;max-width:100%;padding:8px 0 14px;min-height:0;border-bottom:0}
@@ -1164,8 +1174,8 @@ html{scrollbar-gutter:stable}
 .page.ux-workbench > *{animation:none!important}
 
 
-.teacher-student-banner{position:sticky;top:0;z-index:25;padding:12px 20px;background:var(--paper,#fff);border-bottom:2px solid var(--accent,#85421a);box-shadow:0 2px 7px #0001}.teacher-student-banner h1{font-size:1.12rem;margin:0 0 6px}.teacher-student-banner .teacher-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.teacher-student-banner button{font:inherit;padding:5px 10px;border:1px solid #777;border-radius:6px;background:transparent;color:inherit;cursor:pointer}.teacher-student-banner button[aria-current="step"]{background:#245d54;color:white}.teacher-student-banner textarea{display:block;width:min(100%,60rem);min-height:60px;margin:6px 0;border:1px solid #888;padding:7px;background:var(--card,#fff);color:inherit}.teacher-student-banner .student-status{font-size:.85rem}.sidebar,.topbar{display:none!important}.app{display:block!important;margin:0!important;width:100%!important}.app main{width:100%!important;max-width:1200px;margin:auto}.challenge-card[hidden],.challenge-section[hidden],.challenge-progress[hidden],.challenge-shortcut[hidden]{display:none!important}@media(max-width:640px){.teacher-student-banner{position:relative;padding:10px}}</style></head><body><a class="sr-only" href="#main">Skip to content</a><div class="topbar"><a class="brand" href="#/" id="topBrand"><span class="brand-mark">StatAtlas</span></a><button class="btn btn-ghost btn-icon" id="menuBtn" type="button" aria-label="Open menu"></button></div><section class="teacher-student-banner" id="teacherStudent" aria-label="Teaching path"></section><div class="app"><aside class="sidebar" id="sidebar"></aside><main id="main" tabindex="-1"></main></div><script id="teacherProject" type="application/json">{"format":"statatlas.teaching-path","version":1,"engine":"4598e468c9bbaf89889d34633956367009127ee453ad4447c48e48363f98e095","id":"esempio-campionamento-e","title":"Dal campionamento agli intervalli di confidenza","language":"it","description":"Un percorso in tre attività: grandi numeri, stimatori e intervalli.","audience":"Primo anno universitario o scuola superiore avanzata","steps":[{"id":"step-mwkn3fh5-5zn6m1b","lab":"lgn-tcl","title":"1. Dalle medie alla regolarità","instructions":"Confronta le traiettorie delle medie. Che cosa cambia al crescere di n? Quali ipotesi servono?","minutes":25,"challengeIds":["full-lgn-tcl-1","full-lgn-tcl-2"],"preset":null},{"id":"step-mwkn3fh5-22kg5oo","lab":"stimatori","title":"2. Stimatori e campioni","instructions":"Confronta media e mediana sugli stessi campioni, poi interpreta precisione e robustezza.","minutes":25,"challengeIds":["full-stimatori-1","full-stimatori-2"],"preset":null},{"id":"step-mwkn3fh5-u954ihy","lab":"intervalli","title":"3. Copertura e interpretazione","instructions":"Confronta la copertura nominale e osservata. Esamina Wald e Wilson per piccoli campioni.","minutes":30,"challengeIds":["ci-t","ci-wald"],"preset":null}]}</script><script>
-window.SA = window.SA || {}; window.SA.buildId = '4598e468c9bbaf89889d34633956367009127ee453ad4447c48e48363f98e095';
+.teacher-student-banner{position:sticky;top:0;z-index:25;padding:12px 20px;background:var(--paper,#fff);border-bottom:2px solid var(--accent,#85421a);box-shadow:0 2px 7px #0001}.teacher-student-banner h1{font-size:1.12rem;margin:0 0 6px}.teacher-student-banner .teacher-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.teacher-student-banner button{font:inherit;padding:5px 10px;border:1px solid #777;border-radius:6px;background:transparent;color:inherit;cursor:pointer}.teacher-student-banner button[aria-current="step"]{background:#245d54;color:white}.teacher-student-banner textarea{display:block;width:min(100%,60rem);min-height:60px;margin:6px 0;border:1px solid #888;padding:7px;background:var(--card,#fff);color:inherit}.teacher-student-banner .student-status{font-size:.85rem}.sidebar,.topbar{display:none!important}.app{display:block!important;margin:0!important;width:100%!important}.app main{width:100%!important;max-width:1200px;margin:auto}.challenge-card[hidden],.challenge-section[hidden],.challenge-progress[hidden],.challenge-shortcut[hidden]{display:none!important}@media(max-width:640px){.teacher-student-banner{position:relative;padding:10px}}</style></head><body><a class="sr-only" href="#main">Skip to content</a><div class="topbar"><a class="brand" href="#/" id="topBrand"><span class="brand-mark">StatAtlas</span></a><button class="btn btn-ghost btn-icon" id="menuBtn" type="button" aria-label="Open menu"></button></div><section class="teacher-student-banner" id="teacherStudent" aria-label="Teaching path"></section><div class="app"><aside class="sidebar" id="sidebar"></aside><main id="main" tabindex="-1"></main></div><script id="teacherProject" type="application/json">{"format":"statatlas.teaching-path","version":1,"engine":"3cfe53c4950dbd89337bde51114670974070688a54a076ba5389d5c399a7e470","id":"esempio-campionamento-e","title":"Dal campionamento agli intervalli di confidenza","language":"it","description":"Un percorso in tre attività: grandi numeri, stimatori e intervalli.","audience":"Primo anno universitario o scuola superiore avanzata","steps":[{"id":"step-mwkn3fh5-5zn6m1b","lab":"lgn-tcl","title":"1. Dalle medie alla regolarità","instructions":"Confronta le traiettorie delle medie. Che cosa cambia al crescere di n? Quali ipotesi servono?","minutes":25,"challengeIds":["full-lgn-tcl-1","full-lgn-tcl-2"],"preset":null},{"id":"step-mwkn3fh5-22kg5oo","lab":"stimatori","title":"2. Stimatori e campioni","instructions":"Confronta media e mediana sugli stessi campioni, poi interpreta precisione e robustezza.","minutes":25,"challengeIds":["full-stimatori-1","full-stimatori-2"],"preset":null},{"id":"step-mwkn3fh5-u954ihy","lab":"intervalli","title":"3. Copertura e interpretazione","instructions":"Confronta la copertura nominale e osservata. Esamina Wald e Wilson per piccoli campioni.","minutes":30,"challengeIds":["ci-t","ci-wald"],"preset":null}]}</script><script>
+window.SA = window.SA || {}; window.SA.buildId = '3cfe53c4950dbd89337bde51114670974070688a54a076ba5389d5c399a7e470';
 /* core/rng.js */
 /* StatAtlas · core/rng.js
  * Generatore Mersenne-Twister compatibile con R (RNGkind predefinito:
@@ -10799,8 +10809,34 @@ SA.experiments = (function () {
       var title=E('h1',tr('StatAtlas for Teachers','StatAtlas for Teachers'));
       var intro=E('p.teacher-lead',tr('Costruisci un percorso offline con laboratori, sfide, consegne e configurazioni riproducibili. Il progetto docente resta modificabile in JSON.',
         'Build a standalone offline teaching path with labs, challenges, instructions and reproducible presets. Keep an editable teacher JSON project.'));
+      // Only the teaching PATH title is required; activity titles may use their defaults.
+      // Keep a single native input so keyboard, screen-reader and project state stay in sync.
+      var pathTitleField=textField(tr('Titolo del percorso','Path title'),draft.title,140,function(v){draft.title=v;});
+      pathTitleField.classList.add('teacher-path-title-field');
+      var pathTitleInput=pathTitleField.querySelector('input');
+      pathTitleInput.required=true;
+      pathTitleInput.setAttribute('aria-required','true');
+      pathTitleInput.setAttribute('aria-describedby','teacher-path-title-hint teacher-path-title-error');
+      var titleCaption=pathTitleField.querySelector('span');
+      titleCaption.classList.add('teacher-path-title-caption');
+      titleCaption.append(E('span.teacher-required-star',{'aria-hidden':'true'},' *'),
+        E('small.teacher-required-tag',tr('Obbligatorio','Required')));
+      pathTitleField.append(E('small#teacher-path-title-hint.teacher-path-title-hint',
+        tr('Necessario per esportare il progetto JSON e il percorso HTML.',
+           'Required to export the teacher JSON project and the student HTML.')));
+      var titleError=E('span#teacher-path-title-error.teacher-path-title-error',{'role':'alert',hidden:true},
+        tr('Inserisci un titolo per continuare con l’esportazione.',
+           'Enter a path title before exporting.'));
+      pathTitleField.append(titleError);
+      pathTitleInput.addEventListener('input',function(){
+        if(draft.title.trim()){
+          titleError.hidden=true;
+          pathTitleInput.removeAttribute('aria-invalid');
+          pathTitleField.classList.remove('teacher-field-invalid');
+        }
+      });
       var hdr=E('section.teacher-card.teacher-path-settings',E('h2',tr('Impostazioni del percorso','Path settings')),
-        textField(tr('Titolo del percorso','Path title'),draft.title,140,function(v){draft.title=v;}),
+        pathTitleField,
         textField(tr('Destinatari','Audience'),draft.audience,160,function(v){draft.audience=v;}),
         textField(tr('Obiettivi e descrizione','Description and objectives'),draft.description,1600,function(v){draft.description=v;},'textarea'));
       var language=E('select',{'aria-label':tr('Lingua del percorso distribuito','Student path language')},
@@ -10870,7 +10906,8 @@ SA.experiments = (function () {
       var actions=E('section.teacher-card',E('h2',tr('Esporta o riapri','Export or reopen')),
         E('p',tr('Il progetto JSON serve al docente. Il file HTML è il percorso autonomo per gli studenti; include il motore, ma non invia dati a un server.',
           'Teacher JSON remains editable. The student HTML is fully standalone; it includes the engine and sends no information to a server.')));
-      var save=E('button.btn',{type:'button',onclick:safe(function(){validate(draft);
+      var save=E('button.btn',{type:'button',onclick:safe(function(){if(!requirePathTitle())return;
+        validate(draft);
         makeDownload('StatAtlas_Teachers_project.json',JSON.stringify(draft,null,2)+'\n');status(tr('Progetto JSON esportato.','Teacher JSON exported.'));
       })},tr('Salva progetto JSON','Save teacher JSON'));
       var fileProject=E('input',{type:'file',accept:'.json,application/json','aria-label':tr('Apri progetto docente','Open teacher project')});
@@ -10878,7 +10915,8 @@ SA.experiments = (function () {
         if(f.size>MAX_JSON){status('Project too large');return;}
         f.text().then(function(t){draft=clone(parse(t));render();}).catch(function(err){status(err.message);});
       });
-      var exportHTML=E('button.btn',{type:'button',onclick:safe(function(){var html=buildStudentHTML(draft);
+      var exportHTML=E('button.btn',{type:'button',onclick:safe(function(){if(!requirePathTitle())return;
+        var html=buildStudentHTML(draft);
         makeDownload('StatAtlas_Teachers_'+draft.id+'.html',html,'text/html;charset=utf-8');
         status(tr('Pagina HTML autonoma esportata.','Standalone student HTML exported.'));
       })},tr('Esporta HTML studenti','Export student HTML'));
@@ -10903,6 +10941,18 @@ SA.experiments = (function () {
         panelBody.replaceChildren(section==='settings'?hdr:actions);
         teacherBack.hidden=false;teacherPanel.hidden=false;teacherPanel.setAttribute('aria-hidden','false');
         document.body.classList.add('ux-modal-open');close.focus();
+      }
+      function requirePathTitle(){
+        if(draft.title.trim())return true;
+        // An error only in the page-level status would be hidden behind the export panel.
+        // Switch to settings and focus the missing field instead of silently aborting.
+        openPanel('settings',settingsBtn);
+        pathTitleField.classList.add('teacher-field-invalid');
+        pathTitleInput.setAttribute('aria-invalid','true');
+        titleError.hidden=false;
+        status(tr('Il titolo del percorso è obbligatorio.','A path title is required.'));
+        pathTitleInput.focus();
+        return false;
       }
       function closePanel(){
         if(teacherPanel.hidden)return;

@@ -119,6 +119,7 @@ jobs:
           python tests/test_E_presets_navigation.py 390
           python tests/test_E_presets_navigation.py 1366
           python tests/test_E_repeat_lab.py
+          python tests/test_E_required_title.py
 
       - name: Scientific workbench UX (browser/manual only)
         run: |
