@@ -68,7 +68,7 @@ cd "$WORK/repo"
 BRANCH=$(git branch --show-current)
 if [ "$BRANCH" != main ]; then echo "ERRORE: il ramo corrente e' $BRANCH, atteso main." >&2; exit 1; fi
 printf '2/5 Copio la versione conclusiva senza modificare la cronologia Git...\n'
-rsync -a --delete --exclude='.git/' --exclude='.venv/' --exclude='.venv_backup*/' --exclude='node_modules/' --exclude='__pycache__/' \
+rsync -a --delete --exclude='.git/' --exclude='_archivio/' --exclude='.venv/' --exclude='.venv_backup*/' --exclude='node_modules/' --exclude='__pycache__/' \
   --exclude='*.pyc' --exclude='*.log' --exclude='verifica/runs/' \
   --exclude='verifica/REPORT_VALIDAZIONE_R_31.csv' --exclude='verifica/REPORT_MACROFASE_E.json' --exclude='verifica/REPORT_MACROFASE_UX.json' "$SOURCE/" "$WORK/repo/"
 printf '3/5 Ricostruisco la versione offline...\n'

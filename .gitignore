@@ -14,3 +14,12 @@ __pycache__/
 *.log
 verifica/runs/
 verifica/REPORT_VALIDAZIONE_R_31.csv
+
+# archivio locale di relazioni/collaudi interni (non pubblicato)
+_archivio/
+# output rigenerati dai test browser
+docs/*.png
+!docs/MACROFASE_B_DESKTOP.png
+!docs/MACROFASE_C_FINALE_EN_DESKTOP.png
+docs/*.json
+docs/AUDIT_31_MATRICE.csv

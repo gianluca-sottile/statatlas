@@ -1,96 +1,71 @@
-> **19 November 2026 candidate:** IT/EN teacher onboarding guide and aligned footer; the adaptive mobile control bar and all 31 labs remain integrated. Repeat Mac/Safari acceptance before publishing. [Teacher guide](docs/TEACHERS_GUIDA_PRATICA_IT_EN.md) · [Release checklist](LEGGIMI_COLLAUDO_FINALE_TEACHERS.md).
+<p align="center">
+  <img src="assets/logo.svg" width="112" alt="StatAtlas logo">
+</p>
 
-**StatAtlas for Teachers guide:** open “How does StatAtlas for Teachers work?” in the teacher view for the six-step quick start. The detailed bilingual instructions, examples and JSON/HTML limitations are in [`docs/TEACHERS_GUIDA_PRATICA_IT_EN.md`](docs/TEACHERS_GUIDA_PRATICA_IT_EN.md).
+<h1 align="center">StatAtlas</h1>
 
-> **Bilingual surface patch — candidate, 18 November 2026.** The full EN laboratory displays now include reviewed translations for experiment captions, dynamic tables and SVG labels across all 31 labs, plus a live-text regression test. The footer links Gianluca Sottile’s site/email, Simul2000, and Marcello Chiodi’s email. Scientific engines and 31 exported R scripts are unchanged. A new Mac acceptance on the updated fingerprint is required before release. [Audit and protocol](docs/EN_SURFACE_PATCH_31.md).
+<p align="center"><em>See statistics as it happens.</em></p>
 
-> **Lab toolbar refinement — local candidate, 18 November 2026.** The previous scientific-workbench UX build passed local Mac acceptance. This separate candidate groups lab actions into **Guide · Theory · Challenges | R course · R code | Save / Share**, adds consistent subtle button borders, and places the *original* Challenges and live R script inside non-reflowing drawers. The redundant Simulate toolbar shortcut is removed, while actual Start/Step/Reset simulation controls are preserved. All 31 R exports and 25 R1 reference scenarios are unchanged; GNU R and browser acceptance are required on the new HTML hash before GitHub publication. [Technical note](docs/UX_TOOLBAR_REFINEMENT.md).
+<p align="center">
+  An interactive atlas of probability, inference, statistical models, machine learning and spatial statistics.<br>
+  <strong>31 labs · 93 challenges · 31 R scripts · one HTML file that works offline.</strong>
+</p>
 
-# StatAtlas 2.1 — Interactive Atlas of Statistics
+<p align="center">
+  <a href="https://gianluca-sottile.github.io/statatlas/"><strong>Open StatAtlas</strong></a>
+  · <a href="#for-teachers">Teachers</a>
+  · <a href="#reproducibility-in-r">R</a>
+  · <a href="#development">Development</a>
+  · <a href="README.md">Italiano</a>
+</p>
 
-**Maintainer:** Gianluca Sottile · [Public StatAtlas application](https://gianluca-sottile.github.io/statatlas/) · [Source repository](https://github.com/gianluca-sottile/statatlas) · [README italiano](README.md)
+## What it is
 
-**Release status:** The code integrates the bilingual C, experiments D, Teachers E, and the scientific-workbench UX features. The toolbar refinement is a **separate candidate**, not a certified or published update. Earlier Mac acceptance covered the prior UX fingerprint; rerun `sh tests/run_macrofase_UX.sh` for this new build before publishing. Numerical R/JavaScript checks cover verified default scenarios (R1), not universal equivalence (R2).
+StatAtlas is an *experiential* learning environment: students make a prediction, change the parameters of an experiment, watch the results and compare them with theory. No server or account is needed.
 
-## Phase D — Reproducible experiments (published)
+- **31 labs in eight parts**, from distributions to geostatistics, with two-level theory (*Essentials*, *Advanced*), exercises and references.
+- **93 Challenges** (Understanding, Application, Advanced) built on real experimental activity.
+- **Reproducible experiments:** controlled seeds, Save/Open JSON, Copy link, and export of the R script for the current experiment.
+- **Bilingual IT/EN**, linked to the course [From Data to Models with R](https://gianluca-sottile.github.io/An-R-Tutorial-for-Beginners/).
+- **Offline:** `index.html` contains everything; only course links need a connection.
 
-Each of the 31 labs supports **Save JSON**, **Open JSON**, and **Copy link**. Versioned snapshots capture parameters, deterministic checkpoints and edited observations where supported. Incompatible engine builds are rejected. R-course lesson links follow the IT/EN switch, except English-only deep-learning lesson 62.
+The English edition is a self-contained scientific edition, not a line-by-line translation of every Italian paragraph; some dynamic plot annotations may keep the original terminology.
 
-## Phase E — StatAtlas for Teachers
+![StatAtlas English edition](docs/MACROFASE_C_FINALE_EN_DESKTOP.png)
 
-The integrated Teachers module creates 1–24 step offline learning paths from 31 laboratories and selected Challenges. Assign D experiment snapshots as initial configurations, export an editable teacher JSON project and a fully standalone student HTML page, and collect private, editable formative JSON reports. The student shortcut **Go to assigned Challenges** now opens the same non-reflowing drawer and counts only assigned tasks. This is not a certified grading system. See [protocol](docs/MACROFASE_E_PROTOCOLLO.md) and [Mac release checklist](docs/MACROFASE_E_CHECKLIST_MAC.md).
+## The labs
 
-**Required path title:** the teacher path’s **Path title** is visibly marked required. If empty, JSON/HTML export opens Path settings, displays inline validation and focuses the field. Individual activity titles may use their laboratory defaults.
+I Probability (01–03) · II Sampling (04–05) · III Inference (06–09) · IV Models (10–13) · V Modern regression (14–17) · VI Supervised learning (18–22) · VII Dimension reduction and clustering (23–25) · VIII Spatial statistics (26–31). The full table is in the [Italian README](README.md#i-laboratori).
 
-## What is StatAtlas?
+Each lab follows *question → prediction → experiment → comparison with theory → interpretation → Reproduce in R*.
 
-StatAtlas is a standalone, offline-capable HTML/CSS/JavaScript learning platform comprising **31 interactive statistics laboratories in eight parts**. Topics span probability distributions, simulation, the law of large numbers, the central limit theorem, estimation, likelihood, confidence intervals, hypothesis testing, regression, GLMs, regularization, supervised learning, unsupervised learning, and spatial statistics.
+## For teachers
 
-Each lab presents a guiding question, a reproducible interactive experiment, interpretative results, mathematical material, **three Challenges**, a link to the related R curriculum, and an R code export. The atlas runs without a backend, registration or runtime package installation. External R-course links need internet access.
+- **StatAtlas for Teachers** builds learning paths of 1–24 steps from labs, Challenges and saved configurations. It exports an editable teacher project (JSON) and a standalone student page (HTML). No data is collected online. Guide: [docs/TEACHERS_GUIDA_PRATICA_IT_EN.md](docs/TEACHERS_GUIDA_PRATICA_IT_EN.md).
+- **R course materials** (Italian): [teacher guide](docs/MACROFASE_B_GUIDA_DOCENTE.md), [lab–lesson map](docs/MACROFASE_B_MAPPATURA_CORSO.csv), [31 student worksheets](docs/schede_studenti_B/).
 
-## Italian / English bilingual curriculum
+## Reproducibility in R
 
-Use the **IT / EN** language switch in the interface. This edition includes:
+The pseudo-random generator reproduces R's Mersenne–Twister and normal inversion in JavaScript. Every lab exports an R script with the current parameters. All 31 scripts run in GNU R, and labs 01–25 have 84 numerical R/JavaScript comparisons on their default scenarios. See the [formal audit](docs/AUDIT_FORMALE_TEORICO_31.md) and the [verification matrix](docs/MACROFASE_A_MATRICE_VERIFICHE.csv).
 
-- English titles, brief descriptions, and **124 learning objectives** (four for each of the 31 labs), along with localised interface buttons, controls, menus, chart labels, and common feedback messages.
-- **31 independently edited English scientific companions** (question, experiment, essential interpretation, methodological extension and limitations).
-- **62 substantive English methodological chapters**, one essential and one advanced for every lab; **31 English worked numerical examples**; and **104 English practice exercises with solutions**.
-- **All 93 Challenges in English**, including questions, the three answer options, theoretical explanations, activity instructions, and specialist laboratory tasks. Correct-answer indices, numerical prerequisites, and simulation evaluation functions remain unchanged.
-- **31 English R-course bridges and downloadable English student worksheets**. All mapped lessons follow the IT/EN selection; the optional deep-learning lesson 62 is available only in English.
-- English prose comments on the **31 exported R scripts** (174 translated default comment lines); code, package names, inline strings, data-generation processes and RNG remain unmodified. Commented example R calls remain valid R code.
-- Keyboard navigation, mobile language controls, a skip link, dialog focus management, and reduced-motion support.
+Stated limits: LISA quadrants are not local p-values, L(r)−r alone is not a CSR test, the IDW surface carries no kriging variance; automated accessibility checks are not a WCAG certification.
 
-**Editorial scope:** English is a carefully authored **self-contained scientific edition**, not a sentence-by-sentence translation of every original Italian paragraph. The original Italian chapters and scholarly references are preserved for comparison. Certain dynamic explanatory annotations or text emitted by specialised plots may continue to use original terminology; this does not imply bilingual equivalence of every possible UI state. See [translation coverage and limitations](docs/MACROFASE_C_STATO_TRADUZIONI.md).
+## Development
 
-## Laboratory map
+Plain HTML, CSS and JavaScript, no framework or backend. `build.py` bundles `src/` into the single `index.html`.
 
-| Part | Field | Labs |
-|---|---|---|
-| I | Probability distributions, bivariate variables and simulation | 01–03 |
-| II | LLN, CLT and goodness of fit | 04–05 |
-| III | Estimators, likelihood, confidence intervals and hypothesis tests | 06–09 |
-| IV | Regression, robust loss functions, GLMs and ARMA | 10–13 |
-| V | Quantile/penalized regression, smoothers and segmented models | 14–17 |
-| VI | Validation, kNN, tree ensembles, boosting and neural networks | 18–22 |
-| VII | Principal components, hierarchical/k-means clustering and DBSCAN | 23–25 |
-| VIII | Moran, LISA, point processes, variograms, kriging and spatial regression | 26–31 |
-
-Labs 01–25 have a speed slider from **0 to 100 (default 25)**; the six spatial labs use immediate interactive map updates. Probability and inference labs 01–09 support selected sample sizes of **10, 100, 1,000, 10,000 and 100,000** when meaningful. Computationally demanding plots can display fewer markers without reducing the observations used for statistics.
-
-## Build and local acceptance
-
-Run `python3 build.py` to regenerate the self-contained `index.html`. Users can open this file offline. The project tests require Node.js, Python 3, NumPy/SciPy, Playwright/Chromium, GNU R and the R packages checked by `tests/check_r_packages_C.R`.
-
-From the extracted project root, with the intended Python environment selected:
-
-```sh
-PATH="$PWD/.venv/bin:$PATH" sh tests/run_macrofase_C.sh > MACROFASE_C_COLLAUDO.log 2>&1
-echo "Exit code: $?"
+```bash
+python3 build.py
+for f in tests/test_*.js; do node "$f" || exit 1; done
+Rscript verifica/valida_tutti_31.R --timeout=900
+sh tests/run_macrofase_UX.sh   # full local acceptance (R, Playwright, Node)
 ```
 
-This command includes the previous Macrophase A/B suites; validates **all 31 executable R exports**; checks 31 English lab routes, 93 English Challenges, 62 theory views, 104 exercises, and accessibility smoke tests; acquires browser snapshots from the **current build**; generates and executes 25 R/JavaScript numerical comparisons; and refuses stale results, skipped cases and mismatches.
+History: [CHANGELOG.md](CHANGELOG.md).
 
-**Acceptance evidence for this exact build:** laboratory groups 01–16 passed 48 numerical checks, and laboratories 17–25 passed 36, with zero skipped or divergent results; the all-25 gate passed. All 31 R exports parsed and executed successfully. Matching selected metrics is evidence of numerical parity for the *tested default scenarios* (R1), **not** proof of universal algorithmic equivalence (R2). See [Mac acceptance report](docs/MACROFASE_C_ACCETTAZIONE_MAC_2026_11_17.md).
+## Citation and licences
 
-On each GitHub push, the fast CI runs only the build and JavaScript checks. Larger checks run locally before release or via an explicit manual workflow. The repository's publication script has a separate dry-run mode; do not push a C candidate that has not passed the matching local gate.
+**Author:** Gianluca Sottile, University of Palermo. Metadata: [CITATION.cff](CITATION.cff).
 
-## Accessibility and scientific limitations
-
-Automated checks cover mobile responsiveness, keyboard use, focus management, document language and reduced motion. They **do not certify WCAG 2.2 AA** or replace real VoiceOver/NVDA, Safari, high-zoom and student usability evaluations. Theoretical statements are accompanied by their assumptions; laboratory challenges require empirical work, and their A/B contrasts are descriptive unless experimental independence is warranted. Comprehensive proofs of all cited results and general JS/R parity are outside this candidate's automatic certification.
-
-## Credits, citation and licences
-
-StatAtlas is authored by **Gianluca Sottile**. Its pedagogical approach also draws inspiration from Marcello Chiodi's [Simul2000](https://github.com/marcellochiodi/simul2000), while StatAtlas code and educational materials are independently authored. See [`CITATION.cff`](CITATION.cff), [`LICENSE`](LICENSE), and the [project changelog](CHANGELOG.md). Software is distributed under MIT and educational materials under CC BY 4.0 as specified in the project documentation.
-
-## Roadmap — Phases D and E
-
-The development plan for versioned, shareable experiments and the later *StatAtlas for Teachers* composer is in [`docs/ROADMAP_MACROFASI_D_E.md`](docs/ROADMAP_MACROFASI_D_E.md). R course lesson links now follow the StatAtlas IT/EN selection, with the English-only deep-learning exception. A new build requires a fresh validation: the Phase C numerical certificate does not automatically cover it.
-
-### Phase D — Reproducible Experiments (published)
-
-Every laboratory offers **Save JSON**, **Open JSON** and **Copy link** (for compact configurations). Snapshots include a build fingerprint, deterministic runner checkpoints or user-edited spatial observations. Loading a snapshot from an incompatible build is refused rather than claiming false reproducibility. Challenge scores are excluded. See [`docs/MACROFASE_D_PROTOCOLLO.md`](docs/MACROFASE_D_PROTOCOLLO.md). Mac acceptance and the GitHub release were completed on 17 November 2026.
-
-
-### Contextual mobile controls (320–640 px)
-
-When the chart is on screen but the original simulation controls are out of view, a compact bottom bar temporarily replaces section navigation. Simulations reuse the native Start/Pause, Step, Finish and Reset actions; spatial maps expose their actual tools. No duplicate simulation engine is created; dialogs and the original controls take priority. Offline student HTML paths remain supported. Details: `docs/UX_MOBILE_TRANSPORT.md`.
+- **Software:** [MIT](LICENSE)
+- **Teaching materials:** [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
